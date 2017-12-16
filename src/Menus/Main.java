@@ -9,7 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.awt.*;
+import java.awt.Toolkit;
 
 public class Main extends Application
 {
