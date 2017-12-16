@@ -1,7 +1,9 @@
 package Menus;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -10,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.Toolkit;
+import java.util.ArrayList;
 
 public class Main extends Application
 {
@@ -25,36 +28,102 @@ public class Main extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        String VERSION = "indev";
+        final String VERSION = "indev";
+        final String NAME = "Droserogis vs Sothli";
 
         /* Prepare the basics: stage, scene, group, and canvas */
         Group root = new Group();
-        final Scene scene = new Scene(root,
-                SCREEN_DIMS[0] / 2, SCREEN_DIMS[1] / 2, Color.BLACK);
-        stage.setScene(scene);
-        final Canvas canvas = new Canvas(300, 300);
+        final int SCENE_WIDTH = SCREEN_DIMS[0] / 2;
+        final int SCENE_HEIGHT = SCREEN_DIMS[1] / 2;
+        final Scene SCENE = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT,
+                Color.BLACK);
+        final Canvas canvas = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
         GraphicsContext context = canvas.getGraphicsContext2D();
 
         /* Sample code to draw on the canvas: */
         context.setFill(Color.BLUE);
-        context.fillRect(75,75,100,100);
+        context.fillRect(300,250,100,100);
+        //context.drawImage();
+        /* TODO: Make it import a logo image and draw it on the canvas. */
 
-        /* Add the widgets in order */
+        /* Add the canvas and widgets in order */
         root.getChildren().add(canvas);
+        ArrayList<Node> widgets = getWidgets(stage, root,
+                SCENE_WIDTH, SCENE_HEIGHT);
+        root.getChildren().addAll(widgets);
 
-        // Set the stage at the center of the screen.
+        /* Set the stage at the center of the screen */
         stage.setX(SCREEN_DIMS[0] / 4);
         stage.setY(SCREEN_DIMS[1] / 4);
 
-        stage.setScene(scene);
+        /* Set scene and make stage visible */
+        stage.setTitle(NAME + " - " + VERSION);
+        /* TODO: Make this window border-less.
+           TODO: Put this title on the main game window. */
+        stage.setScene(SCENE);
         stage.show();
     }
 
-    private void addWidgets(Group group)
+    /**
+     * Instantiates widgets and modifies them according to the scene's
+     * dimensions.
+     * @param width - width of the scene
+     * @param height - height of the scene
+     * @return - ArrayList containing the widgets
+     */
+    private ArrayList<Node> getWidgets(Stage stage, Group root,
+                                       int width, int height)
     {
+        /* How much space will go between the widgets and borders */
+        final int STUFFING = 10;
+
+        /* Give buttons names */
         Button startButton = new Button("Start Game");
         Button exitButton = new Button("Exit");
 
-        //group.getChildren().add(startButton, exitButton);
+        /* Set button sizes */
+        startButton.setPrefWidth(width * 3 / 12);
+        startButton.setPrefHeight(height / 8);
+        exitButton.setPrefWidth(width * 2 / 12);
+        exitButton.setPrefHeight(height / 8);
+
+        /* Calculate boundary values */
+        int boundsX[] = new int[2];
+        boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
+        boundsX[1] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
+        int boundsY[] = new int[1];
+        boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
+
+        /* Set button locations */
+        exitButton.setTranslateX(boundsX[0]);
+        startButton.setTranslateX(boundsX[1]);
+        exitButton.setTranslateY(boundsY[0]);
+        startButton.setTranslateY(boundsY[0]);
+
+        /* Set button actions */
+        startButton.setOnAction(event -> startGame(stage, root));
+        exitButton.setOnAction(event -> quitGame(stage, root));
+
+        /* Add widgets to the ArrayList */
+        ArrayList<Node> widgets = new ArrayList<>();
+        widgets.add(startButton);
+        widgets.add(exitButton);
+
+        return widgets;
+    }
+
+    /* Starts the game */
+    private void startGame(Stage stage, Group root)
+    {
+        quitGame(stage, root); // temp
+    }
+
+    /* Quits the game */
+    private void quitGame(Stage stage, Group root)
+    {
+        root.getChildren().clear();
+        stage.close();
+        Platform.exit();
+        System.exit(0);
     }
 }
