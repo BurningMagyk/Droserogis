@@ -3,7 +3,6 @@ package Menus;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.awt.Toolkit;
-import java.util.ArrayList;
 
 public class Main extends Application
 {
@@ -26,7 +24,7 @@ public class Main extends Application
     }
 
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage stage)
     {
         final String VERSION = "indev";
         final String NAME = "Droserogis vs Sothli";
@@ -48,9 +46,7 @@ public class Main extends Application
 
         /* Add the canvas and widgets in order */
         root.getChildren().add(canvas);
-        ArrayList<Node> widgets = getWidgets(stage, root,
-                SCENE_WIDTH, SCENE_HEIGHT);
-        root.getChildren().addAll(widgets);
+        setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
 
         /* Set the stage at the center of the screen */
         stage.setX(SCREEN_DIMS[0] / 4);
@@ -66,26 +62,25 @@ public class Main extends Application
 
     /**
      * Instantiates widgets and modifies them according to the scene's
-     * dimensions.
+     * dimensions. Then adds those widgets to the scene.
      * @param width - width of the scene
      * @param height - height of the scene
-     * @return - ArrayList containing the widgets
      */
-    private ArrayList<Node> getWidgets(Stage stage, Group root,
-                                       int width, int height)
+    private void setWidgets(Stage stage, Group group,
+                            int width, int height)
     {
         /* How much space will go between the widgets and borders */
-        final int STUFFING = 10;
+        final int STUFFING = Math.min(width, height) / 20;
 
         /* Give buttons names */
         Button startButton = new Button("Start Game");
         Button exitButton = new Button("Exit");
 
         /* Set button sizes */
-        startButton.setPrefWidth(width * 3 / 12);
-        startButton.setPrefHeight(height / 8);
-        exitButton.setPrefWidth(width * 2 / 12);
-        exitButton.setPrefHeight(height / 8);
+        startButton.setPrefWidth(width * 3 / 15);
+        startButton.setPrefHeight(height / 10);
+        exitButton.setPrefWidth(width * 2 / 15);
+        exitButton.setPrefHeight(height / 10);
 
         /* Calculate boundary values */
         int boundsX[] = new int[2];
@@ -101,16 +96,15 @@ public class Main extends Application
         startButton.setTranslateY(boundsY[0]);
 
         /* Set button actions */
-        startButton.setOnAction(event -> startGame(stage, root));
-        exitButton.setOnAction(event -> quitGame(stage, root));
+        startButton.setOnAction(event -> startGame(stage, group));
+        exitButton.setOnAction(event -> quitGame(stage, group));
 
         /* Add widgets to the ArrayList */
-        ArrayList<Node> widgets = new ArrayList<>();
-        widgets.add(startButton);
-        widgets.add(exitButton);
-
-        return widgets;
+        group.getChildren().add(startButton);
+        group.getChildren().add(exitButton);
     }
+
+    //private void
 
     /* Starts the game */
     private void startGame(Stage stage, Group root)
