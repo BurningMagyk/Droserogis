@@ -1,5 +1,6 @@
 package Menus;
 
+import Util.Print;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -7,10 +8,13 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.awt.Toolkit;
+import java.io.InputStream;
 
 public class Main extends Application
 {
@@ -39,10 +43,9 @@ public class Main extends Application
         GraphicsContext context = canvas.getGraphicsContext2D();
 
         /* Sample code to draw on the canvas: */
-        context.setFill(Color.BLUE);
-        context.fillRect(300,250,100,100);
-        //context.drawImage();
-        /* TODO: Make it import a logo image and draw it on the canvas. */
+        drawOnCanvas(context, SCENE_WIDTH, SCENE_HEIGHT);
+        //context.setFill(Color.BLUE);
+        //context.fillRect(300,250,100,100);
 
         /* Add the canvas and widgets in order */
         root.getChildren().add(canvas);
@@ -52,11 +55,12 @@ public class Main extends Application
         stage.setX(SCREEN_DIMS[0] / 4);
         stage.setY(SCREEN_DIMS[1] / 4);
 
-        /* Set scene and make stage visible */
+        /* Set scene, set stage style, and make stage visible */
         stage.setTitle(NAME + " - " + VERSION);
         /* TODO: Make this window border-less.
            TODO: Put this title on the main game window. */
         stage.setScene(SCENE);
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
     }
 
@@ -104,7 +108,29 @@ public class Main extends Application
         group.getChildren().add(exitButton);
     }
 
-    //private void
+    private void drawOnCanvas(GraphicsContext context, int width, int height)
+    {
+        InputStream input;
+        Image image;
+
+        /* Try importing image file */
+        input = getClass()
+                .getResourceAsStream("/Images/opening_background.png");
+        if (input == null)
+        {
+            Print.red("\"opening_background.png\" was not imported");
+        }
+        else
+        {
+            /* This centers the window onto the image */
+            image = new Image(input);
+            context.drawImage(image,
+                    0,
+                    (height - image.getHeight()) / 2,
+                    width,
+                    image.getHeight());
+        }
+    }
 
     /* Starts the game */
     private void startGame(Stage stage, Group root)

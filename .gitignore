@@ -1,2 +1,5 @@
 # ignore all png files
 *.png
+
+# ignore all font files
+*.ttf
