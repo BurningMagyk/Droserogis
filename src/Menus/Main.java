@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -110,8 +111,12 @@ public class Main extends Application
 
     private void drawOnCanvas(GraphicsContext context, int width, int height)
     {
+        /* How much space will go between the widgets and borders */
+        final int STUFFING = Math.min(width, height) / 20;
+
         InputStream input;
         Image image;
+        Font font;
 
         /* Try importing image file */
         input = getClass()
@@ -130,6 +135,38 @@ public class Main extends Application
                     width,
                     image.getHeight());
         }
+
+        /* Try importing the Scurlock font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/scurlock.ttf");
+        int fontSize = Math.min(width, height) / 7;
+        font = Font.loadFont(input, fontSize);
+        context.setFont(font);
+        int boundary = height - fontSize / 10 - STUFFING;
+        context.setFill(Color.DARKBLUE);
+        context.fillText("Droserogis",
+                STUFFING, boundary);
+
+        /* Try importing the Supernatural Knight font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
+        font = Font.loadFont(input, fontSize / 2);
+        context.setFont(font);
+        boundary = boundary - (int) (fontSize / 1.5) - STUFFING / 2;
+        context.setFill(Color.BLACK);
+        context.fillText("VS",
+                fontSize * 1.7 + STUFFING, boundary);
+
+        /* Try importing the Cardinal font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/cardinal.ttf");
+        font = Font.loadFont(input, fontSize / 1.2);
+        context.setFont(font);
+        boundary = boundary - fontSize / 2 - STUFFING / 2;
+        context.setFill(Color.PURPLE);
+        context.fillText("Sothli",
+                fontSize * 1.25 + STUFFING, boundary);
+
     }
 
     /* Starts the game */
