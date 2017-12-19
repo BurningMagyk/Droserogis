@@ -1,5 +1,6 @@
 package Menus;
 
+import Util.LanguageEnum;
 import Util.Print;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -7,8 +8,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -16,17 +18,15 @@ import javafx.stage.StageStyle;
 
 import java.awt.Toolkit;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class Main extends Application
 {
+    private static LanguageEnum language = getSystemLanguage();
+
     private final int[] SCREEN_DIMS = {
             Toolkit.getDefaultToolkit().getScreenSize().width,
             Toolkit.getDefaultToolkit().getScreenSize().height };
-
-    public static void main(String[] args)
-    {
-        Application.launch(args);
-    }
 
     @Override
     public void start(Stage stage)
@@ -77,11 +77,23 @@ public class Main extends Application
         /* How much space will go between the widgets and borders */
         final int STUFFING = Math.min(width, height) / 20;
 
-        /* Give buttons names */
+        /* Give widget names */
         Button startButton = new Button("Start Game");
         Button exitButton = new Button("Exit");
 
-        /* Set button sizes */
+        ComboBox<LanguageEnum> langComboBox = new ComboBox<>();
+        langComboBox.setValue(language);
+
+        /* Add every language to the langComboBox */
+        for (LanguageEnum lang : LanguageEnum.values())
+        {
+            langComboBox.getItems().add(lang);
+        }
+
+        /* Set cellFactory property and buttonCell property */
+        langComboBox.setCellFactory(kys -> new StringImageCell());
+
+        /* Set widget sizes */
         startButton.setPrefWidth(width * 3 / 15);
         startButton.setPrefHeight(height / 10);
         exitButton.setPrefWidth(width * 2 / 15);
@@ -94,19 +106,20 @@ public class Main extends Application
         int boundsY[] = new int[1];
         boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
 
-        /* Set button locations */
+        /* Set widget locations */
         exitButton.setTranslateX(boundsX[0]);
         startButton.setTranslateX(boundsX[1]);
         exitButton.setTranslateY(boundsY[0]);
         startButton.setTranslateY(boundsY[0]);
 
-        /* Set button actions */
+        /* Set widget actions */
         startButton.setOnAction(event -> startGame(stage, group));
         exitButton.setOnAction(event -> quitGame(stage, group));
 
         /* Add widgets to the ArrayList */
         group.getChildren().add(startButton);
         group.getChildren().add(exitButton);
+        group.getChildren().add(langComboBox);
     }
 
     private void drawOnCanvas(GraphicsContext context, int width, int height)
@@ -169,6 +182,43 @@ public class Main extends Application
 
     }
 
+    /* A custom ListCell that displays an image and string */
+    private class StringImageCell extends ListCell<LanguageEnum>
+    {
+        private Label label;
+        @Override
+        protected void updateItem(LanguageEnum item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (item == null || empty)
+            {
+                setItem(null);
+                setGraphic(null);
+            }
+            else
+            {
+                setText(item.toString());
+                ImageView imageView = new ImageView(item.getFlag());
+                label = new Label("", imageView);
+                setGraphic(label);
+            }
+        }
+    }
+
+    private static LanguageEnum getSystemLanguage()
+    {
+        switch (Locale.getDefault().getLanguage())
+        {
+            case ("en") : { return LanguageEnum.ENGLISH; }
+            case ("es") : { return LanguageEnum.SPANISH; }
+            case ("it") : { return LanguageEnum.ITALIAN; }
+            case ("fr") : { return LanguageEnum.FRENCH; }
+            case ("de") : { return LanguageEnum.GERMAN; }
+            case ("ja") : { return LanguageEnum.WAPANESE; }
+            default : { return LanguageEnum.ENGLISH; }
+        }
+    }
+
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
@@ -182,5 +232,11 @@ public class Main extends Application
         stage.close();
         Platform.exit();
         System.exit(0);
+    }
+
+    public static void main(String[] args)
+    {
+        language = getSystemLanguage();
+        Application.launch(args);
     }
 }
