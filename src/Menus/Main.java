@@ -53,6 +53,7 @@ public class Main extends Application
         /* Add the canvas and widgets in order */
         root.getChildren().add(canvas);
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
+        root.getStylesheets().add("CSS/opening.css");
 
         /* Set the stage at the center of the screen */
         stage.setX(SCREEN_WIDTH / 4);
@@ -76,12 +77,18 @@ public class Main extends Application
         /* How much space will go between the widgets and borders */
         final int STUFFING = Math.min(width, height) / 20;
 
+        /* Need to get comboBox dims out of the way */
+        int comboBoxWidth = width * 3 / 15;
+        int comboBoxHeight = height / 10;
+
         /* Give widget names */
         Button startButton = new Button("Start Game");
         Button exitButton = new Button("Exit");
 
         ComboBox<LanguageEnum> langComboBox = new ComboBox<>();
         langComboBox.setValue(language);
+        langComboBox.setButtonCell(
+                new StringImageCell(comboBoxWidth, comboBoxHeight));
 
         /* Add every language to the langComboBox */
         for (LanguageEnum lang : LanguageEnum.values())
@@ -90,7 +97,8 @@ public class Main extends Application
         }
 
         /* Set cellFactory property and buttonCell property */
-        langComboBox.setCellFactory(kys -> new StringImageCell());
+        langComboBox.setCellFactory(kys ->
+                new StringImageCell(comboBoxWidth, comboBoxHeight));
 
         /* Set widget sizes */
         startButton.setPrefWidth(width * 3 / 15);
@@ -98,18 +106,25 @@ public class Main extends Application
         exitButton.setPrefWidth(width * 2 / 15);
         exitButton.setPrefHeight(height / 10);
 
+        langComboBox.setPrefWidth(comboBoxWidth);
+        langComboBox.setPrefHeight(comboBoxHeight);
+
         /* Calculate boundary values */
-        int boundsX[] = new int[2];
+        int boundsX[] = new int[3];
         boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
-        boundsX[1] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
+        boundsX[1] = width - (int) langComboBox.getPrefWidth() - STUFFING;
+        boundsX[2] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
         int boundsY[] = new int[1];
         boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
 
         /* Set widget locations */
         exitButton.setTranslateX(boundsX[0]);
-        startButton.setTranslateX(boundsX[1]);
+        startButton.setTranslateX(boundsX[2]);
         exitButton.setTranslateY(boundsY[0]);
         startButton.setTranslateY(boundsY[0]);
+
+        langComboBox.setTranslateX(boundsX[1]);
+        langComboBox.setTranslateY(STUFFING);
 
         /* Set widget actions */
         startButton.setOnAction(event -> startGame(stage, group));
@@ -187,6 +202,13 @@ public class Main extends Application
     /* A custom ListCell that displays an image and string */
     private class StringImageCell extends ListCell<LanguageEnum>
     {
+        int width, height;
+        StringImageCell(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+        }
+
         private Label label;
         @Override
         protected void updateItem(LanguageEnum item, boolean empty)
@@ -203,6 +225,7 @@ public class Main extends Application
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
                 setGraphic(label);
+                setPrefSize(width, height);
             }
         }
     }

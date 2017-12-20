@@ -1,0 +1,26 @@
+.combo-box
+{
+    -fx-background-color: transparent;
+    -fx-border-color: black;
+}
+
+.combo-box-popup .list-view
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view .list-cell
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .scroll-bar
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .scroll-bar:vertical .thumb
+{
+    -fx-background-color: transparent;
+    -fx-border-color: black;
+}
