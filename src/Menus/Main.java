@@ -24,20 +24,22 @@ public class Main extends Application
 {
     private static LanguageEnum language = getSystemLanguage();
 
-    private final int[] SCREEN_DIMS = {
-            Toolkit.getDefaultToolkit().getScreenSize().width,
-            Toolkit.getDefaultToolkit().getScreenSize().height };
+    private final int SCREEN_WIDTH =
+            Toolkit.getDefaultToolkit().getScreenSize().width;
+    private final int SCREEN_HEIGHT =
+            Toolkit.getDefaultToolkit().getScreenSize().height;
 
     @Override
     public void start(Stage stage)
     {
         final String VERSION = "indev";
         final String NAME = "Droserogis vs Sothli";
+        stage.setTitle(NAME + " - " + VERSION);
 
         /* Prepare the basics: stage, scene, group, and canvas */
         Group root = new Group();
-        final int SCENE_WIDTH = SCREEN_DIMS[0] / 2;
-        final int SCENE_HEIGHT = SCREEN_DIMS[1] / 2;
+        final int SCENE_WIDTH = SCREEN_WIDTH / 2;
+        final int SCENE_HEIGHT = SCREEN_HEIGHT / 2;
         final Scene SCENE = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT,
                 Color.BLACK);
         final Canvas canvas = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
@@ -53,13 +55,10 @@ public class Main extends Application
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
 
         /* Set the stage at the center of the screen */
-        stage.setX(SCREEN_DIMS[0] / 4);
-        stage.setY(SCREEN_DIMS[1] / 4);
+        stage.setX(SCREEN_WIDTH / 4);
+        stage.setY(SCREEN_HEIGHT / 4);
 
         /* Set scene, set stage style, and make stage visible */
-        stage.setTitle(NAME + " - " + VERSION);
-        /* TODO: Make this window border-less.
-           TODO: Put this title on the main game window. */
         stage.setScene(SCENE);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
@@ -152,6 +151,7 @@ public class Main extends Application
         /* Try importing the Scurlock font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/scurlock.ttf");
+        if (input == null) Print.red("\"scurlock.ttf\" was not imported");
         int fontSize = Math.min(width, height) / 7;
         font = Font.loadFont(input, fontSize);
         context.setFont(font);
@@ -163,6 +163,7 @@ public class Main extends Application
         /* Try importing the Supernatural Knight font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/supernatural_knight.ttf");
+        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
         font = Font.loadFont(input, fontSize / 2);
         context.setFont(font);
         boundary = boundary - (int) (fontSize / 1.5) - STUFFING / 2;
@@ -173,6 +174,7 @@ public class Main extends Application
         /* Try importing the Cardinal font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/cardinal.ttf");
+        if (input == null) Print.red("\"cardinal.ttf\" was not imported");
         font = Font.loadFont(input, fontSize / 1.2);
         context.setFont(font);
         boundary = boundary - fontSize / 2 - STUFFING / 2;
@@ -222,7 +224,11 @@ public class Main extends Application
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
-        quitGame(stage, root); // temp
+        stage.hide();
+        root.getChildren().clear();
+        Controller controller =
+                new Controller(stage);
+        controller.start();
     }
 
     /* Quits the game */
