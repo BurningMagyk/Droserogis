@@ -11,9 +11,9 @@ public class Print
     public static void cyan(Object o) { print(o.toString(), Color.CYAN); }
     public static void white(Object o) { print(o.toString(), Color.WHITE); }
 
-    private static String ANSI_RESET = "\u001B[0m";
     private static void print(String string, Color color)
     {
+        String ANSI_RESET = "\u001B[0m";
         System.out.println(color.ANSI() + string + ANSI_RESET);
     }
 

@@ -148,20 +148,18 @@ public class Main extends Application
         /* Try importing image file */
         input = getClass()
                 .getResourceAsStream("/Images/opening_background.png");
-        if (input == null)
-        {
-            Print.red("\"opening_background.png\" was not imported");
-        }
-        else
+        if (input != null)
         {
             /* This centers the window onto the image */
             image = new Image(input);
+            double sizeScale = image.getWidth() / width;
             context.drawImage(image,
                     0,
-                    (height - image.getHeight()) / 2,
-                    width,
-                    image.getHeight());
+                    (height - image.getHeight() * sizeScale) / 2,
+                    width * sizeScale,
+                    image.getHeight() * sizeScale);
         }
+        else Print.red("\"opening_background.png\" was not imported");
 
         /* Try importing the Scurlock font file */
         input = getClass()
@@ -196,17 +194,33 @@ public class Main extends Application
         context.setFill(Color.PURPLE);
         context.fillText("Sothli",
                 fontSize * 1.25 + STUFFING, boundary);
-
     }
 
     /* A custom ListCell that displays an image and string */
     private class StringImageCell extends ListCell<LanguageEnum>
     {
+        Font font, specFont;
         int width, height;
         StringImageCell(int width, int height)
         {
             this.width = width;
             this.height = height;
+
+            InputStream input = getClass()
+                    .getResourceAsStream("/Fonts/augusta.ttf");
+            if (input != null)
+            {
+                font = Font.loadFont(input, Math.min(width, height) / 2.5);
+            }
+            else Print.red("\"augusta.ttf\" was not imported");
+
+            input = getClass()
+                    .getResourceAsStream("/Fonts/kaisho.ttf");
+            if (input != null)
+            {
+                specFont = Font.loadFont(input, Math.min(width, height) / 2.5);
+            }
+            else Print.red("\"kaisho.ttf\" was not imported");
         }
 
         private Label label;
@@ -224,6 +238,8 @@ public class Main extends Application
                 setText(item.toString());
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
+                if (item == LanguageEnum.WAPANESE) setFont(specFont);
+                else setFont(font);
                 setGraphic(label);
                 setPrefSize(width, height);
             }
@@ -247,11 +263,16 @@ public class Main extends Application
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
-        stage.hide();
-        root.getChildren().clear();
+        Stage mainGame = new Stage();
+        mainGame.setWidth(SCREEN_WIDTH);
+        mainGame.setHeight(SCREEN_HEIGHT);
+
         Controller controller =
-                new Controller(stage);
+                new Controller(mainGame);
         controller.start();
+
+        root.getChildren().clear();
+        stage.close();
     }
 
     /* Quits the game */
