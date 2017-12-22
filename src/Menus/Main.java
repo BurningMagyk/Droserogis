@@ -47,8 +47,6 @@ public class Main extends Application
 
         /* Sample code to draw on the canvas: */
         drawOnCanvas(context, SCENE_WIDTH, SCENE_HEIGHT);
-        //context.setFill(Color.BLUE);
-        //context.fillRect(300,250,100,100);
 
         /* Add the canvas and widgets in order */
         root.getChildren().add(canvas);
@@ -238,8 +236,8 @@ public class Main extends Application
                 setText(item.toString());
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
-                if (item == LanguageEnum.WAPANESE) setFont(specFont);
-                else setFont(font);
+                if (item == LanguageEnum.WAPANESE && specFont != null) setFont(specFont);
+                else if (font != null) setFont(font);
                 setGraphic(label);
                 setPrefSize(width, height);
             }
@@ -269,7 +267,7 @@ public class Main extends Application
 
         Controller controller =
                 new Controller(mainGame);
-        controller.start();
+        controller.goToStartMenu();
 
         root.getChildren().clear();
         stage.close();

@@ -1,19 +1,19 @@
 package Menus;
 
 import Util.Print;
+import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.InputStream;
 
-public class Controller
+class Controller
 {
     private final int WIDTH, HEIGHT;
     private final Group root;
@@ -38,7 +38,13 @@ public class Controller
         stage.show();
     }
 
-    void start()
+    //@Override
+    public void handle(long now)
+    {
+
+    }
+
+    void goToStartMenu()
     {
         /* Try importing image file */
         InputStream input = getClass()
@@ -50,10 +56,6 @@ public class Controller
 
             /* This centers the window onto the image */
             double sizeScale = HEIGHT / image.getHeight();
-            //image.prefWidth(image.getImage().getWidth() * sizeScale);
-            //image.prefHeight(image.getImage().getHeight() * sizeScale);
-            //image.setX((WIDTH - image.getImage().getWidth() * sizeScale) / 2);
-            //image.setY(0);
             context.drawImage(image,
                     (WIDTH - image.getWidth() * sizeScale) / 2,
                     0,
