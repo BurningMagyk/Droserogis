@@ -42,14 +42,14 @@ public class Main extends Application
         final int SCENE_HEIGHT = SCREEN_HEIGHT / 2;
         final Scene SCENE = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT,
                 Color.BLACK);
-        final Canvas canvas = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
-        GraphicsContext context = canvas.getGraphicsContext2D();
+        final Canvas CANVAS = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
+        GraphicsContext context = CANVAS.getGraphicsContext2D();
 
         /* Sample code to draw on the canvas: */
         drawOnCanvas(context, SCENE_WIDTH, SCENE_HEIGHT);
 
         /* Add the canvas and widgets in order */
-        root.getChildren().add(canvas);
+        root.getChildren().add(CANVAS);
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
         root.getStylesheets().add("CSS/opening.css");
 
@@ -236,7 +236,10 @@ public class Main extends Application
                 setText(item.toString());
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
-                if (item == LanguageEnum.WAPANESE && specFont != null) setFont(specFont);
+                if (item == LanguageEnum.WAPANESE && specFont != null)
+                {
+                    setFont(specFont);
+                }
                 else if (font != null) setFont(font);
                 setGraphic(label);
                 setPrefSize(width, height);
@@ -267,7 +270,7 @@ public class Main extends Application
 
         Controller controller =
                 new Controller(mainGame);
-        controller.goToStartMenu();
+        controller.start();
 
         root.getChildren().clear();
         stage.close();

@@ -7,61 +7,74 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
-class Controller
+class Controller extends AnimationTimer
 {
     private final int WIDTH, HEIGHT;
-    private final Group root;
-    private final GraphicsContext context;
+    private final Group ROOT;
+    private final GraphicsContext CONTEXT;
+
+    private final Mouse MOUSE;
+    private final Keyboard KEYBOARD;
+
+    private Menu currentMenu;
+
+    private Menu startMenu;
+    private Menu topMenu;
 
     Controller(final Stage stage)
     {
         WIDTH = (int) stage.getWidth();
         HEIGHT = (int) stage.getHeight();
 
-        root = new Group();
+        ROOT = new Group();
         stage.setX(0);
         stage.setY(0);
         stage.initStyle(StageStyle.UNDECORATED);
 
-        Scene scene = new Scene(root, WIDTH, HEIGHT, Color.BLACK);
-        final Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        context = canvas.getGraphicsContext2D();
-        root.getChildren().add(canvas);
+        MOUSE = new Mouse();
+        KEYBOARD = new Keyboard();
+
+        Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.BLACK);
+        final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
+        CONTEXT = CANVAS.getGraphicsContext2D();
+        ROOT.getChildren().add(CANVAS);
 
         stage.setScene(scene);
         stage.show();
+
+        /* Set up menus */
+        topMenu = new TopMenu(CONTEXT, WIDTH, HEIGHT);
+        startMenu = new StartMenu(CONTEXT, WIDTH, HEIGHT, topMenu);
+
+        /* Set up mouse and keyboard input */
+        scene.addEventHandler(MouseEvent.ANY, MOUSE);
+        scene.addEventHandler(KeyEvent.ANY, KEYBOARD);
+
+        goToMenu(startMenu);
     }
 
-    //@Override
+    @Override
     public void handle(long now)
     {
-
+        Menu nextMenu = currentMenu.animateFrame();
+        if (nextMenu != null) goToMenu(nextMenu);
     }
 
-    void goToStartMenu()
+    private void goToMenu(Menu menu)
     {
-        /* Try importing image file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Images/start_background.png");
-        if (input != null)
-        {
-            /* Having it as an ImageView allows it to to be modified */
-            Image image = new Image(input);
-
-            /* This centers the window onto the image */
-            double sizeScale = HEIGHT / image.getHeight();
-            context.drawImage(image,
-                    (WIDTH - image.getWidth() * sizeScale) / 2,
-                    0,
-                    image.getWidth() * sizeScale,
-                    image.getHeight() * sizeScale);
-        }
-        else Print.red("\"start_background.png\" was not imported");
+        currentMenu = menu;
+        MOUSE.setMenu(menu);
+        KEYBOARD.setMenu(menu);
     }
 }
