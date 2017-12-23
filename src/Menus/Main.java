@@ -2,6 +2,7 @@ package Menus;
 
 import Util.LanguageEnum;
 import Util.Print;
+import Util.Translator;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -22,7 +23,7 @@ import java.util.Locale;
 
 public class Main extends Application
 {
-    private static LanguageEnum language = getSystemLanguage();
+    public static LanguageEnum language = getSystemLanguage();
 
     private final int SCREEN_WIDTH =
             Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -79,9 +80,35 @@ public class Main extends Application
         int comboBoxWidth = width * 3 / 15;
         int comboBoxHeight = height / 10;
 
-        /* Give widget names */
-        Button startButton = new Button("Start Game");
-        Button exitButton = new Button("Exit");
+        /* Try importing the Supernatural Knight font file */
+        InputStream input = getClass()
+                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
+        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
+
+        /* Try importing the Kaisho font file */
+        InputStream wapanese_input = getClass()
+                .getResourceAsStream("/Fonts/kaisho.ttf");
+        if (wapanese_input == null) Print.red("\"kaisho.ttf\" was not imported");
+
+        Font[] fonts = {Font.loadFont(input, Math.min(width, height) / 25),
+                        Font.loadFont(wapanese_input, Math.min(width, height) / 25)};
+
+        /* Give widget names, add them to the translator */
+        final Translator translator = new Translator();
+        String[] startButtonNames =
+                {"Start Game", "Empieza Juego", "Inizia Gioco",
+                        "Démarrer Jeu", "Spiel Beginnen", "ゲームをスタート"};
+        Button startButton = translator.getButton(fonts, startButtonNames);
+        String[] exitButtonNames =
+                {"Exit", "Salga", "Uscire", "Quitter", "Beende", "出口"};
+        Button exitButton = translator.getButton(fonts, exitButtonNames);
+
+        /* Set IDs for each button */
+        startButton.setId("start-button");
+        exitButton.setId("exit-button");
+
+        /* Group the buttons to ease input */
+        Button[] buttons = {startButton, exitButton};
 
         ComboBox<LanguageEnum> langComboBox = new ComboBox<>();
         langComboBox.setValue(language);
@@ -97,31 +124,21 @@ public class Main extends Application
         /* Set cellFactory property and buttonCell property */
         langComboBox.setCellFactory(kys ->
                 new StringImageCell(comboBoxWidth, comboBoxHeight));
+        langComboBox.setOnAction(kys ->
+        {
+            updateLanguage(translator, langComboBox.getValue());
+            positionButtons(buttons, width, height, STUFFING);
+        });
 
-        /* Set widget sizes */
-        startButton.setPrefWidth(width * 3 / 15);
-        startButton.setPrefHeight(height / 10);
-        exitButton.setPrefWidth(width * 2 / 15);
-        exitButton.setPrefHeight(height / 10);
+        /* Set the buttons' positions,
+         * call every time the language is changed */
+        positionButtons(buttons, width, height, STUFFING);
 
         langComboBox.setPrefWidth(comboBoxWidth);
         langComboBox.setPrefHeight(comboBoxHeight);
 
-        /* Calculate boundary values */
-        int boundsX[] = new int[3];
-        boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
-        boundsX[1] = width - (int) langComboBox.getPrefWidth() - STUFFING;
-        boundsX[2] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
-        int boundsY[] = new int[1];
-        boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
-
-        /* Set widget locations */
-        exitButton.setTranslateX(boundsX[0]);
-        startButton.setTranslateX(boundsX[2]);
-        exitButton.setTranslateY(boundsY[0]);
-        startButton.setTranslateY(boundsY[0]);
-
-        langComboBox.setTranslateX(boundsX[1]);
+        langComboBox.setTranslateX(width
+                - (int) langComboBox.getPrefWidth() - STUFFING);
         langComboBox.setTranslateY(STUFFING);
 
         /* Set widget actions */
@@ -141,7 +158,6 @@ public class Main extends Application
 
         InputStream input;
         Image image;
-        Font font;
 
         /* Try importing image file */
         input = getClass()
@@ -159,28 +175,65 @@ public class Main extends Application
         }
         else Print.red("\"opening_background.png\" was not imported");
 
+        /* Draw the logo */
+        int boundary[] = new int[3];
+        int fontSize = Math.min(width, height) / 7;
+        boundary[0] = height - fontSize / 10 - STUFFING;
+        boundary[1] = boundary[0] - (int) (fontSize / 1.5) - STUFFING / 2;
+        boundary[2] = boundary[1] - (int) (fontSize / 2.5) - STUFFING / 2;
+        drawLogo(context, fontSize, boundary, STUFFING);
+    }
+
+    private void updateLanguage(Translator translator, LanguageEnum language)
+    {
+        this.language = language;
+        translator.translate();
+    }
+
+    private void positionButtons(Button[] buttons,
+                                 final int width, final int height,
+                                 final int STUFFING)
+    {
+        Button startButton = buttons[0];
+        Button exitButton = buttons[1];
+
+        /* Calculate boundary values */
+        int boundsX[] = new int[2];
+        boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
+        boundsX[1] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
+        int boundsY[] = new int[1];
+        boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
+
+        /* Set widget locations */
+        exitButton.setTranslateX(boundsX[0]);
+        startButton.setTranslateX(boundsX[1]);
+        exitButton.setTranslateY(boundsY[0]);
+        startButton.setTranslateY(boundsY[0]);
+    }
+
+    private void drawLogo(GraphicsContext context, int fontSize,
+                          int boundary[], final int STUFFING)
+    {
         /* Try importing the Scurlock font file */
-        input = getClass()
+        InputStream input = getClass()
                 .getResourceAsStream("/Fonts/scurlock.ttf");
         if (input == null) Print.red("\"scurlock.ttf\" was not imported");
-        int fontSize = Math.min(width, height) / 7;
-        font = Font.loadFont(input, fontSize);
+
+        Font font = Font.loadFont(input, fontSize);
         context.setFont(font);
-        int boundary = height - fontSize / 10 - STUFFING;
         context.setFill(Color.DARKBLUE);
         context.fillText("Droserogis",
-                STUFFING, boundary);
+                STUFFING, boundary[0]);
 
         /* Try importing the Supernatural Knight font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/supernatural_knight.ttf");
         if (input == null) Print.red("\"supernatural.ttf\" was not imported");
-        font = Font.loadFont(input, fontSize / 2);
+        font = Font.loadFont(input, fontSize / 2.5);
         context.setFont(font);
-        boundary = boundary - (int) (fontSize / 1.5) - STUFFING / 2;
         context.setFill(Color.BLACK);
         context.fillText("VS",
-                fontSize * 1.7 + STUFFING, boundary);
+                fontSize * 1.75 + STUFFING, boundary[1]);
 
         /* Try importing the Cardinal font file */
         input = getClass()
@@ -188,10 +241,9 @@ public class Main extends Application
         if (input == null) Print.red("\"cardinal.ttf\" was not imported");
         font = Font.loadFont(input, fontSize / 1.2);
         context.setFont(font);
-        boundary = boundary - fontSize / 2 - STUFFING / 2;
         context.setFill(Color.PURPLE);
         context.fillText("Sothli",
-                fontSize * 1.25 + STUFFING, boundary);
+                fontSize * 1.25 + STUFFING, boundary[2]);
     }
 
     /* A custom ListCell that displays an image and string */

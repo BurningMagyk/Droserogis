@@ -1,33 +1,133 @@
 package Menus;
 
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+
+import java.io.InputStream;
 
 public class TopMenu implements Menu
 {
     private final GraphicsContext context;
 
-    TopMenu(GraphicsContext context, int width, int height)
+    private final double imagePosX;
+    private final double imagePosY;
+    private final double imageWidth;
+    private final double imageHeight;
+
+    private final Image image;
+
+    private final int fontBoundaryTop;
+    private final int fontBoundaryMiddle;
+    private final int fontBoundaryBottom;
+    private final Font fontTop;
+    private final Font fontMiddle;
+    private final Font fontBottom;
+    private final int FONTSIZE;
+    private final int STUFFING;
+
+    TopMenu(GraphicsContext context, int WIDTH, int HEIGHT)
     {
         this.context = context;
+
+        /* Try importing image file */
+        InputStream input = getClass()
+                .getResourceAsStream("/Images/top_background.png");
+        if (input != null)
+        {
+            /* Having it as an ImageView allows it to to be modified */
+            image = new Image(input);
+
+            /* Calculate the position of where the image goes
+             * This centers the window onto the image */
+            double sizeScale = WIDTH / image.getWidth();
+            imagePosX = 0;
+            imagePosY = (HEIGHT - image.getHeight() * sizeScale) / 5 * 4;
+            imageWidth = image.getWidth() * sizeScale;
+            imageHeight = image.getHeight() * sizeScale;
+        }
+        else
+        {
+            image = null;
+            imagePosX = 0;
+            imagePosY = 0;
+            imageWidth = 0;
+            imageHeight = 0;
+            Print.red("\"top_background.png\" was not imported");
+        }
+
+        /* The spacing between the 3 lines */
+        STUFFING = Math.min(WIDTH, HEIGHT) / 20;
+
+        /* Try importing the Scurlock font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/scurlock.ttf");
+        if (input == null) Print.red("\"scurlock.ttf\" was not imported");
+        FONTSIZE = Math.min(WIDTH, HEIGHT) / 7;
+        fontBottom = Font.loadFont(input, FONTSIZE);
+        fontBoundaryBottom = STUFFING + (int) (FONTSIZE / 1.5);
+
+
+        /* Try importing the Supernatural Knight font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
+        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
+        fontMiddle = Font.loadFont(input, FONTSIZE / 2.5);
+        fontBoundaryMiddle = fontBoundaryBottom + (FONTSIZE / 3) + STUFFING / 2;
+
+
+        /* Try importing the Cardinal font file */
+        input = getClass()
+                .getResourceAsStream("/Fonts/cardinal.ttf");
+        if (input == null) Print.red("\"cardinal.ttf\" was not imported");
+        fontTop = Font.loadFont(input, FONTSIZE / 1.2);
+        fontBoundaryTop = fontBoundaryMiddle + (int) (FONTSIZE / 1.5) + STUFFING / 2;
     }
 
     @Override
     public Menu animateFrame()
     {
-        context.fillText("Each day,\nwe stray further from God", 200, 300);
+        if (image != null)
+        {
+            context.drawImage(image,
+                    imagePosX,
+                    imagePosY,
+                    imageWidth,
+                    imageHeight);
+        }
+
+        if (fontBottom != null) context.setFont(fontBottom);
+        context.setFill(Color.DARKBLUE);
+        context.fillText("Droserogis",
+                STUFFING, fontBoundaryBottom);
+
+        if (fontMiddle != null) context.setFont(fontMiddle);
+        context.setFill(Color.BLACK);
+        context.fillText("VS",
+                FONTSIZE * 1.7 + STUFFING, fontBoundaryMiddle);
+
+        if (fontTop != null) context.setFont(fontTop);
+        context.setFill(Color.PURPLE);
+        context.fillText("Sothli",
+                FONTSIZE * 1.25 + STUFFING, fontBoundaryTop);
+
         return null;
     }
 
     @Override
-    public MenuEnum getMenuType() {
-        return null;
+    public MenuEnum getMenuType()
+    {
+        return MenuEnum.TOP;
     }
 
     @Override
-    public void key(boolean pressed, KeyCode code) {
-
+    public void key(boolean pressed, KeyCode code)
+    {
+        if (code == KeyCode.ESCAPE) System.exit(0);
     }
 
     @Override

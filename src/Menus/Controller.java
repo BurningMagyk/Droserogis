@@ -1,8 +1,10 @@
 package Menus;
 
 import Util.Print;
+import Util.Translator;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Group;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -49,6 +51,7 @@ class Controller extends AnimationTimer
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         CONTEXT = CANVAS.getGraphicsContext2D();
         ROOT.getChildren().add(CANVAS);
+        ROOT.getStylesheets();
 
         stage.setScene(scene);
         stage.show();
@@ -62,6 +65,21 @@ class Controller extends AnimationTimer
         scene.addEventHandler(KeyEvent.ANY, KEYBOARD);
 
         goToMenu(startMenu);
+
+        /* Try importing image file */
+        Image cursorImage;
+        ImageCursor cursor = null;
+        InputStream input = getClass()
+                .getResourceAsStream("/Images/cursor.png");
+        if (input != null)
+        {
+            /* This centers the window onto the image */
+            cursorImage = new Image(input);
+            //double sizeScale = image.getWidth() / width;
+            cursor = new ImageCursor(cursorImage, 30, 30);
+            scene.setCursor(cursor);
+        }
+        else Print.red("\"opening_background.png\" was not imported");
     }
 
     @Override

@@ -15,10 +15,8 @@ public class StartMenu implements Menu
 {
     private final GraphicsContext context;
 
-    private final double imagePosX;
-    private final double imagePosY;
-    private final double imageWidth;
-    private final double imageHeight;
+    /* 0 - xPos, 1 - yPos, 2 - width, 3 - height */
+    private final double[] imageAspects;
 
     private final double textPosX;
     private final double textPosY;
@@ -45,6 +43,7 @@ public class StartMenu implements Menu
         /* Try importing image file */
         InputStream input = getClass()
                 .getResourceAsStream("/Images/start_background.png");
+        imageAspects = new double[4];
         if (input != null)
         {
             /* Having it as an ImageView allows it to to be modified */
@@ -53,18 +52,15 @@ public class StartMenu implements Menu
             /* Calculate the position of where the image goes
              * This centers the window onto the image */
             double sizeScale = HEIGHT / image.getHeight();
-            imagePosX = (WIDTH - image.getWidth() * sizeScale) / 2;
-            imagePosY = 0;
-            imageWidth = image.getWidth() * sizeScale;
-            imageHeight = image.getHeight() * sizeScale;
+            imageAspects[0] = (WIDTH - image.getWidth() * sizeScale) / 2;
+            imageAspects[1] = 0;
+            imageAspects[2] = image.getWidth() * sizeScale;
+            imageAspects[3] = image.getHeight() * sizeScale;
         }
         else
         {
             image = null;
-            imagePosX = 0;
-            imagePosY = 0;
-            imageWidth = 0;
-            imageHeight = 0;
+            for (int i = 0; i < imageAspects.length; i++) imageAspects[i] = 0;
             Print.red("\"start_background.png\" was not imported");
         }
 
@@ -97,17 +93,19 @@ public class StartMenu implements Menu
     @Override
     public Menu animateFrame()
     {
+        /* Draw background image */
         if (image != null)
         {
             context.drawImage(image,
-                imagePosX,
-                0,
-                imageWidth,
-                imageHeight);
+                imageAspects[0],
+                imageAspects[1],
+                imageAspects[2],
+                imageAspects[3]);
         }
 
-        if (fading) opacity -= 0.02;
-        else opacity += 0.02;
+        /* Set message to change opacity */
+        if (fading) opacity -= 0.005;
+        else opacity += 0.005;
 
         if (opacity >= 1.0)
         {
@@ -120,11 +118,13 @@ public class StartMenu implements Menu
             fading = false;
         }
 
+        /* Draw message */
         context.setFill(Color.rgb(0,0,0, opacity));
         context.fillText(message,
                 textPosX,
                 textPosY);
 
+        /* Goes to Top menu when a key is typed or the mouse is clicked */
         if (goToNextMenu) return nextMenu;
         else return null;
     }
