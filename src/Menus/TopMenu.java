@@ -14,11 +14,7 @@ public class TopMenu implements Menu
 {
     private final GraphicsContext context;
 
-    private final double imagePosX;
-    private final double imagePosY;
-    private final double imageWidth;
-    private final double imageHeight;
-
+    private final double[] imageAspects;
     private final Image image;
 
     private final int fontBoundaryTop;
@@ -33,6 +29,7 @@ public class TopMenu implements Menu
     TopMenu(GraphicsContext context, int WIDTH, int HEIGHT)
     {
         this.context = context;
+        imageAspects = new double[4];
 
         /* Try importing image file */
         InputStream input = getClass()
@@ -45,18 +42,18 @@ public class TopMenu implements Menu
             /* Calculate the position of where the image goes
              * This centers the window onto the image */
             double sizeScale = WIDTH / image.getWidth();
-            imagePosX = 0;
-            imagePosY = (HEIGHT - image.getHeight() * sizeScale) / 5 * 4;
-            imageWidth = image.getWidth() * sizeScale;
-            imageHeight = image.getHeight() * sizeScale;
+            imageAspects[0] = 0;
+            imageAspects[1] = (HEIGHT - image.getHeight() * sizeScale) / 5 * 4;
+            imageAspects[2] = image.getWidth() * sizeScale;
+            imageAspects[3] = image.getHeight() * sizeScale;
         }
         else
         {
             image = null;
-            imagePosX = 0;
-            imagePosY = 0;
-            imageWidth = 0;
-            imageHeight = 0;
+            imageAspects[0] = 0;
+            imageAspects[1] = 0;
+            imageAspects[2] = 0;
+            imageAspects[3] = 0;
             Print.red("\"top_background.png\" was not imported");
         }
 
@@ -94,10 +91,10 @@ public class TopMenu implements Menu
         if (image != null)
         {
             context.drawImage(image,
-                    imagePosX,
-                    imagePosY,
-                    imageWidth,
-                    imageHeight);
+                    imageAspects[0],
+                    imageAspects[1],
+                    imageAspects[2],
+                    imageAspects[3]);
         }
 
         if (fontBottom != null) context.setFont(fontBottom);

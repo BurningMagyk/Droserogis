@@ -5,7 +5,7 @@
     -fx-background-radius: 30 0 30 0;
 }
 
-#start-button:hover
+#start-button:focused , #start-button:hover
 {
     -fx-background-color:
         linear-gradient(rgba(100, 175, 10), rgba(0, 125, 30));
@@ -24,7 +24,7 @@
     -fx-background-radius: 30 0 30 0;
 }
 
-#exit-button:hover
+#exit-button:focused , #exit-button:hover
 {
     -fx-background-color:
         linear-gradient(rgba(200, 100, 100), rgba(175, 0, 0));
@@ -52,7 +52,7 @@
     -fx-border-color: black;
 }
 
-.combo-box:hover
+.combo-box:focused , .combo-box:hover
 {
     -fx-border-color: white;
 }
