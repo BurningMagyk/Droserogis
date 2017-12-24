@@ -1,8 +1,12 @@
+# ignore all sound files
+*.mp3
+
 # ignore all png files
 *.png
 
 # ignore all font files
 *.ttf
+*.otf
 
 # ignore all text files
 *.txt

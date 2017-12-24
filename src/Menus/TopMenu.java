@@ -108,7 +108,7 @@ public class TopMenu implements Menu
         if (fontMiddle != null) context.setFont(fontMiddle);
         context.setFill(Color.BLACK);
         context.fillText("VS",
-                FONTSIZE * 1.7 + STUFFING, fontBoundaryMiddle);
+                FONTSIZE * 1.8 + STUFFING, fontBoundaryMiddle);
 
         if (fontTop != null) context.setFont(fontTop);
         context.setFill(Color.PURPLE);

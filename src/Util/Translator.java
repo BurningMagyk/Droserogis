@@ -29,8 +29,7 @@ public class Translator
             button.setText(string);
             button.setFont(font);
 
-            button.setPrefWidth(assignment.width[ID] * 1.7);
-            button.setPrefHeight(assignment.height[ID] * 2);
+            positionButton(button, assignment);
         }
     }
 
@@ -52,8 +51,7 @@ public class Translator
 
         Assignment assignment = new Assignment(button, fonts, strings);
 
-        button.setPrefWidth(assignment.width[ID] * 1.7);
-        button.setPrefHeight(assignment.height[ID] * 2.0);
+        positionButton(button, assignment);
 
         buttonList.add(assignment);
         return button;
@@ -90,5 +88,12 @@ public class Translator
                 height[i] = text.getLayoutBounds().getHeight();
             }
         }
+    }
+
+    private void positionButton(Button button, Assignment assignment)
+    {
+        int ID = Main.language.getID();
+        button.setPrefWidth(assignment.width[ID] * 2.0);
+        button.setPrefHeight(assignment.height[ID] * 1.5);
     }
 }

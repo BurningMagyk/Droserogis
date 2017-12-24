@@ -82,16 +82,16 @@ public class Main extends Application
 
         /* Try importing the Supernatural Knight font file */
         InputStream input = getClass()
-                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
-        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
+                .getResourceAsStream("/Fonts/planewalker.otf");
+        if (input == null) Print.red("\"planewalker.otf\" was not imported");
 
         /* Try importing the Kaisho font file */
-        InputStream wapanese_input = getClass()
+        InputStream input_wapanese = getClass()
                 .getResourceAsStream("/Fonts/kaisho.ttf");
-        if (wapanese_input == null) Print.red("\"kaisho.ttf\" was not imported");
+        if (input_wapanese == null) Print.red("\"kaisho.ttf\" was not imported");
 
         Font[] fonts = {Font.loadFont(input, Math.min(width, height) / 25),
-                        Font.loadFont(wapanese_input, Math.min(width, height) / 25)};
+                        Font.loadFont(input_wapanese, Math.min(width, height) / 25)};
 
         /* Give widget names, add them to the translator */
         final Translator translator = new Translator();
@@ -202,7 +202,7 @@ public class Main extends Application
         boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
         boundsX[1] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
         int boundsY[] = new int[1];
-        boundsY[0] = height - (int) startButton.getPrefHeight() - STUFFING;
+        boundsY[0] = height - (int) (startButton.getPrefHeight() * 1.3) - STUFFING;
 
         /* Set widget locations */
         exitButton.setTranslateX(boundsX[0]);
