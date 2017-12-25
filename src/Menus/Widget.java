@@ -20,15 +20,16 @@ class Widget
         posX = aspects[0]; posY = aspects[1];
         width = aspects[2]; height = aspects[3];
 
+
         this.images = images;
         imageIndex = 0;
 
         this.context = context;
-        goingForward = true;
+        //goingForward = true;
     }
 
     /**
-     * Does not need to be called if it's just using one image
+     * Call this from animateFrame() in a Menu
      */
     public void animateFrame()
     {
@@ -51,7 +52,11 @@ class Widget
     void mouse(boolean pressed, MouseButton button, int x, int y) {
 
     }
-
+    
+    /**
+     * Call this from mouse(x, y) in a Menu
+     * @return - true if within the rectangle, false otherwise
+     */
     boolean hover(int x, int y)
     {
         if (inBounds(x, y))
