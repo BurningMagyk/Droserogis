@@ -36,7 +36,7 @@ class Widget
     /**
      * Call this from animateFrame() in a Menu
      */
-    void animateFrame()
+    void animateFrame(int framesToGo)
     {
         /* Draw image */
         context.drawImage(images[imageIndex],
@@ -45,9 +45,14 @@ class Widget
         /* Update sprite */
         if (focused)
         {
-            if (imageIndex < images.length - 1) imageIndex++;
+            if (imageIndex < images.length - 1) imageIndex =+ framesToGo;
+            if (imageIndex >= images.length) imageIndex = images.length - 1;
         }
-        else if (imageIndex > 0) imageIndex--;
+        else
+        {
+            if (imageIndex > 0) imageIndex -= framesToGo;
+            if (imageIndex < 0) imageIndex = 0;
+        }
     }
 
     /**

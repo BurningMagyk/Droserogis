@@ -7,7 +7,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.io.InputStream;
 
@@ -21,11 +20,14 @@ public class TopMenu implements Menu
     /* 0 - top, 1 - middle, 2 - bottom */
     private int titleBoundaries[];
     private Font titleFonts[];
+    private Font widgetFont;
 
     private int fontSize;
     private int STUFFING;
 
     private JutWidget[] widgets;
+    private String[] widgetNames =
+            {"Storytime", "Versus", "Options", "Credits", "Quit"};
     private Image[] widgetImages;
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
@@ -47,7 +49,7 @@ public class TopMenu implements Menu
     }
 
     @Override
-    public Menu animateFrame()
+    public Menu animateFrame(int framesToGo)
     {
         /* Background */
         if (backgroundImage != null)
@@ -76,9 +78,10 @@ public class TopMenu implements Menu
                 fontSize * 1.25 + STUFFING, titleBoundaries[0]);
 
         /* Widgets */
-        for (int i = 0; i < widgets.length; i++)
+        context.setFont(widgetFont);
+        for (JutWidget widget : widgets)
         {
-            widgets[i].animateFrame();
+            widget.animateFrame(framesToGo);
         }
 
         return null;
@@ -183,8 +186,9 @@ public class TopMenu implements Menu
     private void setWidgets(int WIDTH, int HEIGHT)
     {
         /* Get the font */
-        InputStream input = getClass().getResourceAsStream("/Fonts/supernatural_knight.ttf");
-        Font font = Font.loadFont(input, fontSize / 3);
+        InputStream input = getClass().getResourceAsStream(
+                "/Fonts/supernatural_knight.ttf");
+        widgetFont = Font.loadFont(input, fontSize / 3);
 
         /* Set up widgets */
         int aspects[] = new int[4];
@@ -217,45 +221,42 @@ public class TopMenu implements Menu
             /* The only aspect that differs is the yPos */
             aspects[1] += HEIGHT / 7;
             widgets[i] = new JutWidget(aspects, images, neighbors, context);
+            /* Set their jut distance */
             widgets[i].setDistance(jutDistance);
-            widgets[i].setText("testing", font);
+            /* Give them names */
+            widgets[i].setText(widgetNames[i]);
         }
     }
 
     private class JutWidget extends Widget
     {
-        private int distance;
         private int startingPos;
         private int endingPos;
 
         private int textX;
         private int textY;
         private String text;
-        private Font font; // TODO: may not be needed
 
         JutWidget(int[] aspects, Image[] images, Widget[] neighbors,
                   GraphicsContext context)
         {
             super(aspects, images, neighbors, context);
 
-            distance = 0;
             startingPos = (int) posX;
 
             textX = -1;
             textY = -1;
             text = null;
-            font = null;
         }
 
-        void animateFrame()
+        void animateFrame(int framesToGo)
         {
-            super.animateFrame();
+            super.animateFrame(framesToGo);
 
             /* Draw text */
             textX = (int) ((width - fontSize) / 3 + posX);
-            textY = (int) ((height - fontSize / 2.75) * 2 + posY);
+            textY = (int) ((height - fontSize / 2.9) * 2 + posY);
 
-            if (font != null) context.setFont(font);
             context.setFill(Color.RED);
             context.fillText(text,
                     textX, textY);
@@ -267,13 +268,13 @@ public class TopMenu implements Menu
                 if (posX > endingPos)
                 {
                     speed = Math.max((posX - endingPos) / 7, 3);
-                    posX -= speed;
+                    posX -= speed * framesToGo;
                 }
             }
             else if (posX < startingPos)
             {
                 speed = Math.max((startingPos - posX) / 7, 3);
-                posX += speed;
+                posX += speed * framesToGo;
             }
 
             /* Restore if out of bounds */
@@ -281,21 +282,14 @@ public class TopMenu implements Menu
             else if (posX > startingPos) posX = startingPos;
         }
 
-        void setText(String string, Font font)
+        void setText(String string)
         {
             this.text = string;
-            this.font = font;
         }
 
         void setDistance(int distance)
         {
-            this.distance = distance;
             endingPos = startingPos - distance;
-        }
-
-        int getDistance()
-        {
-            return distance;
         }
     }
 }

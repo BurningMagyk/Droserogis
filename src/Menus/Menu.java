@@ -5,7 +5,7 @@ import javafx.scene.input.MouseButton;
 
 public interface Menu
 {
-    Menu animateFrame();
+    Menu animateFrame(int framesToGo);
 
     MenuEnum getMenuType();
 

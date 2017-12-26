@@ -114,7 +114,7 @@ public class StartMenu implements Menu
     }
 
     @Override
-    public Menu animateFrame()
+    public Menu animateFrame(int framesToGo)
     {
         /* Draw background image */
         if (image != null)
@@ -127,8 +127,8 @@ public class StartMenu implements Menu
         }
 
         /* Set message to change opacity */
-        if (fading) opacity -= 0.005;
-        else opacity += 0.005;
+        if (fading) opacity -= 0.005 * framesToGo;
+        else opacity += 0.005 * framesToGo;
 
         if (opacity >= 1.0)
         {

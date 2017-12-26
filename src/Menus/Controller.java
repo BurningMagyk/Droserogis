@@ -19,6 +19,7 @@ import javafx.stage.StageStyle;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Timer;
 
 class Controller extends AnimationTimer
 {
@@ -33,6 +34,8 @@ class Controller extends AnimationTimer
 
     private Menu startMenu;
     private Menu topMenu;
+
+    private long lastUpdate = 0;
 
     Controller(final Stage stage)
     {
@@ -85,8 +88,12 @@ class Controller extends AnimationTimer
     @Override
     public void handle(long now)
     {
-        Menu nextMenu = currentMenu.animateFrame();
+        int framesMissed = (int) ((now - lastUpdate) / 16_666_666);
+
+        Menu nextMenu = currentMenu.animateFrame(framesMissed + 1);
         if (nextMenu != null) goToMenu(nextMenu);
+
+        lastUpdate = now;
     }
 
     private void goToMenu(Menu menu)
@@ -94,5 +101,10 @@ class Controller extends AnimationTimer
         currentMenu = menu;
         MOUSE.setMenu(menu);
         KEYBOARD.setMenu(menu);
+    }
+
+    private class ForTheAge extends Timer
+    {
+
     }
 }
