@@ -22,7 +22,8 @@ public class Mouse implements EventHandler<MouseEvent>
         double x = event.getX();
         double y = event.getY();
 
-        double deadzone = 0.5;
+        /* TODO: deadzone value will need testing later */
+        double deadzone = 1;
         boolean inDeadzone =
                 Math.abs(x - lastX) + Math.abs(y - lastY) < deadzone;
 

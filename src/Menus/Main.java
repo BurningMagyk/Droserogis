@@ -127,12 +127,12 @@ public class Main extends Application
         langComboBox.setOnAction(kys ->
         {
             updateLanguage(translator, langComboBox.getValue());
-            positionButtons(buttons, width, height, STUFFING);
+            positionButtons(buttons, width, height);
         });
 
         /* Set the buttons' positions,
          * call every time the language is changed */
-        positionButtons(buttons, width, height, STUFFING);
+        positionButtons(buttons, width, height);
 
         langComboBox.setPrefWidth(comboBoxWidth);
         langComboBox.setPrefHeight(comboBoxHeight);
@@ -186,14 +186,15 @@ public class Main extends Application
 
     private void updateLanguage(Translator translator, LanguageEnum language)
     {
-        this.language = language;
+        Main.language = language;
         translator.translate();
     }
 
     private void positionButtons(Button[] buttons,
-                                 final int width, final int height,
-                                 final int STUFFING)
+                                 final int width, final int height)
     {
+        final int STUFFING = Math.min(width, height) / 20;
+
         Button startButton = buttons[0];
         Button exitButton = buttons[1];
 
