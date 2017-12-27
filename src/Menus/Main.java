@@ -341,6 +341,6 @@ public class Main extends Application
     public static void main(String[] args)
     {
         language = getSystemLanguage();
-        Application.launch(args);
+        launch(args);
     }
 }

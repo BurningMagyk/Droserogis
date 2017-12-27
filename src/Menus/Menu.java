@@ -1,21 +1,23 @@
 package Menus;
 
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
+import Util.Reactor;
 
-public interface Menu
+public interface Menu extends Reactor
 {
-    Menu animateFrame(int framesToGo);
-
-    MenuEnum getMenuType();
+    MenuEnum animateFrame(int framesToGo);
 
     enum MenuEnum
     {
         START,
-        TOP;
+        TOP,
+        STORYTIME,
+        VERSUS,
+        OPTIONS,
+        CREDITS,
+        QUIT,
+        GAME
     }
 
-    void key(boolean pressed, KeyCode code);
-    void mouse(boolean pressed, MouseButton button, int x, int y);
-    void mouse(int x, int y);
+    void stopMusic();
+    void reset();
 }

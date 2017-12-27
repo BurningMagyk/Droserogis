@@ -32,6 +32,8 @@ public class TopMenu implements Menu
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
 
+    private MenuEnum nextMenu;
+
     TopMenu(GraphicsContext context, int WIDTH, int HEIGHT)
     {
         this.context = context;
@@ -46,10 +48,12 @@ public class TopMenu implements Menu
 
         widgets = new JutWidget[5];
         setWidgets(WIDTH, HEIGHT);
+
+        nextMenu = null;
     }
 
     @Override
-    public Menu animateFrame(int framesToGo)
+    public MenuEnum animateFrame(int framesToGo)
     {
         /* Background */
         if (backgroundImage != null)
@@ -84,13 +88,7 @@ public class TopMenu implements Menu
             widget.animateFrame(framesToGo);
         }
 
-        return null;
-    }
-
-    @Override
-    public MenuEnum getMenuType()
-    {
-        return MenuEnum.TOP;
+        return nextMenu;
     }
 
     @Override
@@ -100,8 +98,18 @@ public class TopMenu implements Menu
     }
 
     @Override
-    public void mouse(boolean pressed, MouseButton button, int x, int y) {
-
+    public void mouse(boolean pressed, MouseButton button, int x, int y)
+    {
+        if (widgets[0].mouse(pressed, button, x, y))
+            nextMenu = MenuEnum.STORYTIME;
+        else if (widgets[1].mouse(pressed, button, x, y))
+            nextMenu = MenuEnum.VERSUS;
+        else if (widgets[2].mouse(pressed, button, x, y))
+            nextMenu = MenuEnum.OPTIONS;
+        else if (widgets[3].mouse(pressed, button, x, y))
+            nextMenu = MenuEnum.CREDITS;
+        else if (widgets[4].mouse(pressed, button, x, y))
+            nextMenu = MenuEnum.QUIT;
     }
 
     @Override
@@ -110,6 +118,22 @@ public class TopMenu implements Menu
         for (Widget widget : widgets)
         {
             widget.hover(x, y);
+        }
+    }
+
+    @Override
+    public void stopMusic()
+    {
+
+    }
+
+    @Override
+    public void reset()
+    {
+        nextMenu = null;
+        for (Widget widget : widgets)
+        {
+            widget.focused = false;
         }
     }
 
@@ -216,7 +240,7 @@ public class TopMenu implements Menu
             int southIndex = i == widgets.length - 1 ? 0 : i + 1;
             neighbors[2] = widgets[southIndex];
 
-            Image[] images = {widgetImages[i], widgetImages[i]};
+            Image[] images = {widgetImages[i]};
 
             /* The only aspect that differs is the yPos */
             aspects[1] += HEIGHT / 7;

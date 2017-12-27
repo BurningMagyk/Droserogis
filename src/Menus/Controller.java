@@ -1,8 +1,9 @@
 package Menus;
 
+import Game.Game;
 import Util.Print;
-import Util.Translator;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
@@ -12,20 +13,17 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Timer;
 
 class Controller extends AnimationTimer
 {
     private final int WIDTH, HEIGHT;
     private final Group ROOT;
     private final GraphicsContext CONTEXT;
+    private final Game GAME;
 
     private final Mouse MOUSE;
     private final Keyboard KEYBOARD;
@@ -34,6 +32,10 @@ class Controller extends AnimationTimer
 
     private Menu startMenu;
     private Menu topMenu;
+    private Menu storyMenu;
+    private Menu versusMenu;
+    private Menu optionsMenu;
+    private Menu creditsMenu;
 
     private long lastUpdate = 0;
 
@@ -60,14 +62,22 @@ class Controller extends AnimationTimer
         stage.show();
 
         /* Set up menus */
+        currentMenu = null;
         topMenu = new TopMenu(CONTEXT, WIDTH, HEIGHT);
-        startMenu = new StartMenu(CONTEXT, WIDTH, HEIGHT, topMenu);
+        startMenu = new StartMenu(CONTEXT, WIDTH, HEIGHT);
+        versusMenu = new VersusMenu(CONTEXT, WIDTH, HEIGHT);
+        GAME = new Game(CONTEXT, WIDTH, HEIGHT);
+
+        /* Temporary */
+        storyMenu = startMenu;
+        optionsMenu = startMenu;
+        creditsMenu = startMenu;
 
         /* Set up mouse and keyboard input */
         scene.addEventHandler(MouseEvent.ANY, MOUSE);
         scene.addEventHandler(KeyEvent.ANY, KEYBOARD);
 
-        goToMenu(startMenu);
+        goToMenu(Menu.MenuEnum.START);
 
         /* Try importing image file */
         Image cursorImage;
@@ -90,21 +100,71 @@ class Controller extends AnimationTimer
     {
         int framesMissed = (int) ((now - lastUpdate) / 16_666_666);
 
-        Menu nextMenu = currentMenu.animateFrame(framesMissed + 1);
+        Menu.MenuEnum nextMenu = currentMenu.animateFrame(framesMissed + 1);
         if (nextMenu != null) goToMenu(nextMenu);
 
         lastUpdate = now;
     }
 
-    private void goToMenu(Menu menu)
+    public void stop()
     {
-        currentMenu = menu;
-        MOUSE.setMenu(menu);
-        KEYBOARD.setMenu(menu);
+        super.stop();
+        startMenu.stopMusic();
     }
 
-    private class ForTheAge extends Timer
+    private void goToMenu(Menu.MenuEnum menuEnum)
     {
+        Menu menu;
+        switch (menuEnum)
+        {
+            case START: {
+                menu = startMenu;
+                break;
+            }
+            case TOP: {
+                menu = topMenu;
+                break;
+            }
+            case STORYTIME: {
+                menu = storyMenu;
+                break;
+            }
+            case VERSUS: {
+                menu = versusMenu;
+                break;
+            }
+            case OPTIONS: {
+                menu = optionsMenu;
+                break;
+            }
+            case CREDITS: {
+                menu = creditsMenu;
+                break;
+            }
+            case QUIT: {
+                Platform.exit();
+                System.exit(0);
+            }
+            case GAME: {
+                goToGameplay();
+                return;
+            }
+            default:
+                menu = null;
+        }
 
+        if (currentMenu != null) currentMenu.reset();
+        currentMenu = menu;
+        MOUSE.setReactor(menu);
+        KEYBOARD.setReactor(menu);
+        currentMenu.reset();
+    }
+
+    private void goToGameplay()
+    {
+        stop();
+        MOUSE.setReactor(GAME);
+        KEYBOARD.setReactor(GAME);
+        GAME.start();
     }
 }

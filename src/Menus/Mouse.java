@@ -1,5 +1,6 @@
 package Menus;
 
+import Util.Reactor;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.MouseButton;
@@ -11,7 +12,7 @@ import static javafx.scene.input.MouseEvent.MOUSE_RELEASED;
 
 public class Mouse implements EventHandler<MouseEvent>
 {
-    private Menu menu;
+    private Reactor reactor;
 
     private double lastX = -1;
     private double lastY = -1;
@@ -31,18 +32,18 @@ public class Mouse implements EventHandler<MouseEvent>
         MouseButton button = event.getButton();
 
         if (type == MOUSE_PRESSED)
-            menu.mouse(true, button, (int) x, (int) y);
+            reactor.mouse(true, button, (int) x, (int) y);
         else if (type == MOUSE_RELEASED)
-            menu.mouse(false, button, (int) x, (int) y);
+            reactor.mouse(false, button, (int) x, (int) y);
         else if (type == MOUSE_MOVED && !inDeadzone)
-            menu.mouse((int) x, (int) y);
+            reactor.mouse((int) x, (int) y);
 
         /* Keep track of previous coordinates to test for dead zone */
         lastX = x; lastY = y;
     }
 
-    public void setMenu(Menu menu)
+    public void setReactor(Reactor reactor)
     {
-        this.menu = menu;
+        this.reactor = reactor;
     }
 }

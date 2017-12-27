@@ -28,26 +28,26 @@ public class StartMenu implements Menu
 
     private final Image image;
     private final String message;
+    private Font font = null;
 
     private double opacity;
     private boolean fading;
 
-    private Menu nextMenu;
-    private boolean goToNextMenu;
+    private MenuEnum nextMenu;
+    private boolean pressed = false;
 
     /* Having mediaPlayer be global makes
      * it work properly for some reason */
-    MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer;
 
     StartMenu(final GraphicsContext context,
-              final int WIDTH, final int HEIGHT, Menu menu)
+              final int WIDTH, final int HEIGHT)
     {
         this.context = context;
         message = getMessage();
         opacity = 1.0;
         fading = true;
-        nextMenu = menu;
-        goToNextMenu = false;
+        nextMenu = null;
 
         /* Try importing image file */
         InputStream input = getClass()
@@ -85,7 +85,7 @@ public class StartMenu implements Menu
         if (input == null) Print.red("\"" + fileName + "\" was not imported");
         else
         {
-            Font font = Font.loadFont(input, Math.min(WIDTH, HEIGHT) / 12);
+            font = Font.loadFont(input, Math.min(WIDTH, HEIGHT) / 12);
             context.setFont(font);
 
             /* Make dummy text to get dimensions */
@@ -114,7 +114,7 @@ public class StartMenu implements Menu
     }
 
     @Override
-    public Menu animateFrame(int framesToGo)
+    public MenuEnum animateFrame(int framesToGo)
     {
         /* Draw background image */
         if (image != null)
@@ -148,32 +148,41 @@ public class StartMenu implements Menu
                 textPosY);
 
         /* Goes to Top menu when a key is typed or the mouse is clicked */
-        if (goToNextMenu) return nextMenu;
-        else return null;
-    }
-
-    @Override
-    public MenuEnum getMenuType()
-    {
-        return MenuEnum.START;
+        return nextMenu;
     }
 
     @Override
     public void key(boolean pressed, KeyCode code)
     {
-        goToNextMenu = true;
+        if (this.pressed) nextMenu = MenuEnum.TOP;
+        this.pressed = pressed;
     }
 
     @Override
     public void mouse(boolean pressed, MouseButton button, int x, int y)
     {
-        goToNextMenu = true;
+        if (this.pressed) nextMenu = MenuEnum.TOP;
+        this.pressed = pressed;
     }
 
     @Override
     public void mouse(int x, int y)
     {
         /* Does nothing */
+    }
+
+    @Override
+    public void stopMusic()
+    {
+        mediaPlayer.stop();
+    }
+
+    @Override
+    public void reset()
+    {
+        pressed = false;
+        nextMenu = null;
+        if (font != null) context.setFont(font);
     }
 
     /* Get the message in the correct language
