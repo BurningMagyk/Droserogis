@@ -13,4 +13,14 @@ public class Creature implements Actor
     public void draw(int x, int y) {
 
     }
+
+    public Direction getDirection()
+    {
+        return null;
+    }
+
+    void collide(Direction direction)
+    {
+
+    }
 }

@@ -29,8 +29,8 @@ class Scenery implements Actor
     @Override
     public void draw(int x, int y)
     {
-        sky.act();
-        horizon.act();
+        sky.draw(x, y);
+        horizon.draw(x, y);
     }
 
     /**

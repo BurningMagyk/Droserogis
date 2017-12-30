@@ -7,14 +7,17 @@ import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
 
 public class Game extends AnimationTimer implements Reactor
 {
     private int width, height;
     private GraphicsContext context;
 
-    Sky sky;
+    Scenery scenery;
+    ArrayList<Creature> creatures;
+    ArrayList<Block> blocks;
 
     public Game(GraphicsContext context, int width, int height)
     {
@@ -22,7 +25,9 @@ public class Game extends AnimationTimer implements Reactor
         this.width = width;
         this.height = height;
 
-        sky = new Sky(context);
+        scenery = new Scenery(context);
+        creatures = new ArrayList<>();
+        blocks = new ArrayList<>();
     }
 
     @Override
@@ -33,9 +38,11 @@ public class Game extends AnimationTimer implements Reactor
     {
         /* TODO: Increment in-game clock, might go in the Sky class */
 
-        sky.draw(0, 0);
+        scenery.draw(0, 0);
 
         /* TODO: Animate horizon */
+
+        platformCollisions();
 
         /* TODO: Animate further entities */
 
@@ -68,8 +75,22 @@ public class Game extends AnimationTimer implements Reactor
 
     }
 
-    /* Place needed classes here temporarily until decided where they belong */
+    private void platformCollisions()
+    {
+        for(Creature creature : creatures)
+        {
+            Direction direction = creature.getDirection();
+            int x1 = creature.xPos;
+            int x2 = x1 + creature.width;
+            int y1 = creature.yPos;
+            int y2 = y1 + creature.height;
 
+            for(Block block : blocks)
+            {
+                creature.collide(block.checkCollision(direction));
+            }
+        }
+    }
 
     /**
      * Will be what the actors access to indicate a significant change.
