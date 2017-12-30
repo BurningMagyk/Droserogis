@@ -65,6 +65,7 @@ class Widget
      */
     Widget key(boolean pressed, KeyCode code)
     {
+        /* TODO: Make it animate a different set of images when armed */
         if (!pressed) return this;
         if (!focused) return this;
 

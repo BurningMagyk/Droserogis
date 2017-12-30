@@ -109,8 +109,12 @@ public class StartMenu implements Menu
             e.printStackTrace();
             media = null;
         }
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.play();
+        if (media != null)
+        {
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+        }
+        else Print.red("\"start_background.mp3\" was not imported");
     }
 
     @Override

@@ -13,7 +13,7 @@ public interface Menu extends Reactor
         STORYTIME,
         VERSUS,
         OPTIONS,
-        CREDITS,
+        GALLERY,
         QUIT,
         GAME
     }

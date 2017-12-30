@@ -1,6 +1,8 @@
 package Menus;
 
+import Util.LanguageEnum;
 import Util.Print;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -26,8 +28,16 @@ public class TopMenu implements Menu
     private int STUFFING;
 
     private JutWidget[] widgets;
-    private String[] widgetNames =
-            {"Storytime", "Versus", "Options", "Credits", "Quit"};
+    /* Translator class not needed here */
+    private String[][] widgetNames =
+            {
+                    {"Storytime", "Versus", "Options", "Gallery", "Quit"},
+                    {"Cuentos", "Contra", "Opciones", "Galería", "Dimitir"},
+                    {"Favola", "Contro", "Opzioni", "Galleria", "Smettere"},
+                    {"Conte", "Contre", "Options", "Galerie", "Quitter"},
+                    {"Märchenstunde", "Gegen", "Optionen", "Galerie", "Verlassen"},
+                    {"寓話の時間", "対", "オプション", "画廊", "やめる"}
+            };
     private Image[] widgetImages;
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
@@ -94,7 +104,11 @@ public class TopMenu implements Menu
     @Override
     public void key(boolean pressed, KeyCode code)
     {
-        if (code == KeyCode.ESCAPE) System.exit(0);
+        if (code == KeyCode.ESCAPE)
+        {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 
     @Override
@@ -107,7 +121,7 @@ public class TopMenu implements Menu
         else if (widgets[2].mouse(pressed, button, x, y))
             nextMenu = MenuEnum.OPTIONS;
         else if (widgets[3].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.CREDITS;
+            nextMenu = MenuEnum.GALLERY;
         else if (widgets[4].mouse(pressed, button, x, y))
             nextMenu = MenuEnum.QUIT;
     }
@@ -124,7 +138,7 @@ public class TopMenu implements Menu
     @Override
     public void stopMusic()
     {
-
+        /* Music for this menu comes from StartMenu */
     }
 
     @Override
@@ -209,10 +223,14 @@ public class TopMenu implements Menu
 
     private void setWidgets(int WIDTH, int HEIGHT)
     {
-        /* Get the font */
+        /* Get the fonts */
         InputStream input = getClass().getResourceAsStream(
-                "/Fonts/supernatural_knight.ttf");
-        widgetFont = Font.loadFont(input, fontSize / 3);
+                "/Fonts/planewalker.otf");
+        InputStream input_wapanese = getClass().getResourceAsStream(
+                "/Fonts/kaisho.ttf");
+        widgetFont = Main.language == LanguageEnum.WAPANESE
+                ? Font.loadFont(input_wapanese, fontSize / 3)
+                : Font.loadFont(input, fontSize / 3);
 
         /* Set up widgets */
         int aspects[] = new int[4];
@@ -248,7 +266,7 @@ public class TopMenu implements Menu
             /* Set their jut distance */
             widgets[i].setDistance(jutDistance);
             /* Give them names */
-            widgets[i].setText(widgetNames[i]);
+            widgets[i].setText(widgetNames[Main.language.getID()][i]);
         }
     }
 

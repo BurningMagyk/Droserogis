@@ -166,11 +166,11 @@ public class Main extends Application
         {
             /* This centers the window onto the image */
             image = new Image(input);
-            double sizeScale = image.getWidth() / width;
+            double sizeScale = width / image.getWidth();
             context.drawImage(image,
-                    0,
+                    (width - image.getWidth() * sizeScale) / 2,
                     (height - image.getHeight() * sizeScale) / 2,
-                    width * sizeScale,
+                    image.getWidth() * sizeScale,
                     image.getHeight() * sizeScale);
         }
         else Print.red("\"opening_background.png\" was not imported");

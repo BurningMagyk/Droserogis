@@ -24,6 +24,5 @@ public class Keyboard implements EventHandler<KeyEvent>
     public void setReactor(Reactor reactor)
     {
         this.reactor = reactor;
-        Print.blue("reactor: " + reactor);
     }
 }

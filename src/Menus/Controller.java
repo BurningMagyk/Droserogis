@@ -137,7 +137,7 @@ class Controller extends AnimationTimer
                 menu = optionsMenu;
                 break;
             }
-            case CREDITS: {
+            case GALLERY: {
                 menu = creditsMenu;
                 break;
             }
