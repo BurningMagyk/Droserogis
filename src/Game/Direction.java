@@ -1,23 +1,58 @@
 package Game;
 
+import Util.Print;
+
 public class Direction
 {
-    Enum direction[];
+    Enum horiz;
+    Enum vert;
+
+    Direction()
+    {
+        horiz = Enum.NONE;
+        vert = Enum.NONE;
+    }
 
     Direction(Enum direction)
     {
-        this(direction, direction);
+        if (direction == Enum.UP || direction == Enum.DOWN)
+        {
+            horiz = Enum.NONE;
+            vert = direction;
+        }
+        else
+        {
+            horiz = direction;
+            vert = Enum.NONE;
+        }
     }
 
-    Direction(Enum dir_1, Enum dir_2)
+    Direction(Enum horiz, Enum vert)
     {
-        this.direction = new Enum[2];
-        this.direction[0] = dir_1;
-        this.direction[1] = dir_2;
+        this.horiz = horiz;
+        this.vert = vert;
+    }
+
+    boolean opposes(Direction direction)
+    {
+        if (horiz.opposite() == direction.horiz
+                && horiz != Enum.NONE
+                && direction.horiz != Enum.NONE) return true;
+        if (vert.opposite() == direction.vert
+                && vert != Enum.NONE
+                && direction.vert != Enum.NONE) return true;
+
+        return false;
     }
 
     public enum Enum
     {
-        UP, LEFT, DOWN, RIGHT
+        UP { Enum opposite() { return DOWN; } },
+        LEFT { Enum opposite() { return RIGHT; } },
+        DOWN { Enum opposite() { return UP; } },
+        RIGHT { Enum opposite() { return LEFT; } },
+        NONE;
+
+        Enum opposite() { return NONE; }
     }
 }

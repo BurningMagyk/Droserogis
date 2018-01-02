@@ -28,6 +28,10 @@ public class Game extends AnimationTimer implements Reactor
         scenery = new Scenery(context);
         creatures = new ArrayList<>();
         blocks = new ArrayList<>();
+
+        /* For testing */
+        creatures.add(new Creature(context,100, 100, 100, 200));
+        blocks.add(new Block(context, 100, 800, 150, 50));
     }
 
     @Override
@@ -42,11 +46,18 @@ public class Game extends AnimationTimer implements Reactor
 
         /* TODO: Animate horizon */
 
-        platformCollisions();
+        blockCollisions();
 
-        /* TODO: Animate further entities */
+        for (Creature creature : creatures)
+        {
+            creature.act();
+            creature.draw(0, 0);
+        }
 
-        /* TODO: Animate closer entities */
+        for (Block block : blocks)
+        {
+            block.draw(0, 0);
+        }
 
         /* TODO: Animate subtitles */
     }
@@ -75,7 +86,7 @@ public class Game extends AnimationTimer implements Reactor
 
     }
 
-    private void platformCollisions()
+    private void blockCollisions()
     {
         for(Creature creature : creatures)
         {
@@ -87,7 +98,7 @@ public class Game extends AnimationTimer implements Reactor
 
             for(Block block : blocks)
             {
-                creature.collide(block.checkCollision(direction));
+                creature.collide(block.checkCollision(x1, x2, y1, y2, direction));
             }
         }
     }
