@@ -1,5 +1,6 @@
 package Game;
 
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -80,21 +81,85 @@ public class Block
         Direction direction;
         Incline incline;
 
+        Integer _xPos, _yPos;
+
         Face(Direction direction, Incline incline)
         {
             this.direction = direction;
             this.incline = incline;
+
+            if (incline == Incline.LEVEL)
+            {
+                if (direction.vert == Direction.Enum.UP)
+                {
+                    _xPos = null;
+                    _yPos = yPos;
+                }
+                else if (direction.vert == Direction.Enum.DOWN)
+                {
+                    _xPos = null;
+                    _yPos = yPos + height;
+                }
+                else if (direction.horiz == Direction.Enum.LEFT)
+                {
+                    _xPos = xPos;
+                    _yPos = null;
+                }
+                else if (direction.horiz == Direction.Enum.RIGHT)
+                {
+                    _xPos = xPos + width;
+                    _yPos = null;
+                }
+                else Print.red("Error: Bad LEVEL stats");
+            }
+            else
+            {
+                _xPos = null;
+                _yPos = null;
+            }
         }
 
         /* TODO: Assumes LEVEL incline for now */
         boolean checkCollision(int x1, int x2, int y1, int y2)
         {
-            if (x2 <= xPos) return false;
-            if (x1 >= xPos + width) return false;
-            if (y2 <= yPos) return false;
-            if (y1 >= yPos + height) return false;
+            if (direction.horiz == Direction.Enum.LEFT)
+            {
+                if (x2 != xPos + 1) return false;
+                if (y2 <= yPos) return false;
+                if (y1 >= yPos + height) return false;
+            }
+            else if (direction.horiz == Direction.Enum.RIGHT)
+            {
+                if (x1 != xPos + width - 1) return false;
+                if (y2 <= yPos) return false;
+                if (y1 >= yPos + height) return false;
+            }
+            else if (direction.vert == Direction.Enum.UP)
+            {
+                if (y2 != yPos + 1) return false;
+                if (x2 <= xPos) return false;
+                if (x1 >= xPos + width) return false;
+            }
+            else if (direction.vert == Direction.Enum.DOWN)
+            {
+                if (y1 != yPos + height - 1) return false;
+                if (x2 <= xPos) return false;
+                if (x1 >= xPos + width) return false;
+            }
 
             return true;
+        }
+
+        int getX(int cretPosY)
+        {
+            /* TODO: Have it return a different value if incline is not LEVEL */
+            return _xPos;
+        }
+
+        int getY(int cretPosX)
+        {
+            /* TODO: Have it return a different value if incline is not LEVEL */
+            return _yPos;
         }
     }
 }
