@@ -1,9 +1,10 @@
-package Game;
+package Engine;
 
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-class Scenery implements Actor
+class Scenery
 {
     GraphicsContext context;
     Clock clock;
@@ -18,7 +19,6 @@ class Scenery implements Actor
         horizon = new Horizon(context);
     }
 
-    @Override
     public void act()
     {
         clock.act();
@@ -26,7 +26,6 @@ class Scenery implements Actor
         horizon.act();
     }
 
-    @Override
     public void draw(int x, int y)
     {
         sky.draw(x, y);
@@ -37,7 +36,7 @@ class Scenery implements Actor
      * Will mostly just draw a gradient.
      * Can be acted upon by certain Actors.
      */
-    private class Sky implements Actor
+    private class Sky
     {
         GraphicsContext context;
         int width, height;
@@ -62,12 +61,16 @@ class Scenery implements Actor
             grad[0] = (int) (Color.ORANGE.getRed() * 255);
             grad[1] = (int) (Color.ORANGE.getGreen() * 255);
             grad[2] = (int) (Color.ORANGE.getBlue() * 255);
+
+            /* It doesn't fill completely unless it's set to 2 */
+            context.setLineWidth(2);
         }
         public void act(){}
         public void draw(int x, int y)
         {
-            context.setStroke(Color.rgb(
-                    solid[0], solid[1], solid[2]));
+            /*context.setStroke(Color.rgb(
+                    solid[0], solid[1], solid[2]));*/
+            context.setStroke(Color.LIGHTBLUE);
             for (int i = 0; i < solidDistance; i++)
             {
                 context.strokeLine(0, i, width - 1, i);
@@ -81,7 +84,7 @@ class Scenery implements Actor
                     (solidColor[0] - grad[0]) / remainingDistance,
                     (solidColor[1] - grad[1]) / remainingDistance,
                     (solidColor[2] - grad[2]) / remainingDistance};
-            for (int i = solidDistance + 1; i < height; i++)
+            for (int i = solidDistance; i < height; i++)
             {
                 solidColor[0] -= colorInc[0];
                 solidColor[1] -= colorInc[1];
@@ -92,7 +95,7 @@ class Scenery implements Actor
         }
     }
 
-    private class Horizon implements Actor
+    private class Horizon
     {
         GraphicsContext context;
 
@@ -101,12 +104,10 @@ class Scenery implements Actor
             this.context = context;
         }
 
-        @Override
         public void act() {
 
         }
 
-        @Override
         public void draw(int x, int y) {
 
         }

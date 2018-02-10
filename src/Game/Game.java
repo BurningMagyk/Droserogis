@@ -1,5 +1,6 @@
 package Game;
 
+import Engine.Level;
 import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
@@ -13,11 +14,12 @@ import java.util.ArrayList;
 public class Game extends AnimationTimer implements Reactor
 {
     private int width, height;
-    private GraphicsContext context;
+    public GraphicsContext context;
 
-    Scenery scenery;
     ArrayList<Creature> creatures;
     ArrayList<Block> blocks;
+
+    Level testLevel;
 
     public Game(GraphicsContext context, int width, int height)
     {
@@ -25,13 +27,20 @@ public class Game extends AnimationTimer implements Reactor
         this.width = width;
         this.height = height;
 
-        scenery = new Scenery(context);
         creatures = new ArrayList<>();
         blocks = new ArrayList<>();
 
         /* For testing */
-        creatures.add(new Creature(context,100, 100, 100, 200));
+        creatures.add(new Creature(context,100, 100, 10, 20));
         blocks.add(new Block(context, 100, 800, 150, 50));
+        blocks.add(new Block(context, 250, 850, 150, 50));
+
+        for (Creature creature : creatures)
+        {
+            creature.setBlocks(blocks);
+        }
+
+        testLevel = new Level(context);
     }
 
     @Override
@@ -40,24 +49,28 @@ public class Game extends AnimationTimer implements Reactor
      */
     public void handle(long now)
     {
-        /* TODO: Increment in-game clock, might go in the Sky class */
+        //if (true) return;
 
-        scenery.draw(0, 0);
+        /* TODO: Increment in-game clock */
 
         /* TODO: Animate horizon */
 
-        blockCollisions();
-
-        for (Creature creature : creatures)
+        /*for (Creature creature : creatures)
         {
             creature.act();
-            creature.draw(0, 0);
         }
 
         for (Block block : blocks)
         {
             block.draw(0, 0);
         }
+
+        for (Creature creature : creatures)
+        {
+            creature.draw(0, 0);
+        }*/
+
+        //testLevel.draw(context);
 
         /* TODO: Animate subtitles */
     }
@@ -74,6 +87,38 @@ public class Game extends AnimationTimer implements Reactor
         {
             Print.blue(context.getCanvas().getWidth());
         }
+        if (code == KeyCode.LEFT)
+        {
+            creatures.get(0).moveLeft(pressed);
+        }
+        if (code == KeyCode.RIGHT)
+        {
+            creatures.get(0).moveRight(pressed);
+        }
+        if (code == KeyCode.UP)
+        {
+            creatures.get(0).jump(pressed);
+        }
+        /* For testing */
+        if (code == KeyCode.SPACE && pressed)
+        {
+            testLevel.draw(context);
+
+            /*for (Creature creature : creatures)
+            {
+                creature.act();
+            }
+
+            for (Block block : blocks)
+            {
+                block.draw(0, 0);
+            }
+
+            for (Creature creature : creatures)
+            {
+                creature.draw(0, 0);
+            }*/
+        }
     }
 
     @Override
@@ -84,32 +129,6 @@ public class Game extends AnimationTimer implements Reactor
     @Override
     public void mouse(int x, int y) {
 
-    }
-
-    private void blockCollisions()
-    {
-        for(Creature creature : creatures)
-        {
-            Direction direction = creature.getDirection();
-            int x1 = creature.xPos;
-            int x2 = x1 + creature.width;
-            int y1 = creature.yPos;
-            int y2 = y1 + creature.height;
-
-            for(Block block : blocks)
-            {
-                creature.collide(block.checkCollision(x1, x2, y1, y2, direction));
-            }
-        }
-    }
-
-    /**
-     * Will be what the actors access to indicate a significant change.
-     * Checked by the Game class in handle() alongside the Actors.
-     */
-    class Level
-    {
-        void change(){}
     }
 }
 
