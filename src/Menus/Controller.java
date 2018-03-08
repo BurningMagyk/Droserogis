@@ -20,9 +20,6 @@ import java.io.InputStream;
 
 class Controller extends AnimationTimer
 {
-    private final int WIDTH, HEIGHT;
-    private final Group ROOT;
-    private final GraphicsContext CONTEXT;
     private final Game GAME;
 
     private final Mouse MOUSE;
@@ -30,21 +27,17 @@ class Controller extends AnimationTimer
 
     private Menu currentMenu;
 
-    private Menu startMenu;
-    private Menu topMenu;
-    private Menu storyMenu;
-    private Menu versusMenu;
-    private Menu optionsMenu;
-    private Menu creditsMenu;
+    private Menu startMenu, topMenu, storyMenu,
+            versusMenu, optionsMenu, creditsMenu;
 
     private long lastUpdate = 0;
 
     Controller(final Stage stage)
     {
-        WIDTH = (int) stage.getWidth();
-        HEIGHT = (int) stage.getHeight();
+        final int WIDTH = (int) stage.getWidth();
+        final int HEIGHT = (int) stage.getHeight();
 
-        ROOT = new Group();
+        Group ROOT = new Group();
         stage.setX(0);
         stage.setY(0);
         stage.initStyle(StageStyle.UNDECORATED);
@@ -54,19 +47,18 @@ class Controller extends AnimationTimer
 
         Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.BLACK);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
-        CONTEXT = CANVAS.getGraphicsContext2D();
+        GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
         ROOT.getChildren().add(CANVAS);
-        ROOT.getStylesheets();
 
         stage.setScene(scene);
         stage.show();
 
         /* Set up menus */
         currentMenu = null;
-        topMenu = new TopMenu(CONTEXT, WIDTH, HEIGHT);
-        startMenu = new StartMenu(CONTEXT, WIDTH, HEIGHT);
-        versusMenu = new VersusMenu(CONTEXT, WIDTH, HEIGHT);
-        GAME = new Game(CONTEXT, WIDTH, HEIGHT);
+        topMenu = new TopMenu(ROOT, CONTEXT);
+        startMenu = new StartMenu(ROOT, CONTEXT);
+        versusMenu = new VersusMenu(ROOT, CONTEXT);
+        GAME = new Game(ROOT, CONTEXT);
 
         /* Temporary */
         storyMenu = startMenu;
@@ -81,7 +73,7 @@ class Controller extends AnimationTimer
 
         /* Try importing image file */
         Image cursorImage;
-        ImageCursor cursor = null;
+        ImageCursor cursor;
         InputStream input = getClass()
                 .getResourceAsStream("/Images/cursor.png");
         if (input != null)

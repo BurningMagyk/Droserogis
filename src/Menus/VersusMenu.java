@@ -1,12 +1,13 @@
 package Menus;
 
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
 public class VersusMenu implements Menu
 {
-    VersusMenu(GraphicsContext context, int width, int heigh)
+    VersusMenu(final Group group, final GraphicsContext context)
     {
 
     }

@@ -2,6 +2,7 @@ package Menus;
 
 import Util.LanguageEnum;
 import Util.Print;
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -40,14 +41,16 @@ public class StartMenu implements Menu
      * it work properly for some reason */
     private MediaPlayer mediaPlayer;
 
-    StartMenu(final GraphicsContext context,
-              final int WIDTH, final int HEIGHT)
+    StartMenu(final Group group, final GraphicsContext context)
     {
         this.context = context;
         message = getMessage();
         opacity = 1.0;
         fading = true;
         nextMenu = null;
+
+        final int WIDTH = (int) context.getCanvas().getWidth();
+        final int HEIGHT = (int) context.getCanvas().getHeight();
 
         /* Try importing image file */
         InputStream input = getClass()

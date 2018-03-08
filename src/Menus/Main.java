@@ -47,7 +47,7 @@ public class Main extends Application
         GraphicsContext context = CANVAS.getGraphicsContext2D();
 
         /* Sample code to draw on the canvas: */
-        drawOnCanvas(context, SCENE_WIDTH, SCENE_HEIGHT);
+        drawOnCanvas(context);
 
         /* Add the canvas and widgets in order */
         root.getChildren().add(CANVAS);
@@ -151,13 +151,17 @@ public class Main extends Application
         group.getChildren().add(langComboBox);
     }
 
-    private void drawOnCanvas(GraphicsContext context, int width, int height)
+    private void drawOnCanvas(GraphicsContext context)
     {
-        /* How much space will go between the widgets and borders */
-        final int STUFFING = Math.min(width, height) / 20;
-
         InputStream input;
         Image image;
+
+        /* Get canvas width and height */
+        int width = (int) context.getCanvas().getWidth();
+        int height = (int) context.getCanvas().getHeight();
+
+        /* How much space will go between the widgets and borders */
+        final int STUFFING = Math.min(width, height) / 20;
 
         /* Try importing image file */
         input = getClass()

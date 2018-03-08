@@ -5,6 +5,7 @@ import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -21,11 +22,11 @@ public class Game extends AnimationTimer implements Reactor
 
     Level testLevel;
 
-    public Game(GraphicsContext context, int width, int height)
+    public Game(Group group, GraphicsContext context)
     {
         this.context = context;
-        this.width = width;
-        this.height = height;
+        this.width = (int) context.getCanvas().getWidth();
+        this.height = (int) context.getCanvas().getHeight();
 
         creatures = new ArrayList<>();
         blocks = new ArrayList<>();

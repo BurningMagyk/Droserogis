@@ -3,6 +3,7 @@ package Menus;
 import Util.LanguageEnum;
 import Util.Print;
 import javafx.application.Platform;
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -44,10 +45,13 @@ public class TopMenu implements Menu
 
     private MenuEnum nextMenu;
 
-    TopMenu(GraphicsContext context, int WIDTH, int HEIGHT)
+    TopMenu(final Group group, final GraphicsContext context)
     {
         this.context = context;
         imageAspects = new double[4];
+
+        final int WIDTH = (int) context.getCanvas().getWidth();
+        final int HEIGHT = (int) context.getCanvas().getHeight();
 
         widgetImages = new Image[5];
         importImages(WIDTH, HEIGHT);
