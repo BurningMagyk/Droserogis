@@ -98,8 +98,12 @@ public class Main extends Application
                 .getResourceAsStream("/Fonts/kaisho.ttf");
         if (input_wapanese == null) Print.red("\"kaisho.ttf\" was not imported");
 
-        Font[] fonts = {Font.loadFont(input, Math.min(width, height) / 25),
-                        Font.loadFont(input_wapanese, Math.min(width, height) / 25)};
+        /* Use default fonts if the importing failed */
+        double fontSize = Math.min(width, height) / 25;
+        Font font = input == null ? Font.font(fontSize) : Font.loadFont(input, fontSize);
+        Font font_wapanese = input_wapanese == null
+                ? Font.font(fontSize) : Font.loadFont(input_wapanese, fontSize);
+        Font[] fonts = {font, font_wapanese};
 
         /* Give widget names, add them to the translator */
         final Translator translator = new Translator();
@@ -232,7 +236,8 @@ public class Main extends Application
                 .getResourceAsStream("/Fonts/scurlock.ttf");
         if (input == null) Print.red("\"scurlock.ttf\" was not imported");
 
-        Font font = Font.loadFont(input, fontSize);
+        Font font = input == null
+                ? Font.font(fontSize) : Font.loadFont(input, fontSize);
         context.setFont(font);
         context.setFill(Color.DARKBLUE);
         context.fillText("Droserogis",
@@ -242,7 +247,9 @@ public class Main extends Application
         input = getClass()
                 .getResourceAsStream("/Fonts/supernatural_knight.ttf");
         if (input == null) Print.red("\"supernatural.ttf\" was not imported");
-        font = Font.loadFont(input, fontSize / 2.5);
+
+        font = input == null ? Font.font(fontSize / 2.5)
+                : Font.loadFont(input, fontSize / 2.5);
         context.setFont(font);
         context.setFill(Color.BLACK);
         context.fillText("VS",
@@ -252,7 +259,9 @@ public class Main extends Application
         input = getClass()
                 .getResourceAsStream("/Fonts/cardinal.ttf");
         if (input == null) Print.red("\"cardinal.ttf\" was not imported");
-        font = Font.loadFont(input, fontSize / 1.2);
+
+        font = input == null ? Font.font(fontSize / 1.2)
+                : Font.loadFont(input, fontSize / 1.2);
         context.setFont(font);
         context.setFill(Color.PURPLE);
         context.fillText("Sothli",
