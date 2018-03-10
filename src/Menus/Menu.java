@@ -1,6 +1,7 @@
 package Menus;
 
 import Util.Reactor;
+import javafx.scene.image.Image;
 
 interface Menu extends Reactor
 {
@@ -17,6 +18,8 @@ interface Menu extends Reactor
         QUIT,
         GAME
     }
+
+    Image getBackground();
 
     void startMedia();
     void stopMedia();

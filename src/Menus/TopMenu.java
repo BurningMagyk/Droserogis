@@ -3,7 +3,6 @@ package Menus;
 import Util.LanguageEnum;
 import Util.Print;
 import javafx.application.Platform;
-import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -17,7 +16,6 @@ public class TopMenu implements Menu
 {
     private final GraphicsContext context;
 
-    private final double[] imageAspects;
     private Image backgroundImage;
 
     /* 0 - top, 1 - middle, 2 - bottom */
@@ -45,16 +43,15 @@ public class TopMenu implements Menu
 
     private MenuEnum nextMenu;
 
-    TopMenu(final Group group, final GraphicsContext context)
+    TopMenu(final GraphicsContext context)
     {
         this.context = context;
-        imageAspects = new double[4];
 
         final int WIDTH = (int) context.getCanvas().getWidth();
         final int HEIGHT = (int) context.getCanvas().getHeight();
 
         widgetImages = new Image[5];
-        importImages(WIDTH, HEIGHT);
+        importImages();
 
         titleBoundaries = new int[3];
         titleFonts = new Font[3];
@@ -69,15 +66,9 @@ public class TopMenu implements Menu
     @Override
     public MenuEnum animateFrame(int framesToGo)
     {
-        /* Background */
-        if (backgroundImage != null)
-        {
-            context.drawImage(backgroundImage,
-                    imageAspects[0],
-                    imageAspects[1],
-                    imageAspects[2],
-                    imageAspects[3]);
-        }
+        /* Clear canvas */
+        context.clearRect(0, 0, context.getCanvas().getWidth(),
+                context.getCanvas().getHeight());
 
         /* Title */
         if (titleFonts[2] != null) context.setFont(titleFonts[2]);
@@ -96,7 +87,8 @@ public class TopMenu implements Menu
                 fontSize * 1.25 + STUFFING, titleBoundaries[0]);
 
         /* Widgets */
-        context.setFont(widgetFont);
+        if (widgetFont != null) context.setFont(widgetFont);
+        else context.setFont(Font.font(fontSize / 3));
         for (JutWidget widget : widgets)
         {
             widget.animateFrame(framesToGo);
@@ -112,6 +104,12 @@ public class TopMenu implements Menu
         {
             Platform.exit();
             System.exit(0);
+        }
+
+        /* Temporary */
+        if (code == KeyCode.SPACE)
+        {
+            nextMenu = MenuEnum.GAME;
         }
     }
 
@@ -140,6 +138,12 @@ public class TopMenu implements Menu
     }
 
     @Override
+    public Image getBackground()
+    {
+        return backgroundImage;
+    }
+
+    @Override
     public void startMedia()
     {}
 
@@ -159,7 +163,7 @@ public class TopMenu implements Menu
         }
     }
 
-    private void importImages(int WIDTH, int HEIGHT)
+    private void importImages()
     {
         /* Try importing background image file */
         InputStream input = getClass()
@@ -167,20 +171,10 @@ public class TopMenu implements Menu
         if (input != null)
         {
             backgroundImage = new Image(input);
-
-            /* Calculate the position of where the image goes
-             * This centers the window onto the image */
-            double sizeScale = WIDTH / backgroundImage.getWidth();
-            imageAspects[0] = 0;
-            imageAspects[1] = (HEIGHT - backgroundImage.getHeight() * sizeScale) / 5 * 4;
-            imageAspects[2] = backgroundImage.getWidth() * sizeScale;
-            imageAspects[3] = backgroundImage.getHeight() * sizeScale;
         }
         else
         {
             backgroundImage = null;
-            for (int i = 0; i < imageAspects.length; i++)
-                imageAspects[i] = 0;
             Print.red("\"top_background.png\" was not imported");
         }
 
@@ -207,25 +201,40 @@ public class TopMenu implements Menu
         /* Try importing the Scurlock font file */
         InputStream input = getClass()
                 .getResourceAsStream("/Fonts/scurlock.ttf");
-        if (input == null) Print.red("\"scurlock.ttf\" was not imported");
         fontSize = Math.min(WIDTH, HEIGHT) / 7;
-        titleFonts[2] = Font.loadFont(input, fontSize);
+        if (input == null)
+        {
+            titleFonts[2] = Font.font(fontSize);
+            Print.red("\"scurlock.ttf\" was not imported");
+        } else {
+            titleFonts[2] = Font.loadFont(input, fontSize);
+        }
         titleBoundaries[2] = STUFFING + (int) (fontSize / 1.5);
 
 
         /* Try importing the Supernatural Knight font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/supernatural_knight.ttf");
-        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
-        titleFonts[1] = Font.loadFont(input, fontSize / 2.5);
+        if (input == null)
+        {
+            titleFonts[1] = Font.font(fontSize / 2.5);
+            Print.red("\"supernatural.ttf\" was not imported");
+        } else {
+            titleFonts[1] = Font.loadFont(input, fontSize / 2.5);
+        }
         titleBoundaries[1] = titleBoundaries[2] + (fontSize / 3) + STUFFING / 2;
 
 
         /* Try importing the Cardinal font file */
         input = getClass()
                 .getResourceAsStream("/Fonts/cardinal.ttf");
-        if (input == null) Print.red("\"cardinal.ttf\" was not imported");
-        titleFonts[0] = Font.loadFont(input, fontSize / 1.2);
+        if (input == null)
+        {
+            titleFonts[0] = Font.font(fontSize / 1.2);
+            Print.red("\"cardinal.ttf\" was not imported");
+        } else {
+            titleFonts[0] = Font.loadFont(input, fontSize / 1.2);
+        }
         titleBoundaries[0] = titleBoundaries[1] + (int) (fontSize / 1.5) + STUFFING / 2;
     }
 
@@ -234,8 +243,10 @@ public class TopMenu implements Menu
         /* Get the fonts */
         InputStream input = getClass().getResourceAsStream(
                 "/Fonts/planewalker.otf");
+        if (input == null) Print.red("\"planewalker.otf\" was not imported");
         InputStream input_wapanese = getClass().getResourceAsStream(
                 "/Fonts/kaisho.ttf");
+        if (input_wapanese == null) Print.red("\"kaisho.ttf\" was not imported");
         widgetFont = Main.language == LanguageEnum.WAPANESE
                 ? Font.loadFont(input_wapanese, fontSize / 3)
                 : Font.loadFont(input, fontSize / 3);

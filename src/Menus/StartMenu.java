@@ -2,7 +2,6 @@ package Menus;
 
 import Util.LanguageEnum;
 import Util.Print;
-import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -21,15 +20,12 @@ public class StartMenu implements Menu
 {
     private final GraphicsContext context;
 
-    /* 0 - xPos, 1 - yPos, 2 - width, 3 - height */
-    private final double[] imageAspects;
-
     private final double textPosX;
     private final double textPosY;
 
     private final Image image;
     private final String message;
-    private Font font = null;
+    private Font font;
 
     private double opacity;
     private boolean fading;
@@ -40,9 +36,8 @@ public class StartMenu implements Menu
     /* Having mediaPlayer be global makes
      * it work properly for some reason */
     private MediaPlayer mediaPlayer;
-    private Media music;
 
-    StartMenu(final Group group, final GraphicsContext context)
+    StartMenu(final GraphicsContext context)
     {
         this.context = context;
         message = getMessage();
@@ -56,24 +51,13 @@ public class StartMenu implements Menu
         /* Try importing image file */
         InputStream input = getClass()
                 .getResourceAsStream("/Images/start_background.png");
-        imageAspects = new double[4];
         if (input != null)
         {
-            /* Having it as an ImageView allows it to to be modified */
             image = new Image(input);
-
-            /* Calculate the position of where the image goes
-             * This centers the window onto the image */
-            double sizeScale = HEIGHT / image.getHeight();
-            imageAspects[0] = (WIDTH - image.getWidth() * sizeScale) / 2;
-            imageAspects[1] = 0;
-            imageAspects[2] = image.getWidth() * sizeScale;
-            imageAspects[3] = image.getHeight() * sizeScale;
         }
         else
         {
             image = null;
-            for (int i = 0; i < imageAspects.length; i++) imageAspects[i] = 0;
             Print.red("\"start_background.png\" was not imported");
         }
 
@@ -86,10 +70,15 @@ public class StartMenu implements Menu
                 ? "kaisho.ttf" : "planewalker.otf";
         input = getClass()
                 .getResourceAsStream("/Fonts/" + fileName);
-        if (input == null) Print.red("\"" + fileName + "\" was not imported");
+        float fontSize = Math.min(WIDTH, HEIGHT) / 12;
+        if (input == null)
+        {
+            font = Font.font(fontSize);
+            Print.red("\"" + fileName + "\" was not imported");
+        }
         else
         {
-            font = Font.loadFont(input, Math.min(WIDTH, HEIGHT) / 12);
+            font = Font.loadFont(input, fontSize);
             context.setFont(font);
 
             /* Make dummy text to get dimensions */
@@ -106,6 +95,7 @@ public class StartMenu implements Menu
 
         /* Try importing music */
         URL url = getClass().getResource("/Music/start_background.mp3");
+        Media music;
         try {
             music = new Media(url.toURI().toString());
         } catch (URISyntaxException e) {
@@ -120,15 +110,9 @@ public class StartMenu implements Menu
     @Override
     public MenuEnum animateFrame(int framesToGo)
     {
-        /* Draw background image */
-        if (image != null)
-        {
-            context.drawImage(image,
-                imageAspects[0],
-                imageAspects[1],
-                imageAspects[2],
-                imageAspects[3]);
-        }
+        /* Clear canvas */
+        context.clearRect(0, 0, context.getCanvas().getWidth(),
+                context.getCanvas().getHeight());
 
         /* Set message to change opacity */
         if (fading) opacity -= 0.005 * framesToGo;
@@ -173,6 +157,12 @@ public class StartMenu implements Menu
     public void mouse(int x, int y)
     {
         /* Does nothing */
+    }
+
+    @Override
+    public Image getBackground()
+    {
+        return image;
     }
 
     @Override

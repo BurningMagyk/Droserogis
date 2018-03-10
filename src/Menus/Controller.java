@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -25,6 +26,9 @@ class Controller extends AnimationTimer
 
     private final Mouse MOUSE;
     private final Keyboard KEYBOARD;
+    private final ImageView BACKGROUND;
+
+    private final int WIDTH, HEIGHT;
 
     private Menu currentMenu;
     private Menu startMenu, topMenu, storyMenu,
@@ -36,8 +40,8 @@ class Controller extends AnimationTimer
 
     Controller(final Stage stage)
     {
-        final int WIDTH = (int) stage.getWidth();
-        final int HEIGHT = (int) stage.getHeight();
+        WIDTH = (int) stage.getWidth();
+        HEIGHT = (int) stage.getHeight();
 
         Group ROOT = new Group();
 
@@ -47,6 +51,10 @@ class Controller extends AnimationTimer
         Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.BLACK);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
+        BACKGROUND = new ImageView();
+
+        /* Background image needs to be added before the canvas */
+        ROOT.getChildren().add(BACKGROUND);
         ROOT.getChildren().add(CANVAS);
 
         this.stage = stage;
@@ -57,9 +65,9 @@ class Controller extends AnimationTimer
         /* Set up menus */
         currentMenu = null;
         menuList = new ArrayList<>();
-        topMenu = new TopMenu(ROOT, CONTEXT); menuList.add(topMenu);
-        startMenu = new StartMenu(ROOT, CONTEXT); menuList.add(startMenu);
-        versusMenu = new VersusMenu(ROOT, CONTEXT); menuList.add(versusMenu);
+        topMenu = new TopMenu(CONTEXT); menuList.add(topMenu);
+        startMenu = new StartMenu(CONTEXT); menuList.add(startMenu);
+        versusMenu = new VersusMenu(CONTEXT); menuList.add(versusMenu);
 
         GAME = new Game(ROOT, CONTEXT);
 
@@ -93,6 +101,7 @@ class Controller extends AnimationTimer
     /**
      * Call to start the game after the prompt.
      */
+    @Override
     public void start()
     {
         /* Start calling handle */
@@ -112,6 +121,7 @@ class Controller extends AnimationTimer
         lastUpdate = now;
     }
 
+    @Override
     public void stop()
     {
         super.stop();
@@ -166,10 +176,11 @@ class Controller extends AnimationTimer
             if (!isSpecialCase(currentMenu, menu)) stopMedia();
         }
 
-        currentMenu = menu;
+        setBackground(menu);
+        menu.reset();
         MOUSE.setReactor(menu);
         KEYBOARD.setReactor(menu);
-        currentMenu.reset();
+        currentMenu = menu;
 
         /* So that the Start Menu song doesn't play at the prompt */
         if (menuEnum != Menu.MenuEnum.START) currentMenu.startMedia();
@@ -178,6 +189,36 @@ class Controller extends AnimationTimer
     private boolean isSpecialCase(Menu prev, Menu next)
     {
         return prev == startMenu && next == topMenu;
+    }
+
+    private void setBackground(Menu menu)
+    {
+        Image image = menu.getBackground();
+        if (image == null) return;
+        BACKGROUND.setImage(image);
+        double imageWidth = image.getWidth();
+        double imageHeight = image.getHeight();
+        double sizeScale;
+
+        if (imageWidth < imageHeight)
+        {
+            /* The image is offset if it's the Top Menu */
+            double yMod = menu == topMenu ? 8F / 5F : 1;
+
+            sizeScale = WIDTH / imageWidth;
+            BACKGROUND.setX(0);
+            BACKGROUND.setY((HEIGHT - imageHeight * sizeScale) / 2 * yMod);
+
+        }
+        else
+        {
+            sizeScale = HEIGHT / imageHeight;
+            BACKGROUND.setX((WIDTH - imageWidth * sizeScale) / 2);
+            BACKGROUND.setY(0);
+        }
+
+        BACKGROUND.setFitWidth(imageWidth * sizeScale);
+        BACKGROUND.setFitHeight(imageHeight * sizeScale);
     }
 
     private void stopMedia()

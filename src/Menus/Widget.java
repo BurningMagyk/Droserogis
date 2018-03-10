@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
 
 class Widget
 {
@@ -39,8 +40,14 @@ class Widget
     void animateFrame(int framesToGo)
     {
         /* Draw image */
-        context.drawImage(images[imageIndex],
+        if (images[imageIndex] != null)
+        {
+            context.drawImage(images[imageIndex],
                 posX, posY, width, height);
+        } else {
+            context.setFill(Color.GREEN);
+            context.fillRect(posX, posY, width, height);
+        }
 
         /* Update sprite */
         if (focused)
