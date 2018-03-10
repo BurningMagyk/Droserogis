@@ -13,6 +13,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -95,15 +96,19 @@ public class StartMenu implements Menu
 
         /* Try importing music */
         URL url = getClass().getResource("/Music/start_background.mp3");
-        Media music;
-        try {
-            music = new Media(url.toURI().toString());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            music = null;
-            mediaPlayer = null;
+        if (url != null)
+        {
+            Media music;
+            try {
+                music = new Media(url.toURI().toString());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                music = null;
+                mediaPlayer = null;
+            }
+            if (music != null) mediaPlayer = new MediaPlayer(music);
+            else Print.red("\"start_background.mp3\" was not imported");
         }
-        if (music != null) mediaPlayer = new MediaPlayer(music);
         else Print.red("\"start_background.mp3\" was not imported");
     }
 
@@ -168,13 +173,13 @@ public class StartMenu implements Menu
     @Override
     public void startMedia()
     {
-        mediaPlayer.play();
+        if (mediaPlayer != null) mediaPlayer.play();
     }
 
     @Override
     public void stopMedia()
     {
-        mediaPlayer.stop();
+        if (mediaPlayer != null) mediaPlayer.stop();
     }
 
     @Override
