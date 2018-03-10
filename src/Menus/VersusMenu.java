@@ -14,7 +14,7 @@ public class VersusMenu implements Menu
 
     @Override
     public MenuEnum animateFrame(int framesToGo) {
-        return MenuEnum.GAME;
+        return null;
     }
 
     @Override
@@ -33,7 +33,12 @@ public class VersusMenu implements Menu
     }
 
     @Override
-    public void stopMusic() {
+    public void startMedia(){
+
+    }
+
+    @Override
+    public void stopMedia() {
 
     }
 

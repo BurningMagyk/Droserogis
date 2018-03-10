@@ -2,7 +2,7 @@ package Menus;
 
 import Util.Reactor;
 
-public interface Menu extends Reactor
+interface Menu extends Reactor
 {
     MenuEnum animateFrame(int framesToGo);
 
@@ -18,6 +18,7 @@ public interface Menu extends Reactor
         GAME
     }
 
-    void stopMusic();
+    void startMedia();
+    void stopMedia();
     void reset();
 }

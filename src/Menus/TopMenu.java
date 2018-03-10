@@ -140,7 +140,11 @@ public class TopMenu implements Menu
     }
 
     @Override
-    public void stopMusic()
+    public void startMedia()
+    {}
+
+    @Override
+    public void stopMedia()
     {
         /* Music for this menu comes from StartMenu */
     }

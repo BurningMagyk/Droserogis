@@ -30,6 +30,8 @@ public class Main extends Application
     private final int SCREEN_HEIGHT =
             Toolkit.getDefaultToolkit().getScreenSize().height;
 
+    private Controller MAINGAME;
+
     @Override
     public void start(Stage stage)
     {
@@ -62,6 +64,12 @@ public class Main extends Application
         stage.setScene(SCENE);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
+
+        /* Set up main game after the prompt is already set up */
+        Stage mainGameStage = new Stage(StageStyle.UNDECORATED);
+        mainGameStage.setWidth(SCREEN_WIDTH);
+        mainGameStage.setHeight(SCREEN_HEIGHT);
+        MAINGAME = new Controller(mainGameStage);
     }
 
     /**
@@ -321,16 +329,10 @@ public class Main extends Application
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
-        Stage mainGame = new Stage();
-        mainGame.setWidth(SCREEN_WIDTH);
-        mainGame.setHeight(SCREEN_HEIGHT);
-
-        Controller controller =
-                new Controller(mainGame);
-        controller.start();
-
         root.getChildren().clear();
         stage.close();
+
+        MAINGAME.start();
     }
 
     /* Quits the game */

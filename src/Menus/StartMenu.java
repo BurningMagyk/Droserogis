@@ -40,6 +40,7 @@ public class StartMenu implements Menu
     /* Having mediaPlayer be global makes
      * it work properly for some reason */
     private MediaPlayer mediaPlayer;
+    private Media music;
 
     StartMenu(final Group group, final GraphicsContext context)
     {
@@ -105,18 +106,14 @@ public class StartMenu implements Menu
 
         /* Try importing music */
         URL url = getClass().getResource("/Music/start_background.mp3");
-        Media media;
         try {
-            media = new Media(url.toURI().toString());
+            music = new Media(url.toURI().toString());
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            media = null;
+            music = null;
+            mediaPlayer = null;
         }
-        if (media != null)
-        {
-            mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.play();
-        }
+        if (music != null) mediaPlayer = new MediaPlayer(music);
         else Print.red("\"start_background.mp3\" was not imported");
     }
 
@@ -179,7 +176,13 @@ public class StartMenu implements Menu
     }
 
     @Override
-    public void stopMusic()
+    public void startMedia()
+    {
+        mediaPlayer.play();
+    }
+
+    @Override
+    public void stopMedia()
     {
         mediaPlayer.stop();
     }

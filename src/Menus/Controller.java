@@ -14,9 +14,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 class Controller extends AnimationTimer
 {
@@ -26,10 +27,11 @@ class Controller extends AnimationTimer
     private final Keyboard KEYBOARD;
 
     private Menu currentMenu;
-
     private Menu startMenu, topMenu, storyMenu,
             versusMenu, optionsMenu, creditsMenu;
+    private List<Menu> menuList;
 
+    private final Stage stage;
     private long lastUpdate = 0;
 
     Controller(final Stage stage)
@@ -38,9 +40,6 @@ class Controller extends AnimationTimer
         final int HEIGHT = (int) stage.getHeight();
 
         Group ROOT = new Group();
-        stage.setX(0);
-        stage.setY(0);
-        stage.initStyle(StageStyle.UNDECORATED);
 
         MOUSE = new Mouse();
         KEYBOARD = new Keyboard();
@@ -50,14 +49,18 @@ class Controller extends AnimationTimer
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
         ROOT.getChildren().add(CANVAS);
 
+        this.stage = stage;
+        stage.setX(0);
+        stage.setY(0);
         stage.setScene(scene);
-        stage.show();
 
         /* Set up menus */
         currentMenu = null;
-        topMenu = new TopMenu(ROOT, CONTEXT);
-        startMenu = new StartMenu(ROOT, CONTEXT);
-        versusMenu = new VersusMenu(ROOT, CONTEXT);
+        menuList = new ArrayList<>();
+        topMenu = new TopMenu(ROOT, CONTEXT); menuList.add(topMenu);
+        startMenu = new StartMenu(ROOT, CONTEXT); menuList.add(startMenu);
+        versusMenu = new VersusMenu(ROOT, CONTEXT); menuList.add(versusMenu);
+
         GAME = new Game(ROOT, CONTEXT);
 
         /* Temporary */
@@ -87,6 +90,17 @@ class Controller extends AnimationTimer
         else Print.red("\"opening_background.png\" was not imported");
     }
 
+    /**
+     * Call to start the game after the prompt.
+     */
+    public void start()
+    {
+        /* Start calling handle */
+        super.start();
+        stage.show();
+        currentMenu.startMedia();
+    }
+
     @Override
     public void handle(long now)
     {
@@ -101,7 +115,7 @@ class Controller extends AnimationTimer
     public void stop()
     {
         super.stop();
-        startMenu.stopMusic();
+        startMenu.stopMedia();
     }
 
     private void goToMenu(Menu.MenuEnum menuEnum)
@@ -145,11 +159,30 @@ class Controller extends AnimationTimer
                 menu = null;
         }
 
-        if (currentMenu != null) currentMenu.reset();
+        if (currentMenu != null)
+        {
+            currentMenu.reset();
+            /* The media does not stop in certain transitions */
+            if (!isSpecialCase(currentMenu, menu)) stopMedia();
+        }
+
         currentMenu = menu;
         MOUSE.setReactor(menu);
         KEYBOARD.setReactor(menu);
         currentMenu.reset();
+
+        /* So that the Start Menu song doesn't play at the prompt */
+        if (menuEnum != Menu.MenuEnum.START) currentMenu.startMedia();
+    }
+
+    private boolean isSpecialCase(Menu prev, Menu next)
+    {
+        return prev == startMenu && next == topMenu;
+    }
+
+    private void stopMedia()
+    {
+        menuList.forEach(Menu::stopMedia);
     }
 
     private void goToGameplay()
