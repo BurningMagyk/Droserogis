@@ -1,5 +1,7 @@
 package Menus;
 
+import Importer.FontResource;
+import Importer.ImageResource;
 import Util.LanguageEnum;
 import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
@@ -25,7 +27,7 @@ public class StartMenu implements Menu
 
     private final Image image;
     private final String message;
-    private Font font;
+    private FontResource font;
 
     private double opacity;
     private boolean fading;
@@ -49,47 +51,28 @@ public class StartMenu implements Menu
         final int HEIGHT = (int) context.getCanvas().getHeight();
 
         /* Try importing image file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Images/start_background.png");
-        if (input != null)
-        {
-            image = new Image(input);
-        }
-        else
-        {
-            image = null;
-            Print.red("\"start_background.png\" was not imported");
-        }
+        image = Main.IMPORTER.getImage(
+                "/Images/start_background.png", Color.GREY).getImage();
 
         /* Prepare text dimensions, set to default values */
         double textWidth = WIDTH / 2;
         double textHeight = HEIGHT / 6;
 
         /* Try importing the Planewalker or Kaisho font */
-        String fileName = Main.language == LanguageEnum.WAPANESE
-                ? "kaisho.ttf" : "planewalker.otf";
-        input = getClass()
-                .getResourceAsStream("/Fonts/" + fileName);
         float fontSize = Math.min(WIDTH, HEIGHT) / 12;
-        if (input == null)
-        {
-            font = Font.font(fontSize);
-            Print.red("\"" + fileName + "\" was not imported");
-        }
-        else
-        {
-            font = Font.loadFont(input, fontSize);
-            context.setFont(font);
+        font = Main.IMPORTER.getFont("/Fonts/planewalker.otf",
+                fontSize, "/Fonts/kaisho.ttf", fontSize);
 
-            /* Make dummy text to get dimensions */
-            Text text = new Text(message);
-            text.setFont(font);
-            textWidth = text.getLayoutBounds().getWidth();
-            textHeight = text.getLayoutBounds().getHeight();
-        }
+        /* Need to set the alternate font right away */
+        if (Main.language == LanguageEnum.WAPANESE) font.switchFont(true); // TODO: Probably don't need this since FontResource checks for language
+        context.setFont(font.getFont());
 
-        /* Calculate position of where the text will be animated
-         * Using the dummy's text dimensions to center it on the screen */
+        /* Get text dimensions */
+        font.setSample(message);
+        textWidth = font.getWidth();
+        textHeight = font.getHeight();
+
+        /* Calculate position of where the text will be animated */
         textPosX = (WIDTH - textWidth) / 2;
         textPosY = (HEIGHT - textHeight) / 4 * 3;
 
@@ -135,9 +118,7 @@ public class StartMenu implements Menu
 
         /* Draw message */
         context.setFill(Color.rgb(0,0,0, opacity));
-        context.fillText(message,
-                textPosX,
-                textPosY);
+        font.draw(textPosX, textPosY, message);
 
         /* Goes to Top menu when a key is typed or the mouse is clicked */
         return nextMenu;
@@ -186,7 +167,7 @@ public class StartMenu implements Menu
     {
         pressed = false;
         nextMenu = null;
-        if (font != null) context.setFont(font);
+        if (font != null) context.setFont(font.getFont());
     }
 
     /* Get the message in the correct language

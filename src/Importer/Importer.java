@@ -1,5 +1,6 @@
 package Importer;
 
+import Util.LanguageEnum;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -11,6 +12,7 @@ public class Importer
     private GraphicsContext context;
 
     private ArrayList<Resource> resources = new ArrayList<>();
+    private ArrayList<FontResource> fonts = new ArrayList<>();
 
     public void setContext(GraphicsContext context)
     {
@@ -33,13 +35,23 @@ public class Importer
 
     public FontResource getFont(String path, double size)
     {
-        return new FontResource(path, size, context);
+        FontResource font = new FontResource(path, size, context);
+        fonts.add(font);
+        return font;
     }
 
     public FontResource getFont(String path, double size,
                                 String pathAlt, double sizeAlt)
     {
         return new FontResource(path, size, pathAlt, sizeAlt, context);
+    }
+
+    public void switchFonts(LanguageEnum languageEnum)
+    {
+        for (FontResource font : fonts)
+        {
+            font.switchFont(languageEnum == LanguageEnum.WAPANESE);
+        }
     }
 
     private int binarySearch(int first, int last, String key)

@@ -51,6 +51,7 @@ class Controller extends AnimationTimer
         Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.BLACK);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
+        Main.IMPORTER.setContext(CONTEXT);
         BACKGROUND = new ImageView();
 
         /* Background image needs to be added before the canvas */
@@ -95,7 +96,7 @@ class Controller extends AnimationTimer
             cursor = new ImageCursor(cursorImage, 30, 30);
             scene.setCursor(cursor);
         }
-        else Print.red("\"opening_background.png\" was not imported");
+        else Print.red("\"/Images/cursor.png\" was not imported");
     }
 
     /**

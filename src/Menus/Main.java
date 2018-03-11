@@ -92,32 +92,21 @@ public class Main extends Application
         int comboBoxWidth = width * 3 / 15;
         int comboBoxHeight = height / 10;
 
-        /* Try importing the Supernatural Knight font file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Fonts/planewalker.otf");
-        if (input == null) Print.red("\"planewalker.otf\" was not imported");
-
-        /* Try importing the Kaisho font file */
-        InputStream input_wapanese = getClass()
-                .getResourceAsStream("/Fonts/kaisho.ttf");
-        if (input_wapanese == null) Print.red("\"kaisho.ttf\" was not imported");
-
-        /* Use default fonts if the importing failed */
+        /* Try importing the Supernatural Knight and Kaisho fonts */
         double fontSize = Math.min(width, height) / 25;
-        Font font = input == null ? Font.font(fontSize) : Font.loadFont(input, fontSize);
-        Font font_wapanese = input_wapanese == null
-                ? Font.font(fontSize) : Font.loadFont(input_wapanese, fontSize);
-        Font[] fonts = {font, font_wapanese};
+        FontResource font = IMPORTER.getFont(
+                "/Fonts/planewalker.otf", fontSize,
+                "/Fonts/kaisho.ttf", fontSize);
 
         /* Give widget names, add them to the translator */
         final Translator translator = new Translator();
         String[] startButtonNames =
                 {"Start Game", "Empieza Juego", "Inizia Gioco",
                         "Démarrer Jeu", "Spiel Beginnen", "ゲームをスタート"};
-        Button startButton = translator.getButton(fonts, startButtonNames);
+        Button startButton = translator.getButton(font.getFonts(), startButtonNames);
         String[] exitButtonNames =
                 {"Exit", "Salga", "Uscire", "Quitter", "Beende", "出口"};
-        Button exitButton = translator.getButton(fonts, exitButtonNames);
+        Button exitButton = translator.getButton(font.getFonts(), exitButtonNames);
 
         /* Set IDs for each button */
         startButton.setId("start-button");

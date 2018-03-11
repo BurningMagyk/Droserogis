@@ -36,6 +36,11 @@ public class ImageResource extends Resource
         else context.drawImage(image, xPos, yPos, width, height);
     }
 
+    public Image getImage()
+    {
+        return image;
+    }
+
     public double getWidth() { return image.getWidth(); }
     public double getHeight() { return image.getHeight(); }
 }
