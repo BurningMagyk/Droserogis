@@ -50,55 +50,53 @@ public class FontResource extends Resource
 
     public void draw(double xPos, double yPos, String text)
     {
-        context.setFont(alt ? fontAlt : font);
+        context.setFont(isAlt() ? fontAlt : font);
         context.fillText(text, xPos, yPos);
     }
 
     public void setSample(String sample)
     {
-        if (alt)
+        if (fontAlt != null)
         {
             textAlt = new Text(sample);
-            textAlt.setFont(getFont());
+            textAlt.setFont(fontAlt);
         }
-        else
-        {
-            text = new Text(sample);
-            text.setFont(getFont());
-        }
+        text = new Text(sample);
+        text.setFont(font);
     }
 
     public double getWidth()
     {
-        return alt ? textAlt.getLayoutBounds().getWidth()
+        return isAlt() ? textAlt.getLayoutBounds().getWidth()
                 : text.getLayoutBounds().getWidth();
     }
 
     public double getHeight()
     {
-        return alt ? textAlt.getLayoutBounds().getHeight()
+        return isAlt() ? textAlt.getLayoutBounds().getHeight()
                 : text.getLayoutBounds().getHeight();
     }
 
     public Font getFont()
     {
-        return alt ? fontAlt : font;
+        return isAlt() ? fontAlt : font;
     }
 
     public Font[] getFonts()
     {
-        Font[] fonts = {font, fontAlt};
-        return fonts;
+        return new Font[] {font, fontAlt};
     }
 
     public void switchFont(boolean alt)
     {
         this.alt = alt;
 
-        Text sample = alt ? textAlt : text;
+        Text sample = isAlt() ? textAlt : text;
         if (sample != null)
         {
             sample.setFont(getFont());
         }
     }
+
+    private boolean isAlt() { return alt && fontAlt != null; }
 }

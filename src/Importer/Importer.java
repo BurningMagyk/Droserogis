@@ -14,6 +14,10 @@ public class Importer
     private ArrayList<Resource> resources = new ArrayList<>();
     private ArrayList<FontResource> fonts = new ArrayList<>();
 
+    private String fontDir = "/Fonts/";
+    private String imageDir = "/Images/";
+    private String musicDir = "/Music/";
+
     public void setContext(GraphicsContext context)
     {
         this.context = context;
@@ -24,7 +28,8 @@ public class Importer
         int index = binarySearch(0, resources.size() - 1, path);
         if (index == -1)
         {
-            ImageResource resource = new ImageResource(path, context, color);
+            ImageResource resource = new ImageResource(
+                    imageDir + path, context, color);
             resources.add(resource);
             resources.sort(new ResourceComp());
             return resource;
@@ -35,7 +40,8 @@ public class Importer
 
     public FontResource getFont(String path, double size)
     {
-        FontResource font = new FontResource(path, size, context);
+        FontResource font = new FontResource(
+                fontDir + path, size, context);
         fonts.add(font);
         return font;
     }
@@ -43,7 +49,13 @@ public class Importer
     public FontResource getFont(String path, double size,
                                 String pathAlt, double sizeAlt)
     {
-        return new FontResource(path, size, pathAlt, sizeAlt, context);
+        return new FontResource(fontDir + path, size,
+                fontDir + pathAlt, sizeAlt, context);
+    }
+
+    public FontResource getFont(String path, String pathAlt, double size)
+    {
+        return getFont(path, size, pathAlt, size);
     }
 
     public void switchFonts(LanguageEnum languageEnum)

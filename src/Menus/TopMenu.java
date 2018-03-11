@@ -1,8 +1,9 @@
 package Menus;
 
-import Util.LanguageEnum;
+import Importer.FontResource;
 import Util.Print;
 import javafx.application.Platform;
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -12,7 +13,7 @@ import javafx.scene.text.Font;
 
 import java.io.InputStream;
 
-public class TopMenu implements Menu
+class TopMenu implements Menu
 {
     private final GraphicsContext context;
 
@@ -21,21 +22,18 @@ public class TopMenu implements Menu
     /* 0 - top, 1 - middle, 2 - bottom */
     private int titleBoundaries[];
     private Font titleFonts[];
-    private Font widgetFont;
 
     private int fontSize;
     private int STUFFING;
 
     private JutWidget[] widgets;
-    /* Translator class not needed here */
     private String[][] widgetNames =
             {
-                    {"Storytime", "Versus", "Options", "Gallery", "Quit"},
-                    {"Cuentos", "Contra", "Opciones", "Galería", "Dimitir"},
-                    {"Favola", "Contro", "Opzioni", "Galleria", "Smettere"},
-                    {"Conte", "Contre", "Options", "Galerie", "Quitter"},
-                    {"Märchenstunde", "Gegen", "Optionen", "Galerie", "Verlassen"},
-                    {"寓話の時間", "対", "オプション", "画廊", "やめる"}
+                    {"Storytime", "Cuentos", "Favola", "Conte", "Märchenstunde", "寓話の時間"},
+                    {"Versus", "Contra", "Contro", "Contre", "Gegen", "対"},
+                    {"Options", "Opciones", "Opzioni", "Options", "Optionen", "オプション"},
+                    {"Gallery", "Galería", "Galleria", "Galerie", "Galerie", "画廊"},
+                    {"Quit", "Dimitir", "Smettere", "Quitter", "Verlassen", "やめる"}
             };
     private Image[] widgetImages;
     private String[] widgetImageNames =
@@ -87,8 +85,6 @@ public class TopMenu implements Menu
                 fontSize * 1.25 + STUFFING, titleBoundaries[0]);
 
         /* Widgets */
-        if (widgetFont != null) context.setFont(widgetFont);
-        else context.setFont(Font.font(fontSize / 3));
         for (JutWidget widget : widgets)
         {
             widget.animateFrame(framesToGo);
@@ -154,13 +150,19 @@ public class TopMenu implements Menu
     }
 
     @Override
-    public void reset()
+    public void reset(Group group) // TODO: if stuffs go on the group in this menu, remove them here
     {
         nextMenu = null;
         for (Widget widget : widgets)
         {
             widget.focused = false;
         }
+    }
+
+    @Override
+    public void decorate(Group group)
+    {
+
     }
 
     private void importImages()
@@ -241,15 +243,8 @@ public class TopMenu implements Menu
     private void setWidgets(int WIDTH, int HEIGHT)
     {
         /* Get the fonts */
-        InputStream input = getClass().getResourceAsStream(
-                "/Fonts/planewalker.otf");
-        if (input == null) Print.red("\"planewalker.otf\" was not imported");
-        InputStream input_wapanese = getClass().getResourceAsStream(
-                "/Fonts/kaisho.ttf");
-        if (input_wapanese == null) Print.red("\"kaisho.ttf\" was not imported");
-        widgetFont = Main.language == LanguageEnum.WAPANESE
-                ? Font.loadFont(input_wapanese, fontSize / 3)
-                : Font.loadFont(input, fontSize / 3);
+        FontResource widgetFont = Main.IMPORTER.getFont(
+                "planewalker.otf", "kaisho.ttf", fontSize / 3);
 
         /* Set up widgets */
         int aspects[] = new int[4];
@@ -277,15 +272,16 @@ public class TopMenu implements Menu
             int southIndex = i == widgets.length - 1 ? 0 : i + 1;
             neighbors[2] = widgets[southIndex];
 
+            /* TODO: will add more images for arming */
             Image[] images = {widgetImages[i]};
 
             /* The only aspect that differs is the yPos */
             aspects[1] += HEIGHT / 7;
             widgets[i] = new JutWidget(aspects, images, neighbors, context);
+            /* Add widgets to Translator */
+            Main.TRANSLATOR.addWidget(widgets[i], widgetFont, widgetNames[i]);
             /* Set their jut distance */
             widgets[i].setDistance(jutDistance);
-            /* Give them names */
-            widgets[i].setText(widgetNames[Main.language.getID()][i]);
         }
     }
 
@@ -294,33 +290,17 @@ public class TopMenu implements Menu
         private int startingPos;
         private int endingPos;
 
-        private int textX;
-        private int textY;
-        private String text;
-
         JutWidget(int[] aspects, Image[] images, Widget[] neighbors,
                   GraphicsContext context)
         {
             super(aspects, images, neighbors, context);
 
             startingPos = (int) posX;
-
-            textX = -1;
-            textY = -1;
-            text = null;
         }
 
         void animateFrame(int framesToGo)
         {
             super.animateFrame(framesToGo);
-
-            /* Draw text */
-            textX = (int) ((width - fontSize) / 3 + posX);
-            textY = (int) ((height - fontSize / 2.9) * 2 + posY);
-
-            context.setFill(Color.RED);
-            context.fillText(text,
-                    textX, textY);
 
             double speed;
             /* Move the widget */
@@ -341,11 +321,6 @@ public class TopMenu implements Menu
             /* Restore if out of bounds */
             if (posX < endingPos) posX = endingPos;
             else if (posX > startingPos) posX = startingPos;
-        }
-
-        void setText(String string)
-        {
-            this.text = string;
         }
 
         void setDistance(int distance)

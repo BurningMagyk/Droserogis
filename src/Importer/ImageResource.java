@@ -41,6 +41,14 @@ public class ImageResource extends Resource
         return image;
     }
 
-    public double getWidth() { return image.getWidth(); }
-    public double getHeight() { return image.getHeight(); }
+    public double getWidth()
+    {
+        if (image == null) return -1;
+        return image.getWidth();
+    }
+    public double getHeight()
+    {
+        if (image == null) return -1;
+        return image.getHeight();
+    }
 }

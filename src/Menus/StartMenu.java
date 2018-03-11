@@ -1,8 +1,8 @@
 package Menus;
 
 import Importer.FontResource;
-import Util.LanguageEnum;
 import Util.Print;
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -10,20 +10,27 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class StartMenu implements Menu
+class StartMenu implements Menu
 {
     private final GraphicsContext context;
 
-    private final double textPosX;
-    private final double textPosY;
+    private final int WIDTH, HEIGHT;
 
     private final Image image;
-    private final String message;
     private FontResource font;
+    private Text message;
+    private String[] messages =
+            {"Press any key to start",
+            "Presione una tecla para empiezar",
+            "Premere un tasto per iniziare",
+            "Appuyez sur une touche pour démarrer",
+            "Drücke zum Starten eine Taste",
+            "任意のキーを押して開始"};
 
     private double opacity;
     private boolean fading;
@@ -38,38 +45,22 @@ public class StartMenu implements Menu
     StartMenu(final GraphicsContext context)
     {
         this.context = context;
-        message = getMessage();
         opacity = 1.0;
         fading = true;
         nextMenu = null;
 
-        final int WIDTH = (int) context.getCanvas().getWidth();
-        final int HEIGHT = (int) context.getCanvas().getHeight();
+        WIDTH = (int) context.getCanvas().getWidth();
+        HEIGHT = (int) context.getCanvas().getHeight();
 
         /* Try importing image file */
         image = Main.IMPORTER.getImage(
-                "/Images/start_background.png", Color.GREY).getImage();
-
-        /* Prepare text dimensions, set to default values */
-        double textWidth, textHeight;
+                "start_background.png", Color.GREY).getImage();
 
         /* Try importing the Planewalker or Kaisho font */
         float fontSize = Math.min(WIDTH, HEIGHT) / 12;
-        font = Main.IMPORTER.getFont("/Fonts/planewalker.otf",
-                fontSize, "/Fonts/kaisho.ttf", fontSize);
-
-        /* Need to set the alternate font right away */
-        if (Main.language == LanguageEnum.WAPANESE) font.switchFont(true); // TODO: Probably don't need this since FontResource checks for language
-        context.setFont(font.getFont());
-
-        /* Get text dimensions */
-        font.setSample(message);
-        textWidth = font.getWidth();
-        textHeight = font.getHeight();
-
-        /* Calculate position of where the text will be animated */
-        textPosX = (WIDTH - textWidth) / 2;
-        textPosY = (HEIGHT - textHeight) / 4 * 3;
+        font = Main.IMPORTER.getFont("planewalker.otf",
+                "kaisho.ttf", fontSize);
+        message = Main.TRANSLATOR.getText(font, messages);
 
         /* Try importing music */
         URL url = getClass().getResource("/Music/start_background.mp3");
@@ -92,10 +83,6 @@ public class StartMenu implements Menu
     @Override
     public MenuEnum animateFrame(int framesToGo)
     {
-        /* Clear canvas */
-        context.clearRect(0, 0, context.getCanvas().getWidth(),
-                context.getCanvas().getHeight());
-
         /* Set message to change opacity */
         if (fading) opacity -= 0.005 * framesToGo;
         else opacity += 0.005 * framesToGo;
@@ -111,9 +98,8 @@ public class StartMenu implements Menu
             fading = false;
         }
 
-        /* Draw message */
-        context.setFill(Color.rgb(0,0,0, opacity));
-        font.draw(textPosX, textPosY, message);
+        /* Draw update message's opacity */
+        message.setOpacity(opacity);
 
         /* Goes to Top menu when a key is typed or the mouse is clicked */
         return nextMenu;
@@ -158,24 +144,30 @@ public class StartMenu implements Menu
     }
 
     @Override
-    public void reset()
+    public void reset(Group group)
     {
         pressed = false;
         nextMenu = null;
         if (font != null) context.setFont(font.getFont());
+
+        group.getChildren().remove(message);
     }
 
-    /* Get the message in the correct language
-     * Just one string, so a Translator isn't needed */
-    private String getMessage()
+    @Override
+    public void decorate(Group group)
     {
-        String[] messages = {"Press any key to start",
-                "Presione una tecla para empiezar",
-                "Premere un tasto per iniziare",
-                "Appuyez sur une touche pour démarrer",
-                "Drücke zum Starten eine Taste",
-                "任意のキーを押して開始"};
+        group.getChildren().add(message);
 
-        return messages[Main.language.getID()];
+        /* Get text dimensions */
+        font.setSample(message.getText());
+        double textWidth = font.getWidth();
+        double textHeight = font.getHeight();
+
+        /* Calculate position of where the text will be animated */
+        double textPosX = (WIDTH - textWidth) / 2;
+        double textPosY = (HEIGHT - textHeight) / 4 * 3;
+
+        message.setX(textPosX);
+        message.setY(textPosY);
     }
 }

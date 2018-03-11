@@ -1,11 +1,12 @@
 package Menus;
 
+import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
-public class VersusMenu implements Menu
+class VersusMenu implements Menu
 {
     VersusMenu(final GraphicsContext context)
     {
@@ -48,7 +49,12 @@ public class VersusMenu implements Menu
     }
 
     @Override
-    public void reset() {
+    public void reset(Group group) {
+
+    }
+
+    @Override
+    public void decorate(Group group) {
 
     }
 }

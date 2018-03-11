@@ -5,10 +5,16 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
-class Widget
+public class Widget
 {
     double posX, posY, width, height;
+    private int textX;
+    private int textY;
+    private String text;
+    private double fontSize;
+    private Font font;
 
     Image images[];
     int imageIndex;
@@ -24,6 +30,14 @@ class Widget
     {
         posX = aspects[0]; posY = aspects[1];
         width = aspects[2]; height = aspects[3];
+
+        textX = -1;
+        textY = -1;
+        text = "ERROR";
+
+        /* Default font and fontSize */
+        fontSize = Math.min(width, height) / 2;
+        font = Font.font(fontSize);
 
         this.images = images;
         imageIndex = 0;
@@ -60,7 +74,22 @@ class Widget
             if (imageIndex > 0) imageIndex -= framesToGo;
             if (imageIndex < 0) imageIndex = 0;
         }
+
+        /* Draw text */
+        textX = (int) ((width - fontSize) / 3 + posX);
+        textY = (int) ((height - fontSize) + posY);
+
+        context.setFill(Color.RED);
+        context.setFont(font);
+        context.fillText(text,
+                textX, textY);
     }
+
+    public void setText(String string)
+    {
+        this.text = string;
+    }
+    public void setFont(Font font) { this.font = font; }
 
     /**
      * Do something from the menu if it returns true

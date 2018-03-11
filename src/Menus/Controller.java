@@ -27,6 +27,7 @@ class Controller extends AnimationTimer
     private final Mouse MOUSE;
     private final Keyboard KEYBOARD;
     private final ImageView BACKGROUND;
+    private final Group ROOT;
 
     private final int WIDTH, HEIGHT;
 
@@ -43,7 +44,7 @@ class Controller extends AnimationTimer
         WIDTH = (int) stage.getWidth();
         HEIGHT = (int) stage.getHeight();
 
-        Group ROOT = new Group();
+        ROOT = new Group();
 
         MOUSE = new Mouse();
         KEYBOARD = new Keyboard();
@@ -109,6 +110,9 @@ class Controller extends AnimationTimer
         super.start();
         stage.show();
         currentMenu.startMedia();
+
+        currentMenu.reset(ROOT);
+        currentMenu.decorate(ROOT);
     }
 
     @Override
@@ -172,13 +176,15 @@ class Controller extends AnimationTimer
 
         if (currentMenu != null)
         {
-            currentMenu.reset();
+            currentMenu.reset(ROOT);
             /* The media does not stop in certain transitions */
             if (!isSpecialCase(currentMenu, menu)) stopMedia();
         }
 
+        menu.reset(ROOT);
         setBackground(menu);
-        menu.reset();
+        menu.decorate(ROOT);
+
         MOUSE.setReactor(menu);
         KEYBOARD.setReactor(menu);
         currentMenu = menu;
@@ -196,6 +202,7 @@ class Controller extends AnimationTimer
     {
         Image image = menu.getBackground();
         if (image == null) return;
+
         BACKGROUND.setImage(image);
         double imageWidth = image.getWidth();
         double imageHeight = image.getHeight();

@@ -1,6 +1,7 @@
 package Menus;
 
 import Util.Reactor;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 
 interface Menu extends Reactor
@@ -23,5 +24,6 @@ interface Menu extends Reactor
 
     void startMedia();
     void stopMedia();
-    void reset();
+    void reset(Group group);
+    void decorate(Group group);
 }

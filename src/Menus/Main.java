@@ -4,7 +4,6 @@ import Importer.Importer;
 import Importer.ImageResource;
 import Importer.FontResource;
 import Util.LanguageEnum;
-import Util.Print;
 import Util.Translator;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -15,18 +14,17 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.awt.Toolkit;
-import java.io.InputStream;
 import java.util.Locale;
 
 public class Main extends Application
 {
     public static LanguageEnum language = getSystemLanguage();
     public final static Importer IMPORTER = new Importer();
+    public final static Translator TRANSLATOR = new Translator();
 
     private final int SCREEN_WIDTH =
             Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -95,18 +93,16 @@ public class Main extends Application
         /* Try importing the Supernatural Knight and Kaisho fonts */
         double fontSize = Math.min(width, height) / 25;
         FontResource font = IMPORTER.getFont(
-                "/Fonts/planewalker.otf", fontSize,
-                "/Fonts/kaisho.ttf", fontSize);
+                "planewalker.otf", "kaisho.ttf", fontSize);
 
         /* Give widget names, add them to the translator */
-        final Translator translator = new Translator();
         String[] startButtonNames =
                 {"Start Game", "Empieza Juego", "Inizia Gioco",
                         "Démarrer Jeu", "Spiel Beginnen", "ゲームをスタート"};
-        Button startButton = translator.getButton(font.getFonts(), startButtonNames);
+        Button startButton = TRANSLATOR.getButton(font, startButtonNames);
         String[] exitButtonNames =
                 {"Exit", "Salga", "Uscire", "Quitter", "Beende", "出口"};
-        Button exitButton = translator.getButton(font.getFonts(), exitButtonNames);
+        Button exitButton = TRANSLATOR.getButton(font, exitButtonNames);
 
         /* Set IDs for each button */
         startButton.setId("start-button");
@@ -120,8 +116,8 @@ public class Main extends Application
         langComboBox.setValue(language);
 
         double comboFontSize = Math.min(comboBoxWidth, comboBoxHeight) / 2.5;
-        FontResource comboFont = IMPORTER.getFont("/Fonts/augusta.ttf",
-                comboFontSize, "/Fonts/kaisho.ttf", comboFontSize);
+        FontResource comboFont = IMPORTER.getFont("augusta.ttf",
+                "kaisho.ttf", comboFontSize);
 
         langComboBox.setButtonCell(
                 new StringImageCell(comboBoxWidth, comboBoxHeight, comboFont));
@@ -137,7 +133,7 @@ public class Main extends Application
                 new StringImageCell(comboBoxWidth, comboBoxHeight, comboFont));
         langComboBox.setOnAction(kys ->
         {
-            updateLanguage(translator, langComboBox.getValue());
+            updateLanguage(langComboBox.getValue());
             positionButtons(buttons, width, height);
         });
 
@@ -173,7 +169,7 @@ public class Main extends Application
 
         /* Try importing image file */
         ImageResource image = IMPORTER.getImage(
-                "/Images/opening_background.png", Color.GREY);
+                "opening_background.png", Color.GREY);
         double sizeScale = width / image.getWidth();
         image.draw((width - image.getWidth() * sizeScale) / 2,
                 (height - image.getHeight() * sizeScale) / 2,
@@ -189,10 +185,10 @@ public class Main extends Application
         drawLogo(context, fontSize, boundary, STUFFING);
     }
 
-    private void updateLanguage(Translator translator, LanguageEnum language)
+    private void updateLanguage(LanguageEnum language)
     {
         Main.language = language;
-        translator.translate();
+        TRANSLATOR.translate();
     }
 
     private void positionButtons(Button[] buttons,
@@ -221,17 +217,17 @@ public class Main extends Application
                           int boundary[], final int STUFFING)
     {
         /* Try importing the Scurlock font file */
-        FontResource font = IMPORTER.getFont("/Fonts/scurlock.ttf", fontSize);
+        FontResource font = IMPORTER.getFont("scurlock.ttf", fontSize);
         context.setFill(Color.DARKBLUE);
         font.draw(STUFFING, boundary[0], "Droserogis");
 
         /* Try importing the Supernatural Knight font file */
-        font = IMPORTER.getFont("/Fonts/supernatural_knight.ttf", fontSize / 2.5);
+        font = IMPORTER.getFont("supernatural_knight.ttf", fontSize / 2.5);
         context.setFill(Color.BLACK);
         font.draw(fontSize * 1.75 + STUFFING, boundary[1], "VS");
 
         /* Try importing the Cardinal font file */
-        font = IMPORTER.getFont("/Fonts/cardinal.ttf", fontSize / 1.2);
+        font = IMPORTER.getFont("cardinal.ttf", fontSize / 1.2);
         context.setFill(Color.PURPLE);
         font.draw(fontSize * 1.25 + STUFFING, boundary[2], "Sothli");
     }
@@ -289,6 +285,7 @@ public class Main extends Application
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
+        TRANSLATOR.clear();
         root.getChildren().clear();
         stage.close();
 
@@ -298,6 +295,7 @@ public class Main extends Application
     /* Quits the game */
     private void quitGame(Stage stage, Group root)
     {
+        TRANSLATOR.clear();
         root.getChildren().clear();
         stage.close();
         Platform.exit();
