@@ -1,7 +1,6 @@
 package Menus;
 
 import Importer.FontResource;
-import Importer.ImageResource;
 import Util.LanguageEnum;
 import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,10 +10,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -55,8 +51,7 @@ public class StartMenu implements Menu
                 "/Images/start_background.png", Color.GREY).getImage();
 
         /* Prepare text dimensions, set to default values */
-        double textWidth = WIDTH / 2;
-        double textHeight = HEIGHT / 6;
+        double textWidth, textHeight;
 
         /* Try importing the Planewalker or Kaisho font */
         float fontSize = Math.min(WIDTH, HEIGHT) / 12;
