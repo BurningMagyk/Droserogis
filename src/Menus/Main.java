@@ -1,5 +1,8 @@
 package Menus;
 
+import Importer.Importer;
+import Importer.ImageResource;
+import Importer.FontResource;
 import Util.LanguageEnum;
 import Util.Print;
 import Util.Translator;
@@ -10,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -24,6 +26,7 @@ import java.util.Locale;
 public class Main extends Application
 {
     public static LanguageEnum language = getSystemLanguage();
+    public final static Importer IMPORTER = new Importer();
 
     private final int SCREEN_WIDTH =
             Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -44,9 +47,10 @@ public class Main extends Application
         final int SCENE_WIDTH = SCREEN_WIDTH / 2;
         final int SCENE_HEIGHT = SCREEN_HEIGHT / 2;
         final Scene SCENE = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT,
-                Color.BLACK);
+                Color.GREY);
         final Canvas CANVAS = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
         GraphicsContext context = CANVAS.getGraphicsContext2D();
+        IMPORTER.setContext(context);
 
         /* Sample code to draw on the canvas: */
         drawOnCanvas(context);
@@ -122,10 +126,16 @@ public class Main extends Application
         /* Group the buttons to ease input */
         Button[] buttons = {startButton, exitButton};
 
+        /* Set up Combo Boxes */
         ComboBox<LanguageEnum> langComboBox = new ComboBox<>();
         langComboBox.setValue(language);
+
+        double comboFontSize = Math.min(comboBoxWidth, comboBoxHeight) / 2.5;
+        FontResource comboFont = IMPORTER.getFont("/Fonts/augusta.ttf",
+                comboFontSize, "/Fonts/kaisho.ttf", comboFontSize);
+
         langComboBox.setButtonCell(
-                new StringImageCell(comboBoxWidth, comboBoxHeight));
+                new StringImageCell(comboBoxWidth, comboBoxHeight, comboFont));
 
         /* Add every language to the langComboBox */
         for (LanguageEnum lang : LanguageEnum.values())
@@ -135,7 +145,7 @@ public class Main extends Application
 
         /* Set cellFactory property and buttonCell property */
         langComboBox.setCellFactory(kys ->
-                new StringImageCell(comboBoxWidth, comboBoxHeight));
+                new StringImageCell(comboBoxWidth, comboBoxHeight, comboFont));
         langComboBox.setOnAction(kys ->
         {
             updateLanguage(translator, langComboBox.getValue());
@@ -165,9 +175,6 @@ public class Main extends Application
 
     private void drawOnCanvas(GraphicsContext context)
     {
-        InputStream input;
-        Image image;
-
         /* Get canvas width and height */
         int width = (int) context.getCanvas().getWidth();
         int height = (int) context.getCanvas().getHeight();
@@ -176,20 +183,13 @@ public class Main extends Application
         final int STUFFING = Math.min(width, height) / 20;
 
         /* Try importing image file */
-        input = getClass()
-                .getResourceAsStream("/Images/opening_background.png");
-        if (input != null)
-        {
-            /* This centers the window onto the image */
-            image = new Image(input);
-            double sizeScale = width / image.getWidth();
-            context.drawImage(image,
-                    (width - image.getWidth() * sizeScale) / 2,
-                    (height - image.getHeight() * sizeScale) / 2,
-                    image.getWidth() * sizeScale,
-                    image.getHeight() * sizeScale);
-        }
-        else Print.red("\"opening_background.png\" was not imported");
+        ImageResource image = IMPORTER.getImage(
+                "/Images/opening_background.png", Color.GREY);
+        double sizeScale = width / image.getWidth();
+        image.draw((width - image.getWidth() * sizeScale) / 2,
+                (height - image.getHeight() * sizeScale) / 2,
+                image.getWidth() * sizeScale,
+                image.getHeight() * sizeScale);
 
         /* Draw the logo */
         int boundary[] = new int[3];
@@ -232,67 +232,31 @@ public class Main extends Application
                           int boundary[], final int STUFFING)
     {
         /* Try importing the Scurlock font file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Fonts/scurlock.ttf");
-        if (input == null) Print.red("\"scurlock.ttf\" was not imported");
-
-        Font font = input == null
-                ? Font.font(fontSize) : Font.loadFont(input, fontSize);
-        context.setFont(font);
+        FontResource font = IMPORTER.getFont("/Fonts/scurlock.ttf", fontSize);
         context.setFill(Color.DARKBLUE);
-        context.fillText("Droserogis",
-                STUFFING, boundary[0]);
+        font.draw(STUFFING, boundary[0], "Droserogis");
 
         /* Try importing the Supernatural Knight font file */
-        input = getClass()
-                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
-        if (input == null) Print.red("\"supernatural.ttf\" was not imported");
-
-        font = input == null ? Font.font(fontSize / 2.5)
-                : Font.loadFont(input, fontSize / 2.5);
-        context.setFont(font);
+        font = IMPORTER.getFont("/Fonts/supernatural_knight.ttf", fontSize / 2.5);
         context.setFill(Color.BLACK);
-        context.fillText("VS",
-                fontSize * 1.75 + STUFFING, boundary[1]);
+        font.draw(fontSize * 1.75 + STUFFING, boundary[1], "VS");
 
         /* Try importing the Cardinal font file */
-        input = getClass()
-                .getResourceAsStream("/Fonts/cardinal.ttf");
-        if (input == null) Print.red("\"cardinal.ttf\" was not imported");
-
-        font = input == null ? Font.font(fontSize / 1.2)
-                : Font.loadFont(input, fontSize / 1.2);
-        context.setFont(font);
+        font = IMPORTER.getFont("/Fonts/cardinal.ttf", fontSize / 1.2);
         context.setFill(Color.PURPLE);
-        context.fillText("Sothli",
-                fontSize * 1.25 + STUFFING, boundary[2]);
+        font.draw(fontSize * 1.25 + STUFFING, boundary[2], "Sothli");
     }
 
     /* A custom ListCell that displays an image and string */
     private class StringImageCell extends ListCell<LanguageEnum>
     {
-        Font font, specFont;
+        FontResource font;
         int width, height;
-        StringImageCell(int width, int height)
+        StringImageCell(int width, int height, FontResource font)
         {
             this.width = width;
             this.height = height;
-
-            InputStream input = getClass()
-                    .getResourceAsStream("/Fonts/augusta.ttf");
-            if (input != null)
-            {
-                font = Font.loadFont(input, Math.min(width, height) / 2.5);
-            }
-            else Print.red("\"augusta.ttf\" was not imported");
-
-            input = getClass()
-                    .getResourceAsStream("/Fonts/kaisho.ttf");
-            if (input != null)
-            {
-                specFont = Font.loadFont(input, Math.min(width, height) / 2.5);
-            }
-            else Print.red("\"kaisho.ttf\" was not imported");
+            this.font = font;
         }
 
         private Label label;
@@ -310,11 +274,9 @@ public class Main extends Application
                 setText(item.toString());
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
-                if (item == LanguageEnum.WAPANESE && specFont != null)
-                {
-                    setFont(specFont);
-                }
-                else if (font != null) setFont(font);
+                if (item == LanguageEnum.WAPANESE) font.switchFont(true);
+                else font.switchFont(false);
+                setFont(font.getFont());
                 setGraphic(label);
                 setPrefSize(width, height);
             }
