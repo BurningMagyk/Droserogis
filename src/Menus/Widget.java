@@ -85,10 +85,7 @@ public class Widget
                 textX, textY);
     }
 
-    public void setText(String string)
-    {
-        this.text = string;
-    }
+    public void setText(String string) { this.text = string; }
     public void setFont(Font font) { this.font = font; }
 
     /**

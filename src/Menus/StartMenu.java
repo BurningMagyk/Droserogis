@@ -1,6 +1,7 @@
 package Menus;
 
 import Importer.FontResource;
+import Util.LanguageEnum;
 import Util.Print;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;

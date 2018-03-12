@@ -285,7 +285,6 @@ public class Main extends Application
     /* Starts the game */
     private void startGame(Stage stage, Group root)
     {
-        TRANSLATOR.clear();
         root.getChildren().clear();
         stage.close();
 

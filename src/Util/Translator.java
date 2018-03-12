@@ -4,11 +4,9 @@ import Importer.FontResource;
 import Menus.Main;
 import Menus.Widget;
 import javafx.scene.control.Button;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 
 public class Translator
 {
@@ -27,6 +25,11 @@ public class Translator
         fontList = new ArrayList<>();
     }
 
+    /**
+     * In order to make a complete translate, change Main.language,
+     * call translate(), and call reset(ROOT)and decorate(ROOT) for
+     * menus with Text.
+     */
     public void translate()
     {
         int ID = Main.language.getID();
@@ -39,12 +42,8 @@ public class Translator
         for (Assignment assignment : buttonList)
         {
             Button button = (Button) assignment.object;
-            String string = assignment.strings[ID];
-            Font font = Main.language == LanguageEnum.WAPANESE
-                    ? assignment.wapanese_font : assignment.font;
-
-            button.setText(string);
-            button.setFont(font);
+            button.setText(assignment.strings[ID]);
+            button.setFont(assignment.font.getFont());
 
             positionButton(button, assignment, ID);
         }
@@ -52,23 +51,15 @@ public class Translator
         for (Assignment assignment : widgetList)
         {
             Widget widget = (Widget) assignment.object;
-            String string = assignment.strings[ID];
-            Font font = Main.language == LanguageEnum.WAPANESE
-                    ? assignment.wapanese_font : assignment.font;
-
-            widget.setText(string);
-            widget.setFont(font);
+            widget.setText(assignment.strings[ID]);
+            widget.setFont(assignment.font.getFont());
         }
 
         for (Assignment assignment : textList)
         {
             Text text = (Text) assignment.object;
-            String string = assignment.strings[ID];
-            Font font = Main.language == LanguageEnum.WAPANESE
-                    ? assignment.wapanese_font : assignment.font;
-
-            text.setText(string);
-            text.setFont(font);
+            text.setText(assignment.strings[ID]);
+            text.setFont(assignment.font.getFont());
         }
     }
 
@@ -90,7 +81,6 @@ public class Translator
         int ID = Main.language.getID();
         Button button = new Button(strings[ID]);
 
-        /* Use the other font if Wapanese */
         if (Main.language == LanguageEnum.WAPANESE)
             button.setFont(font.getFonts()[1]);
         else button.setFont(font.getFonts()[0]);
@@ -109,7 +99,6 @@ public class Translator
         int ID = Main.language.getID();
         widget.setText(strings[ID]);
 
-        /* Use the other font if Wapanese */
         if (Main.language == LanguageEnum.WAPANESE)
             widget.setFont(font.getFonts()[1]);
         else widget.setFont(font.getFonts()[0]);
@@ -125,9 +114,7 @@ public class Translator
         int ID = Main.language.getID();
         Text text = new Text(strings[ID]);
         text.setFont(font.getFont());
-        font.setSample(strings[ID]);
 
-        /* Use the other font if Wapanese */
         if (Main.language == LanguageEnum.WAPANESE)
             font.switchFont(true);
         else font.switchFont(false);
@@ -143,34 +130,31 @@ public class Translator
     private class Assignment
     {
         Object object;
-        Font font;
-        Font wapanese_font;
+        FontResource font;
         String[] strings;
         double[] width;
         double[] height;
 
-        Assignment(Object object, FontResource fonts, String... strings)
+        Assignment(Object object, FontResource font, String... strings)
         {
             this.object = object;
-
-            font = fonts.getFonts()[0];
-            wapanese_font = fonts.getFonts()[1];
+            this.font = font;
             this.strings = strings;
             width = new double[strings.length];
             height = new double[strings.length];
 
-            Text text = new Text();
-            text.setFont(font);
+            font.switchFont(false);
             for (int i = 0; i < strings.length; i++)
             {
                 if (i == LanguageEnum.WAPANESE.getID())
                 {
-                    text.setFont(wapanese_font);
+                    font.switchFont(true);
                 }
-                text.setText(strings[i]);
-                width[i] = text.getLayoutBounds().getWidth();
-                height[i] = text.getLayoutBounds().getHeight();
+                font.setSample(strings[i]);
+                width[i] = font.getWidth();
+                height[i] = font.getHeight();
             }
+            font.switchFont(Main.language == LanguageEnum.WAPANESE);
         }
     }
 }
