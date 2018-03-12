@@ -1,20 +1,14 @@
 package Menus;
 
+import Importer.AudioResource;
 import Importer.FontResource;
-import Util.LanguageEnum;
-import Util.Print;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-
-import java.net.URISyntaxException;
-import java.net.URL;
 
 class StartMenu implements Menu
 {
@@ -25,13 +19,6 @@ class StartMenu implements Menu
     private final Image image;
     private FontResource font;
     private Text message;
-    private String[] messages =
-            {"Press any key to start",
-            "Presione una tecla para empiezar",
-            "Premere un tasto per iniziare",
-            "Appuyez sur une touche pour démarrer",
-            "Drücke zum Starten eine Taste",
-            "任意のキーを押して開始"};
 
     private double opacity;
     private boolean fading;
@@ -39,9 +26,7 @@ class StartMenu implements Menu
     private MenuEnum nextMenu;
     private boolean pressed = false;
 
-    /* Having mediaPlayer be global makes
-     * it work properly for some reason */
-    private MediaPlayer mediaPlayer;
+    private AudioResource audio;
 
     StartMenu(final GraphicsContext context)
     {
@@ -57,28 +42,20 @@ class StartMenu implements Menu
         image = Main.IMPORTER.getImage(
                 "start_background.png", Color.GREY).getImage();
 
-        /* Try importing the Planewalker or Kaisho font */
+        /* Try importing the Planewalker and Kaisho font */
         float fontSize = Math.min(WIDTH, HEIGHT) / 12;
         font = Main.IMPORTER.getFont("planewalker.otf",
                 "kaisho.ttf", fontSize);
+        String[] messages = {"Press any key to start",
+                "Presione una tecla para empiezar",
+                "Premere un tasto per iniziare",
+                "Appuyez sur une touche pour démarrer",
+                "Drücke zum Starten eine Taste",
+                "任意のキーを押して開始"};
         message = Main.TRANSLATOR.getText(font, messages);
 
         /* Try importing music */
-        URL url = getClass().getResource("/Music/start_background.mp3");
-        if (url != null)
-        {
-            Media music;
-            try {
-                music = new Media(url.toURI().toString());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                music = null;
-                mediaPlayer = null;
-            }
-            if (music != null) mediaPlayer = new MediaPlayer(music);
-            else Print.red("\"start_background.mp3\" was not imported");
-        }
-        else Print.red("\"start_background.mp3\" was not imported");
+        audio = Main.IMPORTER.getAudio("start_background.mp3");
     }
 
     @Override
@@ -135,13 +112,13 @@ class StartMenu implements Menu
     @Override
     public void startMedia()
     {
-        if (mediaPlayer != null) mediaPlayer.play();
+        audio.play();
     }
 
     @Override
     public void stopMedia()
     {
-        if (mediaPlayer != null) mediaPlayer.stop();
+        audio.stop();
     }
 
     @Override

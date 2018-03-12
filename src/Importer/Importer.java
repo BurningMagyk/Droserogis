@@ -1,9 +1,14 @@
 package Importer;
 
 import Util.LanguageEnum;
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -11,8 +16,9 @@ public class Importer
 {
     private GraphicsContext context;
 
-    private ArrayList<Resource> resources = new ArrayList<>();
+    private ArrayList<Resource> images = new ArrayList<>();
     private ArrayList<FontResource> fonts = new ArrayList<>();
+    private ArrayList<Resource> audios = new ArrayList<>();
 
     private String fontDir = "/Fonts/";
     private String imageDir = "/Images/";
@@ -25,16 +31,16 @@ public class Importer
 
     public ImageResource getImage(String path, Color color)
     {
-        int index = binarySearch(0, resources.size() - 1, path);
+        int index = binarySearch(0, images.size() - 1, path, images);
         if (index == -1)
         {
             ImageResource resource = new ImageResource(
                     imageDir + path, context, color);
-            resources.add(resource);
-            resources.sort(new ResourceComp());
+            images.add(resource);
+            images.sort(new ResourceComp());
             return resource;
         } else {
-            return (ImageResource) resources.get(index);
+            return (ImageResource) images.get(index);
         }
     }
 
@@ -71,7 +77,22 @@ public class Importer
         }
     }
 
-    private int binarySearch(int first, int last, String key)
+    public AudioResource getAudio(String path)
+    {
+        AudioResource resource;
+        int index = binarySearch(0, audios.size() - 1, path, audios);
+        if (index == -1)
+        {
+            resource = new AudioResource(musicDir + path);
+            audios.add(resource);
+            audios.sort(new ResourceComp());
+            return resource;
+        } else {
+            return (AudioResource) images.get(index);
+        }
+    }
+
+    private int binarySearch(int first, int last, String key, ArrayList<Resource> list)
     {
         int result;
 
@@ -81,14 +102,14 @@ public class Importer
         {
             int mid = (first + last) / 2;
 
-            int comp = key.compareToIgnoreCase(resources.get(mid).path);
+            int comp = key.compareToIgnoreCase(list.get(mid).path);
 
             if (comp == 0)
                 result = mid;
             else if (comp > 0)
-                result = binarySearch(first, mid - 1, key);
+                result = binarySearch(first, mid - 1, key, list);
             else
-                result = binarySearch(mid + 1, last, key);
+                result = binarySearch(mid + 1, last, key, list);
         }
         return result;
     }
