@@ -157,6 +157,11 @@ class TopMenu implements Menu
         {
             widget.focused = false;
         }
+
+        // TODO: may not need to clear canvas if canvas isn't used
+        int width = (int) context.getCanvas().getWidth();
+        int height = (int) context.getCanvas().getHeight();
+        context.clearRect(0, 0, width, height);
     }
 
     @Override
