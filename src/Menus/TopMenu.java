@@ -1,6 +1,7 @@
 package Menus;
 
 import Importer.FontResource;
+import Importer.ImageResource;
 import Util.Print;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -9,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.io.InputStream;
 
@@ -21,7 +21,6 @@ class TopMenu implements Menu
 
     /* 0 - top, 1 - middle, 2 - bottom */
     private int titleBoundaries[];
-    private Font titleFonts[];
 
     private int fontSize;
     private int STUFFING;
@@ -35,9 +34,11 @@ class TopMenu implements Menu
                     {"Gallery", "Galería", "Galleria", "Galerie", "Galerie", "画廊"},
                     {"Quit", "Dimitir", "Smettere", "Quitter", "Verlassen", "やめる"}
             };
-    private Image[] widgetImages;
+    private ImageResource[] widgetImages;
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
+
+    private FontResource title[];
 
     private MenuEnum nextMenu;
 
@@ -48,11 +49,10 @@ class TopMenu implements Menu
         final int WIDTH = (int) context.getCanvas().getWidth();
         final int HEIGHT = (int) context.getCanvas().getHeight();
 
-        widgetImages = new Image[5];
+        widgetImages = new ImageResource[5];
         importImages();
 
         titleBoundaries = new int[3];
-        titleFonts = new Font[3];
         importFonts(WIDTH, HEIGHT);
 
         widgets = new JutWidget[5];
@@ -64,25 +64,17 @@ class TopMenu implements Menu
     @Override
     public MenuEnum animateFrame(int framesToGo)
     {
-        /* Clear canvas */
-        context.clearRect(0, 0, context.getCanvas().getWidth(),
-                context.getCanvas().getHeight());
+        clearContext();
 
         /* Title */
-        if (titleFonts[2] != null) context.setFont(titleFonts[2]);
         context.setFill(Color.DARKBLUE);
-        context.fillText("Droserogis",
-                STUFFING, titleBoundaries[2]);
-
-        if (titleFonts[1] != null) context.setFont(titleFonts[1]);
+        title[2].draw(STUFFING, titleBoundaries[0], "Droserogis");
         context.setFill(Color.BLACK);
-        context.fillText("VS",
-                fontSize * 1.8 + STUFFING, titleBoundaries[1]);
-
-        if (titleFonts[0] != null) context.setFont(titleFonts[0]);
+        title[1].draw(fontSize * 1.8 + STUFFING,
+                titleBoundaries[1], "VS");
         context.setFill(Color.PURPLE);
-        context.fillText("Sothli",
-                fontSize * 1.25 + STUFFING, titleBoundaries[0]);
+        title[0].draw(fontSize * 1.25 + STUFFING,
+                titleBoundaries[2], "Sothli");
 
         /* Widgets */
         for (JutWidget widget : widgets)
@@ -159,9 +151,7 @@ class TopMenu implements Menu
         }
 
         // TODO: may not need to clear canvas if canvas isn't used
-        int width = (int) context.getCanvas().getWidth();
-        int height = (int) context.getCanvas().getHeight();
-        context.clearRect(0, 0, width, height);
+        clearContext();
     }
 
     @Override
@@ -173,76 +163,41 @@ class TopMenu implements Menu
     private void importImages()
     {
         /* Try importing background image file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Images/top_background.png");
-        if (input != null)
-        {
-            backgroundImage = new Image(input);
-        }
-        else
-        {
-            backgroundImage = null;
-            Print.red("\"top_background.png\" was not imported");
-        }
+        backgroundImage = Main.IMPORTER.getImage(
+                "top_background.png").getImage();
 
         /* Try importing widget image files */
         for (int i = 0; i < widgetImageNames.length; i++)
         {
-            input = getClass().getResourceAsStream("/Images/katana_"
-                    + widgetImageNames[i] + ".png");
-            if (input != null)
-                widgetImages[i] = new Image(input);
-            else {
-                widgetImages[i] = null;
-                Print.red("\"katana_" + widgetImageNames[i]
-                        + ".png\" was not imported");
-            }
+            widgetImages[i] = Main.IMPORTER.getImage(
+                    "katana_" + widgetImageNames[i] + ".png");
         }
+    }
+
+    private void clearContext()
+    {
+        /* Clear canvas */
+        context.clearRect(0, 0, context.getCanvas().getWidth(),
+                context.getCanvas().getHeight());
     }
 
     private void importFonts(int WIDTH, int HEIGHT)
     {
         /* The spacing between the 3 lines */
         STUFFING = Math.min(WIDTH, HEIGHT) / 20;
-
-        /* Try importing the Scurlock font file */
-        InputStream input = getClass()
-                .getResourceAsStream("/Fonts/scurlock.ttf");
         fontSize = Math.min(WIDTH, HEIGHT) / 7;
-        if (input == null)
-        {
-            titleFonts[2] = Font.font(fontSize);
-            Print.red("\"scurlock.ttf\" was not imported");
-        } else {
-            titleFonts[2] = Font.loadFont(input, fontSize);
-        }
         titleBoundaries[2] = STUFFING + (int) (fontSize / 1.5);
+        titleBoundaries[1] = titleBoundaries[2]
+                + (int) (fontSize / 2.5) + STUFFING / 2;
+        titleBoundaries[0] = titleBoundaries[1]
+                + (int) (fontSize / 1.5) + STUFFING / 2;
 
-
-        /* Try importing the Supernatural Knight font file */
-        input = getClass()
-                .getResourceAsStream("/Fonts/supernatural_knight.ttf");
-        if (input == null)
-        {
-            titleFonts[1] = Font.font(fontSize / 2.5);
-            Print.red("\"supernatural.ttf\" was not imported");
-        } else {
-            titleFonts[1] = Font.loadFont(input, fontSize / 2.5);
-        }
-        titleBoundaries[1] = titleBoundaries[2] + (fontSize / 3) + STUFFING / 2;
-
-
-        /* Try importing the Cardinal font file */
-        input = getClass()
-                .getResourceAsStream("/Fonts/cardinal.ttf");
-        if (input == null)
-        {
-            titleFonts[0] = Font.font(fontSize / 1.2);
-            Print.red("\"cardinal.ttf\" was not imported");
-        } else {
-            titleFonts[0] = Font.loadFont(input, fontSize / 1.2);
-        }
-        titleBoundaries[0] = titleBoundaries[1] + (int) (fontSize / 1.5) + STUFFING / 2;
+        title = new FontResource[3];
+        title[2] = Main.IMPORTER.getFont("scurlock.ttf", fontSize);
+        title[1] = Main.IMPORTER.getFont("supernatural_knight.ttf",
+                fontSize / 2.5);
+        title[0] = Main.IMPORTER.getFont("cardinal.ttf",
+                fontSize / 1.2);
     }
 
     private void setWidgets(int WIDTH, int HEIGHT)
@@ -278,7 +233,7 @@ class TopMenu implements Menu
             neighbors[2] = widgets[southIndex];
 
             /* TODO: will add more images for arming */
-            Image[] images = {widgetImages[i]};
+            ImageResource[] images = {widgetImages[i]};
 
             /* The only aspect that differs is the yPos */
             aspects[1] += HEIGHT / 7;
@@ -295,7 +250,7 @@ class TopMenu implements Menu
         private int startingPos;
         private int endingPos;
 
-        JutWidget(int[] aspects, Image[] images, Widget[] neighbors,
+        JutWidget(int[] aspects, ImageResource[] images, Widget[] neighbors,
                   GraphicsContext context)
         {
             super(aspects, images, neighbors, context);

@@ -38,6 +38,11 @@ public class Importer
         }
     }
 
+    public ImageResource getImage(String path)
+    {
+        return getImage(path, Color.PINK);
+    }
+
     public FontResource getFont(String path, double size)
     {
         FontResource font = new FontResource(

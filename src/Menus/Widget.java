@@ -1,5 +1,7 @@
 package Menus;
 
+import Importer.FontResource;
+import Importer.ImageResource;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -14,18 +16,18 @@ public class Widget
     private int textY;
     private String text;
     private double fontSize;
-    private Font font;
+    private FontResource font;
 
-    Image images[];
-    int imageIndex;
+    private ImageResource images[];
+    private int imageIndex;
 
     /* 0 - north, 1 - east, 2 - south, 3 - west */
-    Widget[] neighbors;
+    private Widget[] neighbors;
 
-    final GraphicsContext context;
+    private final GraphicsContext context;
     boolean focused;
 
-    Widget(int[] aspects, Image[] images, Widget[] neighbors,
+    Widget(int[] aspects, ImageResource[] images, Widget[] neighbors,
            final GraphicsContext context)
     {
         posX = aspects[0]; posY = aspects[1];
@@ -34,10 +36,6 @@ public class Widget
         textX = -1;
         textY = -1;
         text = "ERROR";
-
-        /* Default font and fontSize */
-        fontSize = Math.min(width, height) / 2;
-        font = Font.font(fontSize);
 
         this.images = images;
         imageIndex = 0;
@@ -54,14 +52,7 @@ public class Widget
     void animateFrame(int framesToGo)
     {
         /* Draw image */
-        if (images[imageIndex] != null)
-        {
-            context.drawImage(images[imageIndex],
-                posX, posY, width, height);
-        } else {
-            context.setFill(Color.GREEN);
-            context.fillRect(posX, posY, width, height);
-        }
+        images[imageIndex].draw(posX, posY, width, height);
 
         /* Update sprite */
         if (focused)
@@ -77,16 +68,14 @@ public class Widget
 
         /* Draw text */
         textX = (int) ((width - fontSize) / 3 + posX);
-        textY = (int) ((height - fontSize) + posY);
+        textY = (int) ((height - fontSize) / 1.5 + posY);
 
         context.setFill(Color.RED);
-        context.setFont(font);
-        context.fillText(text,
-                textX, textY);
+        font.draw(textX, textY, text);
     }
 
     public void setText(String string) { this.text = string; }
-    public void setFont(Font font) { this.font = font; }
+    public void setFont(FontResource font) { this.font = font; }
 
     /**
      * Do something from the menu if it returns true
@@ -120,11 +109,7 @@ public class Widget
      */
     boolean mouse(boolean pressed, MouseButton button, int x, int y)
     {
-        if (!pressed) return false;
-        if (button != MouseButton.PRIMARY) return false;
-        if (!inBounds(x, y)) return false;
-
-        return true;
+        return pressed && button == MouseButton.PRIMARY && inBounds(x, y);
     }
     
     /**
@@ -146,13 +131,8 @@ public class Widget
            and the others set as unselected  */
     }
 
-    private boolean inBounds(int x, int y)
-    {
-        if (x < posX) return false;
-        if (x > posX + width) return false;
-        if (y < posY) return false;
-        if (y > posY + height) return false;
-
-        return true;
+    private boolean inBounds(int x, int y) {
+        return !(x < posX) && !(x > posX + width)
+                && !(y < posY) && !(y > posY + height);
     }
 }

@@ -52,7 +52,7 @@ public class Translator
         {
             Widget widget = (Widget) assignment.object;
             widget.setText(assignment.strings[ID]);
-            widget.setFont(assignment.font.getFont());
+            widget.setFont(assignment.font);
         }
 
         for (Assignment assignment : textList)
@@ -63,7 +63,8 @@ public class Translator
         }
     }
 
-    private void positionButton(Button button, Assignment assignment, int langID)
+    private void positionButton(Button button,
+                                Assignment assignment, int langID)
     {
         button.setPrefWidth(assignment.width[langID] * 2.0);
         button.setPrefHeight(assignment.height[langID] * 1.5);
@@ -99,9 +100,7 @@ public class Translator
         int ID = Main.language.getID();
         widget.setText(strings[ID]);
 
-        if (Main.language == LanguageEnum.WAPANESE)
-            widget.setFont(font.getFonts()[1]);
-        else widget.setFont(font.getFonts()[0]);
+        widget.setFont(font);
 
         Assignment assignment = new Assignment(widget, font, strings);
 
@@ -113,11 +112,12 @@ public class Translator
     {
         int ID = Main.language.getID();
         Text text = new Text(strings[ID]);
-        text.setFont(font.getFont());
 
         if (Main.language == LanguageEnum.WAPANESE)
             font.switchFont(true);
         else font.switchFont(false);
+
+        text.setFont(font.getFont());
 
         Assignment assignment = new Assignment(
                 text, font, strings);
