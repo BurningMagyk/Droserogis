@@ -14,7 +14,6 @@ public class Widget
     private int textX;
     private int textY;
     private String text;
-    private double fontSize;
     private FontResource font;
 
     private ImageResource images[];
@@ -76,8 +75,8 @@ public class Widget
         }
 
         /* Draw text */
-        textX = (int) ((width - fontSize) / 3 + posX);
-        textY = (int) ((height - fontSize) / 1.5 + posY);
+        textX = (int) ((width - font.getFontSize()) / 3 + posX);
+        textY = (int) ((height - font.getFontSize()) / 1.5 + posY);
 
         context.setFill(Color.RED);
         font.draw(textX, textY, text);

@@ -17,6 +17,8 @@ public class FontResource extends Resource
     private Text textAlt = null;
     private GraphicsContext context;
     private boolean alt = Main.language == LanguageEnum.WAPANESE;
+    private double fontSize;
+    private double fontSizeAlt;
 
     FontResource(String path, double size, GraphicsContext context)
     {
@@ -33,6 +35,7 @@ public class FontResource extends Resource
             printFailure();
         }
         fontAlt = null;
+        fontSize = size;
     }
 
     FontResource(String path, double size, String pathAlt,
@@ -46,6 +49,7 @@ public class FontResource extends Resource
             fontAlt = Font.font(sizeAlt);
             Print.red("\"" + pathAlt + "\" was not imported");
         }
+        fontSizeAlt = sizeAlt;
     }
 
     public void draw(double xPos, double yPos, String text)
@@ -85,6 +89,11 @@ public class FontResource extends Resource
     public Font[] getFonts()
     {
         return new Font[] {font, fontAlt};
+    }
+
+    public double getFontSize()
+    {
+        return isAlt() ? fontSizeAlt : fontSize;
     }
 
     public void switchFont(boolean alt)

@@ -119,11 +119,11 @@ class TopMenu implements Menu
     @Override
     public void mouse(boolean pressed, MouseButton button, int x, int y)
     {
-        for (int i = 0; i < widgets.length; i++)
+        for (JutWidget widget : widgets)
         {
-            if (widgets[i].mouse(pressed, button, x, y))
+            if (widget.mouse(pressed, button, x, y))
             {
-                nextMenu = widgets[i].getNextMenu();
+                nextMenu = widget.getNextMenu();
                 armCountdown = ARM_COUNTDOWN;
                 return;
             }

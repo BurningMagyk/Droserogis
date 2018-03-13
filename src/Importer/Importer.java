@@ -1,7 +1,6 @@
 package Importer;
 
 import Util.LanguageEnum;
-import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -14,7 +13,6 @@ public class Importer
 
     private ArrayList<Resource> images = new ArrayList<>();
     private ArrayList<FontResource> fonts = new ArrayList<>();
-    private ArrayList<Resource> audios = new ArrayList<>();
 
     private final ResourceComp COMP = new ResourceComp();
 
