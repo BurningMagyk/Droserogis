@@ -3,6 +3,7 @@ package Menus;
 import Importer.AudioResource;
 import Importer.FontResource;
 import Importer.ImageResource;
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -76,7 +77,7 @@ public class Widget
 
         /* Draw text */
         textX = (int) ((width - font.getFontSize()) / 3 + posX);
-        textY = (int) ((height - font.getFontSize()) / 1.5 + posY);
+        textY = (int) ((height - font.getFontSize()) * 1.75 + posY);
 
         context.setFill(Color.RED);
         font.draw(textX, textY, text);
