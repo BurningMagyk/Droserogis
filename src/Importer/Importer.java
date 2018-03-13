@@ -1,14 +1,9 @@
 package Importer;
 
 import Util.LanguageEnum;
-import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -22,7 +17,7 @@ public class Importer
 
     private String fontDir = "/Fonts/";
     private String imageDir = "/Images/";
-    private String musicDir = "/Music/";
+    private String audioDir = "/Audio/";
 
     public void setContext(GraphicsContext context)
     {
@@ -83,7 +78,7 @@ public class Importer
         int index = binarySearch(0, audios.size() - 1, path, audios);
         if (index == -1)
         {
-            resource = new AudioResource(musicDir + path);
+            resource = new AudioResource(audioDir + path);
             audios.add(resource);
             audios.sort(new ResourceComp());
             return resource;

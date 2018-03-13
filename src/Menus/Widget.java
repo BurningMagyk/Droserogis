@@ -3,11 +3,9 @@ package Menus;
 import Importer.FontResource;
 import Importer.ImageResource;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 public class Widget
 {
@@ -19,16 +17,19 @@ public class Widget
     private FontResource font;
 
     private ImageResource images[];
+    private ImageResource imageArm;
     private int imageIndex;
+    private boolean armed;
 
     /* 0 - north, 1 - east, 2 - south, 3 - west */
     private Widget[] neighbors;
+    private Menu.MenuEnum nextMenu = null;
 
     private final GraphicsContext context;
     boolean focused;
 
-    Widget(int[] aspects, ImageResource[] images, Widget[] neighbors,
-           final GraphicsContext context)
+    Widget(int[] aspects, ImageResource[] images,
+           ImageResource imageArm, final GraphicsContext context)
     {
         posX = aspects[0]; posY = aspects[1];
         width = aspects[2]; height = aspects[3];
@@ -38,9 +39,9 @@ public class Widget
         text = "ERROR";
 
         this.images = images;
+        this.imageArm = imageArm;
         imageIndex = 0;
-
-        this.neighbors = neighbors;
+        armed = false;
 
         this.context = context;
         focused = false;
@@ -52,10 +53,11 @@ public class Widget
     void animateFrame(int framesToGo)
     {
         /* Draw image */
-        images[imageIndex].draw(posX, posY, width, height);
+        if (armed) imageArm.draw(posX, posY, width, height);
+        else images[imageIndex].draw(posX, posY, width, height);
 
         /* Update sprite */
-        if (focused)
+        if (focused && !armed)
         {
             if (imageIndex < images.length - 1) imageIndex =+ framesToGo;
             if (imageIndex >= images.length) imageIndex = images.length - 1;
@@ -74,8 +76,16 @@ public class Widget
         font.draw(textX, textY, text);
     }
 
+    void setNeighbors(Widget[] neighbors)
+    {
+        this.neighbors = neighbors;
+    }
+
     public void setText(String string) { this.text = string; }
     public void setFont(FontResource font) { this.font = font; }
+    void setNextMenu(Menu.MenuEnum menuEnum) { nextMenu = menuEnum; }
+    Menu.MenuEnum getNextMenu() { return nextMenu; }
+    void disarm() { armed = false; }
 
     /**
      * Do something from the menu if it returns true
@@ -87,18 +97,34 @@ public class Widget
      */
     Widget key(boolean pressed, KeyCode code)
     {
-        /* TODO: Make it animate a different set of images when armed */
-        if (!pressed) return this;
-        if (!focused) return this;
+        if (!pressed || !focused) return this;
 
-        if (code == KeyCode.LEFT) return neighbors[3];
-        if (code == KeyCode.RIGHT) return neighbors[1];
-        if (code == KeyCode.UP) return neighbors[0];
-        if (code == KeyCode.DOWN) return neighbors[2];
+        /* For the focus to shift to a neighboring widget, the current
+         * widget needs to lose its focus */
+        focused = false;
 
-        if (code != KeyCode.ENTER) return this;
+        if (code == KeyCode.LEFT) return neighbors[3].select();
+        if (code == KeyCode.RIGHT) return neighbors[1].select();
+        if (code == KeyCode.UP) return neighbors[0].select();
+        if (code == KeyCode.DOWN) return neighbors[2].select();
 
-        return null;
+        if (code == KeyCode.ENTER)
+        {
+            armed = true;
+            return this.select();
+        }
+
+        return this.select();
+    }
+
+    /**
+     * So that when the keys select a widget while the mouse is idle,
+     * the selected widget will remain selected until the mouse moves.
+     */
+    Widget select()
+    {
+        focused = true;
+        return this;
     }
 
     /**
@@ -109,7 +135,12 @@ public class Widget
      */
     boolean mouse(boolean pressed, MouseButton button, int x, int y)
     {
-        return pressed && button == MouseButton.PRIMARY && inBounds(x, y);
+        if (pressed && button == MouseButton.PRIMARY && inBounds(x, y))
+        {
+            armed = true;
+            return true;
+        }
+        return false;
     }
     
     /**

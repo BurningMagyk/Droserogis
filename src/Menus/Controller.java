@@ -49,7 +49,7 @@ class Controller extends AnimationTimer
         MOUSE = new Mouse();
         KEYBOARD = new Keyboard();
 
-        Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.BLACK);
+        Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
         Main.IMPORTER.setContext(CONTEXT);
@@ -195,7 +195,14 @@ class Controller extends AnimationTimer
 
     private boolean isSpecialCase(Menu prev, Menu next)
     {
-        return prev == startMenu && next == topMenu;
+        boolean cases[] = {
+                prev == startMenu && next == topMenu,
+                prev == topMenu && next == startMenu};
+        for (boolean _case : cases)
+        {
+            if (_case) return true;
+        }
+        return false;
     }
 
     private void setBackground(Menu menu)
@@ -208,7 +215,7 @@ class Controller extends AnimationTimer
         double imageHeight = image.getHeight();
         double sizeScale;
 
-        if (imageWidth < imageHeight)
+        if (imageWidth / WIDTH < imageHeight / HEIGHT)
         {
             /* The image is offset if it's the Top Menu */
             double yMod = menu == topMenu ? 8F / 5F : 1;

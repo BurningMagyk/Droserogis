@@ -2,7 +2,6 @@ package Menus;
 
 import Importer.FontResource;
 import Importer.ImageResource;
-import Util.Print;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
@@ -10,8 +9,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-
-import java.io.InputStream;
 
 class TopMenu implements Menu
 {
@@ -35,8 +32,13 @@ class TopMenu implements Menu
                     {"Quit", "Dimitir", "Smettere", "Quitter", "Verlassen", "やめる"}
             };
     private ImageResource[] widgetImages;
+    private ImageResource[] widgetImagesArm;
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
+    private Widget selectedWidget;
+
+    /* Frames until we act when a widget becomes armed */
+    private int armCountdown = 0;
 
     private FontResource title[];
 
@@ -50,6 +52,7 @@ class TopMenu implements Menu
         final int HEIGHT = (int) context.getCanvas().getHeight();
 
         widgetImages = new ImageResource[5];
+        widgetImagesArm = new ImageResource[5];
         importImages();
 
         titleBoundaries = new int[3];
@@ -82,28 +85,46 @@ class TopMenu implements Menu
             widget.animateFrame(framesToGo);
         }
 
+        /* Countdown to act after widget has been armed */
+        if (armCountdown > 0)
+        {
+            armCountdown--;
+            return null;
+        }
+
         return nextMenu;
     }
 
     @Override
     public void key(boolean pressed, KeyCode code)
     {
-        if (code == KeyCode.ESCAPE)
+        switch (code)
         {
-            Platform.exit();
-            System.exit(0);
-        }
-
-        /* Temporary */
-        if (code == KeyCode.SPACE)
-        {
-            nextMenu = MenuEnum.GAME;
+            case ESCAPE:
+                Platform.exit();
+                System.exit(0);
+                break;
+            case SPACE: // temporary
+                nextMenu = MenuEnum.GAME;
+                break;
+            case ENTER:
+                // TODO: set countdown to activate widget that was armed
+                armCountdown = ARM_COUNTDOWN;
+                nextMenu = selectedWidget.getNextMenu();
+            default:
+                /* If not widget is currently selected, select
+                 * the top one */
+                if (selectedWidget == null) selectedWidget
+                        = widgets[0].select();
+                else selectedWidget
+                        = selectedWidget.key(pressed, code);
         }
     }
 
     @Override
     public void mouse(boolean pressed, MouseButton button, int x, int y)
     {
+        // TODO: put in a for-loop
         if (widgets[0].mouse(pressed, button, x, y))
             nextMenu = MenuEnum.STORYTIME;
         else if (widgets[1].mouse(pressed, button, x, y))
@@ -114,14 +135,21 @@ class TopMenu implements Menu
             nextMenu = MenuEnum.GALLERY;
         else if (widgets[4].mouse(pressed, button, x, y))
             nextMenu = MenuEnum.QUIT;
+        else return;
+        armCountdown = ARM_COUNTDOWN;
     }
 
     @Override
     public void mouse(int x, int y)
     {
+        /* Any widget previously selected should be unselected unless
+         * the moved mouse is still in bounds of that widget */
+        selectedWidget = null;
         for (Widget widget : widgets)
         {
-            widget.hover(x, y);
+            /* Keeping track of which widget is currently selected lets
+             * us know what widget should arm if the user presses ENTER */
+            if (widget.hover(x, y)) selectedWidget = widget;
         }
     }
 
@@ -142,22 +170,22 @@ class TopMenu implements Menu
     }
 
     @Override
-    public void reset(Group group) // TODO: if stuffs go on the group in this menu, remove them here
+    public void reset(Group group)
     {
         nextMenu = null;
         for (Widget widget : widgets)
         {
             widget.focused = false;
+            widget.disarm();
         }
 
-        // TODO: may not need to clear canvas if canvas isn't used
         clearContext();
     }
 
     @Override
     public void decorate(Group group)
     {
-
+        armCountdown = 0;
     }
 
     private void importImages()
@@ -171,6 +199,8 @@ class TopMenu implements Menu
         {
             widgetImages[i] = Main.IMPORTER.getImage(
                     "katana_" + widgetImageNames[i] + ".png");
+            widgetImagesArm[i] = Main.IMPORTER.getImage(
+                    "katana_" + widgetImageNames[i] + "_tint.png");
         }
     }
 
@@ -223,6 +253,21 @@ class TopMenu implements Menu
 
         for (int i = 0; i < widgets.length; i++)
         {
+            ImageResource[] images = {widgetImages[i]};
+
+            /* The only aspect that differs is the yPos */
+            aspects[1] += HEIGHT / 7;
+            widgets[i] = new JutWidget(aspects, images,
+                    widgetImagesArm[i], context);
+            /* Add widgets to Translator */
+            Main.TRANSLATOR.addWidget(widgets[i], widgetFont, widgetNames[i]);
+            /* Set their jut distance */
+            widgets[i].setDistance(jutDistance);
+        }
+
+        /* Neighbors need to be set after all widgets have been initialized */
+        for (int i = 0; i < widgets.length; i++)
+        {
             /* Set neighbors */
             Widget neighbors[] = new Widget[4];
             neighbors[1] = widgets[i];
@@ -232,17 +277,14 @@ class TopMenu implements Menu
             int southIndex = i == widgets.length - 1 ? 0 : i + 1;
             neighbors[2] = widgets[southIndex];
 
-            /* TODO: will add more images for arming */
-            ImageResource[] images = {widgetImages[i]};
-
-            /* The only aspect that differs is the yPos */
-            aspects[1] += HEIGHT / 7;
-            widgets[i] = new JutWidget(aspects, images, neighbors, context);
-            /* Add widgets to Translator */
-            Main.TRANSLATOR.addWidget(widgets[i], widgetFont, widgetNames[i]);
-            /* Set their jut distance */
-            widgets[i].setDistance(jutDistance);
+            widgets[i].setNeighbors(neighbors);
         }
+
+        widgets[0].setNextMenu(MenuEnum.STORYTIME);
+        widgets[1].setNextMenu(MenuEnum.VERSUS);
+        widgets[2].setNextMenu(MenuEnum.OPTIONS);
+        widgets[3].setNextMenu(MenuEnum.GALLERY);
+        widgets[4].setNextMenu(MenuEnum.QUIT);
     }
 
     private class JutWidget extends Widget
@@ -250,10 +292,10 @@ class TopMenu implements Menu
         private int startingPos;
         private int endingPos;
 
-        JutWidget(int[] aspects, ImageResource[] images, Widget[] neighbors,
-                  GraphicsContext context)
+        JutWidget(int[] aspects, ImageResource[] images,
+                  ImageResource imageArm, GraphicsContext context)
         {
-            super(aspects, images, neighbors, context);
+            super(aspects, images, imageArm, context);
 
             startingPos = (int) posX;
         }

@@ -6,6 +6,8 @@ import javafx.scene.image.Image;
 
 interface Menu extends Reactor
 {
+    int ARM_COUNTDOWN = 5;
+
     MenuEnum animateFrame(int framesToGo);
 
     enum MenuEnum
