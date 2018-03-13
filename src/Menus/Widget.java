@@ -1,5 +1,6 @@
 package Menus;
 
+import Importer.AudioResource;
 import Importer.FontResource;
 import Importer.ImageResource;
 import javafx.scene.canvas.GraphicsContext;
@@ -21,6 +22,8 @@ public class Widget
     private int imageIndex;
     private boolean armed;
 
+    private AudioResource hoverSound, clickSound;
+
     /* 0 - north, 1 - east, 2 - south, 3 - west */
     private Widget[] neighbors;
     private Menu.MenuEnum nextMenu = null;
@@ -28,8 +31,9 @@ public class Widget
     private final GraphicsContext context;
     boolean focused;
 
-    Widget(int[] aspects, ImageResource[] images,
-           ImageResource imageArm, final GraphicsContext context)
+    Widget(int[] aspects, String[] images,
+           String imageArm, String[] sounds,
+           final GraphicsContext context)
     {
         posX = aspects[0]; posY = aspects[1];
         width = aspects[2]; height = aspects[3];
@@ -38,10 +42,13 @@ public class Widget
         textY = -1;
         text = "ERROR";
 
-        this.images = images;
-        this.imageArm = imageArm;
+        this.images = Main.IMPORTER.getImages(images);
+        this.imageArm = Main.IMPORTER.getImage(imageArm);
         imageIndex = 0;
         armed = false;
+
+        this.hoverSound = Main.IMPORTER.getAudio(sounds[0]);
+        this.clickSound = Main.IMPORTER.getAudio(sounds[1]);
 
         this.context = context;
         focused = false;
@@ -103,26 +110,37 @@ public class Widget
          * widget needs to lose its focus */
         focused = false;
 
-        if (code == KeyCode.LEFT) return neighbors[3].select();
-        if (code == KeyCode.RIGHT) return neighbors[1].select();
-        if (code == KeyCode.UP) return neighbors[0].select();
-        if (code == KeyCode.DOWN) return neighbors[2].select();
+        if (code == KeyCode.LEFT) return neighbors[3].select(this);
+        if (code == KeyCode.RIGHT) return neighbors[1].select(this);
+        if (code == KeyCode.UP) return neighbors[0].select(this);
+        if (code == KeyCode.DOWN) return neighbors[2].select(this);
 
         if (code == KeyCode.ENTER)
         {
+            clickSound.play();
+
             armed = true;
-            return this.select();
+            return this.select(this);
         }
 
-        return this.select();
+        return this.select(this);
     }
 
     /**
      * So that when the keys select a widget while the mouse is idle,
      * the selected widget will remain selected until the mouse moves.
+     *
+     * Parameter should always be "this" if from a widget, or "null"
+     * if from a menu.
      */
-    Widget select()
+    Widget select(Widget widget)
     {
+        /* Don't play sound if this widget selected itself */
+        if (widget != this)
+        {
+            hoverSound.play();
+        }
+
         focused = true;
         return this;
     }
@@ -137,6 +155,8 @@ public class Widget
     {
         if (pressed && button == MouseButton.PRIMARY && inBounds(x, y))
         {
+            clickSound.play();
+
             armed = true;
             return true;
         }
@@ -151,6 +171,11 @@ public class Widget
     {
         if (inBounds(x, y))
         {
+            if (!focused)
+            {
+                hoverSound.play();
+            }
+
             focused = true;
             return true;
         }

@@ -1,7 +1,6 @@
 package Menus;
 
 import Importer.FontResource;
-import Importer.ImageResource;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
@@ -31,13 +30,12 @@ class TopMenu implements Menu
                     {"Gallery", "Galería", "Galleria", "Galerie", "Galerie", "画廊"},
                     {"Quit", "Dimitir", "Smettere", "Quitter", "Verlassen", "やめる"}
             };
-    private ImageResource[] widgetImages;
-    private ImageResource[] widgetImagesArm;
     private String[] widgetImageNames =
             {"gunome", "midare", "notare", "sanbonsugi", "suguha"};
+    private String[] widgetSounds = {"sword.mp3", "sword1.mp3"};
     private Widget selectedWidget;
 
-    /* Frames until we act when a widget becomes armed */
+    /* Frames until action when a widget becomes armed */
     private int armCountdown = 0;
 
     private FontResource title[];
@@ -51,8 +49,6 @@ class TopMenu implements Menu
         final int WIDTH = (int) context.getCanvas().getWidth();
         final int HEIGHT = (int) context.getCanvas().getHeight();
 
-        widgetImages = new ImageResource[5];
-        widgetImagesArm = new ImageResource[5];
         importImages();
 
         titleBoundaries = new int[3];
@@ -108,14 +104,13 @@ class TopMenu implements Menu
                 nextMenu = MenuEnum.GAME;
                 break;
             case ENTER:
-                // TODO: set countdown to activate widget that was armed
                 armCountdown = ARM_COUNTDOWN;
                 nextMenu = selectedWidget.getNextMenu();
             default:
-                /* If not widget is currently selected, select
+                /* If no widget is currently selected, select
                  * the top one */
                 if (selectedWidget == null) selectedWidget
-                        = widgets[0].select();
+                        = widgets[0].select(null);
                 else selectedWidget
                         = selectedWidget.key(pressed, code);
         }
@@ -124,19 +119,15 @@ class TopMenu implements Menu
     @Override
     public void mouse(boolean pressed, MouseButton button, int x, int y)
     {
-        // TODO: put in a for-loop
-        if (widgets[0].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.STORYTIME;
-        else if (widgets[1].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.VERSUS;
-        else if (widgets[2].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.OPTIONS;
-        else if (widgets[3].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.GALLERY;
-        else if (widgets[4].mouse(pressed, button, x, y))
-            nextMenu = MenuEnum.QUIT;
-        else return;
-        armCountdown = ARM_COUNTDOWN;
+        for (int i = 0; i < widgets.length; i++)
+        {
+            if (widgets[i].mouse(pressed, button, x, y))
+            {
+                nextMenu = widgets[i].getNextMenu();
+                armCountdown = ARM_COUNTDOWN;
+                return;
+            }
+        }
     }
 
     @Override
@@ -173,6 +164,7 @@ class TopMenu implements Menu
     public void reset(Group group)
     {
         nextMenu = null;
+        selectedWidget = null;
         for (Widget widget : widgets)
         {
             widget.focused = false;
@@ -193,15 +185,6 @@ class TopMenu implements Menu
         /* Try importing background image file */
         backgroundImage = Main.IMPORTER.getImage(
                 "top_background.png").getImage();
-
-        /* Try importing widget image files */
-        for (int i = 0; i < widgetImageNames.length; i++)
-        {
-            widgetImages[i] = Main.IMPORTER.getImage(
-                    "katana_" + widgetImageNames[i] + ".png");
-            widgetImagesArm[i] = Main.IMPORTER.getImage(
-                    "katana_" + widgetImageNames[i] + "_tint.png");
-        }
     }
 
     private void clearContext()
@@ -253,12 +236,15 @@ class TopMenu implements Menu
 
         for (int i = 0; i < widgets.length; i++)
         {
-            ImageResource[] images = {widgetImages[i]};
+            /* Variable is called "images",
+             * but it's just one image in the array */
+            String[] images = {"katana_" + widgetImageNames[i] + ".png"};
+            String imageArm = "katana_" + widgetImageNames[i] + "_tint.png";
 
             /* The only aspect that differs is the yPos */
             aspects[1] += HEIGHT / 7;
-            widgets[i] = new JutWidget(aspects, images,
-                    widgetImagesArm[i], context);
+            widgets[i] = new JutWidget(aspects, images, imageArm,
+                    widgetSounds, context);
             /* Add widgets to Translator */
             Main.TRANSLATOR.addWidget(widgets[i], widgetFont, widgetNames[i]);
             /* Set their jut distance */
@@ -292,10 +278,11 @@ class TopMenu implements Menu
         private int startingPos;
         private int endingPos;
 
-        JutWidget(int[] aspects, ImageResource[] images,
-                  ImageResource imageArm, GraphicsContext context)
+        JutWidget(int[] aspects, String[] images,
+                  String imageArm, String[] sounds,
+                  GraphicsContext context)
         {
-            super(aspects, images, imageArm, context);
+            super(aspects, images, imageArm, sounds, context);
 
             startingPos = (int) posX;
         }

@@ -1,6 +1,7 @@
 package Importer;
 
 import Util.LanguageEnum;
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -15,6 +16,8 @@ public class Importer
     private ArrayList<FontResource> fonts = new ArrayList<>();
     private ArrayList<Resource> audios = new ArrayList<>();
 
+    private final ResourceComp COMP = new ResourceComp();
+
     private String fontDir = "/Fonts/";
     private String imageDir = "/Images/";
     private String audioDir = "/Audio/";
@@ -26,13 +29,14 @@ public class Importer
 
     public ImageResource getImage(String path, Color color)
     {
-        int index = binarySearch(0, images.size() - 1, path, images);
+        int index = binarySearch(0, images.size() - 1,
+                imageDir + path, images);
         if (index == -1)
         {
             ImageResource resource = new ImageResource(
                     imageDir + path, context, color);
             images.add(resource);
-            images.sort(new ResourceComp());
+            images.sort(COMP);
             return resource;
         } else {
             return (ImageResource) images.get(index);
@@ -42,6 +46,18 @@ public class Importer
     public ImageResource getImage(String path)
     {
         return getImage(path, Color.PINK);
+    }
+
+    public ImageResource[] getImages(String[] paths)
+    {
+        ImageResource[] resources = new ImageResource[paths.length];
+
+        for (int i = 0; i < paths.length; i++)
+        {
+            resources[i] = getImage(paths[i]);
+        }
+
+        return resources;
     }
 
     public FontResource getFont(String path, double size)
@@ -74,17 +90,7 @@ public class Importer
 
     public AudioResource getAudio(String path)
     {
-        AudioResource resource;
-        int index = binarySearch(0, audios.size() - 1, path, audios);
-        if (index == -1)
-        {
-            resource = new AudioResource(audioDir + path);
-            audios.add(resource);
-            audios.sort(new ResourceComp());
-            return resource;
-        } else {
-            return (AudioResource) images.get(index);
-        }
+        return new AudioResource(audioDir + path);
     }
 
     private int binarySearch(int first, int last, String key, ArrayList<Resource> list)
