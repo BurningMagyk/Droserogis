@@ -1,6 +1,7 @@
 package Menus;
 
-import Game.Game;
+import Gameplay.Gameplay;
+import Gameplay.Battle;
 import Util.Print;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -22,7 +23,7 @@ import java.util.List;
 
 class Controller extends AnimationTimer
 {
-    private final Game GAME;
+    private final Gameplay Gameplay;
 
     private final Mouse MOUSE;
     private final Keyboard KEYBOARD;
@@ -71,7 +72,8 @@ class Controller extends AnimationTimer
         startMenu = new StartMenu(CONTEXT); menuList.add(startMenu);
         versusMenu = new VersusMenu(CONTEXT); menuList.add(versusMenu);
 
-        GAME = new Game(ROOT, CONTEXT);
+        /* Testing */
+        Gameplay = new Battle(ROOT, CONTEXT);
 
         /* Temporary */
         storyMenu = startMenu;
@@ -166,7 +168,7 @@ class Controller extends AnimationTimer
                 Platform.exit();
                 System.exit(0);
             }
-            case GAME: {
+            case GAMEPLAY: {
                 goToGameplay();
                 return;
             }
@@ -244,8 +246,8 @@ class Controller extends AnimationTimer
     private void goToGameplay()
     {
         stop();
-        MOUSE.setReactor(GAME);
-        KEYBOARD.setReactor(GAME);
-        GAME.start();
+        MOUSE.setReactor(Gameplay);
+        KEYBOARD.setReactor(Gameplay);
+        Gameplay.start();
     }
 }

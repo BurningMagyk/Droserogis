@@ -1,4 +1,4 @@
-package Game;
+package Gameplay;
 
 import Engine.Level;
 import Util.Print;
@@ -12,7 +12,7 @@ import javafx.scene.input.MouseButton;
 
 import java.util.ArrayList;
 
-public class Game extends AnimationTimer implements Reactor
+public class Gameplay extends AnimationTimer implements Reactor
 {
     private int width, height;
     public GraphicsContext context;
@@ -22,7 +22,7 @@ public class Game extends AnimationTimer implements Reactor
 
     Level testLevel;
 
-    public Game(Group group, GraphicsContext context)
+    public Gameplay(Group root, GraphicsContext context)
     {
         this.context = context;
         this.width = (int) context.getCanvas().getWidth();
@@ -45,9 +45,21 @@ public class Game extends AnimationTimer implements Reactor
     }
 
     @Override
+    public void start(/* Gameplay stats would go in here */)
+    {
+        // TODO: build levels based on game stats in parameters
+        buildLevels();
+
+
+
+        /* Start calling handle */
+        super.start();
+    }
+
     /**
      *  Call animateFrame() for everything in order of depth
      */
+    @Override
     public void handle(long now)
     {
         //if (true) return;
@@ -129,6 +141,11 @@ public class Game extends AnimationTimer implements Reactor
 
     @Override
     public void mouse(int x, int y) {
+
+    }
+
+    private void buildLevels()
+    {
 
     }
 }

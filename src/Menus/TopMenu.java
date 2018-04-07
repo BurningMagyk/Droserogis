@@ -101,7 +101,7 @@ class TopMenu implements Menu
                 System.exit(0);
                 break;
             case SPACE: // temporary
-                nextMenu = MenuEnum.GAME;
+                nextMenu = MenuEnum.GAMEPLAY;
                 break;
             case ENTER:
                 armCountdown = ARM_COUNTDOWN;

@@ -1,4 +1,4 @@
-package Game;
+package Gameplay;
 
 import Util.Print;
 import javafx.scene.canvas.GraphicsContext;

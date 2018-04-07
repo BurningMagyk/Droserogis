@@ -1,8 +1,8 @@
-package Game;
+package Gameplay;
 
 /**
  * act() and draw() are called in handle() in that order.
- * draw() needs coordinate specs because Game handles what appears in
+ * draw() needs coordinate specs because Gameplay handles what appears in
  * the scene and where it goes relative to the rest of the actors.
  */
 interface Actor

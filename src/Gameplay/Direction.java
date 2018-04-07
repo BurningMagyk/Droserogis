@@ -1,6 +1,4 @@
-package Game;
-
-import Util.Print;
+package Gameplay;
 
 public class Direction
 {

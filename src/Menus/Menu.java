@@ -19,7 +19,7 @@ interface Menu extends Reactor
         OPTIONS,
         GALLERY,
         QUIT,
-        GAME
+        GAMEPLAY
     }
 
     Image getBackground();

@@ -97,7 +97,7 @@ public class Main extends Application
 
         /* Give widget names, add them to the translator */
         String[] startButtonNames =
-                {"Start Game", "Empieza Juego", "Inizia Gioco",
+                {"Start Gameplay", "Empieza Juego", "Inizia Gioco",
                         "Démarrer Jeu", "Spiel Beginnen", "ゲームをスタート"};
         Button startButton = TRANSLATOR.getButton(font, startButtonNames);
         String[] exitButtonNames =
