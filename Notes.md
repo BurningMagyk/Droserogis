@@ -1,21 +1,18 @@
-Ranks:
-E - No training, naturally bad
-D - No training, average  /  Some training, naturally bad
-C - No training, gifted / Some training, average  / Extensive training, naturally bad
-B - Some training, gifted / Extensive training, average  / Mastered, naturally bad,
-A - No training, genius / Extensive training, gifted / Mastered, average
-S - Some training, genius / Mastered, gifted
-SS - Extensive training, genius
-SSS - Mastered, genius
----------------------------------------------------
-Potential                       Start rank
-Low Potential (naturally bad)   - Rank E
-Average Potential               - Rank D
-Good Potential (gifted)         - Rank C
-High Potential (genius)         - Rank A
----------------------------------------------------
-Training                        Bonus ranks
-No training                     - +0 Ranks
-Some Training                   - +1 Rank
-Extensive Training              - +2 Ranks
-Mastered                        - +3 Ranks
+| Potential | Expertise | Ranks |
+|:---------:|:---------:|:-----:|
+| Low       | None      | 0     |
+| Medium    | Some      | 1     |
+| High      | Extensive | 2     |
+| Meta      | Mastery   | 3     |
+| Super     | -         | 4     |
+
+| Rank | Points | Possible combinations                                 |
+|:----:|:------:|------------------------------------------------------:|
+| SSS  | 7      | Super Mastery                                         |
+| SS   | 6      | Super Extensive, Meta Mastery                         |
+| S    | 5      | Super Some, Meta Extensive, High Mastery              |
+| A    | 4      | Super None, Meta Some, High Extensive, Medium Mastery |
+| B    | 3      | Meta None, High Some, Medium Extensive, Low Mastery   |
+| C    | 2      | High None, Medium Some, Low Extensive                 |
+| D    | 1      | Medium None, Low Some                                 |
+| E    | 0      | Low None                                              |
