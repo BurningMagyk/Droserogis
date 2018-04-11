@@ -2,6 +2,7 @@ package Menus;
 
 import Gameplay.Gameplay;
 import Gameplay.Battle;
+import Util.DebugEnum;
 import Util.Print;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -108,13 +109,17 @@ class Controller extends AnimationTimer
     @Override
     public void start()
     {
+        /* Skip to Gameplay if debugging */
+        if (Main.debugEnum == DebugEnum.GAMEPLAY)
+            currentMenu = versusMenu;
+
         /* Start calling handle */
         super.start();
         stage.show();
         currentMenu.startMedia();
 
         currentMenu.reset(ROOT);
-        currentMenu.decorate(ROOT);
+        currentMenu.setup(ROOT);
     }
 
     @Override
@@ -185,7 +190,7 @@ class Controller extends AnimationTimer
 
         menu.reset(ROOT);
         setBackground(menu);
-        menu.decorate(ROOT);
+        menu.setup(ROOT);
 
         MOUSE.setReactor(menu);
         KEYBOARD.setReactor(menu);
@@ -249,5 +254,11 @@ class Controller extends AnimationTimer
         MOUSE.setReactor(Gameplay);
         KEYBOARD.setReactor(Gameplay);
         Gameplay.start();
+    }
+
+    public static void main(String[] args)
+    {
+        Main.debugEnum = DebugEnum.MENUS;
+        Main.main(args);
     }
 }

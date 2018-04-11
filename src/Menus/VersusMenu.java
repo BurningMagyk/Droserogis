@@ -15,7 +15,7 @@ class VersusMenu implements Menu
 
     @Override
     public MenuEnum animateFrame(int framesToGo) {
-        return null;
+        return MenuEnum.GAMEPLAY;
     }
 
     @Override
@@ -54,7 +54,7 @@ class VersusMenu implements Menu
     }
 
     @Override
-    public void decorate(Group group) {
+    public void setup(Group group) {
 
     }
 }

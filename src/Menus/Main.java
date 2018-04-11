@@ -3,6 +3,7 @@ package Menus;
 import Importer.Importer;
 import Importer.ImageResource;
 import Importer.FontResource;
+import Util.DebugEnum;
 import Util.LanguageEnum;
 import Util.Translator;
 import javafx.application.Application;
@@ -22,6 +23,8 @@ import java.util.Locale;
 
 public class Main extends Application
 {
+    public static DebugEnum debugEnum = null;
+
     public static LanguageEnum language = getSystemLanguage();
     public final static Importer IMPORTER = new Importer();
     public final static Translator TRANSLATOR = new Translator();
@@ -37,11 +40,26 @@ public class Main extends Application
     public void start(Stage stage)
     {
         final String VERSION = "indev";
-        final String NAME = "Droserogis vs Sothli";
+        final String NAME = "Autism is a choice";
         stage.setTitle(NAME + " - " + VERSION);
 
-        /* Prepare the basics: stage, scene, group, and canvas */
+        /* Set up main game after the prompt is already set up */
+        Stage mainGameStage = new Stage(StageStyle.UNDECORATED);
+        mainGameStage.setWidth(SCREEN_WIDTH);
+        mainGameStage.setHeight(SCREEN_HEIGHT);
+        MAINGAME = new Controller(mainGameStage);
+
+        /* Prepare group here because it would be needed for skipping ahead */
         Group root = new Group();
+
+        /* Skip to the Start Menu if debugging */
+        if (debugEnum != null)
+        {
+            startGame(mainGameStage, root);
+            return;
+        }
+
+        /* Prepare the basics: stage, scene, and canvas */
         final int SCENE_WIDTH = SCREEN_WIDTH / 2;
         final int SCENE_HEIGHT = SCREEN_HEIGHT / 2;
         final Scene SCENE = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT,
@@ -66,12 +84,6 @@ public class Main extends Application
         stage.setScene(SCENE);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.show();
-
-        /* Set up main game after the prompt is already set up */
-        Stage mainGameStage = new Stage(StageStyle.UNDECORATED);
-        mainGameStage.setWidth(SCREEN_WIDTH);
-        mainGameStage.setHeight(SCREEN_HEIGHT);
-        MAINGAME = new Controller(mainGameStage);
     }
 
     /**
@@ -303,7 +315,6 @@ public class Main extends Application
 
     public static void main(String[] args)
     {
-        language = getSystemLanguage();
         launch(args);
     }
 }

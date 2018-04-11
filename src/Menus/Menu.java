@@ -27,5 +27,5 @@ interface Menu extends Reactor
     void startMedia();
     void stopMedia();
     void reset(Group group);
-    void decorate(Group group);
+    void setup(Group group);
 }

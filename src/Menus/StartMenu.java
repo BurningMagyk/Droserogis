@@ -132,7 +132,7 @@ class StartMenu implements Menu
     }
 
     @Override
-    public void decorate(Group group)
+    public void setup(Group group)
     {
         group.getChildren().add(message);
 

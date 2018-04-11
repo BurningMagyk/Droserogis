@@ -1,6 +1,8 @@
 package Gameplay;
 
 import Engine.Level;
+import Menus.Main;
+import Util.DebugEnum;
 import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
@@ -147,6 +149,12 @@ public class Gameplay extends AnimationTimer implements Reactor
     private void buildLevels()
     {
 
+    }
+
+    public static void main(String args[])
+    {
+        Main.debugEnum = DebugEnum.GAMEPLAY;
+        Main.main(args);
     }
 }
 

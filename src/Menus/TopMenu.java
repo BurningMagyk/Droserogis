@@ -175,7 +175,7 @@ class TopMenu implements Menu
     }
 
     @Override
-    public void decorate(Group group)
+    public void setup(Group group)
     {
         armCountdown = 0;
     }
