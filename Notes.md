@@ -16,23 +16,3 @@
 | C    | 2      | High None, Medium Some, Low Extensive                 |
 | D    | 1      | Medium None, Low Some                                 |
 | E    | 0      | Low None                                              |
-
-|     | OFFICIAL CANON POWER RANKINGS |
-|:---:|-------------------------------|
-| SSS |![alt text][instinct]          |
-| SS  |![alt text][verde]             |
-| S   |![alt text][rojo]              |
-| A   |![alt text][brennan]           |
-| B   |![alt text][lyra] ![alt text][cynthia] ![alt text][fuu]|
-| C   |                               |
-| D   |![alt text][ghost]             |
-| E   |                               |
-
-[instinct]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Ultra_Instrinct.png
-[verde]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Verde.png
-[rojo]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Rojo.png
-[brennan]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Brennan.png
-[lyra]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Lyra.png
-[cynthia]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Cynthia.png
-[fuu]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Fuu.png
-[ghost]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Ghost_Boss.png
