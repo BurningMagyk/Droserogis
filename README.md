@@ -1,7 +1,7 @@
 # Droserogis
-
+<br>
 <p>
-    <i>--This project is still in development--</i><br>
+    <i>--This project is still in development--</i><br><br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Droserogis</i> is a 2D-platformer fighting game with story-mode and
     multiplayer. The game's story is an adaptation of some amateur novels that are not published. There are other
     fighting games that revolve around pitting characters from different stories against each other, but the power
@@ -9,7 +9,7 @@
     different, in that it will have that characters' power within gameplay reflect the power they have in their
     respective novel story. Balancing matches within the game will instead be achieved using elaborate handicaps
     and an emphasis on using teams with multiple characters in them.
-</p>
+</p><br>
 
 |     | OFFICIAL CANON POWER RANKINGS |
 |:---:|-------------------------------|
