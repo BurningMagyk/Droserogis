@@ -11,39 +11,39 @@ import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.World;
 
 import java.util.ArrayList;
 
 public class Gameplay extends AnimationTimer implements Reactor
 {
-    private int width, height;
+    private int viewWidth, viewHeight;
     public GraphicsContext context;
 
-    ArrayList<Creature> creatures;
-    ArrayList<Block> blocks;
+    private static World world;
+    ArrayList<Entity> entities;
+
+    private static double cameraPosX, cameraPosY, cameraZoom;
 
     Level testLevel;
 
     public Gameplay(Group root, GraphicsContext context)
     {
         this.context = context;
-        this.width = (int) context.getCanvas().getWidth();
-        this.height = (int) context.getCanvas().getHeight();
+        this.viewWidth = (int) context.getCanvas().getWidth();
+        this.viewHeight = (int) context.getCanvas().getHeight();
 
-        creatures = new ArrayList<>();
-        blocks = new ArrayList<>();
+        world = new World(new Vec2(0, -9.8f));
+        entities = new ArrayList<>();
+
+        cameraPosX = 0; cameraPosY = 0; cameraZoom = 0;
 
         /* For testing */
-        creatures.add(new Creature(context,100, 100, 10, 20));
-        blocks.add(new Block(context, 100, 800, 150, 50));
-        blocks.add(new Block(context, 250, 850, 150, 50));
+        entities.add(new Block(context, world, 10, 10, 10, 10));
 
-        for (Creature creature : creatures)
-        {
-            creature.setBlocks(blocks);
-        }
-
-        testLevel = new Level(context);
+        //testLevel = new Level(context);
     }
 
     @Override
@@ -87,6 +87,13 @@ public class Gameplay extends AnimationTimer implements Reactor
 
         //testLevel.draw(context);
 
+        clearContext();
+
+        context.setFill(Color.BLUE);
+        context.fillRect(200, 200, 200, 200);
+
+        for (Entity entity : entities) entity.draw();
+
         /* TODO: Animate subtitles */
     }
 
@@ -104,20 +111,20 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.LEFT)
         {
-            creatures.get(0).moveLeft(pressed);
+            //creatures.get(0).moveLeft(pressed);
         }
         if (code == KeyCode.RIGHT)
         {
-            creatures.get(0).moveRight(pressed);
+            //creatures.get(0).moveRight(pressed);
         }
         if (code == KeyCode.UP)
         {
-            creatures.get(0).jump(pressed);
+            //creatures.get(0).jump(pressed);
         }
         /* For testing */
         if (code == KeyCode.SPACE && pressed)
         {
-            testLevel.draw(context);
+            ((Block) entities.get(0)).test();
 
             /*for (Creature creature : creatures)
             {
@@ -146,9 +153,22 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     }
 
+    static double[] getCameraDrawPoint(double entityPosX, double entityPosY)
+    {
+        return new double[] {(entityPosX - cameraPosX) / cameraZoom,
+                             (entityPosY - cameraPosY) / cameraZoom};
+    }
+
     private void buildLevels()
     {
 
+    }
+
+    private void clearContext()
+    {
+        /* Clear canvas */
+        context.clearRect(0, 0, context.getCanvas().getWidth(),
+                context.getCanvas().getHeight());
     }
 
     public static void main(String args[])

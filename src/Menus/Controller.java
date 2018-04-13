@@ -251,6 +251,8 @@ class Controller extends AnimationTimer
     private void goToGameplay()
     {
         stop();
+        ROOT.getChildren().remove(BACKGROUND);
+        for (Menu menu : menuList) menu.reset(ROOT);
         MOUSE.setReactor(Gameplay);
         KEYBOARD.setReactor(Gameplay);
         Gameplay.start();

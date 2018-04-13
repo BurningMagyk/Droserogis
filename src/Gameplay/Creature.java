@@ -71,7 +71,7 @@ public class Creature
         /* TODO: newX and newY need to be affected by the collide() for this to work */
         for (Block block : blocks)
         {
-            collide(block.checkCollision(xPos, xPos + width, yPos, yPos + height, direction));
+            //collide(block.checkCollision(xPos, xPos + width, yPos, yPos + height, direction));
         }
 
         if (x == 0 && y == 0) return;
@@ -177,7 +177,7 @@ public class Creature
                     /* Grounded */
                     yAcc = 0;
                     ySpeed = 0;
-                    yPos = face.getY(xPos) - height;
+                    //yPos = face.getY(xPos) - height;
                 }
                 else if (face.direction.vert == Direction.Enum.DOWN)
                 {
@@ -185,7 +185,7 @@ public class Creature
                     /* Hit the ceiling */
                     yAcc = 1;
                     ySpeed = 0;
-                    yPos = face.getY(xPos);
+                    //yPos = face.getY(xPos);
                 }
                 else if (face.direction.horiz == Direction.Enum.LEFT)
                 {
@@ -193,7 +193,7 @@ public class Creature
                     /* Sliding down the wall */
                     xAcc = 0;
                     xSpeed = 0;
-                    xPos = face.getX(yPos);
+                    //xPos = face.getX(yPos);
                     yAcc = 0; /* TODO: Should still accelerate, just less */
                     ySpeed = 1;
                 }
@@ -204,7 +204,7 @@ public class Creature
                     /* Sliding down the wall */
                     xAcc = 0;
                     xSpeed = 0;
-                    xPos = face.getX(yPos) - width;
+                    //xPos = face.getX(yPos) - width;
                     yAcc = 0; /* TODO: Should still accelerate, just less */
                     ySpeed = 1;
                 }
