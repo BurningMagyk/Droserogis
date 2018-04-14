@@ -25,7 +25,7 @@ public class Gameplay extends AnimationTimer implements Reactor
     private static World world;
     ArrayList<Entity> entities;
 
-    private static double cameraPosX, cameraPosY, cameraZoom;
+    private static float cameraPosX, cameraPosY, cameraZoom;
 
     Level testLevel;
 
@@ -35,13 +35,13 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewWidth = (int) context.getCanvas().getWidth();
         this.viewHeight = (int) context.getCanvas().getHeight();
 
-        world = new World(new Vec2(0, -9.8f));
+        world = new World(new Vec2(0, 10));
         entities = new ArrayList<>();
 
-        cameraPosX = 0; cameraPosY = 0; cameraZoom = 0;
+        cameraPosX = 0; cameraPosY = 0; cameraZoom = 500;
 
         /* For testing */
-        entities.add(new Block(context, world, 10, 10, 10, 10));
+        entities.add(new Block(world, 1F, 0.1F, 0.05F, 0.05F));
 
         //testLevel = new Level(context);
     }
@@ -89,10 +89,10 @@ public class Gameplay extends AnimationTimer implements Reactor
 
         clearContext();
 
-        context.setFill(Color.BLUE);
-        context.fillRect(200, 200, 200, 200);
+        context.setFill(Color.BLACK);
+        for (Entity entity : entities) drawEntity(entity);
 
-        for (Entity entity : entities) entity.draw();
+        world.step(1 / 60F,10,10);
 
         /* TODO: Animate subtitles */
     }
@@ -124,7 +124,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         /* For testing */
         if (code == KeyCode.SPACE && pressed)
         {
-            ((Block) entities.get(0)).test();
+            //((Block) entities.get(0)).test();
 
             /*for (Creature creature : creatures)
             {
@@ -153,10 +153,13 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     }
 
-    static double[] getCameraDrawPoint(double entityPosX, double entityPosY)
+    private void drawEntity(Entity entity)
     {
-        return new double[] {(entityPosX - cameraPosX) / cameraZoom,
-                             (entityPosY - cameraPosY) / cameraZoom};
+        Vec2 position = entity.getPosition();
+        context.fillRect((position.x - cameraPosX) * cameraZoom,
+                         (position.y - cameraPosY) * cameraZoom,
+                         entity.getWidth() * cameraZoom,
+                         entity.getHeight() * cameraZoom);
     }
 
     private void buildLevels()

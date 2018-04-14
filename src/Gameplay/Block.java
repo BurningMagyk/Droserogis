@@ -4,27 +4,24 @@ import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 
 class Block implements Entity
 {
-    private GraphicsContext context;
-
     private BodyDef bodyDef = new BodyDef();
     private PolygonShape polygonShape = new PolygonShape();
     private Body body;
     private FixtureDef fixtureDef = new FixtureDef();
 
-    private int width, height;
+    private float width, height;
 
-    Block(GraphicsContext context, World world,
-          int xPos, int yPos, int width, int height)
+    Block(World world, float xPos, float yPos, float width, float height)
     {
-        this.context = context;
         this.width = width; this.height = height;
 
         bodyDef.position.set(xPos, yPos);
-        bodyDef.type = BodyType.STATIC;
+        bodyDef.type = BodyType.DYNAMIC;
         body = world.createBody(bodyDef);
         polygonShape.setAsBox(width, height);
         fixtureDef.density = 1;
@@ -33,11 +30,15 @@ class Block implements Entity
     }
 
     @Override
-    public void draw()
+    public Vec2 getPosition()
     {
-        context.setFill(Color.BLACK);
-        context.fillRect(body.getPosition().x, body.getPosition().y, width, height);
+        return body.getPosition();
     }
+
+    @Override
+    public float getWidth() { return width; }
+    @Override
+    public float getHeight() { return height; }
 
     public void test(){Print.blue(body.getPosition().x);}
 

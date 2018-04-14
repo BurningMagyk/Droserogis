@@ -1,13 +1,19 @@
 package Gameplay;
 
+import org.jbox2d.common.Vec2;
+
 public interface Entity
 {
     /*
      * Formula:
-     * (entityPos - cameraPos) / cameraScale = drawCoordinates
+     * (entityPos - cameraPos) * cameraScale = drawCoordinates
      *
      * cameraScale == 1 if it's the same size as the world,
-     * otherwise it has a value less than 1
+     * otherwise it has a value greater than 1
      */
-    void draw();
+
+    Vec2 getPosition();
+
+    float getWidth();
+    float getHeight();
 }
