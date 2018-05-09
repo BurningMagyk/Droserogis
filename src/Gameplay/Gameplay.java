@@ -1,6 +1,5 @@
 package Gameplay;
 
-import Engine.Level;
 import Menus.Main;
 import Util.DebugEnum;
 import Util.Print;
@@ -27,8 +26,6 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private static float cameraPosX, cameraPosY, cameraZoom;
 
-    Level testLevel;
-
     public Gameplay(Group root, GraphicsContext context)
     {
         this.context = context;
@@ -42,8 +39,6 @@ public class Gameplay extends AnimationTimer implements Reactor
 
         /* For testing */
         entities.add(new Block(world, 1F, 0.1F, 0.05F, 0.05F));
-
-        //testLevel = new Level(context);
     }
 
     @Override
@@ -51,8 +46,6 @@ public class Gameplay extends AnimationTimer implements Reactor
     {
         // TODO: build levels based on game stats in parameters
         buildLevels();
-
-
 
         /* Start calling handle */
         super.start();
@@ -64,10 +57,6 @@ public class Gameplay extends AnimationTimer implements Reactor
     @Override
     public void handle(long now)
     {
-        //if (true) return;
-
-        /* TODO: Increment in-game clock */
-
         /* TODO: Animate horizon */
 
         /*for (Creature creature : creatures)
