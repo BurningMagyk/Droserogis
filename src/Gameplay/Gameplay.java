@@ -24,6 +24,8 @@ public class Gameplay extends AnimationTimer implements Reactor
     private static World world;
     ArrayList<Entity> entities;
 
+    private Actor player, player2;
+
     private static float cameraPosX, cameraPosY, cameraZoom;
 
     public Gameplay(Group root, GraphicsContext context)
@@ -32,13 +34,11 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewWidth = (int) context.getCanvas().getWidth();
         this.viewHeight = (int) context.getCanvas().getHeight();
 
-        world = new World(new Vec2(0, 10));
+        //world = new World(new Vec2(0, 10));
+        world = new World(new Vec2(0, 0));
         entities = new ArrayList<>();
 
         cameraPosX = 0; cameraPosY = 0; cameraZoom = 500;
-
-        /* For testing */
-        entities.add(new Block(world, 1F, 0.1F, 0.05F, 0.05F));
     }
 
     @Override
@@ -51,9 +51,6 @@ public class Gameplay extends AnimationTimer implements Reactor
         super.start();
     }
 
-    /**
-     *  Call animateFrame() for everything in order of depth
-     */
     @Override
     public void handle(long now)
     {
@@ -96,39 +93,42 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.ENTER)
         {
-            Print.blue(context.getCanvas().getWidth());
         }
-        if (code == KeyCode.LEFT)
+        if (code == KeyCode.LEFT && pressed)
         {
-            //creatures.get(0).moveLeft(pressed);
+            player.moveLeft();
         }
-        if (code == KeyCode.RIGHT)
+        if (code == KeyCode.RIGHT && pressed)
         {
-            //creatures.get(0).moveRight(pressed);
+            player.moveRight();
         }
-        if (code == KeyCode.UP)
+        if (code == KeyCode.UP && pressed)
         {
-            //creatures.get(0).jump(pressed);
+            player.moveUp();
         }
-        /* For testing */
+        if (code == KeyCode.DOWN && pressed)
+        {
+            player.moveDown();
+        }
+        if (code == KeyCode.A && pressed)
+        {
+            player2.moveLeft();
+        }
+        if (code == KeyCode.D && pressed)
+        {
+            player2.moveRight();
+        }
+        if (code == KeyCode.W && pressed)
+        {
+            player2.moveUp();
+        }
+        if (code == KeyCode.S && pressed)
+        {
+            player2.moveDown();
+        }
         if (code == KeyCode.SPACE && pressed)
         {
-            //((Block) entities.get(0)).test();
-
-            /*for (Creature creature : creatures)
-            {
-                creature.act();
-            }
-
-            for (Block block : blocks)
-            {
-                block.draw(0, 0);
-            }
-
-            for (Creature creature : creatures)
-            {
-                creature.draw(0, 0);
-            }*/
+            cameraZoom -= 10;
         }
     }
 
@@ -145,15 +145,33 @@ public class Gameplay extends AnimationTimer implements Reactor
     private void drawEntity(Entity entity)
     {
         Vec2 position = entity.getPosition();
-        context.fillRect((position.x - cameraPosX) * cameraZoom,
+        /*context.fillRect((position.x - cameraPosX) * cameraZoom,
                          (position.y - cameraPosY) * cameraZoom,
                          entity.getWidth() * cameraZoom,
-                         entity.getHeight() * cameraZoom);
+                         entity.getHeight() * cameraZoom);*/
+
+        if (entity.isActor()) context.setFill(Color.MAROON);
+        else context.setFill(Color.GOLDENROD);
+
+        context.fillRect((position.x - cameraPosX - (entity.getWidth())) * cameraZoom,
+                (position.y - cameraPosY - (entity.getHeight())) * cameraZoom,
+                entity.getWidth() * 2.3F * cameraZoom,
+                entity.getHeight() * 2.4F * cameraZoom);
     }
 
     private void buildLevels()
     {
+        /*Actor actor = new Actor(world, 2F, 1.5F, 0.05F, 0.05F);
+        entities.add(actor);*/
 
+        /* For testing */
+        entities.add(new Block(world, 3F, 1.2F, 0.5F, 0.5F));
+
+        player = new Actor(world, 2F, 0.1F, 0.05F, 0.05F);
+        entities.add(player);
+
+        player2 = new Actor(world, 2F, 0.2F, 0.05F, 0.05F);
+        entities.add(player2);
     }
 
     private void clearContext()

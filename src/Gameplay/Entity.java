@@ -16,4 +16,6 @@ public interface Entity
 
     float getWidth();
     float getHeight();
+
+    boolean isActor();
 }

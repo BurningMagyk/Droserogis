@@ -21,7 +21,7 @@ class Block implements Entity
         this.width = width; this.height = height;
 
         bodyDef.position.set(xPos, yPos);
-        bodyDef.type = BodyType.DYNAMIC;
+        bodyDef.type = BodyType.KINEMATIC;
         body = world.createBody(bodyDef);
         polygonShape.setAsBox(width, height);
         fixtureDef.density = 1;
@@ -42,4 +42,10 @@ class Block implements Entity
 
     /* For debugging */
     public void test(){Print.blue(body.getPosition().x);}
+
+    @Override
+    public boolean isActor()
+    {
+        return false;
+    }
 }
