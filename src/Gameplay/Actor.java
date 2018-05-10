@@ -22,7 +22,7 @@ public class Actor implements Entity
         bodyDef.type = BodyType.DYNAMIC;
         body = world.createBody(bodyDef);
         polygonShape.setAsBox(width, height);
-        fixtureDef.density = 1;
+        fixtureDef.density = 0.005F;
         fixtureDef.shape = polygonShape;
         body.createFixture(fixtureDef);
     }
@@ -34,9 +34,9 @@ public class Actor implements Entity
     }
 
     @Override
-    public float getWidth() { return width; }
+    public float getWidth() { return width * 2; }
     @Override
-    public float getHeight() { return height; }
+    public float getHeight() { return height * 2; }
 
     /* For debugging */
     public void test(){
@@ -45,19 +45,19 @@ public class Actor implements Entity
 
     void moveLeft()
     {
-        body.applyForceToCenter(new Vec2(-0.1F, 0));
+        body.applyForceToCenter(new Vec2(-0.5F, 0));
     }
     void moveRight()
     {
-        body.applyForceToCenter(new Vec2(0.1F, 0));
+        body.applyForceToCenter(new Vec2(0.5F, 0));
     }
     void moveUp()
     {
-        body.applyForceToCenter(new Vec2(0, -0.1F));
+        body.applyForceToCenter(new Vec2(0, -0.5F));
     }
     void moveDown()
     {
-        body.applyForceToCenter(new Vec2(0, 0.1F));
+        body.applyForceToCenter(new Vec2(0, 0.5F));
     }
 
     @Override

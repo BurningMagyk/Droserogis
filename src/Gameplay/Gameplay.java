@@ -34,11 +34,11 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewWidth = (int) context.getCanvas().getWidth();
         this.viewHeight = (int) context.getCanvas().getHeight();
 
-        //world = new World(new Vec2(0, 10));
-        world = new World(new Vec2(0, 0));
+        world = new World(new Vec2(0, 20));
+        //world = new World(new Vec2(0, 0));
         entities = new ArrayList<>();
 
-        cameraPosX = 0; cameraPosY = 0; cameraZoom = 500;
+        cameraPosX = 0; cameraPosY = 0; cameraZoom = 100;
     }
 
     @Override
@@ -153,10 +153,10 @@ public class Gameplay extends AnimationTimer implements Reactor
         if (entity.isActor()) context.setFill(Color.MAROON);
         else context.setFill(Color.GOLDENROD);
 
-        context.fillRect((position.x - cameraPosX - (entity.getWidth())) * cameraZoom,
-                (position.y - cameraPosY - (entity.getHeight())) * cameraZoom,
-                entity.getWidth() * 2.3F * cameraZoom,
-                entity.getHeight() * 2.4F * cameraZoom);
+        context.fillRect((position.x - cameraPosX - (entity.getWidth()) / 2) * cameraZoom,
+                (position.y - cameraPosY - (entity.getHeight()) / 2) * cameraZoom,
+                entity.getWidth() * cameraZoom,
+                entity.getHeight() * cameraZoom);
     }
 
     private void buildLevels()
@@ -165,12 +165,14 @@ public class Gameplay extends AnimationTimer implements Reactor
         entities.add(actor);*/
 
         /* For testing */
-        entities.add(new Block(world, 3F, 1.2F, 0.5F, 0.5F));
+        /*entities.add(new Block(world, 3F, 1.2F, 0.5F, 0.5F));*/
 
-        player = new Actor(world, 2F, 0.1F, 0.05F, 0.05F);
+        entities.add(new Block(world, 7.5F, 6F, 4F, 2.5F));
+
+        player = new Actor(world, 10F, 0.5F, 0.25F, 0.25F);
         entities.add(player);
 
-        player2 = new Actor(world, 2F, 0.2F, 0.05F, 0.05F);
+        player2 = new Actor(world, 10F, 1F, 0.25F, 0.25F);
         entities.add(player2);
     }
 

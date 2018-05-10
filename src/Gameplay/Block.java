@@ -36,9 +36,9 @@ class Block implements Entity
     }
 
     @Override
-    public float getWidth() { return width; }
+    public float getWidth() { return width * 2; }
     @Override
-    public float getHeight() { return height; }
+    public float getHeight() { return height * 2; }
 
     /* For debugging */
     public void test(){Print.blue(body.getPosition().x);}
