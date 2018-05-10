@@ -96,35 +96,35 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.LEFT && pressed)
         {
-            player.moveLeft();
+            player.moveLeft(pressed);
         }
         if (code == KeyCode.RIGHT && pressed)
         {
-            player.moveRight();
+            player.moveRight(pressed);
         }
         if (code == KeyCode.UP && pressed)
         {
-            player.moveUp();
+            player.moveUp(pressed);
         }
         if (code == KeyCode.DOWN && pressed)
         {
-            player.moveDown();
+            player.moveDown(pressed);
         }
         if (code == KeyCode.A && pressed)
         {
-            player2.moveLeft();
+            player2.moveLeft(pressed);
         }
         if (code == KeyCode.D && pressed)
         {
-            player2.moveRight();
+            player2.moveRight(pressed);
         }
         if (code == KeyCode.W && pressed)
         {
-            player2.moveUp();
+            player2.moveUp(pressed);
         }
         if (code == KeyCode.S && pressed)
         {
-            player2.moveDown();
+            player2.moveDown(pressed);
         }
         if (code == KeyCode.SPACE && pressed)
         {

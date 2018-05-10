@@ -25,6 +25,8 @@ public class Actor implements Entity
         fixtureDef.density = 0.005F;
         fixtureDef.shape = polygonShape;
         body.createFixture(fixtureDef);
+
+        body.setFixedRotation(true);
     }
 
     @Override
@@ -43,21 +45,25 @@ public class Actor implements Entity
         Print.blue(body.getPosition().x);
     }
 
-    void moveLeft()
+    void moveLeft(boolean pressed)
     {
-        body.applyForceToCenter(new Vec2(-0.5F, 0));
+        //body.applyForceToCenter(new Vec2(-0.5F, 0));
+        body.setLinearVelocity(new Vec2(-2F, body.getLinearVelocity().y));
     }
-    void moveRight()
+    void moveRight(boolean pressed)
     {
-        body.applyForceToCenter(new Vec2(0.5F, 0));
+        //body.applyForceToCenter(new Vec2(-0.5F, 0));
+        body.setLinearVelocity(new Vec2(2F, body.getLinearVelocity().y));
     }
-    void moveUp()
+    void moveUp(boolean pressed)
     {
-        body.applyForceToCenter(new Vec2(0, -0.5F));
+        //body.applyForceToCenter(new Vec2(0, -0.5F));
+        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, -2F));
     }
-    void moveDown()
+    void moveDown(boolean pressed)
     {
-        body.applyForceToCenter(new Vec2(0, 0.5F));
+        //body.applyForceToCenter(new Vec2(0, 0.5F));
+        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, 2F));
     }
 
     @Override
