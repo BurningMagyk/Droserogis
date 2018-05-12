@@ -22,13 +22,13 @@ public class Gameplay extends AnimationTimer implements Reactor
     public GraphicsContext context;
 
     private static World world;
-    ArrayList<Entity> entities;
+    private ArrayList<Entity> entities;
 
     private Actor player, player2;
 
     private static float cameraPosX, cameraPosY, cameraZoom;
 
-    public Gameplay(Group root, GraphicsContext context)
+    Gameplay(Group root, GraphicsContext context)
     {
         this.context = context;
         this.viewWidth = (int) context.getCanvas().getWidth();
@@ -54,25 +54,6 @@ public class Gameplay extends AnimationTimer implements Reactor
     @Override
     public void handle(long now)
     {
-        /* TODO: Animate horizon */
-
-        /*for (Creature creature : creatures)
-        {
-            creature.act();
-        }
-
-        for (Block block : blocks)
-        {
-            block.draw(0, 0);
-        }
-
-        for (Creature creature : creatures)
-        {
-            creature.draw(0, 0);
-        }*/
-
-        //testLevel.draw(context);
-
         clearContext();
 
         context.setFill(Color.BLACK);
@@ -96,19 +77,19 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.LEFT && pressed)
         {
-            player.moveLeft(pressed);
+            cameraPosX -= 1;
         }
         if (code == KeyCode.RIGHT && pressed)
         {
-            player.moveRight(pressed);
+            cameraPosX += 1;
         }
         if (code == KeyCode.UP && pressed)
         {
-            player.moveUp(pressed);
+            cameraPosY -= 1;
         }
         if (code == KeyCode.DOWN && pressed)
         {
-            player.moveDown(pressed);
+            cameraPosY += 1;
         }
         if (code == KeyCode.A && pressed)
         {
@@ -129,6 +110,14 @@ public class Gameplay extends AnimationTimer implements Reactor
         if (code == KeyCode.SPACE && pressed)
         {
             cameraZoom -= 10;
+            //cameraPosX -= 10F / cameraZoom;
+            //cameraPosY -= 10F / cameraZoom;
+        }
+        if (code == KeyCode.SHIFT && pressed)
+        {
+            cameraZoom += 10;
+            //cameraPosX += 10;
+            //cameraPosY += 10;
         }
     }
 
@@ -167,7 +156,8 @@ public class Gameplay extends AnimationTimer implements Reactor
         /* For testing */
         /*entities.add(new Block(world, 3F, 1.2F, 0.5F, 0.5F));*/
 
-        entities.add(new Block(world, 7.5F, 6F, 4F, 2.5F));
+        entities.add(new Block(world, 0F, 6F, 4F, 2.5F));
+        entities.add(new Block(world, 10F, 10F, 4F, 4F));
 
         player = new Actor(world, 10F, 0.5F, 0.25F, 0.25F);
         entities.add(player);
