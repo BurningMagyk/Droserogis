@@ -26,7 +26,7 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private Actor player, player2;
 
-    private static float cameraPosX, cameraPosY, cameraZoom;
+    private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
 
     Gameplay(Group root, GraphicsContext context)
     {
@@ -39,6 +39,8 @@ public class Gameplay extends AnimationTimer implements Reactor
         entities = new ArrayList<>();
 
         cameraPosX = 0; cameraPosY = 0; cameraZoom = 100;
+        cameraOffsetX = viewWidth / 2F / cameraZoom;
+        cameraOffsetY = viewHeight / 2F / cameraZoom;
     }
 
     @Override
@@ -77,47 +79,43 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.LEFT && pressed)
         {
-            cameraPosX -= 1;
+            moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
         }
         if (code == KeyCode.RIGHT && pressed)
         {
-            cameraPosX += 1;
+            moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
         }
         if (code == KeyCode.UP && pressed)
         {
-            cameraPosY -= 1;
+            moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
         }
         if (code == KeyCode.DOWN && pressed)
         {
-            cameraPosY += 1;
+            moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
+        }
+        if (code == KeyCode.Q && pressed)
+        {
+            moveCamera(cameraPosX, cameraPosY, cameraZoom - 5);
+        }
+        if (code == KeyCode.E && pressed)
+        {
+            moveCamera(cameraPosX, cameraPosY, cameraZoom + 5);
         }
         if (code == KeyCode.A && pressed)
         {
-            player2.moveLeft(pressed);
+            //player2.moveLeft(pressed);
         }
         if (code == KeyCode.D && pressed)
         {
-            player2.moveRight(pressed);
+            //player2.moveRight(pressed);
         }
         if (code == KeyCode.W && pressed)
         {
-            player2.moveUp(pressed);
+            //player2.moveUp(pressed);
         }
         if (code == KeyCode.S && pressed)
         {
-            player2.moveDown(pressed);
-        }
-        if (code == KeyCode.SPACE && pressed)
-        {
-            cameraZoom -= 10;
-            //cameraPosX -= 10F / cameraZoom;
-            //cameraPosY -= 10F / cameraZoom;
-        }
-        if (code == KeyCode.SHIFT && pressed)
-        {
-            cameraZoom += 10;
-            //cameraPosX += 10;
-            //cameraPosY += 10;
+            //player2.moveDown(pressed);
         }
     }
 
@@ -134,36 +132,45 @@ public class Gameplay extends AnimationTimer implements Reactor
     private void drawEntity(Entity entity)
     {
         Vec2 position = entity.getPosition();
-        /*context.fillRect((position.x - cameraPosX) * cameraZoom,
-                         (position.y - cameraPosY) * cameraZoom,
-                         entity.getWidth() * cameraZoom,
-                         entity.getHeight() * cameraZoom);*/
 
         if (entity.isActor()) context.setFill(Color.MAROON);
         else context.setFill(Color.GOLDENROD);
 
-        context.fillRect((position.x - cameraPosX - (entity.getWidth()) / 2) * cameraZoom,
-                (position.y - cameraPosY - (entity.getHeight()) / 2) * cameraZoom,
-                entity.getWidth() * cameraZoom,
-                entity.getHeight() * cameraZoom);
+        context.fillRect(
+                (position.x - cameraPosX + cameraOffsetX - (entity.getWidth()) / 2)
+                        * cameraZoom,
+                (position.y - cameraPosY + cameraOffsetY - (entity.getHeight()) / 2)
+                        * cameraZoom,
+                entity.getWidth()
+                        * cameraZoom,
+                entity.getHeight()
+                        * cameraZoom);
+
+        /* Draws vertical and horizontal lines through the middle for debugging */
+        context.setFill(Color.BLACK);
+        context.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+        context.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
     }
 
     private void buildLevels()
     {
-        /*Actor actor = new Actor(world, 2F, 1.5F, 0.05F, 0.05F);
-        entities.add(actor);*/
+        entities.add(new Block(world, 0, 0, 0.1F, 0.1F));
 
-        /* For testing */
-        /*entities.add(new Block(world, 3F, 1.2F, 0.5F, 0.5F));*/
+        //player = new Actor(world, 10F, 0.5F, 0.25F, 0.25F);
+        //entities.add(player);
 
-        entities.add(new Block(world, 0F, 6F, 4F, 2.5F));
-        entities.add(new Block(world, 10F, 10F, 4F, 4F));
+        ///player2 = new Actor(world, 10F, 1F, 0.25F, 0.25F);
+        //entities.add(player2);
+    }
 
-        player = new Actor(world, 10F, 0.5F, 0.25F, 0.25F);
-        entities.add(player);
+    private void moveCamera(float posX, float posY, float zoom)
+    {
+        cameraZoom = zoom;
+        cameraPosX = posX;
+        cameraPosY = posY;
 
-        player2 = new Actor(world, 10F, 1F, 0.25F, 0.25F);
-        entities.add(player2);
+        cameraOffsetX = viewWidth / 2F / cameraZoom;
+        cameraOffsetY = viewHeight / 2F / cameraZoom;
     }
 
     private void clearContext()
