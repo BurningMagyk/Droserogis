@@ -1,21 +1,44 @@
 package Gameplay;
 
+import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.*;
 
-public interface Entity
+public class Entity
 {
-    /*
-     * Formula:
-     * (entityPos - cameraPos) * cameraScale = drawCoordinates
-     *
-     * cameraScale == 1 if it's the same size as the world,
-     * otherwise it has a value greater than 1
-     */
+    BodyDef bodyDef = new BodyDef();
+    PolygonShape polygonShape = new PolygonShape();
+    Body body;
+    FixtureDef fixtureDef = new FixtureDef();
 
-    Vec2 getPosition();
+    float width, height;
 
-    float getWidth();
-    float getHeight();
+    Entity(World world, float xPos, float yPos, float width, float height, boolean dynamic)
+    {
+        this.width = width; this.height = height;
 
-    boolean isActor();
+        bodyDef.position.set(xPos, yPos);
+        bodyDef.type = dynamic ? BodyType.DYNAMIC : BodyType.KINEMATIC;
+        body = world.createBody(bodyDef);
+        polygonShape.setAsBox(width, height);
+        //fixtureDef.density = 0.005F;
+        fixtureDef.friction = 0.1F;
+        fixtureDef.shape = polygonShape;
+        body.createFixture(fixtureDef);
+
+        body.setFixedRotation(true);
+    }
+
+    public Vec2 getPosition()
+    {
+        return body.getPosition();
+    }
+
+    public float getWidth() { return width * 2; }
+    public float getHeight() { return height * 2; }
+
+    boolean isActor()
+    {
+        return bodyDef.type == BodyType.DYNAMIC;
+    }
 }

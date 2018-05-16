@@ -2,13 +2,20 @@
 <br>
 <p>
     <i>--This project is still in development--</i><br><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Droserogis</i> is a 2D-platformer fighting game with story-mode and
-    multiplayer. The game's story is an adaptation of some amateur novels that are not published. There are other
-    fighting games that revolve around pitting characters from different stories against each other, but the power
-    that those characters have within gameplay is altered to ensure that the matches are balanced. This game will be
-    different, in that it will have that characters' power within gameplay reflect the power they have in their
-    respective novel story. Balancing matches within the game will instead be achieved using elaborate handicaps
-    and an emphasis on using teams with multiple characters in them.
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Droserogis</i> is a 2D-platformer fighting game. It will serve as an 
+    adaptation of various amateur novels written by some friends and myself.
+</p><br>
+
+<p>
+<b>Project Head:</b> Robin Campos<br>
+<b>Programmers:</b> Joel Castellanos, Dustin Loughrin, Robin Campos<br>
+<b>Novelists:</b> Michael Burbank, Robin Campos, Dustin Loughrin<br>
+<b>Graphic Artists:</b> <i>--to be decided--</i><br>
+<b>Composers:</b> <i>--to be decided--</i><br>
+<b>Voice Actors:</b> <i>--to be decided--</i><br>
+<b>Translators:</b> Robin Campos (Spanish), <i>--to be decided--</i> (Italian), 
+<i>--to be decided--</i> (French), <i>--to be decided--</i> (German), 
+<i>--to be decided--</i> (Wapanese)<br>
 </p><br>
 
 |     | OFFICIAL CANON POWER RANKINGS |

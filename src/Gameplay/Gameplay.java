@@ -2,7 +2,6 @@ package Gameplay;
 
 import Menus.Main;
 import Util.DebugEnum;
-import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -24,7 +23,7 @@ public class Gameplay extends AnimationTimer implements Reactor
     private static World world;
     private ArrayList<Entity> entities;
 
-    private Actor player, player2;
+    private Actor player;
 
     private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
 
@@ -35,7 +34,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewHeight = (int) context.getCanvas().getHeight();
 
         world = new World(new Vec2(0, 20));
-        //world = new World(new Vec2(0, 0));
+
         entities = new ArrayList<>();
 
         cameraPosX = 0; cameraPosY = 0; cameraZoom = 100;
@@ -46,7 +45,6 @@ public class Gameplay extends AnimationTimer implements Reactor
     @Override
     public void start(/* Gameplay stats would go in here */)
     {
-        // TODO: build levels based on game stats in parameters
         buildLevels();
 
         /* Start calling handle */
@@ -62,8 +60,6 @@ public class Gameplay extends AnimationTimer implements Reactor
         for (Entity entity : entities) drawEntity(entity);
 
         world.step(1 / 60F,10,10);
-
-        /* TODO: Animate subtitles */
     }
 
     @Override
@@ -103,19 +99,19 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         if (code == KeyCode.A && pressed)
         {
-            //player2.moveLeft(pressed);
+            player.moveLeft(pressed);
         }
         if (code == KeyCode.D && pressed)
         {
-            //player2.moveRight(pressed);
+            player.moveRight(pressed);
         }
         if (code == KeyCode.W && pressed)
         {
-            //player2.moveUp(pressed);
+            player.moveUp(pressed);
         }
         if (code == KeyCode.S && pressed)
         {
-            //player2.moveDown(pressed);
+            player.moveDown(pressed);
         }
     }
 
@@ -133,6 +129,7 @@ public class Gameplay extends AnimationTimer implements Reactor
     {
         Vec2 position = entity.getPosition();
 
+        /* Different colors for debugging */
         if (entity.isActor()) context.setFill(Color.MAROON);
         else context.setFill(Color.GOLDENROD);
 
@@ -154,13 +151,10 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private void buildLevels()
     {
-        entities.add(new Block(world, 0, 0, 0.1F, 0.1F));
+        entities.add(new Block(world, 0, 0, 2F, 2F));
 
-        //player = new Actor(world, 10F, 0.5F, 0.25F, 0.25F);
-        //entities.add(player);
-
-        ///player2 = new Actor(world, 10F, 1F, 0.25F, 0.25F);
-        //entities.add(player2);
+        player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
+        entities.add(player);
     }
 
     private void moveCamera(float posX, float posY, float zoom)
