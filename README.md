@@ -1,9 +1,10 @@
-# Droserogis
+# El Hermano
 <br>
 <p>
     <i>--This project is still in development--</i><br><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Droserogis</i> is a 2D-platformer fighting game. It will serve as an 
-    adaptation of various amateur novels written by some friends and myself.
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>El Hermano</i> is the code name for this 2D-platformer fighting game. 
+    An official title for the game has not yet been decided. The game will serve as an adaptation for various amateur
+    novels written by the programmers.
 </p><br>
 
 <p>

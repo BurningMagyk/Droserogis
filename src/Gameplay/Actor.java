@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 public class Actor extends Entity
 {
-    Dir currentDir = null;
+    Dir actDirHoriz = null;
+    Dir actDirVert = null;
     boolean pressingLeft = false;
     boolean pressingRight = false;
     boolean pressingUp = false;
@@ -23,27 +24,29 @@ public class Actor extends Entity
     @Override
     void act()
     {
-        if (currentDir != null)
+        if (actDirHoriz != null)
         {
-            if (currentDir == Dir.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, -2F));
-            else if (currentDir == Dir.LEFT) body.setLinearVelocity(new Vec2(-2F, body.getLinearVelocity().y));
-            else if (currentDir == Dir.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, 2F));
-            else if (currentDir == Dir.RIGHT) body.setLinearVelocity(new Vec2(2F, body.getLinearVelocity().y));
+            if (actDirHoriz == Dir.LEFT) body.setLinearVelocity(new Vec2(-2F, body.getLinearVelocity().y));
+            else if (actDirHoriz == Dir.RIGHT) body.setLinearVelocity(new Vec2(2F, body.getLinearVelocity().y));
         }
-
+        if (actDirVert != null)
+        {
+            if (actDirVert == Dir.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, -2F));
+            else if (actDirHoriz == Dir.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, 2F));
+        }
     }
 
     void moveLeft(boolean pressed)
     {
         if (pressed)
         {
-            currentDir = Dir.LEFT;
+            actDirHoriz = Dir.LEFT;
             pressingLeft = true;
         }
-        else if (currentDir == Dir.LEFT)
+        else if (actDirHoriz == Dir.LEFT)
         {
-            if (pressingRight) currentDir = Dir.RIGHT;
-            else currentDir = null;
+            if (pressingRight) actDirHoriz = Dir.RIGHT;
+            else actDirHoriz = null;
             pressingLeft = false;
         }
         else pressingLeft = false;
@@ -52,13 +55,13 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            currentDir = Dir.RIGHT;
+            actDirHoriz = Dir.RIGHT;
             pressingRight = true;
         }
-        else if (currentDir == Dir.RIGHT)
+        else if (actDirHoriz == Dir.RIGHT)
         {
-            if (pressingLeft) currentDir = Dir.LEFT;
-            else currentDir = null;
+            if (pressingLeft) actDirHoriz = Dir.LEFT;
+            else actDirHoriz = null;
             pressingRight = false;
         }
         else pressingRight = false;
@@ -67,13 +70,13 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            currentDir = Dir.UP;
+            actDirVert = Dir.UP;
             pressingUp = true;
         }
-        else if (currentDir == Dir.UP)
+        else if (actDirVert == Dir.UP)
         {
-            if (pressingDown) currentDir = Dir.DOWN;
-            else currentDir = null;
+            if (pressingDown) actDirVert = Dir.DOWN;
+            else actDirVert = null;
             pressingUp = false;
         }
         else pressingUp = false;
@@ -82,13 +85,13 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            currentDir = Dir.DOWN;
+            actDirVert = Dir.DOWN;
             pressingDown = true;
         }
-        else if (currentDir == Dir.DOWN)
+        else if (actDirVert == Dir.DOWN)
         {
-            if (pressingUp) currentDir = Dir.UP;
-            else currentDir = null;
+            if (pressingUp) actDirVert = Dir.UP;
+            else actDirVert = null;
             pressingDown = false;
         }
         else pressingDown = false;
