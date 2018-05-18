@@ -1,8 +1,11 @@
 package Gameplay;
 
+import javafx.scene.paint.Color;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
+
+import java.util.ArrayList;
 
 public class Entity
 {
@@ -12,6 +15,7 @@ public class Entity
     FixtureDef fixtureDef = new FixtureDef();
 
     float width, height;
+    boolean triggered;
 
     Entity(World world, float xPos, float yPos, float width, float height, boolean dynamic)
     {
@@ -41,4 +45,12 @@ public class Entity
     {
         return bodyDef.type == BodyType.DYNAMIC;
     }
+
+    Color getColor()
+    {
+        return Color.BLACK;
+    }
+
+    void act(){}
+    void triggerContacts(ArrayList<Entity> entities){}
 }

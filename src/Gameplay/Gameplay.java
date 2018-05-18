@@ -2,6 +2,7 @@ package Gameplay;
 
 import Menus.Main;
 import Util.DebugEnum;
+import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -57,6 +58,9 @@ public class Gameplay extends AnimationTimer implements Reactor
         clearContext();
 
         context.setFill(Color.BLACK);
+        for (Entity entity : entities) entity.triggered = false;
+        for (Entity entity : entities) entity.act();
+        for (Entity entity : entities) entity.triggerContacts(entities);
         for (Entity entity : entities) drawEntity(entity);
 
         world.step(1 / 60F,10,10);
@@ -70,7 +74,7 @@ public class Gameplay extends AnimationTimer implements Reactor
             Platform.exit();
             System.exit(0);
         }
-        if (code == KeyCode.ENTER)
+        if (code == KeyCode.ENTER && pressed)
         {
         }
         if (code == KeyCode.LEFT && pressed)
@@ -97,19 +101,19 @@ public class Gameplay extends AnimationTimer implements Reactor
         {
             moveCamera(cameraPosX, cameraPosY, cameraZoom + 5);
         }
-        if (code == KeyCode.A && pressed)
+        if (code == KeyCode.A)
         {
             player.moveLeft(pressed);
         }
-        if (code == KeyCode.D && pressed)
+        if (code == KeyCode.D)
         {
             player.moveRight(pressed);
         }
-        if (code == KeyCode.W && pressed)
+        if (code == KeyCode.W)
         {
             player.moveUp(pressed);
         }
-        if (code == KeyCode.S && pressed)
+        if (code == KeyCode.S)
         {
             player.moveDown(pressed);
         }
@@ -127,12 +131,9 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private void drawEntity(Entity entity)
     {
+        context.setFill(entity.getColor());
+
         Vec2 position = entity.getPosition();
-
-        /* Different colors for debugging */
-        if (entity.isActor()) context.setFill(Color.MAROON);
-        else context.setFill(Color.GOLDENROD);
-
         context.fillRect(
                 (position.x - cameraPosX + cameraOffsetX - (entity.getWidth()) / 2)
                         * cameraZoom,
@@ -152,6 +153,7 @@ public class Gameplay extends AnimationTimer implements Reactor
     private void buildLevels()
     {
         entities.add(new Block(world, 0, 0, 2F, 2F));
+        entities.add(new Block(world, 4, -2, 2, 0.5F));
 
         player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
         entities.add(player);
