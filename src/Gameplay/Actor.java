@@ -101,8 +101,9 @@ public class Actor extends Entity
     }*/
     void jump(boolean pressed)
     {
-        if (pressed && !pressingJump && grounded)
+        if (pressed)
         {
+            if (pressingJump || !grounded) return;
             body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, body.getLinearVelocity().y - 6F));
             pressingJump = true;
         }
