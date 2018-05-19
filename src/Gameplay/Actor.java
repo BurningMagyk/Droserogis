@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Util.Print;
 import javafx.scene.paint.Color;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
@@ -16,12 +17,14 @@ public class Actor extends Entity
     boolean pressingUp = false;
     boolean pressingDown = false;
 
+    boolean pressingJump = false;
+    boolean grounded = false;
+
     Actor(World world, float xPos, float yPos, float width, float height)
     {
         super(world, xPos, yPos, width, height, true);
     }
 
-    @Override
     void act()
     {
         if (actDirHoriz != null)
@@ -66,7 +69,7 @@ public class Actor extends Entity
         }
         else pressingRight = false;
     }
-    void moveUp(boolean pressed)
+    /*void moveUp(boolean pressed)
     {
         if (pressed)
         {
@@ -95,16 +98,29 @@ public class Actor extends Entity
             pressingDown = false;
         }
         else pressingDown = false;
+    }*/
+    void jump(boolean pressed)
+    {
+        if (pressed && !pressingJump && grounded)
+        {
+            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, body.getLinearVelocity().y - 6F));
+            pressingJump = true;
+        }
+        else
+        {
+            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, 0)));
+            pressingJump = false;
+        }
     }
 
     private enum Dir{UP, LEFT, DOWN, RIGHT}
 
+    @Override
     Color getColor()
     {
-        return triggered ? Color.BLUE : Color.GREEN;
+        return grounded ? Color.BLUE : Color.GREEN;
     }
 
-    @Override
     void triggerContacts(ArrayList<Entity> entities)
     {
         ContactEdge contactEdge = body.getContactList();
@@ -116,9 +132,33 @@ public class Actor extends Entity
                 {
                     entity.triggered = true;
                     triggered = true;
+
+                    if (inBoundsHoriz(entity) == null && inBoundsVert(entity) == Dir.DOWN)
+                        grounded = true;
                 }
             }
             contactEdge = contactEdge.next;
         }
+    }
+
+    private Dir inBoundsHoriz(Entity other)
+    {
+        if (getRightEdge() < other.getLeftEdge()) return Dir.RIGHT;
+        if (getLeftEdge() > other.getRightEdge()) return Dir.LEFT;
+        return null;
+    }
+
+    private Dir inBoundsVert(Entity other)
+    {
+        if (getBottomEdge() < other.getTopEdge()) return Dir.DOWN;
+        if (getTopEdge() > other.getBottomEdge()) return Dir.UP;
+        return null;
+    }
+
+    @Override
+    void resetFlags()
+    {
+        super.resetFlags();
+        grounded = false;
     }
 }

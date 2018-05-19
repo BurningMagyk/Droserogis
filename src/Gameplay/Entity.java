@@ -5,8 +5,6 @@ import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 
-import java.util.ArrayList;
-
 public class Entity
 {
     BodyDef bodyDef = new BodyDef();
@@ -41,16 +39,18 @@ public class Entity
     public float getWidth() { return width * 2; }
     public float getHeight() { return height * 2; }
 
-    boolean isActor()
-    {
-        return bodyDef.type == BodyType.DYNAMIC;
-    }
-
     Color getColor()
     {
         return Color.BLACK;
     }
 
-    void act(){}
-    void triggerContacts(ArrayList<Entity> entities){}
+    float getLeftEdge() { return getPosition().x - width; }
+    float getRightEdge() { return getPosition().x + width; }
+    float getTopEdge() { return getPosition().y - height; }
+    float getBottomEdge() { return getPosition().y + height; }
+
+    void resetFlags()
+    {
+        triggered = false;
+    }
 }

@@ -23,6 +23,7 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private static World world;
     private ArrayList<Entity> entities;
+    private ArrayList<Actor> actors;
 
     private Actor player;
 
@@ -37,6 +38,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         world = new World(new Vec2(0, 20));
 
         entities = new ArrayList<>();
+        actors = new ArrayList<>();
 
         cameraPosX = 0; cameraPosY = 0; cameraZoom = 100;
         cameraOffsetX = viewWidth / 2F / cameraZoom;
@@ -58,9 +60,9 @@ public class Gameplay extends AnimationTimer implements Reactor
         clearContext();
 
         context.setFill(Color.BLACK);
-        for (Entity entity : entities) entity.triggered = false;
-        for (Entity entity : entities) entity.act();
-        for (Entity entity : entities) entity.triggerContacts(entities);
+        for (Entity entity : entities) entity.resetFlags();
+        for (Actor actor : actors) actor.triggerContacts(entities);
+        for (Actor actor : actors) actor.act();
         for (Entity entity : entities) drawEntity(entity);
 
         world.step(1 / 60F,10,10);
@@ -109,14 +111,18 @@ public class Gameplay extends AnimationTimer implements Reactor
         {
             player.moveRight(pressed);
         }
-        if (code == KeyCode.W)
+        if (code == KeyCode.J)
+        {
+            player.jump(pressed);
+        }
+        /*if (code == KeyCode.W)
         {
             player.moveUp(pressed);
         }
         if (code == KeyCode.S)
         {
             player.moveDown(pressed);
-        }
+        }*/
     }
 
     @Override
@@ -152,11 +158,11 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private void buildLevels()
     {
-        entities.add(new Block(world, 0, 0, 2F, 2F));
-        entities.add(new Block(world, 4, -2, 2, 0.5F));
+        addEntity(new Block(world, 0, 0, 2F, 2F));
+        addEntity(new Block(world, 4, -2, 2, 0.5F));
 
         player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
-        entities.add(player);
+        addEntity(player);
     }
 
     private void moveCamera(float posX, float posY, float zoom)
@@ -167,6 +173,13 @@ public class Gameplay extends AnimationTimer implements Reactor
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
         cameraOffsetY = viewHeight / 2F / cameraZoom;
+    }
+
+    private void addEntity(Entity entity)
+    {
+        if (entity.getClass() == Actor.class) actors.add((Actor) entity);
+
+        entities.add(entity);
     }
 
     private void clearContext()
