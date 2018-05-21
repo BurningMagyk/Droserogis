@@ -6,6 +6,8 @@ import org.jbox2d.dynamics.*;
 
 class Block extends Entity
 {
+    float leftBound, rightBound, topBound, bottomBound;
+
     Block(World world, float xPos, float yPos, float width, float height, Orient orient)
     {
         super(world, xPos, yPos, width, height, false);
@@ -28,6 +30,28 @@ class Block extends Entity
         }
 
         body.createFixture(fixtureDef);
+        updateBoundValues();
+    }
+
+    float getLeftEdge()
+    {
+        if (triangular) return leftBound;
+        else return super.getLeftEdge();
+    }
+    float getRightEdge()
+    {
+        if (triangular) return rightBound;
+        else return super.getRightEdge();
+    }
+    float getTopEdge()
+    {
+        if (triangular) return topBound;
+        else return super.getTopEdge();
+    }
+    float getBottomEdge()
+    {
+        if (triangular) return bottomBound;
+        else return super.getBottomEdge();
     }
 
     enum Orient
@@ -63,5 +87,23 @@ class Block extends Entity
     Color getColor()
     {
         return triggered ? Color.ORANGE : Color.YELLOW;
+    }
+
+    private void updateBoundValues()
+    {
+        float xPos[] = new float[3];
+        float yPos[] = new float[3];
+        Vec2 points[] = polygonShape.getVertices();
+        Vec2 cPos = getPosition();
+        for (int i = 0; i < 3; i++)
+        {
+            xPos[i] = points[i].x + cPos.x;
+            yPos[i] = points[i].y + cPos.y;
+        }
+
+        leftBound = Math.min(Math.min(xPos[0], xPos[1]), xPos[2]);
+        rightBound = Math.max(Math.max(xPos[0], xPos[1]), xPos[2]);
+        topBound = Math.min(Math.min(yPos[0], yPos[1]), yPos[2]);
+        bottomBound = Math.max(Math.max(yPos[0], yPos[1]), yPos[2]);
     }
 }
