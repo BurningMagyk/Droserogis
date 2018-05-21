@@ -14,17 +14,34 @@ public class Entity
 
     float width, height;
     boolean triggered;
+    boolean triangular;
 
-    Entity(World world, float xPos, float yPos, float width, float height, boolean dynamic)
+    Entity(World world, float xPos, float yPos, float width, float height, TriangleOrient triOri, boolean dynamic)
     {
         this.width = width; this.height = height;
 
         bodyDef.position.set(xPos, yPos);
         bodyDef.type = dynamic ? BodyType.DYNAMIC : BodyType.KINEMATIC;
         body = world.createBody(bodyDef);
-        polygonShape.setAsBox(width, height);
+
+        if (triOri == null)
+        {
+            polygonShape.setAsBox(width, height);
+            triangular = false;
+        }
+        else if (triOri == TriangleOrient.UP_RIGHT)
+        {
+            Vec2 vectors[] = new Vec2[3];
+            vectors[0] = new Vec2(xPos - (width / 2F), yPos + (height / 2F));
+            vectors[1] = new Vec2(xPos - (width / 2F), yPos - (height / 2F));
+            vectors[2] = new Vec2(xPos + (width / 2F), yPos + (height / 2F));
+            polygonShape.set(vectors, 3);
+
+            triangular = true;
+        }
+
         //fixtureDef.density = 0.005F;
-        fixtureDef.friction = 0.1F;
+        fixtureDef.friction = 0.3F;
         fixtureDef.shape = polygonShape;
         body.createFixture(fixtureDef);
 

@@ -22,7 +22,7 @@ public class Actor extends Entity
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
-        super(world, xPos, yPos, width, height, true);
+        super(world, xPos, yPos, width, height, null, true);
     }
 
     void act()

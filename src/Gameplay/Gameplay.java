@@ -139,16 +139,32 @@ public class Gameplay extends AnimationTimer implements Reactor
     {
         context.setFill(entity.getColor());
 
-        Vec2 position = entity.getPosition();
-        context.fillRect(
-                (position.x - cameraPosX + cameraOffsetX - (entity.getWidth()) / 2)
-                        * cameraZoom,
-                (position.y - cameraPosY + cameraOffsetY - (entity.getHeight()) / 2)
-                        * cameraZoom,
-                entity.getWidth()
-                        * cameraZoom,
-                entity.getHeight()
-                        * cameraZoom);
+        if (entity.triangular)
+        {
+            double xPos[] = new double[3];
+            double yPos[] = new double[3];
+            Vec2 points[] = entity.polygonShape.getVertices();
+            Vec2 cPos = entity.getPosition();
+            for (int i = 0; i < 3; i++)
+            {
+                xPos[i] = (points[i].x + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
+                yPos[i] = (points[i].y + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
+            }
+            context.fillPolygon(xPos, yPos, 3);
+        }
+        else
+        {
+            Vec2 position = entity.getPosition();
+            context.fillRect(
+                    (position.x - cameraPosX + cameraOffsetX - (entity.getWidth()) / 2)
+                            * cameraZoom,
+                    (position.y - cameraPosY + cameraOffsetY - (entity.getHeight()) / 2)
+                            * cameraZoom,
+                    entity.getWidth()
+                            * cameraZoom,
+                    entity.getHeight()
+                            * cameraZoom);
+        }
 
         /* Draws vertical and horizontal lines through the middle for debugging */
         context.setFill(Color.BLACK);
@@ -158,8 +174,9 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private void buildLevels()
     {
-        addEntity(new Block(world, 0, 0, 2F, 2F));
-        addEntity(new Block(world, 4, -2, 2, 0.5F));
+        addEntity(new Block(world, 0, 0, 2F, 2F, null));
+        addEntity(new Block(world, 4, -2, 2F, 0.5F, null));
+        addEntity(new Block(world, -1, -1.7F, 3F, 3F, TriangleOrient.UP_RIGHT));
 
         player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
         addEntity(player);
