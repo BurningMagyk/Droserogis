@@ -176,7 +176,7 @@ public class Gameplay extends AnimationTimer implements Reactor
     {
         addEntity(new Block(world, 0, 0, 2F, 2F, null));
         addEntity(new Block(world, 4, -2, 2F, 0.5F, null));
-        addEntity(new Block(world, -1, -1.5F, 2F, 2F, TriangleOrient.UP_RIGHT));
+        addEntity(new Block(world, -1, -1.5F, 2F, 2F, Block.Orient.UP_RIGHT));
 
         player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
         addEntity(player);
