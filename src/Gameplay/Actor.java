@@ -22,7 +22,11 @@ public class Actor extends Entity
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
-        super(world, xPos, yPos, width, height, null, true);
+        super(world, xPos, yPos, width, height, true);
+
+        polygonShape.setAsBox(width, height);
+
+        body.createFixture(fixtureDef);
     }
 
     void act()
