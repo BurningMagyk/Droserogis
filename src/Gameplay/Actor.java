@@ -18,7 +18,7 @@ public class Actor extends Entity
     boolean pressingDown = false;
 
     boolean pressingJump = false;
-    boolean grounded = false;
+    State state = State.AIRBORNE;
 
     float airborneVel = 0;
 
@@ -109,10 +109,21 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            if (pressingJump || !grounded) return;
-            airborneVel = body.getLinearVelocity().y;
-            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
-            pressingJump = true;
+            if (!pressingJump)
+            {
+                airborneVel = body.getLinearVelocity().y;
+                if (state == State.GROUNDED)
+                {
+                    body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
+                    pressingJump = true;
+                }
+                else if (state == State.WALL_STICK_RIGHT)
+                {
+                    /* TODO: Make it jump at an angle depending on what arrow key is held down */
+                    pressingJump = true;
+                }
+
+            }
         }
         else
         {
@@ -138,10 +149,15 @@ public class Actor extends Entity
         boolean right() { return false; }
     }
 
+    private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT }
+
     @Override
     Color getColor()
     {
-        return grounded ? Color.BLUE : Color.GREEN;
+        if (state == State.GROUNDED) return Color.BLUE;
+        if (state == State.WALL_STICK_LEFT) return Color.CYAN;
+        if (state == State.WALL_STICK_RIGHT) return Color.INDIGO;
+        return Color.GREEN;
     }
 
     void triggerContacts(ArrayList<Entity> entities)
@@ -156,8 +172,15 @@ public class Actor extends Entity
                     entity.triggered = true;
                     triggered = true;
 
-                    if (inBoundsHoriz(entity).in() && inBoundsVert(entity).down())
-                        grounded = true;
+                    RelPos horizBound = inBoundsHoriz(entity);
+                    RelPos vertBound = inBoundsVert(entity);
+
+                    if (horizBound.in() && vertBound.down())
+                        state = State.GROUNDED;
+                    else if (vertBound.in() && horizBound.left())
+                        state = State.WALL_STICK_LEFT;
+                    else if (vertBound.in() && horizBound.right())
+                        state = State.WALL_STICK_RIGHT;
                 }
             }
             contactEdge = contactEdge.next;
@@ -192,6 +215,6 @@ public class Actor extends Entity
     void resetFlags()
     {
         super.resetFlags();
-        grounded = false;
+        state = State.AIRBORNE;
     }
 }
