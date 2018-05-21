@@ -149,6 +149,9 @@ public class Gameplay extends AnimationTimer implements Reactor
             {
                 xPos[i] = (points[i].x + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
                 yPos[i] = (points[i].y + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
+
+                xPos[i] = (points[i].x + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
+                yPos[i] = (points[i].y + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
             }
             context.fillPolygon(xPos, yPos, 3);
         }
@@ -156,9 +159,9 @@ public class Gameplay extends AnimationTimer implements Reactor
         {
             Vec2 position = entity.getPosition();
             context.fillRect(
-                    (position.x - cameraPosX + cameraOffsetX - (entity.getWidth()) / 2)
+                    (position.x - entity.width - cameraPosX + cameraOffsetX)
                             * cameraZoom,
-                    (position.y - cameraPosY + cameraOffsetY - (entity.getHeight()) / 2)
+                    (position.y - entity.height - cameraPosY + cameraOffsetY)
                             * cameraZoom,
                     entity.getWidth()
                             * cameraZoom,

@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 public class Actor extends Entity
 {
-    Dir actDirHoriz = null;
-    Dir actDirVert = null;
+    RelPos actDirHoriz = null;
+    RelPos actDirVert = null;
     boolean pressingLeft = false;
     boolean pressingRight = false;
     boolean pressingUp = false;
@@ -19,6 +19,8 @@ public class Actor extends Entity
 
     boolean pressingJump = false;
     boolean grounded = false;
+
+    float airborneVel = 0;
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
@@ -33,13 +35,13 @@ public class Actor extends Entity
     {
         if (actDirHoriz != null)
         {
-            if (actDirHoriz == Dir.LEFT) body.setLinearVelocity(new Vec2(-2F, body.getLinearVelocity().y));
-            else if (actDirHoriz == Dir.RIGHT) body.setLinearVelocity(new Vec2(2F, body.getLinearVelocity().y));
+            if (actDirHoriz == RelPos.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
+            else if (actDirHoriz == RelPos.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
         }
         if (actDirVert != null)
         {
-            if (actDirVert == Dir.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, -2F));
-            else if (actDirHoriz == Dir.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, 2F));
+            if (actDirVert == RelPos.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.min(body.getLinearVelocity().y, -2F)));
+            else if (actDirHoriz == RelPos.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, 2F)));
         }
     }
 
@@ -47,12 +49,12 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirHoriz = Dir.LEFT;
+            actDirHoriz = RelPos.LEFT;
             pressingLeft = true;
         }
-        else if (actDirHoriz == Dir.LEFT)
+        else if (actDirHoriz == RelPos.LEFT)
         {
-            if (pressingRight) actDirHoriz = Dir.RIGHT;
+            if (pressingRight) actDirHoriz = RelPos.RIGHT;
             else actDirHoriz = null;
             pressingLeft = false;
         }
@@ -62,12 +64,12 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirHoriz = Dir.RIGHT;
+            actDirHoriz = RelPos.RIGHT;
             pressingRight = true;
         }
-        else if (actDirHoriz == Dir.RIGHT)
+        else if (actDirHoriz == RelPos.RIGHT)
         {
-            if (pressingLeft) actDirHoriz = Dir.LEFT;
+            if (pressingLeft) actDirHoriz = RelPos.LEFT;
             else actDirHoriz = null;
             pressingRight = false;
         }
@@ -108,17 +110,33 @@ public class Actor extends Entity
         if (pressed)
         {
             if (pressingJump || !grounded) return;
-            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, body.getLinearVelocity().y - 6F));
+            airborneVel = body.getLinearVelocity().y;
+            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
             pressingJump = true;
         }
         else
         {
-            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, 0)));
+            body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, airborneVel)));
             pressingJump = false;
         }
     }
 
-    private enum Dir{UP, LEFT, DOWN, RIGHT}
+    private enum RelPos{
+        UP { boolean up() { return true; } },
+        LEFT { boolean left() { return true; } },
+        DOWN { boolean down() { return true; } },
+        RIGHT { boolean right() { return true; } },
+        UP_IN { boolean in() { return true; } boolean up() { return true; } },
+        LEFT_IN { boolean in() { return true; } boolean left() { return true; } },
+        DOWN_IN { boolean in() { return true; } boolean down() { return true; } },
+        RIGHT_IN{ boolean in() { return true; } boolean right() { return true; } },
+        ERROR;
+        boolean in() { return false; }
+        boolean up() { return false; }
+        boolean left() { return false; }
+        boolean down() { return false; }
+        boolean right() { return false; }
+    }
 
     @Override
     Color getColor()
@@ -138,7 +156,7 @@ public class Actor extends Entity
                     entity.triggered = true;
                     triggered = true;
 
-                    if (inBoundsHoriz(entity) == null && inBoundsVert(entity) == Dir.DOWN)
+                    if (inBoundsHoriz(entity).in() && inBoundsVert(entity).down())
                         grounded = true;
                 }
             }
@@ -146,18 +164,28 @@ public class Actor extends Entity
         }
     }
 
-    private Dir inBoundsHoriz(Entity other)
+    private RelPos inBoundsHoriz(Entity other)
     {
-        if (getRightEdge() < other.getLeftEdge()) return Dir.RIGHT;
-        if (getLeftEdge() > other.getRightEdge()) return Dir.LEFT;
-        return null;
+        if (getRightEdge() < other.getLeftEdge()) return RelPos.RIGHT;
+        if (getLeftEdge() > other.getRightEdge()) return RelPos.LEFT;
+
+        if (getRightEdge() < other.getRightEdge()) return RelPos.RIGHT_IN;
+        if (getLeftEdge() > other.getLeftEdge()) return RelPos.LEFT_IN;
+
+        Print.red("Error: Could not determine relative position");
+        return RelPos.ERROR;
     }
 
-    private Dir inBoundsVert(Entity other)
+    private RelPos inBoundsVert(Entity other)
     {
-        if (getBottomEdge() < other.getTopEdge()) return Dir.DOWN;
-        if (getTopEdge() > other.getBottomEdge()) return Dir.UP;
-        return null;
+        if (getBottomEdge() < other.getTopEdge()) return RelPos.DOWN;
+        if (getTopEdge() > other.getBottomEdge()) return RelPos.UP;
+
+        if (getBottomEdge() < other.getBottomEdge()) return RelPos.DOWN_IN;
+        if (getTopEdge() > other.getTopEdge()) return RelPos.UP_IN;
+
+        Print.red("Error: Could not determine relative position");
+        return RelPos.ERROR;
     }
 
     @Override
