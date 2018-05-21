@@ -96,7 +96,6 @@ class Controller extends AnimationTimer
         {
             /* This centers the window onto the image */
             cursorImage = new Image(input);
-            //double sizeScale = image.getWidth() / width;
             cursor = new ImageCursor(cursorImage, 30, 30);
             scene.setCursor(cursor);
         }

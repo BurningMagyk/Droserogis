@@ -1,13 +1,8 @@
 package Importer;
 
-import Util.Print;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
 
-import javax.sound.sampled.*;
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -15,7 +10,6 @@ import java.net.URL;
 public class AudioResource extends Resource
 {
     private MediaPlayer mediaPlayer;
-    private Clip clip;
 
     AudioResource(String path)
     {

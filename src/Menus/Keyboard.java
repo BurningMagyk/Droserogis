@@ -1,6 +1,5 @@
 package Menus;
 
-import Util.Print;
 import Util.Reactor;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -9,7 +8,7 @@ import javafx.scene.input.KeyEvent;
 
 public class Keyboard implements EventHandler<KeyEvent>
 {
-    Reactor reactor;
+    private Reactor reactor;
 
     @Override
     public void handle(KeyEvent event)
