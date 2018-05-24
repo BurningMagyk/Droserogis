@@ -6,12 +6,15 @@ import org.jbox2d.dynamics.*;
 
 class Block extends Entity
 {
-    float leftBound, rightBound, topBound, bottomBound;
+    private float leftBound, rightBound, topBound, bottomBound;
 
     Block(World world, float xPos, float yPos, float width, float height, Orient orient)
     {
         super(world, xPos, yPos, width, height, false);
 
+        /* Blocks can be shaped as either a rectangle or a triangle.
+         * If the variable "orient" is null, it'll be a rectangle,
+         * otherwise it will be a triangle depending on the value. */
         if (orient == null) polygonShape.setAsBox(width, height);
         else
         {
@@ -89,6 +92,12 @@ class Block extends Entity
         return triggered ? Color.ORANGE : Color.YELLOW;
     }
 
+    /**
+     * Every time the block is moved, this method should be called.
+     * These values stay the same if the block doesn't move, so it would
+     * be more efficient to not call this method if the block is not
+     * moving. Should be called once at the very beginning though.
+     */
     private void updateBoundValues()
     {
         float xPos[] = new float[3];

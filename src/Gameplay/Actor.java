@@ -8,16 +8,33 @@ import org.jbox2d.dynamics.contacts.ContactEdge;
 
 import java.util.ArrayList;
 
+/**
+ * Players and NPCs will be "Actors" that are controlled by the user
+ * or by some AI.
+ */
 public class Actor extends Entity
 {
+    /* actDirHoriz and actDirVert keep track of which directions
+     * the Actor is pressing towards */
     RelPos actDirHoriz = null;
     RelPos actDirVert = null;
     boolean pressingLeft = false;
     boolean pressingRight = false;
     boolean pressingUp = false;
     boolean pressingDown = false;
-
     boolean pressingJump = false;
+
+    /* The reason we need the variable "actDirHoriz" alongside
+     * the variables "pressingLeft" and "pressingRight" is because the
+     * player may be pressing the left and right keys at the same time,
+     * and the variable "actDirHoriz" changes depending on which key was
+     * pressed last and which one is let go first, so the direction that
+     * the player moves in will be ultimately dependent on the "actDirHoriz"
+     * variable. The same goes for "actDirVert" and its respective
+     * boolean variables. */
+
+    /* This variable determines what state the actor is in
+     * See the enum list below to see what's available */
     State state = State.AIRBORNE;
 
     float airborneVel = 0;
@@ -26,11 +43,15 @@ public class Actor extends Entity
     {
         super(world, xPos, yPos, width, height, true);
 
+        /* For now, all actors are rectangles */
         polygonShape.setAsBox(width, height);
 
         body.createFixture(fixtureDef);
     }
 
+    /**
+     * Called every frame to update the Actor's movement.
+     */
     void act()
     {
         if (actDirHoriz != null)
@@ -40,12 +61,12 @@ public class Actor extends Entity
         }
         if (actDirVert != null)
         {
-            if (actDirVert == RelPos.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.min(body.getLinearVelocity().y, -2F)));
-            else if (actDirHoriz == RelPos.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, 2F)));
+            /*if (actDirVert == RelPos.UP) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.min(body.getLinearVelocity().y, -2F)));
+            else if (actDirHoriz == RelPos.DOWN) body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, 2F)));*/
         }
     }
 
-    void moveLeft(boolean pressed)
+    void pressLeft(boolean pressed)
     {
         if (pressed)
         {
@@ -60,7 +81,7 @@ public class Actor extends Entity
         }
         else pressingLeft = false;
     }
-    void moveRight(boolean pressed)
+    void pressRight(boolean pressed)
     {
         if (pressed)
         {
@@ -74,37 +95,36 @@ public class Actor extends Entity
             pressingRight = false;
         }
         else pressingRight = false;
-    }
-    /*void moveUp(boolean pressed)
+    }void pressUp(boolean pressed)
     {
         if (pressed)
         {
-            actDirVert = Dir.UP;
+            actDirVert = RelPos.UP;
             pressingUp = true;
         }
-        else if (actDirVert == Dir.UP)
+        else if (actDirVert == RelPos.UP)
         {
-            if (pressingDown) actDirVert = Dir.DOWN;
+            if (pressingDown) actDirVert = RelPos.DOWN;
             else actDirVert = null;
             pressingUp = false;
         }
         else pressingUp = false;
     }
-    void moveDown(boolean pressed)
+    void pressDown(boolean pressed)
     {
         if (pressed)
         {
-            actDirVert = Dir.DOWN;
+            actDirVert = RelPos.DOWN;
             pressingDown = true;
         }
-        else if (actDirVert == Dir.DOWN)
+        else if (actDirVert == RelPos.DOWN)
         {
-            if (pressingUp) actDirVert = Dir.UP;
+            if (pressingUp) actDirVert = RelPos.UP;
             else actDirVert = null;
             pressingDown = false;
         }
         else pressingDown = false;
-    }*/
+    }
     void jump(boolean pressed)
     {
         if (pressed)
@@ -151,6 +171,9 @@ public class Actor extends Entity
 
     private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT }
 
+    /**
+     * For debugging purposes. Will replace with sprite animations later.
+     */
     @Override
     Color getColor()
     {
@@ -187,6 +210,10 @@ public class Actor extends Entity
         }
     }
 
+    /**
+     * Returns which direction the other entity is in relation to this Actor.
+     * If their horizontal spaces overlap, one of the "IN" values will be returned.
+     */
     private RelPos inBoundsHoriz(Entity other)
     {
         if (getRightEdge() < other.getLeftEdge()) return RelPos.RIGHT;
@@ -198,7 +225,10 @@ public class Actor extends Entity
         Print.red("Error: Could not determine relative position");
         return RelPos.ERROR;
     }
-
+    /**
+     * Returns which direction the other entity is in relation to this Actor.
+     * If their vertical spaces overlap, one of the "IN" values will be returned.
+     */
     private RelPos inBoundsVert(Entity other)
     {
         if (getBottomEdge() < other.getTopEdge()) return RelPos.DOWN;
@@ -211,6 +241,9 @@ public class Actor extends Entity
         return RelPos.ERROR;
     }
 
+    /**
+     * Called every frame so that the flags can be properly set afterwards.
+     */
     @Override
     void resetFlags()
     {

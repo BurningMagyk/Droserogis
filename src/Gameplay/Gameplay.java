@@ -35,14 +35,14 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewWidth = (int) context.getCanvas().getWidth();
         this.viewHeight = (int) context.getCanvas().getHeight();
 
+        /* The parameter for the world determines the gravity */
         world = new World(new Vec2(0, 20));
 
         entities = new ArrayList<>();
         actors = new ArrayList<>();
 
-        cameraPosX = 0; cameraPosY = 0; cameraZoom = 100;
-        cameraOffsetX = viewWidth / 2F / cameraZoom;
-        cameraOffsetY = viewHeight / 2F / cameraZoom;
+        /* Set up initial position and zoom of the camera */
+        moveCamera(0, 0, 100);
     }
 
     @Override
@@ -61,10 +61,16 @@ public class Gameplay extends AnimationTimer implements Reactor
 
         context.setFill(Color.BLACK);
         for (Entity entity : entities) entity.resetFlags();
+        /* triggerContacts() sets every entity's flags correctly only
+         * if they've all been reset */
         for (Actor actor : actors) actor.triggerContacts(entities);
         for (Actor actor : actors) actor.act();
+
+        /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
 
+        /* Handle is called 60 times per second, so world-step should be 1/60
+         * Parameters for velocityIterations and positionIterations may need adjusting */
         world.step(1 / 60F,10,10);
     }
 
@@ -76,53 +82,53 @@ public class Gameplay extends AnimationTimer implements Reactor
             Platform.exit();
             System.exit(0);
         }
-        if (code == KeyCode.ENTER && pressed)
+        else if (code == KeyCode.ENTER && pressed)
         {
         }
-        if (code == KeyCode.LEFT && pressed)
+        else if (code == KeyCode.LEFT && pressed)
         {
             moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
         }
-        if (code == KeyCode.RIGHT && pressed)
+        else if (code == KeyCode.RIGHT && pressed)
         {
             moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
         }
-        if (code == KeyCode.UP && pressed)
+        else if (code == KeyCode.UP && pressed)
         {
             moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
         }
-        if (code == KeyCode.DOWN && pressed)
+        else if (code == KeyCode.DOWN && pressed)
         {
             moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
         }
-        if (code == KeyCode.Q && pressed)
+        else if (code == KeyCode.Q && pressed)
         {
             moveCamera(cameraPosX, cameraPosY, cameraZoom - 5);
         }
-        if (code == KeyCode.E && pressed)
+        else if (code == KeyCode.E && pressed)
         {
             moveCamera(cameraPosX, cameraPosY, cameraZoom + 5);
         }
-        if (code == KeyCode.A)
+        else if (code == KeyCode.A)
         {
-            player.moveLeft(pressed);
+            player.pressLeft(pressed);
         }
-        if (code == KeyCode.D)
+        else if (code == KeyCode.D)
         {
-            player.moveRight(pressed);
+            player.pressRight(pressed);
         }
-        if (code == KeyCode.J)
+        else if (code == KeyCode.J)
         {
             player.jump(pressed);
         }
-        /*if (code == KeyCode.W)
+        else if (code == KeyCode.W)
         {
-            player.moveUp(pressed);
+            player.pressUp(pressed);
         }
-        if (code == KeyCode.S)
+        else if (code == KeyCode.S)
         {
-            player.moveDown(pressed);
-        }*/
+            player.pressDown(pressed);
+        }
     }
 
     @Override
@@ -135,10 +141,15 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     }
 
+    /**
+     * Until we utilize sprites, we'll test the game by drawing shapes that match the
+     * blocks' hitboxes. The blocks' colors will help indicate what state they're in.
+     */
     private void drawEntity(Entity entity)
     {
         context.setFill(entity.getColor());
 
+        /* If entity has triangular shape */
         if (entity.triangular)
         {
             double xPos[] = new double[3];
@@ -155,6 +166,7 @@ public class Gameplay extends AnimationTimer implements Reactor
             }
             context.fillPolygon(xPos, yPos, 3);
         }
+        /* If entity has rectangle shape */
         else
         {
             Vec2 position = entity.getPosition();
@@ -175,6 +187,10 @@ public class Gameplay extends AnimationTimer implements Reactor
         context.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
     }
 
+    /**
+     * Sets up all of the blocks, entities, and players that appear in the level.
+     * Should later utilize procedural generation.
+     */
     private void buildLevels()
     {
         addEntity(new Block(world, 0, 0, 2F, 2F, null));
@@ -185,6 +201,10 @@ public class Gameplay extends AnimationTimer implements Reactor
         addEntity(player);
     }
 
+    /**
+     * Call whenever the player(s) moves. Camera should be moved further in the direction
+     * that the player is moving towards. Movement and zooming should be smooth.
+     */
     private void moveCamera(float posX, float posY, float zoom)
     {
         cameraZoom = zoom;
@@ -202,6 +222,9 @@ public class Gameplay extends AnimationTimer implements Reactor
         entities.add(entity);
     }
 
+    /**
+     * Canvas is cleared at the beginning of every frame.
+     */
     private void clearContext()
     {
         /* Clear canvas */
