@@ -54,10 +54,25 @@ public class Actor extends Entity
      */
     void act()
     {
-        if (actDirHoriz != null)
+        if (state == State.GROUNDED)
         {
             if (actDirHoriz == RelPos.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
             else if (actDirHoriz == RelPos.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+        }
+        else if (state == State.AIRBORNE)
+        {
+            if (actDirHoriz == RelPos.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -1F), body.getLinearVelocity().y));
+            else if (actDirHoriz == RelPos.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 1F), body.getLinearVelocity().y));
+        }
+        else if (state == State.WALL_STICK_LEFT)
+        {
+            if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
+            else body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
+        }
+        else if (state == State.WALL_STICK_RIGHT)
+        {
+            if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
+            else body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
         }
         if (actDirVert != null)
         {
@@ -169,7 +184,7 @@ public class Actor extends Entity
         boolean right() { return false; }
     }
 
-    private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT }
+    private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT, CROUCHING, SLIDING }
 
     /**
      * For debugging purposes. Will replace with sprite animations later.
@@ -199,7 +214,10 @@ public class Actor extends Entity
                     RelPos vertBound = inBoundsVert(entity);
 
                     if (horizBound.in() && vertBound.down())
+                    {
                         state = State.GROUNDED;
+                        return;
+                    }
                     else if (vertBound.in() && horizBound.left())
                         state = State.WALL_STICK_LEFT;
                     else if (vertBound.in() && horizBound.right())
