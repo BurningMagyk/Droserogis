@@ -38,6 +38,7 @@ public class Actor extends Entity
     State state = State.AIRBORNE;
 
     float airborneVel = 0;
+    private boolean jumped = false;
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
@@ -67,12 +68,14 @@ public class Actor extends Entity
         else if (state == State.WALL_STICK_LEFT)
         {
             if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
-            else body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
+            else if (!jumped) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
+            else jumped = false;
         }
         else if (state == State.WALL_STICK_RIGHT)
         {
             if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
-            else body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+            else if (!jumped) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+            else jumped = false;
         }
         if (actDirVert != null)
         {
@@ -110,7 +113,8 @@ public class Actor extends Entity
             pressingRight = false;
         }
         else pressingRight = false;
-    }void pressUp(boolean pressed)
+    }
+    void pressUp(boolean pressed)
     {
         if (pressed)
         {
@@ -150,14 +154,20 @@ public class Actor extends Entity
                 if (state == State.GROUNDED)
                 {
                     body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
-                    pressingJump = true;
+                }
+                else if (state == State.WALL_STICK_LEFT)
+                {
+                    if (actDirHoriz == RelPos.RIGHT)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 6F, airborneVel));
                 }
                 else if (state == State.WALL_STICK_RIGHT)
                 {
-                    /* TODO: Make it jump at an angle depending on what arrow key is held down */
-                    pressingJump = true;
+                    if (actDirHoriz == RelPos.LEFT)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 6F, airborneVel));
                 }
-
+                else return;
+                pressingJump = true;
+                jumped = true;
             }
         }
         else
@@ -218,9 +228,9 @@ public class Actor extends Entity
                         state = State.GROUNDED;
                         return;
                     }
-                    else if (vertBound.in() && horizBound.left())
+                    else if (vertBound.in() && horizBound.left() && body.getLinearVelocity().x <= 0F)
                         state = State.WALL_STICK_LEFT;
-                    else if (vertBound.in() && horizBound.right())
+                    else if (vertBound.in() && horizBound.right() && body.getLinearVelocity().x >= 0F)
                         state = State.WALL_STICK_RIGHT;
                 }
             }
