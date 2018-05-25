@@ -16,8 +16,8 @@ public class Actor extends Entity
 {
     /* actDirHoriz and actDirVert keep track of which directions
      * the Actor is pressing towards */
-    RelPos actDirHoriz = null;
-    RelPos actDirVert = null;
+    Direction actDirHoriz = null;
+    Direction actDirVert = null;
     boolean pressingLeft = false;
     boolean pressingRight = false;
     boolean pressingUp = false;
@@ -57,13 +57,13 @@ public class Actor extends Entity
     {
         if (state == State.GROUNDED)
         {
-            if (actDirHoriz == RelPos.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
-            else if (actDirHoriz == RelPos.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
+            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
         }
         else if (state == State.AIRBORNE)
         {
-            if (actDirHoriz == RelPos.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -1F), body.getLinearVelocity().y));
-            else if (actDirHoriz == RelPos.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 1F), body.getLinearVelocity().y));
+            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -1F), body.getLinearVelocity().y));
+            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 1F), body.getLinearVelocity().y));
         }
         else if (state == State.WALL_STICK_LEFT)
         {
@@ -88,12 +88,17 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirHoriz = RelPos.LEFT;
+            actDirHoriz = Direction.LEFT;
             pressingLeft = true;
+            if (pressingJump && state == State.WALL_STICK_RIGHT)
+            {
+                pressingJump = false;
+                jump(true);
+            }
         }
-        else if (actDirHoriz == RelPos.LEFT)
+        else if (actDirHoriz == Direction.LEFT)
         {
-            if (pressingRight) actDirHoriz = RelPos.RIGHT;
+            if (pressingRight) actDirHoriz = Direction.RIGHT;
             else actDirHoriz = null;
             pressingLeft = false;
         }
@@ -103,12 +108,17 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirHoriz = RelPos.RIGHT;
+            actDirHoriz = Direction.RIGHT;
             pressingRight = true;
+            if (pressingJump && state == State.WALL_STICK_LEFT)
+            {
+                pressingJump = false;
+                jump(true);
+            }
         }
-        else if (actDirHoriz == RelPos.RIGHT)
+        else if (actDirHoriz == Direction.RIGHT)
         {
-            if (pressingLeft) actDirHoriz = RelPos.LEFT;
+            if (pressingLeft) actDirHoriz = Direction.LEFT;
             else actDirHoriz = null;
             pressingRight = false;
         }
@@ -118,12 +128,12 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirVert = RelPos.UP;
+            actDirVert = Direction.UP;
             pressingUp = true;
         }
-        else if (actDirVert == RelPos.UP)
+        else if (actDirVert == Direction.UP)
         {
-            if (pressingDown) actDirVert = RelPos.DOWN;
+            if (pressingDown) actDirVert = Direction.DOWN;
             else actDirVert = null;
             pressingUp = false;
         }
@@ -133,12 +143,12 @@ public class Actor extends Entity
     {
         if (pressed)
         {
-            actDirVert = RelPos.DOWN;
+            actDirVert = Direction.DOWN;
             pressingDown = true;
         }
-        else if (actDirVert == RelPos.DOWN)
+        else if (actDirVert == Direction.DOWN)
         {
-            if (pressingUp) actDirVert = RelPos.UP;
+            if (pressingUp) actDirVert = Direction.UP;
             else actDirVert = null;
             pressingDown = false;
         }
@@ -157,13 +167,25 @@ public class Actor extends Entity
                 }
                 else if (state == State.WALL_STICK_LEFT)
                 {
-                    if (actDirHoriz == RelPos.RIGHT)
+                    if (actDirVert == Direction.UP)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 2.5F, airborneVel - 5.5F));
+                    else if (actDirHoriz == Direction.RIGHT && actDirVert == Direction.DOWN)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 6F, airborneVel));
+                    else if (actDirHoriz == Direction.RIGHT)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 4F, airborneVel - 4F));
+                    else if (actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 4F, airborneVel + 4F));
                 }
                 else if (state == State.WALL_STICK_RIGHT)
                 {
-                    if (actDirHoriz == RelPos.LEFT)
+                    if (actDirVert == Direction.UP)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 2.5F, airborneVel - 5.5F));
+                    else if (actDirHoriz == Direction.LEFT && actDirVert == Direction.DOWN)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 6F, airborneVel));
+                    else if (actDirHoriz == Direction.LEFT)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 4F, airborneVel - 4F));
+                    else if (actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 4F, airborneVel + 4F));
                 }
                 else return;
                 pressingJump = true;
@@ -177,7 +199,7 @@ public class Actor extends Entity
         }
     }
 
-    private enum RelPos{
+    private enum Direction{
         UP { boolean up() { return true; } },
         LEFT { boolean left() { return true; } },
         DOWN { boolean down() { return true; } },
@@ -220,8 +242,8 @@ public class Actor extends Entity
                     entity.triggered = true;
                     triggered = true;
 
-                    RelPos horizBound = inBoundsHoriz(entity);
-                    RelPos vertBound = inBoundsVert(entity);
+                    Direction horizBound = inBoundsHoriz(entity);
+                    Direction vertBound = inBoundsVert(entity);
 
                     if (horizBound.in() && vertBound.down())
                     {
@@ -242,31 +264,31 @@ public class Actor extends Entity
      * Returns which direction the other entity is in relation to this Actor.
      * If their horizontal spaces overlap, one of the "IN" values will be returned.
      */
-    private RelPos inBoundsHoriz(Entity other)
+    private Direction inBoundsHoriz(Entity other)
     {
-        if (getRightEdge() < other.getLeftEdge()) return RelPos.RIGHT;
-        if (getLeftEdge() > other.getRightEdge()) return RelPos.LEFT;
+        if (getRightEdge() < other.getLeftEdge()) return Direction.RIGHT;
+        if (getLeftEdge() > other.getRightEdge()) return Direction.LEFT;
 
-        if (getRightEdge() < other.getRightEdge()) return RelPos.RIGHT_IN;
-        if (getLeftEdge() > other.getLeftEdge()) return RelPos.LEFT_IN;
+        if (getRightEdge() < other.getRightEdge()) return Direction.RIGHT_IN;
+        if (getLeftEdge() > other.getLeftEdge()) return Direction.LEFT_IN;
 
         Print.red("Error: Could not determine relative position");
-        return RelPos.ERROR;
+        return Direction.ERROR;
     }
     /**
      * Returns which direction the other entity is in relation to this Actor.
      * If their vertical spaces overlap, one of the "IN" values will be returned.
      */
-    private RelPos inBoundsVert(Entity other)
+    private Direction inBoundsVert(Entity other)
     {
-        if (getBottomEdge() < other.getTopEdge()) return RelPos.DOWN;
-        if (getTopEdge() > other.getBottomEdge()) return RelPos.UP;
+        if (getBottomEdge() < other.getTopEdge()) return Direction.DOWN;
+        if (getTopEdge() > other.getBottomEdge()) return Direction.UP;
 
-        if (getBottomEdge() < other.getBottomEdge()) return RelPos.DOWN_IN;
-        if (getTopEdge() > other.getTopEdge()) return RelPos.UP_IN;
+        if (getBottomEdge() < other.getBottomEdge()) return Direction.DOWN_IN;
+        if (getTopEdge() > other.getTopEdge()) return Direction.UP_IN;
 
         Print.red("Error: Could not determine relative position");
-        return RelPos.ERROR;
+        return Direction.ERROR;
     }
 
     /**
