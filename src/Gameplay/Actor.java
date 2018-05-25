@@ -59,6 +59,11 @@ public class Actor extends Entity
         {
             if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
             else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+            else if (actDirVert == Direction.DOWN)
+            {
+                // TODO: Make the body half in height
+                state = State.CROUCHING;
+            }
         }
         else if (state == State.AIRBORNE)
         {
@@ -130,6 +135,11 @@ public class Actor extends Entity
         {
             actDirVert = Direction.UP;
             pressingUp = true;
+            if (pressingJump && (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT))
+            {
+                pressingJump = false;
+                jump(true);
+            }
         }
         else if (actDirVert == Direction.UP)
         {
@@ -145,6 +155,11 @@ public class Actor extends Entity
         {
             actDirVert = Direction.DOWN;
             pressingDown = true;
+            if (pressingJump && (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT))
+            {
+                pressingJump = false;
+                jump(true);
+            }
         }
         else if (actDirVert == Direction.DOWN)
         {
@@ -200,20 +215,22 @@ public class Actor extends Entity
     }
 
     private enum Direction{
-        UP { boolean up() { return true; } },
-        LEFT { boolean left() { return true; } },
-        DOWN { boolean down() { return true; } },
-        RIGHT { boolean right() { return true; } },
-        UP_IN { boolean in() { return true; } boolean up() { return true; } },
-        LEFT_IN { boolean in() { return true; } boolean left() { return true; } },
-        DOWN_IN { boolean in() { return true; } boolean down() { return true; } },
-        RIGHT_IN{ boolean in() { return true; } boolean right() { return true; } },
+        UP { boolean up() { return true; } boolean vertical() { return true; } },
+        LEFT { boolean left() { return true; } boolean horizontal() { return true; } },
+        DOWN { boolean down() { return true; } boolean vertical() { return true; } },
+        RIGHT { boolean right() { return true; } boolean horizontal() { return true; } },
+        UP_IN { boolean in() { return true; } boolean up() { return true; } boolean vertical() { return true; } },
+        LEFT_IN { boolean in() { return true; } boolean left() { return true; } boolean horizontal() { return true; } },
+        DOWN_IN { boolean in() { return true; } boolean down() { return true; } boolean vertical() { return true; } },
+        RIGHT_IN{ boolean in() { return true; } boolean right() { return true; } boolean horizontal() { return true; } },
         ERROR;
         boolean in() { return false; }
         boolean up() { return false; }
         boolean left() { return false; }
         boolean down() { return false; }
         boolean right() { return false; }
+        boolean vertical() { return false; }
+        boolean horizontal() { return false; }
     }
 
     private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT, CROUCHING, SLIDING }
