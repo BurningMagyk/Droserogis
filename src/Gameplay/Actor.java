@@ -40,6 +40,8 @@ public class Actor extends Entity
     float airborneVel = 0;
     private boolean jumped = false;
 
+    private float maxSpeed = 2F;
+
     Actor(World world, float xPos, float yPos, float width, float height)
     {
         super(world, xPos, yPos, width, height, true);
@@ -211,6 +213,11 @@ public class Actor extends Entity
         {
             body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, airborneVel)));
             pressingJump = false;
+            if (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT)
+            {
+                jump(true);
+                pressingJump = false;
+            }
         }
     }
 
@@ -306,6 +313,14 @@ public class Actor extends Entity
 
         Print.red("Error: Could not determine relative position");
         return Direction.ERROR;
+    }
+
+    private float getNewVel(float acceleration)
+    {
+        float newVel = body.getLinearVelocity().x + acceleration;
+        if (acceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
+        else if (newVel > maxSpeed) newVel = maxSpeed;
+        return newVel;
     }
 
     /**

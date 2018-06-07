@@ -66,6 +66,11 @@ public class Gameplay extends AnimationTimer implements Reactor
         for (Actor actor : actors) actor.triggerContacts(entities);
         for (Actor actor : actors) actor.act();
 
+        /* Center the camera on the player
+         * TODO: Make the camera move ahead of the player's headed direction */
+        cameraPosX = player.getPosition().x;
+        cameraPosY = player.getPosition().y;
+
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
 
