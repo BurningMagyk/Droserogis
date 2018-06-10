@@ -24,7 +24,7 @@
 | <H1>SSS</H1> |![alt text][instinct]          |
 | <H1>SS</H1>  |![alt text][verde]             |
 | <H1>S</H1>   |![alt text][rojo]              |
-| <H1>A</H1>   |![alt text][brennan]           |
+| <H1>A</H1>   |![alt text][brennan] ![alt text][pooh]|
 | <H1>B</H1>   |![alt text][cynthia] ![alt text][fuu]|
 | <H1>C</H1>   |![alt text][lyra]              |
 | <H1>D</H1>   |![alt text][ghost]             |
@@ -38,3 +38,4 @@
 [cynthia]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Cynthia.png
 [fuu]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Fuu.png
 [ghost]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Ghost_Boss.png
+[pooh]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Pooh.png

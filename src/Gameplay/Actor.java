@@ -39,6 +39,7 @@ public class Actor extends Entity
 
     float airborneVel = 0;
     private boolean jumped = false;
+    public boolean usingReducedGravity = false;
 
     private float maxSpeed = 2F;
 
@@ -50,6 +51,9 @@ public class Actor extends Entity
         polygonShape.setAsBox(width, height);
 
         body.createFixture(fixtureDef);
+
+        /* For testing */
+        //body.getFixtureList().setFriction(0.5F);
     }
 
     /**
@@ -59,8 +63,8 @@ public class Actor extends Entity
     {
         if (state == State.GROUNDED)
         {
-            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
-            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
+            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.2F)), body.getLinearVelocity().y));
+            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.2F)), body.getLinearVelocity().y));
             else if (actDirVert == Direction.DOWN)
             {
                 // TODO: Make the body half in height
@@ -69,8 +73,8 @@ public class Actor extends Entity
         }
         else if (state == State.AIRBORNE)
         {
-            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -1F), body.getLinearVelocity().y));
-            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 1F), body.getLinearVelocity().y));
+            if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.1F)), body.getLinearVelocity().y));
+            else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.1F)), body.getLinearVelocity().y));
         }
         else if (state == State.WALL_STICK_LEFT)
         {
@@ -97,7 +101,7 @@ public class Actor extends Entity
         {
             actDirHoriz = Direction.LEFT;
             pressingLeft = true;
-            if (pressingJump && state == State.WALL_STICK_RIGHT)
+            if (pressingJump && state.wallRight())
             {
                 pressingJump = false;
                 jump(true);
@@ -117,7 +121,7 @@ public class Actor extends Entity
         {
             actDirHoriz = Direction.RIGHT;
             pressingRight = true;
-            if (pressingJump && state == State.WALL_STICK_LEFT)
+            if (pressingJump && state.wallLeft())
             {
                 pressingJump = false;
                 jump(true);
@@ -137,7 +141,7 @@ public class Actor extends Entity
         {
             actDirVert = Direction.UP;
             pressingUp = true;
-            if (pressingJump && (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT))
+            if (pressingJump && (state.wallLeft() || state.wallRight()))
             {
                 pressingJump = false;
                 jump(true);
@@ -157,7 +161,7 @@ public class Actor extends Entity
         {
             actDirVert = Direction.DOWN;
             pressingDown = true;
-            if (pressingJump && (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT))
+            if (pressingJump && (state.wallLeft() || state.wallRight()))
             {
                 pressingJump = false;
                 jump(true);
@@ -177,12 +181,13 @@ public class Actor extends Entity
         {
             if (!pressingJump)
             {
+                useReducedGravity();
                 airborneVel = body.getLinearVelocity().y;
                 if (state == State.GROUNDED)
                 {
                     body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
                 }
-                else if (state == State.WALL_STICK_LEFT)
+                else if (state.wallLeft())
                 {
                     if (actDirVert == Direction.UP)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 2.5F, airborneVel - 5.5F));
@@ -193,7 +198,7 @@ public class Actor extends Entity
                     else if (actDirVert == Direction.DOWN)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 4F, airborneVel + 4F));
                 }
-                else if (state == State.WALL_STICK_RIGHT)
+                else if (state.wallRight())
                 {
                     if (actDirVert == Direction.UP)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 2.5F, airborneVel - 5.5F));
@@ -213,7 +218,7 @@ public class Actor extends Entity
         {
             body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, airborneVel)));
             pressingJump = false;
-            if (state == State.WALL_STICK_LEFT || state == State.WALL_STICK_RIGHT)
+            if (state.wallLeft() || state.wallRight())
             {
                 jump(true);
                 pressingJump = false;
@@ -221,7 +226,8 @@ public class Actor extends Entity
         }
     }
 
-    private enum Direction{
+    private enum Direction
+    {
         UP { boolean up() { return true; } boolean vertical() { return true; } },
         LEFT { boolean left() { return true; } boolean horizontal() { return true; } },
         DOWN { boolean down() { return true; } boolean vertical() { return true; } },
@@ -240,7 +246,22 @@ public class Actor extends Entity
         boolean horizontal() { return false; }
     }
 
-    private enum State{ AIRBORNE, GROUNDED, WALL_STICK_LEFT, WALL_STICK_RIGHT, WALL_CLIMB_LEFT, WALL_CLIMB_RIGHT, CROUCHING, SLIDING }
+    private enum State
+    {
+        AIRBORNE,
+        GROUNDED,
+        WALL_STICK_LEFT { boolean wallLeft() { return true; } boolean stick() { return true; } },
+        WALL_STICK_RIGHT { boolean wallRight() { return true; } boolean stick() { return true; } },
+        WALL_CLIMB_LEFT { boolean wallLeft() { return true; } State doneClimbing() { return WALL_STICK_LEFT; } boolean climb() { return true; } },
+        WALL_CLIMB_RIGHT { boolean wallRight() { return true; } State doneClimbing() { return WALL_STICK_RIGHT; } boolean climb() { return true; } },
+        CROUCHING,
+        SLIDING;
+        boolean wallLeft() { return false; }
+        boolean wallRight() { return false; }
+        boolean stick() { return false; }
+        boolean climb() { return false; }
+        State doneClimbing() { return null; }
+    }
 
     /**
      * For debugging purposes. Will replace with sprite animations later.
@@ -249,13 +270,14 @@ public class Actor extends Entity
     Color getColor()
     {
         if (state == State.GROUNDED) return Color.BLUE;
-        if (state == State.WALL_STICK_LEFT) return Color.CYAN;
-        if (state == State.WALL_STICK_RIGHT) return Color.INDIGO;
+        if (state.climb()) return Color.CYAN;
+        if (state.stick()) return Color.INDIGO;
         return Color.GREEN;
     }
 
     void triggerContacts(ArrayList<Entity> entities)
     {
+        state = State.AIRBORNE;
         ContactEdge contactEdge = body.getContactList();
         while (contactEdge != null)
         {
@@ -275,13 +297,42 @@ public class Actor extends Entity
                         return;
                     }
                     else if (vertBound.in() && horizBound.left() && body.getLinearVelocity().x <= 0F)
-                        state = State.WALL_STICK_LEFT;
+                    {
+                        if (body.getLinearVelocity().y >= 0) state = State.WALL_STICK_LEFT;
+                        else
+                        {
+                            if (state != State.WALL_CLIMB_LEFT)
+                            {
+                                body.getFixtureList().setFriction(0F);
+                                useReducedGravity();
+                            }
+                            state = State.WALL_CLIMB_LEFT;
+                        }
+                    }
                     else if (vertBound.in() && horizBound.right() && body.getLinearVelocity().x >= 0F)
-                        state = State.WALL_STICK_RIGHT;
+                    {
+                        if (body.getLinearVelocity().y >= 0) state = State.WALL_STICK_RIGHT;
+                        else
+                        {
+                            if (state != State.WALL_CLIMB_RIGHT)
+                            {
+                                body.getFixtureList().setFriction(0F);
+                                useReducedGravity();
+                            }
+                            state = State.WALL_CLIMB_RIGHT;
+                        }
+                    }
+                    else state = State.AIRBORNE;
                 }
             }
             contactEdge = contactEdge.next;
         }
+    }
+
+    private void useReducedGravity()
+    {
+        body.setGravityScale(0.7F);
+        usingReducedGravity = true;
     }
 
     /**
@@ -317,7 +368,17 @@ public class Actor extends Entity
 
     private float getNewVel(float acceleration)
     {
-        float newVel = body.getLinearVelocity().x + acceleration;
+        float newVel;
+        if (body.getLinearVelocity().x <= 0 && acceleration < 0)
+        {
+            return -maxSpeed;
+        }
+        if (body.getLinearVelocity().x >= 0 && acceleration > 0)
+        {
+            return maxSpeed;
+        }
+
+        newVel = body.getLinearVelocity().x + acceleration;
         if (acceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
         else if (newVel > maxSpeed) newVel = maxSpeed;
         return newVel;
@@ -330,6 +391,18 @@ public class Actor extends Entity
     void resetFlags()
     {
         super.resetFlags();
-        state = State.AIRBORNE;
+
+        if (usingReducedGravity && body.getLinearVelocity().y > 0)
+        {
+            body.setGravityScale(1F);
+            usingReducedGravity = false;
+            body.getFixtureList().setFriction(1F);
+
+            State stickState = state.doneClimbing();
+            if (stickState != null)
+            {
+                state = stickState;
+            }
+        }
     }
 }
