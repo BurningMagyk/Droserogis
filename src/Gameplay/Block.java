@@ -6,11 +6,14 @@ import org.jbox2d.dynamics.*;
 
 class Block extends Entity
 {
+    private Orient orient;
     private float leftBound, rightBound, topBound, bottomBound;
 
     Block(World world, float xPos, float yPos, float width, float height, Orient orient)
     {
         super(world, xPos, yPos, width, height, false);
+        if (orient != null) this.orient = orient;
+        else this.orient = Orient.BOX;
 
         /* Blocks can be shaped as either a rectangle or a triangle.
          * If the variable "orient" is null, it'll be a rectangle,
@@ -64,28 +67,44 @@ class Block extends Entity
                     int xa() { return 1; } int ya() { return 1; }
                     int xb() { return 1; } int yb() { return -1; }
                     int xc() { return -1; } int yc() { return 1; }
+                    boolean isUp() { return true; }
+                    boolean isLeft() { return true; }
                 },
         UP_RIGHT
                 {
                     int xa() { return -1; } int ya() { return 1; }
                     int xb() { return -1; } int yb() { return -1; }
                     int xc() { return 1; } int yc() { return 1; }
+                    boolean isUp() { return true; }
+                    boolean isRight() { return true; }
                 },
         DOWN_LEFT
                 {
                     int xa() { return 1; } int ya() { return -1; }
                     int xb() { return 1; } int yb() { return 1; }
                     int xc() { return -1; } int yc() { return -1; }
+                    boolean isDown() { return true; }
+                    boolean isLeft() { return true; }
                 },
         DOWN_RIGHT
                 {
                     int xa() { return -1; } int ya() { return -1; }
                     int xb() { return -1; } int yb() { return 1; }
                     int xc() { return 1; } int yc() { return -1; }
-                };
+                    boolean isDown() { return true; }
+                    boolean isRight() { return true; }
+                },
+        BOX;
         int xa() { return 0; } int xb() { return 0; } int xc() { return 0; }
         int ya() { return 0; } int yb() { return 0; } int yc() { return 0; }
+        boolean isUp() { return false; } boolean isDown() { return false; }
+        boolean isLeft() { return false; } boolean isRight() { return false; }
     }
+
+    boolean isUp() { return orient.isUp(); }
+    boolean isDown() { return orient.isDown(); }
+    boolean isLeft() { return orient.isLeft(); }
+    boolean isRight() { return orient.isRight(); }
 
     Color getColor()
     {

@@ -49,6 +49,9 @@ abstract public class Entity
     float getTopEdge() { return getPosition().y - height; }
     float getBottomEdge() { return getPosition().y + height; }
 
+    boolean isUp() { return false; } boolean isDown() { return false; }
+    boolean isLeft() { return false; } boolean isRight() { return false; }
+
     void resetFlags()
     {
         triggered = false;

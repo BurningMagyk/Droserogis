@@ -61,15 +61,10 @@ public class Actor extends Entity
      */
     void act()
     {
-        if (state == State.GROUNDED)
+        if (state.grounded())
         {
             if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.2F)), body.getLinearVelocity().y));
             else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.2F)), body.getLinearVelocity().y));
-            else if (actDirVert == Direction.DOWN)
-            {
-                // TODO: Make the body half in height
-                state = State.CROUCHING;
-            }
         }
         else if (state == State.AIRBORNE)
         {
@@ -101,7 +96,7 @@ public class Actor extends Entity
         {
             actDirHoriz = Direction.LEFT;
             pressingLeft = true;
-            if (pressingJump && state.wallRight())
+            if (pressingJump && state.isWall() && state.isRight())
             {
                 pressingJump = false;
                 jump(true);
@@ -121,7 +116,7 @@ public class Actor extends Entity
         {
             actDirHoriz = Direction.RIGHT;
             pressingRight = true;
-            if (pressingJump && state.wallLeft())
+            if (pressingJump && state.isWall() && state.isLeft())
             {
                 pressingJump = false;
                 jump(true);
@@ -141,7 +136,7 @@ public class Actor extends Entity
         {
             actDirVert = Direction.UP;
             pressingUp = true;
-            if (pressingJump && (state.wallLeft() || state.wallRight()))
+            if (pressingJump && (state.isWall()))
             {
                 pressingJump = false;
                 jump(true);
@@ -161,7 +156,7 @@ public class Actor extends Entity
         {
             actDirVert = Direction.DOWN;
             pressingDown = true;
-            if (pressingJump && (state.wallLeft() || state.wallRight()))
+            if (pressingJump && (state.isWall()))
             {
                 pressingJump = false;
                 jump(true);
@@ -181,13 +176,13 @@ public class Actor extends Entity
         {
             if (!pressingJump)
             {
-                useReducedGravity();
+                useReducedGravity(false);
                 airborneVel = body.getLinearVelocity().y;
-                if (state == State.GROUNDED)
+                if (state.grounded())
                 {
                     body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, airborneVel - 6F));
                 }
-                else if (state.wallLeft())
+                else if (state.isWall() && state.isLeft())
                 {
                     if (actDirVert == Direction.UP)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 2.5F, airborneVel - 5.5F));
@@ -198,7 +193,7 @@ public class Actor extends Entity
                     else if (actDirVert == Direction.DOWN)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x + 4F, airborneVel + 4F));
                 }
-                else if (state.wallRight())
+                else if (state.isWall() && state.isRight())
                 {
                     if (actDirVert == Direction.UP)
                         body.setLinearVelocity(new Vec2(body.getLinearVelocity().x - 2.5F, airborneVel - 5.5F));
@@ -218,7 +213,7 @@ public class Actor extends Entity
         {
             body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, Math.max(body.getLinearVelocity().y, airborneVel)));
             pressingJump = false;
-            if (state.wallLeft() || state.wallRight())
+            if (state.isWall())
             {
                 jump(true);
                 pressingJump = false;
@@ -249,17 +244,28 @@ public class Actor extends Entity
     private enum State
     {
         AIRBORNE,
-        GROUNDED,
-        WALL_STICK_LEFT { boolean wallLeft() { return true; } boolean stick() { return true; } },
-        WALL_STICK_RIGHT { boolean wallRight() { return true; } boolean stick() { return true; } },
-        WALL_CLIMB_LEFT { boolean wallLeft() { return true; } State doneClimbing() { return WALL_STICK_LEFT; } boolean climb() { return true; } },
-        WALL_CLIMB_RIGHT { boolean wallRight() { return true; } State doneClimbing() { return WALL_STICK_RIGHT; } boolean climb() { return true; } },
-        CROUCHING,
-        SLIDING;
-        boolean wallLeft() { return false; }
-        boolean wallRight() { return false; }
-        boolean stick() { return false; }
-        boolean climb() { return false; }
+        STANDING_LEFT { boolean grounded() { return true; } boolean isLeft() { return true; } boolean standing() { return true; } },
+        STANDING_RIGHT { boolean grounded() { return true; } boolean isRight() { return true; } boolean standing() { return true; } },
+        RUNNING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean running() { return true; } },
+        RUNNING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean running() { return true; } },
+        WALL_STICK_LEFT { boolean isWall() { return true; } boolean isLeft() { return true; } boolean sticking() { return true; } },
+        WALL_STICK_RIGHT { boolean isWall() { return true; } boolean isRight() { return true; } boolean sticking() { return true; } },
+        WALL_CLIMB_LEFT { boolean isWall() { return true; } boolean isLeft() { return true; } State doneClimbing() { return WALL_STICK_LEFT; } boolean climbing() { return true; } },
+        WALL_CLIMB_RIGHT { boolean isWall() { return true; } boolean isRight() { return true; } State doneClimbing() { return WALL_STICK_RIGHT; } boolean climbing() { return true; } },
+        CROUCHING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } },
+        CROUCHING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } },
+        SLIDING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } },
+        SLIDING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } };
+        boolean isLeft() { return false; }
+        boolean isRight() { return false; }
+        boolean isWall() { return false; }
+        boolean grounded() { return false; }
+        boolean standing() { return false; }
+        boolean running() { return false; }
+        boolean crouching() { return false; }
+        boolean sliding() { return false; }
+        boolean sticking() { return false; }
+        boolean climbing() { return false; }
         State doneClimbing() { return null; }
     }
 
@@ -269,9 +275,12 @@ public class Actor extends Entity
     @Override
     Color getColor()
     {
-        if (state == State.GROUNDED) return Color.BLUE;
-        if (state.climb()) return Color.CYAN;
-        if (state.stick()) return Color.INDIGO;
+        if (state.standing()) return Color.BLUE;
+        if (state.running()) return Color.CYAN;
+        if (state.sticking()) return Color.PURPLE;
+        if (state.climbing()) return Color.RED;
+        if (state.sliding()) return Color.HOTPINK;
+        if (state.crouching()) return Color.BLACK;
         return Color.GREEN;
     }
 
@@ -293,7 +302,49 @@ public class Actor extends Entity
 
                     if (horizBound.in() && vertBound.down())
                     {
-                        state = State.GROUNDED;
+                        // TODO: at the end, force the player to tumble if exceeding a certain speed
+                        if (entity.isUp())
+                        {
+                            float xVelocity = body.getLinearVelocity().x;
+                            if (entity.isLeft())
+                            {
+                                if (xVelocity > 0)
+                                {
+                                    if (actDirHoriz == Direction.LEFT) state = State.CROUCHING_LEFT;
+                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
+                                    else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
+                                }
+                                else if (xVelocity < 0)
+                                {
+                                    if (actDirHoriz == Direction.RIGHT) state = State.CROUCHING_RIGHT;
+                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
+                                    else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
+                                }
+                            }
+                            else if (entity.isRight())
+                            {
+                                if (xVelocity < 0)
+                                {
+                                    if (actDirHoriz == Direction.RIGHT) state = State.CROUCHING_RIGHT;
+                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
+                                    else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
+                                }
+                                else if (xVelocity > 0)
+                                {
+                                    if (actDirHoriz == Direction.LEFT) state = State.CROUCHING_LEFT;
+                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
+                                    else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
+                                }
+                            }
+                        }
+                        else if (actDirVert == Direction.DOWN)
+                        {
+                            if (actDirHoriz == null) state = state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
+                            else state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
+                        }
+                        else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
+                        else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
+                        else state = state.isLeft() ? State.STANDING_LEFT : State.STANDING_RIGHT;
                         return;
                     }
                     else if (vertBound.in() && horizBound.left() && body.getLinearVelocity().x <= 0F)
@@ -304,7 +355,7 @@ public class Actor extends Entity
                             if (state != State.WALL_CLIMB_LEFT)
                             {
                                 body.getFixtureList().setFriction(0F);
-                                useReducedGravity();
+                                useReducedGravity(true);
                             }
                             state = State.WALL_CLIMB_LEFT;
                         }
@@ -317,7 +368,7 @@ public class Actor extends Entity
                             if (state != State.WALL_CLIMB_RIGHT)
                             {
                                 body.getFixtureList().setFriction(0F);
-                                useReducedGravity();
+                                useReducedGravity(true);
                             }
                             state = State.WALL_CLIMB_RIGHT;
                         }
@@ -329,9 +380,9 @@ public class Actor extends Entity
         }
     }
 
-    private void useReducedGravity()
+    private void useReducedGravity(boolean climbing)
     {
-        body.setGravityScale(0.7F);
+        body.setGravityScale(climbing ? 0.3F : 0.7F);
         usingReducedGravity = true;
     }
 
@@ -379,8 +430,10 @@ public class Actor extends Entity
         }
 
         newVel = body.getLinearVelocity().x + acceleration;
-        if (acceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
-        else if (newVel > maxSpeed) newVel = maxSpeed;
+
+        if (acceleration > 0 && newVel > maxSpeed) newVel = maxSpeed;
+        else if (acceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
+
         return newVel;
     }
 
