@@ -269,6 +269,26 @@ public class Actor extends Entity
         State doneClimbing() { return null; }
     }
 
+    // TODO: Make all state changes use this method
+    // TODO: Make the player crawl when walking while crouching
+    // TODO: Make the player crawl up slopes if it's too steep and not enough momentum
+    // TODO: Fix glitch where the crouch friction only works after climbing a wall
+    // TODO: Let player slide on flat surfaces if they have momentum
+    // TODO: Make different states for rising and falling while airborne
+    // TODO: Take into account what direction the player is facing using the secondary joystick
+    void changeState(State newState)
+    {
+        if (!state.crouching() && newState.crouching())
+        {
+            body.getFixtureList().setFriction(2F);
+        }
+        else if (state.crouching() && !newState.crouching())
+        {
+            body.getFixtureList().setFriction(1F);
+        }
+        state = newState;
+    }
+
     /**
      * For debugging purposes. Will replace with sprite animations later.
      */
@@ -310,13 +330,13 @@ public class Actor extends Entity
                             {
                                 if (xVelocity > 0)
                                 {
-                                    if (actDirHoriz == Direction.LEFT) state = State.CROUCHING_LEFT;
+                                    if (actDirHoriz == Direction.LEFT) changeState(State.CROUCHING_LEFT);//state = State.CROUCHING_LEFT;
                                     else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
                                     else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
                                 }
                                 else if (xVelocity < 0)
                                 {
-                                    if (actDirHoriz == Direction.RIGHT) state = State.CROUCHING_RIGHT;
+                                    if (actDirHoriz == Direction.RIGHT) changeState(State.CROUCHING_RIGHT);//state = State.CROUCHING_RIGHT;
                                     else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
                                     else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
                                 }
@@ -325,13 +345,13 @@ public class Actor extends Entity
                             {
                                 if (xVelocity < 0)
                                 {
-                                    if (actDirHoriz == Direction.RIGHT) state = State.CROUCHING_RIGHT;
+                                    if (actDirHoriz == Direction.RIGHT) changeState(State.CROUCHING_RIGHT);//state = State.CROUCHING_RIGHT;
                                     else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
                                     else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
                                 }
                                 else if (xVelocity > 0)
                                 {
-                                    if (actDirHoriz == Direction.LEFT) state = State.CROUCHING_LEFT;
+                                    if (actDirHoriz == Direction.LEFT) changeState(State.CROUCHING_LEFT);//state = State.CROUCHING_LEFT;
                                     else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
                                     else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
                                 }
@@ -339,8 +359,8 @@ public class Actor extends Entity
                         }
                         else if (actDirVert == Direction.DOWN)
                         {
-                            if (actDirHoriz == null) state = state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
-                            else state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
+                            if (actDirHoriz == null) changeState(state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT);//state = state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
+                            else changeState(state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT);//state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
                         }
                         else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
                         else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
