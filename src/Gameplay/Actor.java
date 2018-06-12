@@ -35,7 +35,7 @@ public class Actor extends Entity
 
     /* This variable determines what state the actor is in
      * See the enum list below to see what's available */
-    State state = State.AIRBORNE;
+    State state = State.FALLING;
 
     float airborneVel = 0;
     private boolean jumped = false;
@@ -66,20 +66,20 @@ public class Actor extends Entity
             if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.2F)), body.getLinearVelocity().y));
             else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.2F)), body.getLinearVelocity().y));
         }
-        else if (state == State.AIRBORNE)
+        else if (state.airborne())
         {
             if (actDirHoriz == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.1F)), body.getLinearVelocity().y));
             else if (actDirHoriz == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.1F)), body.getLinearVelocity().y));
         }
         else if (state == State.WALL_STICK_LEFT)
         {
-            if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
+            if (actDirHoriz == null && actDirVert == null) changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);
             else if (!jumped) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
             else jumped = false;
         }
         else if (state == State.WALL_STICK_RIGHT)
         {
-            if (actDirHoriz == null && actDirVert == null) state = State.AIRBORNE;
+            if (actDirHoriz == null && actDirVert == null) changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);
             else if (!jumped) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
             else jumped = false;
         }
@@ -176,7 +176,7 @@ public class Actor extends Entity
         {
             if (!pressingJump)
             {
-                useReducedGravity(false);
+                //useReducedGravity(false);
                 airborneVel = body.getLinearVelocity().y;
                 if (state.grounded())
                 {
@@ -243,7 +243,8 @@ public class Actor extends Entity
 
     private enum State
     {
-        AIRBORNE,
+        RISING { boolean airborne() { return true; } },
+        FALLING { boolean airborne() { return true; } },
         STANDING_LEFT { boolean grounded() { return true; } boolean isLeft() { return true; } boolean standing() { return true; } },
         STANDING_RIGHT { boolean grounded() { return true; } boolean isRight() { return true; } boolean standing() { return true; } },
         RUNNING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean running() { return true; } },
@@ -259,6 +260,7 @@ public class Actor extends Entity
         boolean isLeft() { return false; }
         boolean isRight() { return false; }
         boolean isWall() { return false; }
+        boolean airborne() { return false; }
         boolean grounded() { return false; }
         boolean standing() { return false; }
         boolean running() { return false; }
@@ -270,6 +272,7 @@ public class Actor extends Entity
     }
 
     // TODO: Make all state changes use this method
+    // TODO: Decrease friction when sliding
     // TODO: Make the player crawl when walking while crouching
     // TODO: Make the player crawl up slopes if it's too steep and not enough momentum
     // TODO: Fix glitch where the crouch friction only works after climbing a wall
@@ -278,11 +281,39 @@ public class Actor extends Entity
     // TODO: Take into account what direction the player is facing using the secondary joystick
     void changeState(State newState)
     {
-        if (!state.crouching() && newState.crouching())
+        if (newState == State.WALL_STICK_LEFT || newState == State.WALL_STICK_RIGHT) Print.blue(state);
+
+        if (newState == State.RISING)
+        {
+            body.setGravityScale(0.7F);
+        }
+        else if (newState == State.FALLING)
+        {
+            body.setGravityScale(1F);
+        }
+        else if (!state.crouching() && newState.crouching())
         {
             body.getFixtureList().setFriction(2F);
         }
         else if (state.crouching() && !newState.crouching())
+        {
+            body.getFixtureList().setFriction(1F);
+        }
+        else if (!state.climbing() && newState.climbing())
+        {
+            body.getFixtureList().setFriction(0F);
+            body.setGravityScale(0.3F);
+        }
+        else if (!newState.climbing())
+        {
+            body.getFixtureList().setFriction(1F);
+            body.setGravityScale(1F);
+        }
+        else if (!state.sliding() && newState.sliding())
+        {
+            body.getFixtureList().setFriction(0.3F);
+        }
+        else if (state.sliding() && newState.sliding())
         {
             body.getFixtureList().setFriction(1F);
         }
@@ -306,7 +337,7 @@ public class Actor extends Entity
 
     void triggerContacts(ArrayList<Entity> entities)
     {
-        state = State.AIRBORNE;
+        changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);//state = State.FALLING;
         ContactEdge contactEdge = body.getContactList();
         while (contactEdge != null)
         {
@@ -331,14 +362,14 @@ public class Actor extends Entity
                                 if (xVelocity > 0)
                                 {
                                     if (actDirHoriz == Direction.LEFT) changeState(State.CROUCHING_LEFT);//state = State.CROUCHING_LEFT;
-                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
-                                    else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
+                                    else if (actDirVert == Direction.DOWN) changeState(State.SLIDING_RIGHT);//state = State.SLIDING_RIGHT;
+                                    else if (actDirHoriz == Direction.RIGHT) changeState(State.RUNNING_RIGHT);//state = State.RUNNING_RIGHT;
                                 }
                                 else if (xVelocity < 0)
                                 {
                                     if (actDirHoriz == Direction.RIGHT) changeState(State.CROUCHING_RIGHT);//state = State.CROUCHING_RIGHT;
-                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
-                                    else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
+                                    else if (actDirVert == Direction.DOWN) changeState(State.SLIDING_LEFT);//state = State.SLIDING_LEFT;
+                                    else if (actDirHoriz == Direction.LEFT) changeState(State.RUNNING_LEFT);//state = State.RUNNING_LEFT;
                                 }
                             }
                             else if (entity.isRight())
@@ -346,14 +377,14 @@ public class Actor extends Entity
                                 if (xVelocity < 0)
                                 {
                                     if (actDirHoriz == Direction.RIGHT) changeState(State.CROUCHING_RIGHT);//state = State.CROUCHING_RIGHT;
-                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_LEFT;
-                                    else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
+                                    else if (actDirVert == Direction.DOWN) changeState(State.SLIDING_LEFT);//state = State.SLIDING_LEFT;
+                                    else if (actDirHoriz == Direction.LEFT) changeState(State.RUNNING_LEFT);//state = State.RUNNING_LEFT;
                                 }
                                 else if (xVelocity > 0)
                                 {
                                     if (actDirHoriz == Direction.LEFT) changeState(State.CROUCHING_LEFT);//state = State.CROUCHING_LEFT;
-                                    else if (actDirVert == Direction.DOWN) state = State.SLIDING_RIGHT;
-                                    else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
+                                    else if (actDirVert == Direction.DOWN) changeState(State.SLIDING_RIGHT);//state = State.SLIDING_RIGHT;
+                                    else if (actDirHoriz == Direction.RIGHT) changeState(State.RUNNING_RIGHT);//state = State.RUNNING_RIGHT;
                                 }
                             }
                         }
@@ -362,38 +393,40 @@ public class Actor extends Entity
                             if (actDirHoriz == null) changeState(state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT);//state = state.isLeft() ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
                             else changeState(state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT);//state = actDirHoriz == Direction.LEFT ? State.CROUCHING_LEFT : State.CROUCHING_RIGHT;
                         }
-                        else if (actDirHoriz == Direction.LEFT) state = State.RUNNING_LEFT;
-                        else if (actDirHoriz == Direction.RIGHT) state = State.RUNNING_RIGHT;
-                        else state = state.isLeft() ? State.STANDING_LEFT : State.STANDING_RIGHT;
+                        else if (actDirHoriz == Direction.LEFT) changeState(State.RUNNING_LEFT);//state = State.RUNNING_LEFT;
+                        else if (actDirHoriz == Direction.RIGHT) changeState(State.RUNNING_RIGHT);//state = State.RUNNING_RIGHT;
+                        else changeState(state.isLeft() ? State.STANDING_LEFT : State.STANDING_RIGHT);//state = state.isLeft() ? State.STANDING_LEFT : State.STANDING_RIGHT;
                         return;
                     }
                     else if (vertBound.in() && horizBound.left() && body.getLinearVelocity().x <= 0F)
                     {
-                        if (body.getLinearVelocity().y >= 0) state = State.WALL_STICK_LEFT;
+                        if (body.getLinearVelocity().y >= 0) changeState(State.WALL_STICK_LEFT);//state = State.WALL_STICK_LEFT;
                         else
                         {
-                            if (state != State.WALL_CLIMB_LEFT)
+                            /*if (state != State.WALL_CLIMB_LEFT)
                             {
                                 body.getFixtureList().setFriction(0F);
                                 useReducedGravity(true);
                             }
-                            state = State.WALL_CLIMB_LEFT;
+                            state = State.WALL_CLIMB_LEFT;*/
+                            changeState(State.WALL_CLIMB_LEFT);
                         }
                     }
                     else if (vertBound.in() && horizBound.right() && body.getLinearVelocity().x >= 0F)
                     {
-                        if (body.getLinearVelocity().y >= 0) state = State.WALL_STICK_RIGHT;
+                        if (body.getLinearVelocity().y >= 0) changeState(State.WALL_STICK_RIGHT);//state = State.WALL_STICK_RIGHT;
                         else
                         {
-                            if (state != State.WALL_CLIMB_RIGHT)
+                            /*if (state != State.WALL_CLIMB_RIGHT)
                             {
                                 body.getFixtureList().setFriction(0F);
                                 useReducedGravity(true);
                             }
-                            state = State.WALL_CLIMB_RIGHT;
+                            state = State.WALL_CLIMB_RIGHT;*/
+                            changeState(State.WALL_CLIMB_RIGHT);
                         }
                     }
-                    else state = State.AIRBORNE;
+                    else changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);
                 }
             }
             contactEdge = contactEdge.next;
