@@ -127,7 +127,8 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         else if (code == KeyCode.J)
         {
-            player.jump(pressed);
+            //player.jump(pressed);
+            player.pressJump(pressed);
         }
         else if (code == KeyCode.W)
         {

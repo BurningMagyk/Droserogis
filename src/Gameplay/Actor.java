@@ -37,11 +37,15 @@ public class Actor extends Entity
      * See the enum list below to see what's available */
     State state = State.FALLING;
 
+    Jump currentJump = new Jump();
+
     float airborneVel = 0;
     private boolean jumped = false;
     public boolean usingReducedGravity = false;
 
     private float maxSpeed = 2F;
+    private float jumpSpeed = 6F;
+    private float jumpGravityReduced = 0.7F;
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
@@ -170,6 +174,71 @@ public class Actor extends Entity
         }
         else pressingDown = false;
     }
+    void pressJump(boolean pressed)
+    {
+        currentJump = currentJump.trigger(state.jumpSource(), pressed);
+        // TODO: Parameter for trigger() should come from the State enum
+        pressingJump = pressed;
+    }
+    private class Jump
+    {
+        float initVelocityX = body.getLinearVelocity().x;
+        float initVelocityY = body.getLinearVelocity().y;
+        boolean lateTrigger = false;
+        boolean executed = false;
+        Jump trigger(int source, boolean pressed)
+        {
+            if (pressed) return executed ? stop() : start(source);
+            else return lateTrigger ? start(source) : stop();
+        }
+        Jump start(int source)
+        {
+            /* source == 2 means while airborne */
+            if (source == 2)
+            {
+                lateTrigger = true;
+                return this;
+            }
+            executed = true;
+            body.setGravityScale(jumpGravityReduced);
+            /* source == 0 means from the ground */
+            if (source == 0)
+                body.setLinearVelocity(new Vec2(
+                        initVelocityX, initVelocityY - jumpSpeed));
+            /* source == 1 means from a wall */
+            else if (source == 1)
+            { // TODO: Using magic numbers right now. Values should be derived from jumpSpeed variable.
+                if (state.isLeft()) {
+                    if (actDirVert == Direction.UP)
+                        body.setLinearVelocity(new Vec2(initVelocityX + 2.5F, initVelocityY - 5.5F));
+                    else if (actDirHoriz == Direction.RIGHT && actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(initVelocityX + 6F, initVelocityY));
+                    else if (actDirHoriz == Direction.RIGHT)
+                        body.setLinearVelocity(new Vec2(initVelocityX + 4F, initVelocityY - 4F));
+                    else if (actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(initVelocityX + 4F, initVelocityY + 4F));
+                } else {
+                    if (actDirVert == Direction.UP)
+                        body.setLinearVelocity(new Vec2(initVelocityX - 2.5F, initVelocityY - 5.5F));
+                    else if (actDirHoriz == Direction.LEFT && actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(initVelocityX - 6F, initVelocityY));
+                    else if (actDirHoriz == Direction.LEFT)
+                        body.setLinearVelocity(new Vec2(initVelocityX - 4F, initVelocityY - 4F));
+                    else if (actDirVert == Direction.DOWN)
+                        body.setLinearVelocity(new Vec2(initVelocityX - 4F, initVelocityY + 4F)); }
+            }
+            return this;
+        }
+        Jump stop()
+        {
+            /* This first condition will return this when the Key listener rapid-fires 'pressed'
+             * due to the player holding down the key. Should return false if using a lateTrigger. */
+            if (!pressingJump) return this;
+            body.setLinearVelocity(new Vec2(initVelocityX, Math.max(initVelocityY, airborneVel)));
+            return new Jump();
+        }
+    }
+
     void jump(boolean pressed)
     {
         if (pressed)
@@ -245,18 +314,18 @@ public class Actor extends Entity
     {
         RISING { boolean airborne() { return true; } },
         FALLING { boolean airborne() { return true; } },
-        STANDING_LEFT { boolean grounded() { return true; } boolean isLeft() { return true; } boolean standing() { return true; } },
-        STANDING_RIGHT { boolean grounded() { return true; } boolean isRight() { return true; } boolean standing() { return true; } },
-        RUNNING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean running() { return true; } },
-        RUNNING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean running() { return true; } },
+        STANDING_LEFT { boolean grounded() { return true; } boolean isLeft() { return true; } boolean standing() { return true; } int jumpSource() { return 0; } },
+        STANDING_RIGHT { boolean grounded() { return true; } boolean isRight() { return true; } boolean standing() { return true; } int jumpSource() { return 0; } },
+        RUNNING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean running() { return true; } int jumpSource() { return 0; } },
+        RUNNING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean running() { return true; } int jumpSource() { return 0; } },
         WALL_STICK_LEFT { boolean isWall() { return true; } boolean isLeft() { return true; } boolean sticking() { return true; } },
         WALL_STICK_RIGHT { boolean isWall() { return true; } boolean isRight() { return true; } boolean sticking() { return true; } },
-        WALL_CLIMB_LEFT { boolean isWall() { return true; } boolean isLeft() { return true; } State doneClimbing() { return WALL_STICK_LEFT; } boolean climbing() { return true; } },
-        WALL_CLIMB_RIGHT { boolean isWall() { return true; } boolean isRight() { return true; } State doneClimbing() { return WALL_STICK_RIGHT; } boolean climbing() { return true; } },
-        CROUCHING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } },
-        CROUCHING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } },
-        SLIDING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } },
-        SLIDING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } };
+        WALL_CLIMB_LEFT { boolean isWall() { return true; } boolean isLeft() { return true; } State doneClimbing() { return WALL_STICK_LEFT; } boolean climbing() { return true; } int jumpSource() { return 1; } },
+        WALL_CLIMB_RIGHT { boolean isWall() { return true; } boolean isRight() { return true; } State doneClimbing() { return WALL_STICK_RIGHT; } boolean climbing() { return true; } int jumpSource() { return 1; } },
+        CROUCHING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } int jumpSource() { return 0; } },
+        CROUCHING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean crouching() { return true; } int jumpSource() { return 0; } },
+        SLIDING_LEFT { boolean isLeft() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } int jumpSource() { return 0; } },
+        SLIDING_RIGHT { boolean isRight() { return true; } boolean grounded() { return true; } boolean sliding() { return true; } int jumpSource() { return 0; } };
         boolean isLeft() { return false; }
         boolean isRight() { return false; }
         boolean isWall() { return false; }
@@ -269,6 +338,7 @@ public class Actor extends Entity
         boolean sticking() { return false; }
         boolean climbing() { return false; }
         State doneClimbing() { return null; }
+        int jumpSource() { return 2; }
     }
 
     // TODO: Make all state changes use this method
