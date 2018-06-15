@@ -23,9 +23,9 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private static World world;
     private ArrayList<Entity> entities;
-    private ArrayList<Actor> actors;
+    private ArrayList<Actor_old> actors;
 
-    private Actor player;
+    private Actor_old player;
 
     private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
 
@@ -63,8 +63,8 @@ public class Gameplay extends AnimationTimer implements Reactor
         for (Entity entity : entities) entity.resetFlags();
         /* triggerContacts() sets every entity's flags correctly only
          * if they've all been reset */
-        for (Actor actor : actors) actor.triggerContacts(entities);
-        for (Actor actor : actors) actor.act();
+        for (Actor_old actor : actors) actor.triggerContacts(entities);
+        for (Actor_old actor : actors) actor.act();
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
@@ -206,7 +206,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         addEntity(new Block(world, 3, -2, 1F, 3F, null));
         addEntity(new Block(world, -1, -1.5F, 2F, 2F, Block.Orient.UP_RIGHT));
 
-        player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
+        player = new Actor_old(world, 1F, -3F, 0.25F, 0.25F);
         addEntity(player);
     }
 
@@ -226,7 +226,7 @@ public class Gameplay extends AnimationTimer implements Reactor
 
     private void addEntity(Entity entity)
     {
-        if (entity.getClass() == Actor.class) actors.add((Actor) entity);
+        if (entity.getClass() == Actor_old.class) actors.add((Actor_old) entity);
 
         entities.add(entity);
     }
