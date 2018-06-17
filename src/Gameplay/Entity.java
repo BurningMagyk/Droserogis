@@ -26,6 +26,7 @@ abstract public class Entity
 
         //fixtureDef.density = 0.005F;
         fixtureDef.friction = 0.3F;
+        //fixtureDef.friction = 0F;
         fixtureDef.shape = polygonShape;
 
         body.setFixedRotation(true);
