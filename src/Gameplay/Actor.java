@@ -9,23 +9,30 @@ import org.jbox2d.dynamics.World;
  */
 public class Actor extends Entity
 {
-    Direction dirPrimary = null;
-    Direction dirSecondary = null;
-    Direction dirVertical = null;
+    private Direction dirPrimary = null;
+    private Direction dirSecondary = null;
+    private Direction dirVertical = null;
 
-
-    State state = State.STAND;
+    private State state = State.SWIM;
+    private Jump jump = new Jump(false);
 
     /* Stats set up by the Character object */
     private float maxRunSpeed = 3F;
     private float avgRunSpeed = 2F;
     private float groundDecel = 0.2F;
+    private float maxAirSpeed = 10F;
+    private float avgAirSpeed = 1F;
     private float aerialDecel = 0.1F;
     private float jumpSpeed = 6F;
 
     private float jumpGravityReduced = 0.7F;
     // TODO: The variable 'grade' needs to be reset to zero whenever not grounded on sloped surface
-    private float grade = 0F;
+    private float grade = 0.2F;
+
+    void debug()
+    {
+        Print.blue("dirPrimary: " + dirPrimary + ", dirVertical: " + dirVertical);
+    }
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
@@ -44,13 +51,34 @@ public class Actor extends Entity
     {
         if (state.isGrounded())
         {
-            if (dirPrimary == Direction.LEFT) move(groundDecel,true);
-            else if (dirPrimary == Direction.RIGHT) move(groundDecel,false);
+            if (dirPrimary == Direction.LEFT)
+                move(maxRunSpeed, avgRunSpeed, groundDecel,true);
+            else if (dirPrimary == Direction.RIGHT)
+                move(maxRunSpeed, avgRunSpeed, groundDecel,false);
         }
         else if (state.isAirborne())
         {
-            //if (dirPrimary == Direction.LEFT) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, getNewVel(-0.1F)), body.getLinearVelocity().y));
-            //else if (dirPrimary == Direction.RIGHT) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, getNewVel(0.1F)), body.getLinearVelocity().y));
+            if (dirPrimary == Direction.LEFT)
+                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
+            else if (dirPrimary == Direction.RIGHT)
+                move(maxAirSpeed, avgAirSpeed, aerialDecel,false);
+        }
+        else if (state == State.SWIM)
+        {
+            if (dirPrimary == Direction.LEFT)
+                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
+            else if (dirPrimary == Direction.RIGHT)
+                move(maxAirSpeed, avgAirSpeed, aerialDecel,false);
+            grade = 1;
+            if (dirVertical == Direction.UP)
+                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
+            else if (dirVertical == Direction.DOWN)
+                move(maxAirSpeed, avgAirSpeed, -aerialDecel,false);
+            grade = 0;
+        }
+        else if (state.isOnWall())
+        {
+
         }
         /*else if (state == State.WALL_STICK_LEFT)
         {
@@ -66,42 +94,52 @@ public class Actor extends Entity
         }*/
     }
 
-    private void move(float deceleration, boolean left)
+    private void move(float maxSpeed, float avgSpeed, float deceleration, boolean left)
     {
-        float vertDecel = grade * deceleration;
-        float horizDecel = deceleration - vertDecel;
-        vertDecel *= (-1);
-        horizDecel *= left ? (-1) : 1;
-
         body.setLinearVelocity(new Vec2(
-                getNewVel(horizDecel, true),
-                getNewVel(vertDecel, false)));
+                getNewVel(maxSpeed, avgSpeed, left ? -deceleration : deceleration, true),
+                getNewVel(maxSpeed, avgSpeed, -deceleration, false)));
     }
 
-    // TODO: Partition the speed based on the grade
-    private float getNewVel(float deceleration, boolean horizontal)
+    private float getNewVel(float maxSpeed, float avgSpeed, float deceleration, boolean horizontal)
     {
-        float oldVel = horizontal? body.getLinearVelocity().x
-                : body.getLinearVelocity().y;
+        float newVel = grade * avgSpeed;
+        float oldVel;
 
-        if (oldVel <= 0 && deceleration < 0)
-            return Math.min(-avgRunSpeed, oldVel);
-        if (oldVel >= 0 && deceleration > 0)
-            return Math.max(avgRunSpeed, oldVel);
+        if (horizontal)
+        {
+            oldVel = body.getLinearVelocity().x;
+            if (grade == 1) return oldVel;
+            newVel = avgSpeed - newVel;
+            if (oldVel <= 0 && deceleration < 0)
+                return Math.min(-newVel, oldVel);
+            if (oldVel >= 0 && deceleration > 0)
+                return Math.max(newVel, oldVel);
+        }
+        else
+        {
+            oldVel = body.getLinearVelocity().y;
+            if (grade == 0) return oldVel;
+            newVel *= (-1);
+            if (oldVel <= 0 && deceleration < 0)
+                return Math.min(newVel, oldVel);
+            if (oldVel >= 0 && deceleration > 0)
+                return Math.max(-newVel, oldVel);
+        }
 
-        float newVel = oldVel + deceleration;
+        newVel = oldVel + deceleration;
 
-        if (deceleration > 0 && newVel > maxRunSpeed) newVel = maxRunSpeed;
-        else if (deceleration < 0 && newVel < -maxRunSpeed) newVel = -maxRunSpeed;
+        if (deceleration > 0 && newVel > maxSpeed) newVel = maxSpeed;
+        else if (deceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
 
         return newVel;
     }
 
-    boolean pressingLeft = false;
-    boolean pressingRight = false;
-    boolean pressingUp = false;
-    boolean pressingDown = false;
-    boolean pressingJump = false;
+    private boolean pressingLeft = false;
+    private boolean pressingRight = false;
+    private boolean pressingUp = false;
+    private boolean pressingDown = false;
+    private boolean pressingJump = false;
     void pressLeft(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
@@ -149,6 +187,31 @@ public class Actor extends Entity
         // TODO: Parameter for trigger() should come from the State enum
         pressingJump = pressed; }
 
+    /* TODO: This class needs a lot of work */
+    private class Jump
+    {
+        private boolean armed;
+        private boolean started = false;
+        Jump(boolean ready)
+        {
+            armed = ready;
+        }
+        Jump() { start(); }
+        Jump trigger(boolean pressed)
+        {
+            if (state.isAirborne())
+            {
+                return new Jump(pressed);
+            }
+            return new Jump();
+        }
+        Jump trigger()
+        {
+            return this;
+        }
+        void start() {}
+    }
+
     private enum Direction {
         UP { boolean up() { return true; } boolean vertical() { return true; } },
         LEFT { boolean left() { return true; } boolean horizontal() { return true; } },
@@ -177,7 +240,8 @@ public class Actor extends Entity
         WALL_STICK { boolean isOnWall() { return true; } },
         WALL_CLIMB { boolean isOnWall() { return true; } },
         CROUCH { boolean isGrounded() { return true; } },
-        SLIDE { boolean isGrounded() { return true; } };
+        SLIDE { boolean isGrounded() { return true; } },
+        SWIM;
         boolean isOnWall() { return false; }
         boolean isAirborne() { return false; }
         boolean isGrounded() { return false; } }

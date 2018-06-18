@@ -36,7 +36,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewHeight = (int) context.getCanvas().getHeight();
 
         /* The parameter for the world determines the gravity */
-        world = new World(new Vec2(0, 20));
+        world = new World(new Vec2(0, 0));
 
         entities = new ArrayList<>();
         actors = new ArrayList<>();
@@ -89,8 +89,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         }
         else if (code == KeyCode.ENTER && pressed)
         {
-            Print.blue(player.body.getLinearVelocity().y);
-            Print.blue(player.state);
+            player.debug();
         }
         else if (code == KeyCode.LEFT && pressed)
         {
