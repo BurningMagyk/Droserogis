@@ -50,8 +50,10 @@ public class Actor extends Entity
     /**
      * Called every frame to update the Actor's movement.
      */
-    void act()
+    void act(ArrayList<Entity> entities)
     {
+        triggerContacts(entities);
+
         if (state.isGrounded())
         {
             if (dirPrimary == Direction.LEFT)
@@ -299,8 +301,12 @@ public class Actor extends Entity
 
     void setState(State state)
     {
+        if (this.state == state) return;
+
         /* Temporary */
         Print.blue("Changing from state \"" + this.state + "\" to \"" + state + "\"");
+
+        this.state = state;
     }
 
     void triggerContacts(ArrayList<Entity> entities)
@@ -316,6 +322,7 @@ public class Actor extends Entity
             {
                 if (contactEdge.other == entity.body && contactEdge.contact.isTouching())
                 {
+                    /* Where the player affects other blocks upon touch */
                     entity.triggered = true;
                     triggered = true;
 

@@ -63,8 +63,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         for (Entity entity : entities) entity.resetFlags();
         /* triggerContacts() sets every entity's flags correctly only
          * if they've all been reset */
-        //for (Actor actor : actors) actor.triggerContacts(entities);
-        for (Actor actor : actors) actor.act();
+        for (Actor actor : actors) actor.act(entities);
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
