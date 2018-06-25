@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Util.Print;
 import javafx.scene.paint.Color;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
@@ -33,6 +34,7 @@ class Block extends Entity
                     yPos + (orient.yc() * height / 2F));
             polygonShape.set(vectors, 3);
             triangular = true;
+            grade = (float) Math.atan(height / width);
         }
 
         body.createFixture(fixtureDef);

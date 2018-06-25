@@ -16,6 +16,8 @@ abstract public class Entity
     boolean triggered;
     boolean triangular = false;
 
+    float grade = 0;
+
     Entity(World world, float xPos, float yPos, float width, float height, boolean dynamic)
     {
         this.width = width; this.height = height;
@@ -49,6 +51,8 @@ abstract public class Entity
     float getRightEdge() { return getPosition().x + width; }
     float getTopEdge() { return getPosition().y - height; }
     float getBottomEdge() { return getPosition().y + height; }
+
+    float getGrade() { return grade; };
 
     boolean isUp() { return false; } boolean isDown() { return false; }
     boolean isLeft() { return false; } boolean isRight() { return false; }

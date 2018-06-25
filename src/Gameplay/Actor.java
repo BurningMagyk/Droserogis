@@ -28,10 +28,14 @@ public class Actor extends Entity
     private float aerialDecel = 0.1F;
     private float jumpSpeed = 6F;
     private float maxStandSpeed = 0.5F;
+    private float wallStickSpeed = 1F;
 
     private float jumpGravityReduced = 0.7F;
-    // TODO: The variable 'grade' needs to be reset to zero whenever not grounded on sloped surface
-    private float grade = 0F;
+    private float climbGravityReduced = 0.3F;
+    private float frictionDefault = 0.7F;
+    private float frictionReduced = 0.2F;
+    private float frictionAmplified = 1.5F;
+    private float steppedGrade = 0.7853982F;
 
     void debug()
     {
@@ -53,7 +57,7 @@ public class Actor extends Entity
      */
     void act(ArrayList<Entity> entities)
     {
-        triggerContacts(entities);
+        boolean wallDir = triggerContacts(entities);
 
         if (state.isGrounded())
         {
@@ -75,16 +79,19 @@ public class Actor extends Entity
                 move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
             else if (dirPrimary == Direction.RIGHT)
                 move(maxAirSpeed, avgAirSpeed, aerialDecel,false);
-            grade = 1;
+            steppedGrade = 1;
             if (dirVertical == Direction.UP)
                 move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
             else if (dirVertical == Direction.DOWN)
                 move(maxAirSpeed, avgAirSpeed, -aerialDecel,false);
-            grade = 0;
+            steppedGrade = 0;
         }
         else if (state.isOnWall())
         {
-
+            if (dirPrimary != null || dirVertical != null)
+            {
+                move(wallStickSpeed, wallStickSpeed, wallStickSpeed, !wallDir);
+            }
         }
         /*else if (state == State.WALL_STICK_LEFT)
         {
@@ -109,13 +116,13 @@ public class Actor extends Entity
 
     private float getNewVel(float maxSpeed, float avgSpeed, float deceleration, boolean horizontal)
     {
-        float newVel = grade * avgSpeed;
+        float newVel = steppedGrade * avgSpeed;
         float oldVel;
 
         if (horizontal)
         {
             oldVel = body.getLinearVelocity().x;
-            if (grade == 1) return oldVel;
+            if (steppedGrade == 1) return oldVel;
             newVel = avgSpeed - newVel;
             if (oldVel <= 0 && deceleration < 0)
                 return Math.min(-newVel, oldVel);
@@ -125,7 +132,7 @@ public class Actor extends Entity
         else
         {
             oldVel = body.getLinearVelocity().y;
-            if (grade == 0) return oldVel;
+            if (steppedGrade == 0) return oldVel;
             newVel *= (-1);
             if (oldVel <= 0 && deceleration < 0)
                 return Math.min(newVel, oldVel);
@@ -158,31 +165,31 @@ public class Actor extends Entity
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
             if (state.isOnWall()) dirSecondary = Direction.LEFT;
-            /* If you're not on a wall, it changes your primary direction */
-            else dirPrimary = Direction.LEFT; }
-        /* If you release the key when already moving left without a wall */
-        else if (!state.isOnWall() && dirPrimary == Direction.LEFT) {
+            /* It changes your primary direction regardless */
+            dirPrimary = Direction.LEFT; }
+        /* If you release the key when already moving left */
+        else if (dirPrimary == Direction.LEFT) {
             if (pressingRight) dirPrimary = Direction.RIGHT;
-            else dirPrimary = null; }
-        /* If you release the key when already moving left with a wall */
-        else if (state.isOnWall() && dirSecondary == Direction.LEFT) {
-            if (pressingRight) dirSecondary = Direction.RIGHT;
-            else dirSecondary = null; }
+            else dirPrimary = null;
+            /* If you release the key when already moving left with a wall */
+            if (state.isOnWall()) {
+                if (pressingRight) dirSecondary = Direction.RIGHT;
+                else dirSecondary = null; } }
         pressingLeft = pressed; }
     void pressRight(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
             if (state.isOnWall()) dirSecondary = Direction.RIGHT;
-            /* If you're not on a wall, it changes your primary direction */
-            else dirPrimary = Direction.RIGHT; }
-        /* If you release the key when already moving right without a wall */
-        else if (!state.isOnWall() && dirPrimary == Direction.RIGHT) {
+            /* It changes your primary direction regardless */
+            dirPrimary = Direction.RIGHT; }
+        /* If you release the key when already moving right */
+        else if (dirPrimary == Direction.RIGHT) {
             if (pressingLeft) dirPrimary = Direction.LEFT;
-            else dirPrimary = null; }
-        /* If you release the key when already moving left with a wall */
-        else if (state.isOnWall() && dirSecondary == Direction.RIGHT) {
-            if (pressingRight) dirSecondary = Direction.LEFT;
-            else dirSecondary = null; }
+            else dirPrimary = null;
+            /* If you release the key when already moving right with a wall */
+            if (state.isOnWall()) {
+                if (pressingLeft) dirSecondary = Direction.LEFT;
+                else dirSecondary = null; } }
         pressingRight = pressed; }
     void pressUp(boolean pressed) {
         if (pressed) dirVertical = Direction.UP;
@@ -303,18 +310,43 @@ public class Actor extends Entity
     {
         if (this.state == state) return;
 
+        if (state == State.RISE)
+        {
+            body.setGravityScale(jumpGravityReduced);
+        }
+        else if (state == State.WALL_CLIMB)
+        {
+            body.setGravityScale(climbGravityReduced);
+            body.getFixtureList().setFriction(0F);
+        }
+        else if (state == State.SLIDE)
+        {
+            body.getFixtureList().setFriction(frictionReduced);
+        }
+        else if (state == State.CROUCH)
+        {
+            body.getFixtureList().setFriction(frictionAmplified);
+        }
+        else
+        {
+            body.setGravityScale(1F);
+            body.getFixtureList().setFriction(frictionDefault);
+        }
+
         /* Temporary */
         Print.blue("Changing from state \"" + this.state + "\" to \"" + state + "\"");
 
         this.state = state;
     }
 
-    void triggerContacts(ArrayList<Entity> entities)
+    boolean triggerContacts(ArrayList<Entity> entities)
     {
         boolean withinBlockHoriz = false;
         boolean withinBlockVert = false;
+        boolean wallDir = true;
         int groundsCounted = 0;
         int wallsCounted = 0;
+        steppedGrade = 0F;
         ContactEdge contactEdge = body.getContactList();
         while (contactEdge != null)
         {
@@ -333,10 +365,15 @@ public class Actor extends Entity
                         horizBound = inBoundsHoriz(entity, true);
                         withinBlockHoriz = true;
                     }
+                    else
+                    {
+                        wallDir = horizBound == Direction.RIGHT;
+                    }
                     if (vertBound == null)
                     {
                         vertBound = inBoundsVert(entity, true);
                         withinBlockVert = true;
+                        steppedGrade = entity.getGrade() / 2F;
                     }
 
                     if (withinBlockHoriz && vertBound == Direction.DOWN) groundsCounted++;
@@ -373,6 +410,8 @@ public class Actor extends Entity
             if (wallsCounted > 0) setState(State.WALL_CLIMB);
             else setState(State.RISE);
         }
+
+        return wallDir;
     }
 
     boolean inWater()
