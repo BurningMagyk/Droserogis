@@ -27,10 +27,11 @@ public class Actor extends Entity
     private float avgAirSpeed = 1F;
     private float aerialDecel = 0.1F;
     private float jumpSpeed = 6F;
+    private float maxStandSpeed = 0.5F;
 
     private float jumpGravityReduced = 0.7F;
     // TODO: The variable 'grade' needs to be reset to zero whenever not grounded on sloped surface
-    private float grade = 0.2F;
+    private float grade = 0F;
 
     void debug()
     {
@@ -203,14 +204,19 @@ public class Actor extends Entity
     private class Jump
     {
         // TODO: Make the armed variable have a short time limit
-        private boolean armed;
+        private final boolean armed;
         //private boolean started = false;
         Jump(boolean ready)
         {
             armed = ready;
         }
-        Jump() { start(); }
-        /* Called whenever the jump key is pressed orr released */
+        Jump()
+        {
+            armed = false;
+            //started = true;
+            body.setLinearVelocity(getNewVel());
+        }
+        /* Called whenever the jump key is pressed or released */
         Jump trigger(boolean pressed)
         {
             /* If pressed in the air, the Jump becomes armed.
@@ -230,12 +236,6 @@ public class Actor extends Entity
             /* If unarmed when hitting a surface, the Jump becomes
              * unarmed and unstarted. */
             return new Jump(false);
-        }
-        void start()
-        {
-            armed = false;
-            //started = true;
-            body.setLinearVelocity(getNewVel());
         }
     }
 
@@ -345,10 +345,34 @@ public class Actor extends Entity
             }
             contactEdge = contactEdge.next;
         }
+
+        /* Setting the state */
+        float xVelocity = body.getLinearVelocity().x;
+        float yVelocity = body.getLinearVelocity().y;
         if (inWater()) setState(State.SWIM);
-        else if (groundsCounted > 0) setState(State.STAND);
-        else if (wallsCounted > 0) setState(State.WALL_STICK);
-        else setState(State.FALL);
+        else if (groundsCounted > 0)
+        {
+            if (dirVertical == Direction.DOWN)
+            {
+                if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.CROUCH);
+                else setState(State.SLIDE);
+            }
+            else
+            {
+                if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.STAND);
+                else setState(State.RUN);
+            }
+        }
+        else if (yVelocity >= 0)
+        {
+            if (wallsCounted > 0) setState(State.WALL_STICK);
+            else setState(State.FALL);
+        }
+        else
+        {
+            if (wallsCounted > 0) setState(State.WALL_CLIMB);
+            else setState(State.RISE);
+        }
     }
 
     boolean inWater()

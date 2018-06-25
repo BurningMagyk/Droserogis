@@ -36,7 +36,7 @@ public class Gameplay extends AnimationTimer implements Reactor
         this.viewHeight = (int) context.getCanvas().getHeight();
 
         /* The parameter for the world determines the gravity */
-        world = new World(new Vec2(0, 0));
+        world = new World(new Vec2(0, 20));
 
         entities = new ArrayList<>();
         actors = new ArrayList<>();
