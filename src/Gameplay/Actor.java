@@ -16,6 +16,8 @@ public class Actor extends Entity
     private Direction dirSecondary = null;
     private Direction dirVertical = null;
 
+    private Direction wallStickPos = null;
+
     private State state = State.SWIM;
     private Jump jump = new Jump(false);
 
@@ -35,7 +37,7 @@ public class Actor extends Entity
     private float frictionDefault = 0.7F;
     private float frictionReduced = 0.2F;
     private float frictionAmplified = 1.5F;
-    private float steppedGrade = 0.7853982F;
+    private float steppedGrade = 0F;
 
     void debug()
     {
@@ -57,7 +59,7 @@ public class Actor extends Entity
      */
     void act(ArrayList<Entity> entities)
     {
-        boolean wallDir = triggerContacts(entities);
+        triggerContacts(entities);
 
         if (state.isGrounded())
         {
@@ -90,7 +92,8 @@ public class Actor extends Entity
         {
             if (dirPrimary != null || dirVertical != null)
             {
-                move(wallStickSpeed, wallStickSpeed, wallStickSpeed, !wallDir);
+                if (wallStickPos == null) Print.red("Error: wallStickPos is null when the state isOnWall()");
+                else move(wallStickSpeed, wallStickSpeed, wallStickSpeed, wallStickPos == Direction.LEFT);
             }
         }
         /*else if (state == State.WALL_STICK_LEFT)
@@ -146,14 +149,6 @@ public class Actor extends Entity
         else if (deceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
 
         return newVel;
-    }
-
-    private Vec2 getNewVel()
-    {
-        Vec2 oldVel = body.getLinearVelocity();
-        float xVel = oldVel.x;
-        float yVel = oldVel.y - jumpSpeed;
-        return new Vec2(xVel, yVel);
     }
 
     private boolean pressingLeft = false;
@@ -212,7 +207,7 @@ public class Actor extends Entity
     {
         // TODO: Make the armed variable have a short time limit
         private final boolean armed;
-        //private boolean started = false;
+        private boolean started = false;
         Jump(boolean ready)
         {
             armed = ready;
@@ -220,7 +215,7 @@ public class Actor extends Entity
         Jump()
         {
             armed = false;
-            //started = true;
+            started = true;
             body.setLinearVelocity(getNewVel());
         }
         /* Called whenever the jump key is pressed or released */
@@ -244,15 +239,54 @@ public class Actor extends Entity
              * unarmed and unstarted. */
             return new Jump(false);
         }
+        private Vec2 getNewVel()
+        {
+          Vec2 oldVel = body.getLinearVelocity();
+          float xVel = 0F, yVel = 0F;
+          if (state.isGrounded())
+          {
+            xVel = oldVel.x;
+            yVel = oldVel.y - jumpSpeed;
+          }
+          else if (state == State.SWIM)
+          {
+            // TODO: set jump velocities for being underwater
+            return new Vec2(0, 0);
+          }
+          else if (dirVertical == Direction.UP)
+          {
+            return getJumpSpeed(jumpSpeed, 75, oldVel);
+          }
+          else if (dirPrimary == wallStickPos.opposite())
+          {
+            /*xVel = oldVel.x - jumpSpeed / 2F * wallStickPos.dirToNum();
+            yVel = oldVel.y - jumpSpeed / 2F;*/
+            return getJumpSpeed(jumpSpeed, 45, oldVel);
+          }
+
+          return new Vec2(xVel, yVel);
+        }
+        private Vec2 getJumpSpeed(float defaultSpeed, float angleDegrees, Vec2 velInit)
+        {
+          double ratioX = Math.cos(Math.toRadians(angleDegrees));
+          double ratioY = Math.sin(Math.toRadians(angleDegrees));
+          float vecX = (float) (velInit.x - defaultSpeed * ratioX * wallStickPos.dirToNum());
+          float vecY = (float) (velInit.y - defaultSpeed * ratioY);
+
+          return new Vec2(vecX , vecY);
+        }
     }
 
     private enum Direction {
-        UP { boolean vertical() { return true; } },
-        LEFT { boolean horizontal() { return true; } },
-        DOWN { boolean vertical() { return true; } },
-        RIGHT { boolean horizontal() { return true; } };
+        UP { boolean vertical() { return true; } int dirToNum() { return -1; } Direction opposite() { return DOWN; } },
+        LEFT { boolean horizontal() { return true; } int dirToNum() { return -1; } Direction opposite() { return RIGHT; } },
+        DOWN { boolean vertical() { return true; } int dirToNum() { return 1; } Direction opposite() { return UP; } },
+        RIGHT { boolean horizontal() { return true; } int dirToNum() { return 1; } Direction opposite() { return LEFT; } };
         boolean vertical() { return false; }
-        boolean horizontal() { return false; } }
+        boolean horizontal() { return false; }
+        abstract int dirToNum();
+        Direction opposite() { return null; }
+    }
 
     /**
      * Returns which direction the other entity is in relation to this Actor.
@@ -339,11 +373,11 @@ public class Actor extends Entity
         this.state = state;
     }
 
-    boolean triggerContacts(ArrayList<Entity> entities)
+    private void triggerContacts(ArrayList<Entity> entities)
     {
         boolean withinBlockHoriz = false;
         boolean withinBlockVert = false;
-        boolean wallDir = true;
+        wallStickPos = null;
         int groundsCounted = 0;
         int wallsCounted = 0;
         steppedGrade = 0F;
@@ -367,7 +401,7 @@ public class Actor extends Entity
                     }
                     else
                     {
-                        wallDir = horizBound == Direction.RIGHT;
+                        wallStickPos = horizBound;
                     }
                     if (vertBound == null)
                     {
@@ -387,6 +421,7 @@ public class Actor extends Entity
         float xVelocity = body.getLinearVelocity().x;
         float yVelocity = body.getLinearVelocity().y;
         if (inWater()) setState(State.SWIM);
+        //else if (jump.started) { jump.started = false; return; }
         else if (groundsCounted > 0)
         {
             if (dirVertical == Direction.DOWN)
@@ -410,8 +445,6 @@ public class Actor extends Entity
             if (wallsCounted > 0) setState(State.WALL_CLIMB);
             else setState(State.RISE);
         }
-
-        return wallDir;
     }
 
     boolean inWater()
