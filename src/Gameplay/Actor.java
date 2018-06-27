@@ -61,6 +61,7 @@ public class Actor extends Entity
     {
         triggerContacts(entities);
 
+        if (jump.execute()) return;
         if (state.isGrounded())
         {
             if (dirPrimary == Direction.LEFT)
@@ -90,7 +91,9 @@ public class Actor extends Entity
         }
         else if (state.isOnWall())
         {
-            if (dirPrimary != null || dirVertical != null)
+            /* If climbing a wall and moving against it, don't nerf the player's jump height */
+            if (state == State.WALL_CLIMB && wallStickPos == dirPrimary) return;
+            else if (dirPrimary != null || dirVertical != null)
             {
                 if (wallStickPos == null) Print.red("Error: wallStickPos is null when the state isOnWall()");
                 else move(wallStickSpeed, wallStickSpeed, wallStickSpeed, wallStickPos == Direction.LEFT);
@@ -159,7 +162,11 @@ public class Actor extends Entity
     void pressLeft(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirSecondary = Direction.LEFT;
+            if (state.isOnWall())
+            {
+                dirSecondary = Direction.LEFT;
+                if (wallStickPos != dirSecondary) jump = jump.trigger();
+            }
             /* It changes your primary direction regardless */
             dirPrimary = Direction.LEFT; }
         /* If you release the key when already moving left */
@@ -174,7 +181,11 @@ public class Actor extends Entity
     void pressRight(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirSecondary = Direction.RIGHT;
+            if (state.isOnWall())
+            {
+                dirSecondary = Direction.RIGHT;
+                if (wallStickPos != dirSecondary) jump = jump.trigger();
+            }
             /* It changes your primary direction regardless */
             dirPrimary = Direction.RIGHT; }
         /* If you release the key when already moving right */
@@ -187,13 +198,21 @@ public class Actor extends Entity
                 else dirSecondary = null; } }
         pressingRight = pressed; }
     void pressUp(boolean pressed) {
-        if (pressed) dirVertical = Direction.UP;
+        if (pressed)
+        {
+            if (state.isOnWall()) jump = jump.trigger();
+            dirVertical = Direction.UP;
+        }
         else if (dirVertical == Direction.UP) {
             if (pressingDown) dirVertical = Direction.DOWN;
             else dirVertical = null; }
         pressingUp = pressed; }
     void pressDown(boolean pressed) {
-        if (pressed) dirVertical = Direction.DOWN;
+        if (pressed)
+        {
+            if (state.isOnWall()) jump = jump.trigger();
+            dirVertical = Direction.DOWN;
+        }
         else if (dirVertical == Direction.DOWN) {
             if (pressingUp) dirVertical = Direction.UP;
             else dirVertical = null; }
@@ -216,7 +235,6 @@ public class Actor extends Entity
         {
             armed = false;
             started = true;
-            body.setLinearVelocity(getNewVel());
         }
         /* Called whenever the jump key is pressed or released */
         Jump trigger(boolean pressed)
@@ -230,7 +248,7 @@ public class Actor extends Entity
              * and unstarted. */
             return pressed ? new Jump() : new Jump(false);
         }
-        /* Called whenever the player hits a surface */
+        /* Called whenever the player hits the ground or sets a direction on a wall */
         Jump trigger()
         {
             /* If armed when hitting a surface, the Jump starts. */
@@ -238,6 +256,13 @@ public class Actor extends Entity
             /* If unarmed when hitting a surface, the Jump becomes
              * unarmed and unstarted. */
             return new Jump(false);
+        }
+        boolean execute()
+        {
+            if (!started) return false;
+            body.setLinearVelocity(getNewVel());
+            started = false;
+            return true;
         }
         private Vec2 getNewVel()
         {
@@ -256,6 +281,10 @@ public class Actor extends Entity
           else if (dirVertical == Direction.UP)
           {
             return getJumpSpeed(jumpSpeed, 75, oldVel);
+          }
+          else if (dirVertical == Direction.DOWN)
+          {
+              return getJumpSpeed(jumpSpeed, 0, oldVel);
           }
           else if (dirPrimary == wallStickPos.opposite())
           {
@@ -351,7 +380,7 @@ public class Actor extends Entity
         else if (state == State.WALL_CLIMB)
         {
             body.setGravityScale(climbGravityReduced);
-            body.getFixtureList().setFriction(0F);
+            //body.getFixtureList().setFriction(0F);
         }
         else if (state == State.SLIDE)
         {
@@ -367,8 +396,14 @@ public class Actor extends Entity
             body.getFixtureList().setFriction(frictionDefault);
         }
 
+        if (!this.state.isGrounded() && state.isGrounded())
+        {
+            jump = jump.trigger();
+        }
+
         /* Temporary */
         Print.blue("Changing from state \"" + this.state + "\" to \"" + state + "\"");
+        //Print.blue("dirPrimary: " + dirPrimary + ", dirVertical: " + dirVertical + "\n");
 
         this.state = state;
     }
