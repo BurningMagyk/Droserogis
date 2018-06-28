@@ -19,7 +19,7 @@ public class Actor extends Entity
     private Direction wallStickPos = null;
 
     private State state = State.SWIM;
-    private Jump jump = new Jump(false);
+    private Jump jump = new Jump(false, null);
 
     /* Stats set up by the Character object */
     private float maxRunSpeed = 3F;
@@ -98,6 +98,7 @@ public class Actor extends Entity
                 if (wallStickPos == null) Print.red("Error: wallStickPos is null when the state isOnWall()");
                 else move(wallStickSpeed, wallStickSpeed, wallStickSpeed, wallStickPos == Direction.LEFT);
             }
+            if (wallStickPos != dirPrimary) jump = jump.trigger();
         }
         /*else if (state == State.WALL_STICK_LEFT)
         {
@@ -162,11 +163,7 @@ public class Actor extends Entity
     void pressLeft(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall())
-            {
-                dirSecondary = Direction.LEFT;
-                if (wallStickPos != dirSecondary) jump = jump.trigger();
-            }
+            if (state.isOnWall()) dirSecondary = Direction.LEFT;
             /* It changes your primary direction regardless */
             dirPrimary = Direction.LEFT; }
         /* If you release the key when already moving left */
@@ -181,11 +178,7 @@ public class Actor extends Entity
     void pressRight(boolean pressed) {
         if (pressed) {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall())
-            {
-                dirSecondary = Direction.RIGHT;
-                if (wallStickPos != dirSecondary) jump = jump.trigger();
-            }
+            if (state.isOnWall()) dirSecondary = Direction.RIGHT;
             /* It changes your primary direction regardless */
             dirPrimary = Direction.RIGHT; }
         /* If you release the key when already moving right */
@@ -198,27 +191,19 @@ public class Actor extends Entity
                 else dirSecondary = null; } }
         pressingRight = pressed; }
     void pressUp(boolean pressed) {
-        if (pressed)
-        {
-            if (state.isOnWall()) jump = jump.trigger();
-            dirVertical = Direction.UP;
-        }
+        if (pressed) dirVertical = Direction.UP;
         else if (dirVertical == Direction.UP) {
             if (pressingDown) dirVertical = Direction.DOWN;
             else dirVertical = null; }
         pressingUp = pressed; }
     void pressDown(boolean pressed) {
-        if (pressed)
-        {
-            if (state.isOnWall()) jump = jump.trigger();
-            dirVertical = Direction.DOWN;
-        }
+        if (pressed) dirVertical = Direction.DOWN;
         else if (dirVertical == Direction.DOWN) {
             if (pressingUp) dirVertical = Direction.UP;
             else dirVertical = null; }
         pressingDown = pressed; }
     void pressJump(boolean pressed) {
-        if (pressingJump == pressed) return;
+        if (pressingJump == pressed) { return; }
         jump = jump.trigger(pressed);
         pressingJump = pressed; }
 
@@ -227,14 +212,19 @@ public class Actor extends Entity
         // TODO: Make the armed variable have a short time limit
         private final boolean armed;
         private boolean started = false;
-        Jump(boolean ready)
+        private final boolean interrupted;
+        private Vec2 oldVel = new Vec2(0F, 0F);
+        Jump(boolean ready, Vec2 oldVel)
         {
+            if (oldVel != null) { interrupted = true; started = true; }
+            else interrupted = false;
             armed = ready;
         }
         Jump()
         {
             armed = false;
             started = true;
+            interrupted = false;
         }
         /* Called whenever the jump key is pressed or released */
         Jump trigger(boolean pressed)
@@ -242,11 +232,11 @@ public class Actor extends Entity
             /* If pressed in the air, the Jump becomes armed.
              * If released in the air, the Jump becomes unarmed
              * and unstarted. */
-            if (state.isAirborne()) return new Jump(pressed);
+            if (state.isAirborne() || state == State.WALL_CLIMB) return new Jump(pressed, state == State.RISE ? oldVel : null);
             /* If pressed on the ground, the Jump starts.
              * If released on the ground, the Jump becomes unarmed
              * and unstarted. */
-            return pressed ? new Jump() : new Jump(false);
+            return pressed ? new Jump() : new Jump(false, new Vec2(0F, 0F));
         }
         /* Called whenever the player hits the ground or sets a direction on a wall */
         Jump trigger()
@@ -255,45 +245,52 @@ public class Actor extends Entity
             if (armed) return new Jump();
             /* If unarmed when hitting a surface, the Jump becomes
              * unarmed and unstarted. */
-            return new Jump(false);
+            return new Jump(false, null);
         }
         boolean execute()
         {
             if (!started) return false;
-            body.setLinearVelocity(getNewVel());
+            if (interrupted)
+            {
+                Vec2 oldVel = body.getLinearVelocity();
+                Vec2 newVel = new Vec2(oldVel.x, Math.max(oldVel.y, this.oldVel.y));
+                body.setLinearVelocity(newVel);
+            }
+            else body.setLinearVelocity(getNewVel());
             started = false;
             return true;
         }
         private Vec2 getNewVel()
         {
-          Vec2 oldVel = body.getLinearVelocity();
-          float xVel = 0F, yVel = 0F;
-          if (state.isGrounded())
-          {
-            xVel = oldVel.x;
-            yVel = oldVel.y - jumpSpeed;
-          }
-          else if (state == State.SWIM)
-          {
-            // TODO: set jump velocities for being underwater
-            return new Vec2(0, 0);
-          }
-          else if (dirVertical == Direction.UP)
-          {
-            return getJumpSpeed(jumpSpeed, 75, oldVel);
-          }
-          else if (dirVertical == Direction.DOWN)
-          {
-              return getJumpSpeed(jumpSpeed, 0, oldVel);
-          }
-          else if (dirPrimary == wallStickPos.opposite())
-          {
-            /*xVel = oldVel.x - jumpSpeed / 2F * wallStickPos.dirToNum();
-            yVel = oldVel.y - jumpSpeed / 2F;*/
-            return getJumpSpeed(jumpSpeed, 45, oldVel);
-          }
+            /* The variable oldVel will constantly change if not cloned */
+            oldVel = body.getLinearVelocity().clone();
+            float xVel = 0F, yVel = 0F;
+            if (state.isGrounded())
+            {
+                xVel = oldVel.x;
+                yVel = oldVel.y - jumpSpeed;
+            }
+            else if (state == State.SWIM)
+            {
+                // TODO: set jump velocities for being underwater
+                return new Vec2(0, 0);
+            }
+            else if (dirVertical == Direction.UP)
+            {
+                return getJumpSpeed(jumpSpeed, 75, oldVel);
+            }
+            else if (dirVertical == Direction.DOWN)
+            {
+                return getJumpSpeed(jumpSpeed, 0, oldVel);
+            }
+            else if (dirPrimary == wallStickPos.opposite())
+            {
+                /*xVel = oldVel.x - jumpSpeed / 2F * wallStickPos.dirToNum();
+                yVel = oldVel.y - jumpSpeed / 2F;*/
+                return getJumpSpeed(jumpSpeed, 45, oldVel);
+            }
 
-          return new Vec2(xVel, yVel);
+            return new Vec2(xVel, yVel);
         }
         private Vec2 getJumpSpeed(float defaultSpeed, float angleDegrees, Vec2 velInit)
         {
