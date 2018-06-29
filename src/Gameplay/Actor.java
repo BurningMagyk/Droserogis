@@ -344,7 +344,9 @@ public class Actor extends Entity
     }
 
     private enum State {
-        PRONE { boolean isGrounded() { return true; } Color getColor() { return Color.BLACK; } },
+        PRONE { boolean isGrounded() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.BLACK; } },
+        TUMBLE { boolean isGrounded() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.GREY; } },
+        LAUNCH { boolean isAirborne() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.BLACK; } },
         RISE { boolean isAirborne() { return true; } Color getColor() { return Color.CORNFLOWERBLUE; } },
         FALL { boolean isAirborne() { return true; } Color getColor() { return Color.CYAN; } },
         STAND { boolean isGrounded() { return true; } Color getColor() { return Color.MAROON; } },
@@ -353,10 +355,11 @@ public class Actor extends Entity
         WALL_CLIMB { boolean isOnWall() { return true; } Color getColor() { return Color.LIGHTGREEN; } },
         CROUCH { boolean isGrounded() { return true; } Color getColor() { return Color.RED; } },
         SLIDE { boolean isGrounded() { return true; } Color getColor() { return Color.HOTPINK; } },
-        SWIM;
+        SWIM { Color getColor() { return Color.BLUE; } };
         boolean isOnWall() { return false; }
         boolean isAirborne() { return false; }
         boolean isGrounded() { return false; }
+        boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
     }
 
