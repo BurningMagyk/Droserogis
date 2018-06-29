@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Util.Print;
+import javafx.scene.paint.Color;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.ContactEdge;
@@ -41,8 +42,11 @@ public class Actor extends Entity
 
     void debug()
     {
-        Print.blue("dirPrimary: " + dirPrimary + ", dirVertical: " + dirVertical);
+        Print.blue(state);
     }
+
+    @Override
+    Color getColor() { return state.getColor(); }
 
     Actor(World world, float xPos, float yPos, float width, float height)
     {
@@ -100,18 +104,6 @@ public class Actor extends Entity
             }
             if (wallStickPos != dirPrimary) jump = jump.trigger();
         }
-        /*else if (state == State.WALL_STICK_LEFT)
-        {
-            if (actDirHoriz == null && actDirVert == null) changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);
-            else if (!jumped) body.setLinearVelocity(new Vec2(Math.min(body.getLinearVelocity().x, -2F), body.getLinearVelocity().y));
-            else jumped = false;
-        }
-        else if (state == State.WALL_STICK_RIGHT)
-        {
-            if (actDirHoriz == null && actDirVert == null) changeState(body.getLinearVelocity().y > 0 ? State.FALLING : State.RISING);
-            else if (!jumped) body.setLinearVelocity(new Vec2(Math.max(body.getLinearVelocity().x, 2F), body.getLinearVelocity().y));
-            else jumped = false;
-        }*/
     }
 
     private void move(float maxSpeed, float avgSpeed, float deceleration, boolean left)
@@ -352,19 +344,21 @@ public class Actor extends Entity
     }
 
     private enum State {
-        PRONE { boolean isGrounded() { return true; } },
-        RISE { boolean isAirborne() { return true; } },
-        FALL { boolean isAirborne() { return true; } },
-        STAND { boolean isGrounded() { return true; } },
-        RUN { boolean isGrounded() { return true; } },
-        WALL_STICK { boolean isOnWall() { return true; } },
-        WALL_CLIMB { boolean isOnWall() { return true; } },
-        CROUCH { boolean isGrounded() { return true; } },
-        SLIDE { boolean isGrounded() { return true; } },
+        PRONE { boolean isGrounded() { return true; } Color getColor() { return Color.BLACK; } },
+        RISE { boolean isAirborne() { return true; } Color getColor() { return Color.CORNFLOWERBLUE; } },
+        FALL { boolean isAirborne() { return true; } Color getColor() { return Color.CYAN; } },
+        STAND { boolean isGrounded() { return true; } Color getColor() { return Color.MAROON; } },
+        RUN { boolean isGrounded() { return true; } Color getColor() { return Color.BROWN; } },
+        WALL_STICK { boolean isOnWall() { return true; } Color getColor() { return Color.GREENYELLOW; } },
+        WALL_CLIMB { boolean isOnWall() { return true; } Color getColor() { return Color.LIGHTGREEN; } },
+        CROUCH { boolean isGrounded() { return true; } Color getColor() { return Color.RED; } },
+        SLIDE { boolean isGrounded() { return true; } Color getColor() { return Color.HOTPINK; } },
         SWIM;
         boolean isOnWall() { return false; }
         boolean isAirborne() { return false; }
-        boolean isGrounded() { return false; } }
+        boolean isGrounded() { return false; }
+        Color getColor() { return Color.BLACK; }
+    }
 
     void setState(State state)
     {
@@ -386,6 +380,10 @@ public class Actor extends Entity
         else if (state == State.CROUCH)
         {
             body.getFixtureList().setFriction(frictionAmplified);
+        }
+        else if (state == State.SWIM)
+        {
+            // TODO: Make player unaffected by gravity here
         }
         else
         {
@@ -453,13 +451,27 @@ public class Actor extends Entity
         float xVelocity = body.getLinearVelocity().x;
         float yVelocity = body.getLinearVelocity().y;
         if (inWater()) setState(State.SWIM);
-        //else if (jump.started) { jump.started = false; return; }
         else if (groundsCounted > 0)
         {
             if (dirVertical == Direction.DOWN)
             {
-                if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.CROUCH);
-                else setState(State.SLIDE);
+                if (dirPrimary == null)
+                {
+                    if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.CROUCH);
+                    else setState(State.SLIDE);
+                }
+                else if (dirPrimary == Direction.LEFT)
+                {
+                    if (xVelocity <= -maxStandSpeed) setState(State.SLIDE);
+                    else setState(State.CROUCH);
+                }
+                else if (dirPrimary == Direction.RIGHT)
+                {
+                    if (xVelocity >= maxStandSpeed) setState(State.SLIDE);
+                    else setState(State.CROUCH);
+                }
+                else Print.red("Error: dirPrimary should not be \""
+                            + dirPrimary + "\"");
             }
             else
             {
@@ -482,6 +494,6 @@ public class Actor extends Entity
     boolean inWater()
     {
         /* Temporary */
-        return false;
+        return true;
     }
 }
