@@ -1,16 +1,22 @@
 package Gameplay;
 
 import Util.Print;
+import Util.Vec2;
 import javafx.scene.paint.Color;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
-import org.jbox2d.dynamics.contacts.ContactEdge;
 
 import java.util.ArrayList;
 
-/**
- * Created by Joel on 6/14/2018.
- */
+//================================================================================================================
+// Key Commands:
+//    WASD   : move left, right, up, down
+//    J      : jump
+//    ESC    : exit game
+//    Arrow keys pan the camera. Q and E zoom in and out
+//    Crouch : press down when on surface.
+//    When crouching, A and D: player crawl.
+//    If player jumps and holds down an arrow as he comes into contact with the wall, he'll stick to it.
+//    If player presses jump and presses one of the other movement keys, he'll jump off the wall.
+//================================================================================================================
 public class Actor extends Entity
 {
     private Direction dirPrimary = null;
@@ -19,26 +25,20 @@ public class Actor extends Entity
 
     private Direction wallStickPos = null;
 
-    private State state = State.SWIM;
-    private Jump jump = new Jump(false, null);
+    private State state = State.FALL;
 
-    /* Stats set up by the Character object */
-    private float maxRunSpeed = 3F;
-    private float avgRunSpeed = 2F;
-    private float groundDecel = 0.2F;
-    private float maxAirSpeed = 10F;
-    private float avgAirSpeed = 1F;
-    private float aerialDecel = 0.1F;
-    private float jumpSpeed = 6F;
-    private float maxStandSpeed = 0.5F;
-    private float wallStickSpeed = 1F;
 
-    private float jumpGravityReduced = 0.7F;
-    private float climbGravityReduced = 0.3F;
-    private float frictionDefault = 0.7F;
-    private float frictionReduced = 0.2F;
-    private float frictionAmplified = 1.5F;
-    private float steppedGrade = 0F;
+    private Entity[] touchEntity = new Entity[4];
+
+
+    private boolean pressingLeft = false;
+    private boolean pressingRight = false;
+    private boolean pressingUp = false;
+    private boolean pressingDown = false;
+    private float pressedJumpTime = 0;
+
+    private float gravity = 9.8f;
+
 
     void debug()
     {
@@ -46,256 +46,196 @@ public class Actor extends Entity
     }
 
     @Override
-    Color getColor() { return state.getColor(); }
+    public Color getColor() { return state.getColor(); }
 
-    Actor(World world, float xPos, float yPos, float width, float height)
+    Actor(float xPos, float yPos, float width, float height)
     {
-        super(world, xPos, yPos, width, height, true);
-
-        /* For now, all actors are rectangles */
-        polygonShape.setAsBox(width, height);
-
-        body.createFixture(fixtureDef);
+        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, true);
     }
 
     /**
-     * Called every frame to update the Actor's movement.
+     * Called every frame to update the Actor's will.
      */
-    void act(ArrayList<Entity> entities)
+    void act(ArrayList<Entity> entities, float deltaSec)
     {
-        triggerContacts(entities);
+        if (pressedJumpTime > 0) pressedJumpTime-=deltaSec;
+        //triggerContacts(entities);
+        setAccleration(0, 0);
 
-        if (jump.execute()) return;
-        if (state.isGrounded())
-        {
-            if (dirPrimary == Direction.LEFT)
-                move(maxRunSpeed, avgRunSpeed, groundDecel,true);
-            else if (dirPrimary == Direction.RIGHT)
-                move(maxRunSpeed, avgRunSpeed, groundDecel,false);
-        }
-        else if (state.isAirborne())
-        {
-            if (dirPrimary == Direction.LEFT)
-                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
-            else if (dirPrimary == Direction.RIGHT)
-                move(maxAirSpeed, avgAirSpeed, aerialDecel,false);
-        }
-        else if (state == State.SWIM)
-        {
-            if (dirPrimary == Direction.LEFT)
-                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
-            else if (dirPrimary == Direction.RIGHT)
-                move(maxAirSpeed, avgAirSpeed, aerialDecel,false);
-            steppedGrade = 1;
-            if (dirVertical == Direction.UP)
-                move(maxAirSpeed, avgAirSpeed, aerialDecel,true);
-            else if (dirVertical == Direction.DOWN)
-                move(maxAirSpeed, avgAirSpeed, -aerialDecel,false);
-            steppedGrade = 0;
-        }
-        else if (state.isOnWall())
-        {
-            /* If climbing a wall and moving against it, don't nerf the player's jump height */
-            if (state == State.WALL_CLIMB && wallStickPos == dirPrimary) return;
-            else if (dirPrimary != null || dirVertical != null)
-            {
-                if (wallStickPos == null) Print.red("Error: wallStickPos is null when the state isOnWall()");
-                else move(wallStickSpeed, wallStickSpeed, wallStickSpeed, wallStickPos == Direction.LEFT);
-            }
-            if (wallStickPos != dirPrimary) jump = jump.trigger();
-        }
-    }
 
-    private void move(float maxSpeed, float avgSpeed, float deceleration, boolean left)
-    {
-        body.setLinearVelocity(new Vec2(
-                getNewVel(maxSpeed, avgSpeed, left ? -deceleration : deceleration, true),
-                getNewVel(maxSpeed, avgSpeed, -deceleration, false)));
-    }
 
-    private float getNewVel(float maxSpeed, float avgSpeed, float deceleration, boolean horizontal)
-    {
-        float newVel = steppedGrade * avgSpeed;
-        float oldVel;
-
-        if (horizontal)
+        if (state == State.LAUNCH)
         {
-            oldVel = body.getLinearVelocity().x;
-            if (steppedGrade == 1) return oldVel;
-            newVel = avgSpeed - newVel;
-            if (oldVel <= 0 && deceleration < 0)
-                return Math.min(-newVel, oldVel);
-            if (oldVel >= 0 && deceleration > 0)
-                return Math.max(newVel, oldVel);
+            setVelocityY(-state.startSpeed());
+            setAcclerationY(-state.acceleration());
+            setState(State.RISE);
         }
+        Vec2 v = getVelocity();
+        v.mul(1-state.drag()*deltaSec);
+
+        if (!state.isGrounded()) v.y += gravity*deltaSec;
         else
         {
-            oldVel = body.getLinearVelocity().y;
-            if (steppedGrade == 0) return oldVel;
-            newVel *= (-1);
-            if (oldVel <= 0 && deceleration < 0)
-                return Math.min(newVel, oldVel);
-            if (oldVel >= 0 && deceleration > 0)
-                return Math.max(-newVel, oldVel);
+            if (pressingLeft)
+            {
+                setAccelerationX(-state.acceleration());
+                //System.out.println("AccelerationX="+getAccelerationX());
+            }
+            if (pressingRight) setAccelerationX(state.acceleration());
         }
 
-        newVel = oldVel + deceleration;
 
-        if (deceleration > 0 && newVel > maxSpeed) newVel = maxSpeed;
-        else if (deceleration < 0 && newVel < -maxSpeed) newVel = -maxSpeed;
 
-        return newVel;
+
+
+        if(getAccelerationX() != 0)
+        {
+            if (v.x == 0) v.x = state.startSpeed()*Math.signum(getAccelerationX());
+            else if (Math.signum(getAccelerationX()) == -Math.signum(v.x))
+            {
+                v.x = 0.5f*state.startSpeed()*Math.signum(getAccelerationX());
+            }
+            else
+            {
+                v.x += getAccelerationX();
+                if (Math.abs(v.x) > state.maxSpeed()) v.x = state.maxSpeed()* Math.signum(getAccelerationX());
+            }
+
+            //System.out.println("v.x="+v.x);
+        }
+
+        if(getAccelerationY() != 0)
+        {
+            if (v.y == 0) v.y = state.startSpeed()*Math.signum(getAccelerationY());
+            else if (Math.signum(getAccelerationY()) == -Math.signum(v.y))
+            {
+                v.y = 0.5f*state.startSpeed()*Math.signum(getAccelerationY());
+            }
+            else
+            {
+                v.y += getAccelerationY();
+                if (Math.abs(v.y) > state.maxSpeed()) v.y = state.maxSpeed()* Math.signum(getAccelerationY());
+            }
+        }
+
+        //System.out.println("a=("+getAccelerationX()+", "+ getAccelerationY() + ")   v=(" + v.x+", "+v.y+")   pressingLeft="+ pressingLeft);
+
+        setVelocity(v);
+
+        Vec2 p = getPosition();
+        v.mul(deltaSec);
+        p.add(v);
+        triggerContacts(p, entities);
+
+
+        if (touchEntity[RIGHT] != null && getVelocityX() < 0) touchEntity[RIGHT].setTriggered(false);
+        if (touchEntity[LEFT] != null && getVelocityX() > 0) touchEntity[LEFT].setTriggered(false);
+        if (touchEntity[UP] != null && getVelocityY()> 0) touchEntity[UP].setTriggered(false);
+        if (touchEntity[DOWN] != null && getVelocityY() < 0)  touchEntity[DOWN].setTriggered(false);
+        setPosition(p);
     }
 
-    private boolean pressingLeft = false;
-    private boolean pressingRight = false;
-    private boolean pressingUp = false;
-    private boolean pressingDown = false;
-    private boolean pressingJump = false;
-    void pressLeft(boolean pressed) {
-        if (pressed) {
+
+
+
+
+
+
+
+
+
+
+    public void pressLeft(boolean pressed)
+    {
+        if (pressed)
+        {
             /* If you're on a wall, it changes your secondary direction */
             if (state.isOnWall()) dirSecondary = Direction.LEFT;
             /* It changes your primary direction regardless */
-            dirPrimary = Direction.LEFT; }
+            dirPrimary = Direction.LEFT;
+
+            if (state == State.STAND) setState(State.RUN);
+        }
         /* If you release the key when already moving left */
-        else if (dirPrimary == Direction.LEFT) {
+        else if (dirPrimary == Direction.LEFT)
+        {
             if (pressingRight) dirPrimary = Direction.RIGHT;
             else dirPrimary = null;
             /* If you release the key when already moving left with a wall */
-            if (state.isOnWall()) {
+            if (state.isOnWall())
+            {
                 if (pressingRight) dirSecondary = Direction.RIGHT;
-                else dirSecondary = null; } }
-        pressingLeft = pressed; }
-    void pressRight(boolean pressed) {
-        if (pressed) {
+                else dirSecondary = null;
+            }
+        }
+        pressingLeft = pressed;
+    }
+
+
+
+    public void pressRight(boolean pressed)
+    {
+        if (pressed)
+        {
             /* If you're on a wall, it changes your secondary direction */
             if (state.isOnWall()) dirSecondary = Direction.RIGHT;
             /* It changes your primary direction regardless */
-            dirPrimary = Direction.RIGHT; }
+            dirPrimary = Direction.RIGHT;
+
+            if (state == State.STAND) setState(State.RUN);
+        }
         /* If you release the key when already moving right */
-        else if (dirPrimary == Direction.RIGHT) {
+        else if (dirPrimary == Direction.RIGHT)
+        {
             if (pressingLeft) dirPrimary = Direction.LEFT;
             else dirPrimary = null;
             /* If you release the key when already moving right with a wall */
-            if (state.isOnWall()) {
+            if (state.isOnWall())
+            {
                 if (pressingLeft) dirSecondary = Direction.LEFT;
-                else dirSecondary = null; } }
-        pressingRight = pressed; }
-    void pressUp(boolean pressed) {
-        if (pressed) dirVertical = Direction.UP;
-        else if (dirVertical == Direction.UP) {
-            if (pressingDown) dirVertical = Direction.DOWN;
-            else dirVertical = null; }
-        pressingUp = pressed; }
-    void pressDown(boolean pressed) {
-        if (pressed) dirVertical = Direction.DOWN;
-        else if (dirVertical == Direction.DOWN) {
-            if (pressingUp) dirVertical = Direction.UP;
-            else dirVertical = null; }
-        pressingDown = pressed; }
-    void pressJump(boolean pressed) {
-        if (pressingJump == pressed) { return; }
-        jump = jump.trigger(pressed);
-        pressingJump = pressed; }
-
-    private class Jump
-    {
-        // TODO: Make the armed variable have a short time limit
-        private final boolean armed;
-        private boolean started = false;
-        private final boolean interrupted;
-        private Vec2 oldVel = new Vec2(0F, 0F);
-        Jump(boolean ready, Vec2 oldVel)
-        {
-            if (oldVel != null) { interrupted = true; started = true; }
-            else interrupted = false;
-            armed = ready;
-        }
-        Jump()
-        {
-            armed = false;
-            started = true;
-            interrupted = false;
-        }
-        /* Called whenever the jump key is pressed or released */
-        Jump trigger(boolean pressed)
-        {
-            /* If pressed in the air, the Jump becomes armed.
-             * If released in the air, the Jump becomes unarmed
-             * and unstarted. */
-            if (state.isAirborne() || state == State.WALL_CLIMB) return new Jump(pressed, state == State.RISE ? oldVel : null);
-            /* If pressed on the ground, the Jump starts.
-             * If released on the ground, the Jump becomes unarmed
-             * and unstarted. */
-            return pressed ? new Jump() : new Jump(false, new Vec2(0F, 0F));
-        }
-        /* Called whenever the player hits the ground or sets a direction on a wall */
-        Jump trigger()
-        {
-            /* If armed when hitting a surface, the Jump starts. */
-            if (armed) return new Jump();
-            /* If unarmed when hitting a surface, the Jump becomes
-             * unarmed and unstarted. */
-            return new Jump(false, null);
-        }
-        boolean execute()
-        {
-            if (!started) return false;
-            if (interrupted)
-            {
-                Vec2 oldVel = body.getLinearVelocity();
-                Vec2 newVel = new Vec2(oldVel.x, Math.max(oldVel.y, this.oldVel.y));
-                body.setLinearVelocity(newVel);
+                else dirSecondary = null;
             }
-            else body.setLinearVelocity(getNewVel());
-            started = false;
-            return true;
         }
-        private Vec2 getNewVel()
-        {
-            /* The variable oldVel will constantly change if not cloned */
-            oldVel = body.getLinearVelocity().clone();
-            float xVel = 0F, yVel = 0F;
-            if (state.isGrounded())
-            {
-                xVel = oldVel.x;
-                yVel = oldVel.y - jumpSpeed;
-            }
-            else if (state == State.SWIM)
-            {
-                // TODO: set jump velocities for being underwater
-                return new Vec2(0, 0);
-            }
-            else if (dirVertical == Direction.UP)
-            {
-                return getJumpSpeed(jumpSpeed, 75, oldVel);
-            }
-            else if (dirVertical == Direction.DOWN)
-            {
-                return getJumpSpeed(jumpSpeed, 0, oldVel);
-            }
-            else if (dirPrimary == wallStickPos.opposite())
-            {
-                /*xVel = oldVel.x - jumpSpeed / 2F * wallStickPos.dirToNum();
-                yVel = oldVel.y - jumpSpeed / 2F;*/
-                return getJumpSpeed(jumpSpeed, 45, oldVel);
-            }
-
-            return new Vec2(xVel, yVel);
-        }
-        private Vec2 getJumpSpeed(float defaultSpeed, float angleDegrees, Vec2 velInit)
-        {
-          double ratioX = Math.cos(Math.toRadians(angleDegrees));
-          double ratioY = Math.sin(Math.toRadians(angleDegrees));
-          float vecX = (float) (velInit.x - defaultSpeed * ratioX * wallStickPos.dirToNum());
-          float vecY = (float) (velInit.y - defaultSpeed * ratioY);
-
-          return new Vec2(vecX , vecY);
-        }
+        pressingRight = pressed;
     }
 
-    private enum Direction {
+
+    public void pressUp(boolean pressed)
+    {
+        if (pressed) dirVertical = Direction.UP;
+        else if (dirVertical == Direction.UP)
+        {
+            if (pressingDown) dirVertical = Direction.DOWN;
+            else dirVertical = null;
+        }
+        pressingUp = pressed;
+    }
+
+
+    public void pressDown(boolean pressed)
+    {
+        if (pressed) dirVertical = Direction.DOWN;
+        else if (dirVertical == Direction.DOWN)
+        {
+            if (pressingUp) dirVertical = Direction.UP;
+            else dirVertical = null;
+        }
+        pressingDown = pressed;
+    }
+
+
+
+    public void pressJump(boolean pressed)
+    {
+        if (pressedJumpTime >0) { return; }
+        if (state == State.STAND || state == State.RUN) setState(State.LAUNCH);
+        else pressedJumpTime = 1.0f;
+    }
+
+
+
+    private enum Direction
+    {
         UP { boolean vertical() { return true; } int dirToNum() { return -1; } Direction opposite() { return DOWN; } },
         LEFT { boolean horizontal() { return true; } int dirToNum() { return -1; } Direction opposite() { return RIGHT; } },
         DOWN { boolean vertical() { return true; } int dirToNum() { return 1; } Direction opposite() { return UP; } },
@@ -343,61 +283,134 @@ public class Actor extends Entity
         return null;
     }
 
-    private enum State {
-        PRONE { boolean isGrounded() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.BLACK; } },
-        TUMBLE { boolean isGrounded() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.GREY; } },
-        LAUNCH { boolean isAirborne() { return true; } boolean isIncapacitated() { return true; } Color getColor() { return Color.BLACK; } },
-        RISE { boolean isAirborne() { return true; } Color getColor() { return Color.CORNFLOWERBLUE; } },
-        FALL { boolean isAirborne() { return true; } Color getColor() { return Color.CYAN; } },
-        STAND { boolean isGrounded() { return true; } Color getColor() { return Color.MAROON; } },
-        RUN { boolean isGrounded() { return true; } Color getColor() { return Color.BROWN; } },
-        WALL_STICK { boolean isOnWall() { return true; } Color getColor() { return Color.GREENYELLOW; } },
-        WALL_CLIMB { boolean isOnWall() { return true; } Color getColor() { return Color.LIGHTGREEN; } },
-        CROUCH { boolean isGrounded() { return true; } Color getColor() { return Color.RED; } },
-        SLIDE { boolean isGrounded() { return true; } Color getColor() { return Color.HOTPINK; } },
-        SWIM { Color getColor() { return Color.BLUE; } };
+    private enum State
+    {
+        PRONE
+        {
+            boolean isGrounded() { return true; }
+            boolean isIncapacitated() { return true; }
+            Color getColor() { return Color.BLACK; }
+            float startSpeed() {return 0;}
+            float maxSpeed()  {return 0;}
+            float acceleration() {return 0;}
+        },
+        TUMBLE
+        {
+            boolean isGrounded() { return true; }
+            boolean isIncapacitated() { return true; }
+            Color getColor() { return Color.GREY; }
+            float startSpeed() {return 2f;}
+            float maxSpeed()  {return 2f;}
+            float acceleration() {return 1f;}
+        },
+        LAUNCH
+        {
+            boolean isAirborne() { return true; }
+            boolean isIncapacitated() { return true; }
+            Color getColor() { return Color.BLACK; }
+            float startSpeed() {return 4f;}
+            float maxSpeed()  {return 10f;}
+            float acceleration() {return 5f;}
+        },
+        RISE
+        {
+            boolean isAirborne() { return true; }
+            Color getColor() { return Color.CORNFLOWERBLUE; }
+            float startSpeed() {return 1f;}
+            float maxSpeed()  {return 10f;}
+            float acceleration() {return 1.5f;}
+        },
+        FALL
+        {
+            boolean isAirborne() { return true; }
+            Color getColor() { return Color.CYAN; }
+            float startSpeed() {return 1f;}
+            float maxSpeed()  {return 10f;}
+            float acceleration() {return 9.8f;}
+        },
+        STAND
+        {
+            boolean isGrounded() { return true; }
+            Color getColor() { return Color.MAROON; }
+            float startSpeed() {return 0;}
+            float maxSpeed()  {return 0;}
+            float acceleration() {return 0;}
+        },
+        RUN
+        {
+            boolean isGrounded() { return true; }
+            Color getColor() { return Color.BROWN; }
+            float startSpeed() {return 2f;}
+            float maxSpeed()  {return 4f;}
+            float acceleration() {return 2;}
+        },
+        WALL_STICK
+        {
+            boolean isOnWall() { return true; }
+            Color getColor() { return Color.GREENYELLOW; }
+            float startSpeed() {return 0f;}
+            float maxSpeed()  {return 0f;}
+            float acceleration() {return 0;}
+        },
+        WALL_CLIMB
+        {
+            boolean isOnWall() { return true; }
+            Color getColor() { return Color.LIGHTGREEN; }
+            float startSpeed() {return 0.5f;}
+            float maxSpeed()  {return 1f;}
+            float acceleration() {return 1;}
+        },
+        CROUCH
+        {
+            boolean isGrounded() { return true; }
+            Color getColor() { return Color.RED; }
+            float startSpeed() {return 0.7f;}
+            float maxSpeed()  {return 1f;}
+            float acceleration() {return 1f;}
+        },
+        SLIDE
+        {
+            boolean isGrounded() { return true; }
+            Color getColor() { return Color.HOTPINK; }
+            float startSpeed() {return 2f;}
+            float maxSpeed()  {return 4f;}
+            float acceleration() {return 2f;}
+        },
+        SWIM
+        {
+            Color getColor() { return Color.BLUE; }
+            float startSpeed() {return 0.5f;}
+            float maxSpeed()  {return 1f;}
+            float acceleration() {return 1f;}
+        };
+
         boolean isOnWall() { return false; }
         boolean isAirborne() { return false; }
         boolean isGrounded() { return false; }
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
+        float drag()
+        {
+            if (isGrounded()) return 0.05f;
+            else return 0.01f;
+        }
+
+        abstract float startSpeed();
+        abstract float maxSpeed();
+        abstract float acceleration();
+
     }
 
     void setState(State state)
     {
         if (this.state == state) return;
 
-        if (state == State.RISE)
+        if (state == State.STAND)
         {
-            body.setGravityScale(jumpGravityReduced);
-        }
-        else if (state == State.WALL_CLIMB)
-        {
-            body.setGravityScale(climbGravityReduced);
-            //body.getFixtureList().setFriction(0F);
-        }
-        else if (state == State.SLIDE)
-        {
-            body.getFixtureList().setFriction(frictionReduced);
-        }
-        else if (state == State.CROUCH)
-        {
-            body.getFixtureList().setFriction(frictionAmplified);
-        }
-        else if (state == State.SWIM)
-        {
-            // TODO: Make player unaffected by gravity here
-        }
-        else
-        {
-            body.setGravityScale(1F);
-            body.getFixtureList().setFriction(frictionDefault);
+            if (pressedJumpTime > 0) state = State.LAUNCH;
         }
 
-        if (!this.state.isGrounded() && state.isGrounded())
-        {
-            jump = jump.trigger();
-        }
+
 
         /* Temporary */
         Print.blue("Changing from state \"" + this.state + "\" to \"" + state + "\"");
@@ -406,97 +419,57 @@ public class Actor extends Entity
         this.state = state;
     }
 
-    private void triggerContacts(ArrayList<Entity> entities)
+
+
+    private void triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
-        boolean withinBlockHoriz = false;
-        boolean withinBlockVert = false;
-        wallStickPos = null;
-        int groundsCounted = 0;
-        int wallsCounted = 0;
-        steppedGrade = 0F;
-        ContactEdge contactEdge = body.getContactList();
-        while (contactEdge != null)
+        for (Entity entity : entityList)
         {
-            for (Entity entity : entities)
+            if (entity == this) continue;
+            if (!entity.isHit(this, goal)) continue;
+
+            entity.setTriggered(true);
+
+            if (getVelocityY() > 0)
             {
-                if (contactEdge.other == entity.body && contactEdge.contact.isTouching())
+                float top = entity.getY() - entity.getHeight() / 2;
+                if ((getY() + getHeight() / 2 < top) && (goal.y + getHeight() / 2 >= top))
                 {
-                    /* Where the player affects other blocks upon touch */
-                    entity.triggered = true;
-                    triggered = true;
-
-                    Direction horizBound = inBoundsHoriz(entity, false);
-                    Direction vertBound = inBoundsVert(entity, false);
-                    if (horizBound == null)
-                    {
-                        horizBound = inBoundsHoriz(entity, true);
-                        withinBlockHoriz = true;
-                    }
-                    else
-                    {
-                        wallStickPos = horizBound;
-                    }
-                    if (vertBound == null)
-                    {
-                        vertBound = inBoundsVert(entity, true);
-                        withinBlockVert = true;
-                        steppedGrade = entity.getGrade() / 2F;
-                    }
-
-                    if (withinBlockHoriz && vertBound == Direction.DOWN) groundsCounted++;
-                    else if (withinBlockVert) wallsCounted++;
+                    setState(State.STAND);
+                    setVelocityY(0);
+                    goal.y = (entity.getY() - entity.getHeight() / 1.999f) - getHeight() / 2;
+                    touchEntity[DOWN] = entity;
                 }
             }
-            contactEdge = contactEdge.next;
-        }
 
-        /* Setting the state */
-        float xVelocity = body.getLinearVelocity().x;
-        float yVelocity = body.getLinearVelocity().y;
-        if (inWater()) setState(State.SWIM);
-        else if (groundsCounted > 0)
-        {
-            if (dirVertical == Direction.DOWN)
+
+            if (getVelocityX() > 0)
             {
-                if (dirPrimary == null)
+                float left = entity.getX() - entity.getWidth() / 2;
+                if ((getX() + getWidth() / 2 < left) && (goal.x + getWidth() / 2 >= left))
                 {
-                    if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.CROUCH);
-                    else setState(State.SLIDE);
+                    setState(State.STAND);
+                    setVelocityX(0);
+                    goal.x = (entity.getX() - entity.getWidth() / 1.999f) - getWidth() / 2;
+                    touchEntity[RIGHT] = entity;
                 }
-                else if (dirPrimary == Direction.LEFT)
-                {
-                    if (xVelocity <= -maxStandSpeed) setState(State.SLIDE);
-                    else setState(State.CROUCH);
-                }
-                else if (dirPrimary == Direction.RIGHT)
-                {
-                    if (xVelocity >= maxStandSpeed) setState(State.SLIDE);
-                    else setState(State.CROUCH);
-                }
-                else Print.red("Error: dirPrimary should not be \""
-                            + dirPrimary + "\"");
             }
-            else
+
+
+            else if (getVelocityX() < 0)
             {
-                if (Math.abs(xVelocity) <= maxStandSpeed) setState(State.STAND);
-                else setState(State.RUN);
+                float right = entity.getX() + entity.getWidth() / 2;
+                if ((getX() - getWidth() / 2 > right) && (goal.x - getWidth() / 2 >= right))
+                {
+                    setState(State.STAND);
+                    setVelocityX(0);
+                    goal.x = (entity.getX() + entity.getWidth() / 1.999f) + getWidth() / 2;
+                    touchEntity[LEFT] = entity;
+                }
             }
-        }
-        else if (yVelocity >= 0)
-        {
-            if (wallsCounted > 0) setState(State.WALL_STICK);
-            else setState(State.FALL);
-        }
-        else
-        {
-            if (wallsCounted > 0) setState(State.WALL_CLIMB);
-            else setState(State.RISE);
+
         }
     }
 
-    boolean inWater()
-    {
-        /* Temporary */
-        return true;
-    }
+
 }

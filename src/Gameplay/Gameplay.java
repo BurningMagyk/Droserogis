@@ -2,8 +2,8 @@ package Gameplay;
 
 import Menus.Main;
 import Util.DebugEnum;
-import Util.Print;
 import Util.Reactor;
+import Util.Vec2;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -11,71 +11,98 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
 
 import java.util.ArrayList;
 
-public class Gameplay extends AnimationTimer implements Reactor
+public class Gameplay implements Reactor
 {
     private int viewWidth, viewHeight;
-    public GraphicsContext context;
+    private GraphicsContext context;
+    private AnimationTimer timer;
 
-    private static World world;
+    private float gravity = 9.8f;             //meters per sec per sec
+    private Vec2 scale = new Vec2(1,1); //pixels per meter
+
     private ArrayList<Entity> entities;
     private ArrayList<Actor> actors;
 
     private Actor player;
+    private long lastUpdateTime = -1;
+
 
     private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
 
-    Gameplay(Group root, GraphicsContext context)
+    public Gameplay(Group root, GraphicsContext context)
     {
-        this.context = context;
-        this.viewWidth = (int) context.getCanvas().getWidth();
-        this.viewHeight = (int) context.getCanvas().getHeight();
+      this.context = context;
+      this.viewWidth = (int) context.getCanvas().getWidth();
+      this.viewHeight = (int) context.getCanvas().getHeight();
 
-        /* The parameter for the world determines the gravity */
-        world = new World(new Vec2(0, 20));
+      entities = new ArrayList<>();
+      actors = new ArrayList<>();
 
-        entities = new ArrayList<>();
-        actors = new ArrayList<>();
+      /* Set up initial position and zoom of the camera */
+      moveCamera(0, 0, 100);
 
-        /* Set up initial position and zoom of the camera */
-        moveCamera(0, 0, 100);
+
+      timer = new AnimationTimer()
+      {
+        @Override
+        public void handle(long now)
+        {
+          mainGameLoop(now);
+        }
+      };
     }
 
-    @Override
-    public void start(/* Gameplay stats would go in here */)
-    {
+    //this.setOnMouseEntered(event ->
+    //{
+    //  if (state == STATE.PLACING) return;
+    //  if (!hasData) return;
+    //  this.setCursor(Cursor.CROSSHAIR);
+    //});
+    // Gameplay stats would go in here
+    public void start()
+      {
         buildLevels();
 
-        /* Start calling handle */
-        super.start();
-    }
+        timer.start();
+      }
 
-    @Override
-    public void handle(long now)
+    private void mainGameLoop(long now)
     {
-        clearContext();
+      if (lastUpdateTime < 0)
+      {
+        lastUpdateTime = now;
+        return;
+      }
 
-        context.setFill(Color.BLACK);
-        for (Entity entity : entities) entity.resetFlags();
-        /* triggerContacts() sets every entity's flags correctly only
-         * if they've all been reset */
-        for (Actor actor : actors) actor.act(entities);
+      float deltaSec = (now - lastUpdateTime)*1e-9f;
+      lastUpdateTime = now;
 
-        /* Center the camera on the player
-         * TODO: Make the camera move ahead of the player's headed direction */
-        cameraPosX = player.getPosition().x;
-        cameraPosY = player.getPosition().y;
+      //System.out.println(now);
+      clearContext();
 
-        /* Draw all entities after they've been moved and their flags have been set */
-        for (Entity entity : entities) drawEntity(entity);
+      context.setFill(Color.BLACK);
 
-        /* Handle is called 60 times per second, so world-step should be 1/60
-         * Parameters for velocityIterations and positionIterations may need adjusting */
-        world.step(1 / 60F,10,10);
+      // triggerContacts() sets every entity's flags correctly only if they've all been reset
+     // for (Entity entity : entities) entity.resetFlags();
+
+      for (Actor actor : actors) actor.act(entities, deltaSec);
+
+      //for (Actor actor : actors) actor.move(entities, deltaSec);
+
+      /* Center the camera on the player
+       * TODO: Make the camera move ahead of the player's headed direction */
+      cameraPosX = player.getPosition().x;
+      cameraPosY = player.getPosition().y;
+
+      /* Draw all entities after they've been moved and their flags have been set */
+      for (Entity entity : entities) drawEntity(entity);
+
+      /* Handle is called 60 times per second, so world-step should be 1/60
+       * Parameters for velocityIterations and positionIterations may need adjusting */
+      //world.step(1 / 60F,10,10);
     }
 
     @Override
@@ -155,31 +182,27 @@ public class Gameplay extends AnimationTimer implements Reactor
     {
         context.setFill(entity.getColor());
 
-        /* If entity has triangular shape */
-        if (entity.triangular)
+        if (entity.getShape().isTriangle())
         {
             double xPos[] = new double[3];
             double yPos[] = new double[3];
-            Vec2 points[] = entity.polygonShape.getVertices();
+
             Vec2 cPos = entity.getPosition();
             for (int i = 0; i < 3; i++)
             {
-                xPos[i] = (points[i].x + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
-                yPos[i] = (points[i].y + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
-
-                xPos[i] = (points[i].x + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
-                yPos[i] = (points[i].y + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
+                xPos[i] = (entity.getVertexX(i) + cPos.x - cameraPosX + cameraOffsetX) * cameraZoom;
+                yPos[i] = (entity.getVertexY(i) + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
             }
             context.fillPolygon(xPos, yPos, 3);
+
         }
-        /* If entity has rectangle shape */
-        else
+        else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
             Vec2 position = entity.getPosition();
             context.fillRect(
-                    (position.x - entity.width - cameraPosX + cameraOffsetX)
+                    (position.x - entity.getWidth()/2 - cameraPosX + cameraOffsetX)
                             * cameraZoom,
-                    (position.y - entity.height - cameraPosY + cameraOffsetY)
+                    (position.y - entity.getHeight()/2 - cameraPosY + cameraOffsetY)
                             * cameraZoom,
                     entity.getWidth()
                             * cameraZoom,
@@ -199,12 +222,12 @@ public class Gameplay extends AnimationTimer implements Reactor
      */
     private void buildLevels()
     {
-        addEntity(new Block(world, 0, 0, 2F, 2F, null));
-        addEntity(new Block(world, 3, -2, 1F, 3F, null));
-        //addEntity(new Block(world, -3, -2, 1F, 3F, null));
-        addEntity(new Block(world, -1, -1.5F, 2F, 2F, Block.Orient.UP_RIGHT));
+        addEntity(new Block(0, 0, 4F, 4F, Entity.ShapeEnum.RECTANGLE));
+        addEntity(new Block(3, -4, 2F, 6F, Entity.ShapeEnum.RECTANGLE));
+        //addEntity(new Block(-2, -3F, 2F, 2F, Entity.ShapeEnum.TRIANGLE_UP_R));
+        addEntity(new Block(-2, -3F, 2F, 2F, Entity.ShapeEnum.RECTANGLE));
 
-        player = new Actor(world, 1F, -3F, 0.25F, 0.25F);
+        player = new Actor(1F, -3F, .5f, .5f);
         addEntity(player);
     }
 

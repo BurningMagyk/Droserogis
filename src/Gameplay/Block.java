@@ -1,46 +1,27 @@
 package Gameplay;
 
-import Util.Print;
 import javafx.scene.paint.Color;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.*;
+
 
 class Block extends Entity
 {
-    private Orient orient;
+
+
+    //Bounding box: for an axis-aligned rectangle, this equals the box itself.
+    //For a triangle or non-axis-aligned rectangle, the actual shape is contained within the bounding box.
     private float leftBound, rightBound, topBound, bottomBound;
 
-    Block(World world, float xPos, float yPos, float width, float height, Orient orient)
+    public Block(float xPos, float yPos, float width, float height, ShapeEnum shape)
     {
-        super(world, xPos, yPos, width, height, false);
-        if (orient != null) this.orient = orient;
-        else this.orient = Orient.BOX;
+        super(xPos, yPos, width, height, shape, false);
 
-        /* Blocks can be shaped as either a rectangle or a triangle.
-         * If the variable "orient" is null, it'll be a rectangle,
-         * otherwise it will be a triangle depending on the value. */
-        if (orient == null) polygonShape.setAsBox(width, height);
-        else
-        {
-            Vec2 vectors[] = new Vec2[3];
-            vectors[0] = new Vec2(
-                    xPos + (orient.xa() * width / 2F),
-                    yPos + (orient.ya() * height / 2F));
-            vectors[1] = new Vec2(
-                    xPos + (orient.xb() * width / 2F),
-                    yPos + (orient.yb() * height / 2F));
-            vectors[2] = new Vec2(
-                    xPos + (orient.xc() * width / 2F),
-                    yPos + (orient.yc() * height / 2F));
-            polygonShape.set(vectors, 3);
-            triangular = true;
-            grade = (float) Math.atan(height / width);
-        }
 
-        body.createFixture(fixtureDef);
-        updateBoundValues();
+
+        //body.createFixture(fixtureDef);
+        //updateBoundValues();
     }
 
+    /*
     float getLeftEdge()
     {
         if (triangular) return leftBound;
@@ -61,7 +42,9 @@ class Block extends Entity
         if (triangular) return bottomBound;
         else return super.getBottomEdge();
     }
+    */
 
+    /*
     enum Orient
     {
         UP_LEFT
@@ -108,10 +91,15 @@ class Block extends Entity
     boolean isLeft() { return orient.isLeft(); }
     boolean isRight() { return orient.isRight(); }
 
-    Color getColor()
+    */
+
+    @Override
+    public Color getColor()
     {
-        return triggered ? Color.ORANGE : Color.YELLOW;
+      return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
+
+
 
     /**
      * Every time the block is moved, this method should be called.
@@ -119,6 +107,7 @@ class Block extends Entity
      * be more efficient to not call this method if the block is not
      * moving. Should be called once at the very beginning though.
      */
+    /*
     private void updateBoundValues()
     {
         float xPos[] = new float[3];
@@ -136,4 +125,5 @@ class Block extends Entity
         topBound = Math.min(Math.min(yPos[0], yPos[1]), yPos[2]);
         bottomBound = Math.max(Math.max(yPos[0], yPos[1]), yPos[2]);
     }
+    */
 }
