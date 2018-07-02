@@ -64,14 +64,10 @@ public class Actor extends Entity
 
 
 
-        if (state == State.LAUNCH)
-        {
-            setVelocityY(-state.startSpeed());
-            setAcclerationY(-state.acceleration());
-            setState(State.RISE);
-        }
         Vec2 v = getVelocity();
-        v.mul(1-state.drag()*deltaSec);
+        //dragX
+
+        //v.mul((1-state.drag())/deltaSec);
 
         if (!state.isGrounded()) v.y += gravity*deltaSec;
         else
@@ -133,6 +129,8 @@ public class Actor extends Entity
         if (touchEntity[UP] != null && getVelocityY()> 0) touchEntity[UP].setTriggered(false);
         if (touchEntity[DOWN] != null && getVelocityY() < 0)  touchEntity[DOWN].setTriggered(false);
         setPosition(p);
+
+        setState(determineState());
     }
 
 
@@ -140,7 +138,12 @@ public class Actor extends Entity
 
 
 
-
+    private State determineState()
+    {
+        if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
+        if (touchEntity[DOWN] != null) return State.STAND;
+        return state;
+    }
 
 
 
@@ -228,7 +231,6 @@ public class Actor extends Entity
     public void pressJump(boolean pressed)
     {
         if (pressedJumpTime >0) { return; }
-        if (state == State.STAND || state == State.RUN) setState(State.LAUNCH);
         else pressedJumpTime = 1.0f;
     }
 
@@ -303,15 +305,15 @@ public class Actor extends Entity
             float maxSpeed()  {return 2f;}
             float acceleration() {return 1f;}
         },
-        LAUNCH
-        {
-            boolean isAirborne() { return true; }
-            boolean isIncapacitated() { return true; }
-            Color getColor() { return Color.BLACK; }
-            float startSpeed() {return 4f;}
-            float maxSpeed()  {return 10f;}
-            float acceleration() {return 5f;}
-        },
+        BALISTIC
+                {
+                    boolean isAirborne() { return true; }
+                    boolean isIncapacitated() { return true; }
+                    Color getColor() { return Color.BLACK; }
+                    float startSpeed() {return 0f;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0f;}
+                },
         RISE
         {
             boolean isAirborne() { return true; }
@@ -391,7 +393,7 @@ public class Actor extends Entity
         Color getColor() { return Color.BLACK; }
         float drag()
         {
-            if (isGrounded()) return 0.05f;
+            if (isGrounded()) return 0.9999f;
             else return 0.01f;
         }
 
@@ -405,11 +407,13 @@ public class Actor extends Entity
     {
         if (this.state == state) return;
 
-        if (state == State.STAND)
-        {
-            if (pressedJumpTime > 0) state = State.LAUNCH;
-        }
 
+        if (state == State.RISE)
+        {
+            setVelocityY(-state.startSpeed());
+            setAcclerationY(-state.acceleration());
+            pressedJumpTime = 0;
+        }
 
 
         /* Temporary */
@@ -432,10 +436,9 @@ public class Actor extends Entity
 
             if (getVelocityY() > 0)
             {
-                float top = entity.getY() - entity.getHeight() / 2;
+                float top =  entity.getTopEdge();
                 if ((getY() + getHeight() / 2 < top) && (goal.y + getHeight() / 2 >= top))
                 {
-                    setState(State.STAND);
                     setVelocityY(0);
                     goal.y = (entity.getY() - entity.getHeight() / 1.999f) - getHeight() / 2;
                     touchEntity[DOWN] = entity;
@@ -445,10 +448,9 @@ public class Actor extends Entity
 
             if (getVelocityX() > 0)
             {
-                float left = entity.getX() - entity.getWidth() / 2;
+                float left = entity.getLeftEdge();
                 if ((getX() + getWidth() / 2 < left) && (goal.x + getWidth() / 2 >= left))
                 {
-                    setState(State.STAND);
                     setVelocityX(0);
                     goal.x = (entity.getX() - entity.getWidth() / 1.999f) - getWidth() / 2;
                     touchEntity[RIGHT] = entity;
@@ -458,10 +460,9 @@ public class Actor extends Entity
 
             else if (getVelocityX() < 0)
             {
-                float right = entity.getX() + entity.getWidth() / 2;
-                if ((getX() - getWidth() / 2 > right) && (goal.x - getWidth() / 2 >= right))
+                float right = entity.getRightEdge();
+                if ((getX() - getWidth() / 2 > right) && (goal.x - getWidth() / 2 <= right))
                 {
-                    setState(State.STAND);
                     setVelocityX(0);
                     goal.x = (entity.getX() + entity.getWidth() / 1.999f) + getWidth() / 2;
                     touchEntity[LEFT] = entity;

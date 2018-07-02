@@ -181,13 +181,13 @@ abstract public class Entity
     //}
 
 
-    public float getLeftEdge() { return pos.x - width; }
+    public float getLeftEdge() { return pos.x - width/2; }
 
-    public float getRightEdge() { return pos.x + width; }
+    public float getRightEdge() { return pos.x + width/2; }
 
-    public float getTopEdge() { return pos.y - height; }
+    public float getTopEdge() { return pos.y - height/2; }
 
-    public float getBottomEdge() { return pos.y + height; }
+    public float getBottomEdge() { return pos.y + height/2; }
 
     public float getVertexX(int i)
     {
