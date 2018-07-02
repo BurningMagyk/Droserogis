@@ -102,11 +102,6 @@ public class Actor extends Entity
         v.mul(deltaSec);
         goal.add(v);
         triggerContacts(goal, entities); //Note: this method will modify goal so that it does not pass into an object.
-
-        if (touchEntity[RIGHT] != null && getVelocityX() < 0) touchEntity[RIGHT].setTriggered(false);
-        if (touchEntity[LEFT] != null && getVelocityX() > 0) touchEntity[LEFT].setTriggered(false);
-        if (touchEntity[UP] != null && getVelocityY()> 0) touchEntity[UP].setTriggered(false);
-        if (touchEntity[DOWN] != null && getVelocityY() < 0)  touchEntity[DOWN].setTriggered(false);
         setPosition(goal);
 
         setState(determineState());
@@ -117,26 +112,7 @@ public class Actor extends Entity
 
 
 
-    private State determineState()
-    {
-        if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
 
-        if ((!state.isGrounded()) && (touchEntity[DOWN] != null)) return State.STAND;
-
-        if (state == State.STAND)
-        {
-            if (pressingLeft || pressingRight) return State.RUN;
-        }
-
-        if (state == State.RUN)
-        {
-            if (!pressingLeft && !pressingRight)
-            {
-                if (getVelocityX() < 0.01) return State.STAND;
-            }
-        }
-        return state;
-    }
 
 
 
@@ -308,9 +284,9 @@ public class Actor extends Entity
         {
             boolean isAirborne() { return true; }
             Color getColor() { return Color.CORNFLOWERBLUE; }
-            float startSpeed() {return 1f;}
-            float maxSpeed()  {return 10f;}
-            float acceleration() {return 1.5f;}
+            float startSpeed() {return 10f;}
+            float maxSpeed()  {return 25f;}
+            float acceleration() {return 4.5f;}  //This could be used as a different way of reducing gravity
         },
         FALL
         {
@@ -400,6 +376,37 @@ public class Actor extends Entity
 
     }
 
+
+
+    private State determineState()
+    {
+        if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
+
+        if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
+        {
+            System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
+            return State.STAND;
+        }
+
+        if (state == State.STAND)
+        {
+            if (pressingLeft || pressingRight) return State.RUN;
+        }
+
+        if (state == State.RUN)
+        {
+            if (!pressingLeft && !pressingRight)
+            {
+                if (getVelocityX() < 0.01) return State.STAND;
+            }
+        }
+        return state;
+    }
+
+
+
+
+
     void setState(State state)
     {
         if (this.state == state) return;
@@ -408,7 +415,6 @@ public class Actor extends Entity
         if (state == State.RISE)
         {
             setVelocityY(-state.startSpeed());
-            setAccelerationY(-state.acceleration());
             pressedJumpTime = 0;
         }
 
@@ -478,6 +484,31 @@ public class Actor extends Entity
                 }
             }
 
+        }
+
+
+        if (touchEntity[RIGHT] != null && getVelocityX() < 0)
+        {
+            touchEntity[RIGHT].setTriggered(false);
+            touchEntity[RIGHT] = null;
+        }
+
+        if (touchEntity[LEFT] != null && getVelocityX() > 0)
+        {
+            touchEntity[LEFT].setTriggered(false);
+            touchEntity[LEFT] = null;
+        }
+
+        if (touchEntity[UP] != null && getVelocityY()> 0)
+        {
+            touchEntity[UP].setTriggered(false);
+            touchEntity[UP] = null;
+        }
+
+        if (touchEntity[DOWN] != null && getVelocityY() < 0)
+        {
+            touchEntity[DOWN].setTriggered(false);
+            touchEntity[DOWN] = null;
         }
     }
 }
