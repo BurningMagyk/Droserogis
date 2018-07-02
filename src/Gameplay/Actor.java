@@ -90,7 +90,7 @@ public class Actor extends Entity
         setAccelerationX(getAccelerationX() + dragX);
         setAccelerationY(getAccelerationY() + dragY);
 
-        System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
+        //System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
 
 
         Vec2 a = getAcceleration();
@@ -126,6 +126,14 @@ public class Actor extends Entity
         if (state == State.STAND)
         {
             if (pressingLeft || pressingRight) return State.RUN;
+        }
+
+        if (state == State.RUN)
+        {
+            if (!pressingLeft && !pressingRight)
+            {
+                if (getVelocityX() < 0.01) return State.STAND;
+            }
         }
         return state;
     }
