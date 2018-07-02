@@ -30,23 +30,26 @@ public class Vec2
     y /= r;
   }
 
-  public void mul(float a)
+  public Vec2 mul(float a)
   {
     x *= a;
     y *= a;
+    return this;
   }
 
 
-  public void add(float a)
+  public Vec2 add(float a)
   {
     x += a;
     y += a;
+    return this;
   }
 
-  public void add(Vec2 v)
+  public Vec2 add(Vec2 v)
   {
     x += v.x;
     y += v.y;
+    return this;
   }
 
 
@@ -55,6 +58,11 @@ public class Vec2
     float xx = (float)(x*Math.cos(theta) - y*Math.sin(theta));
     y = (float)(x*Math.sin(theta) + y*Math.cos(theta));
     x = xx;
+  }
+
+
+  public String toString()
+  { return "("+x+", "+y+") ";
   }
 
 }

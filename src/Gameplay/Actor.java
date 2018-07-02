@@ -60,16 +60,13 @@ public class Actor extends Entity
     {
         if (pressedJumpTime > 0) pressedJumpTime-=deltaSec;
         //triggerContacts(entities);
-        setAccleration(0, 0);
 
+        //Location and velocity carry over from frame to frame.
+        // Acceleration, however exists only when there is a force. Thus, each frame, we set acceleration to 0,
+        //   figure out which forces are acting on it and add in acceleration for those forces.
+        setAcceleration(0,0);
 
-
-        Vec2 v = getVelocity();
-        //dragX
-
-        //v.mul((1-state.drag())/deltaSec);
-
-        if (!state.isGrounded()) v.y += gravity*deltaSec;
+        if (!state.isGrounded()) setAccelerationY(gravity);
         else
         {
             if (pressingLeft)
@@ -82,8 +79,23 @@ public class Actor extends Entity
 
 
 
+        //Vec2 v = getVelocity();
+
+        float dragX = -state.drag()*getVelocityX();
+        float dragY = -state.drag()*getVelocityY();
+        setAccelerationX(getAccelerationX() + dragX);
+        setAccelerationY(getAccelerationY() + dragY);
+
+        System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
+
+        //v.mul((1-state.drag())/deltaSec);
 
 
+
+
+
+
+        /*
         if(getAccelerationX() != 0)
         {
             if (v.x == 0) v.x = state.startSpeed()*Math.signum(getAccelerationX());
@@ -113,22 +125,22 @@ public class Actor extends Entity
                 if (Math.abs(v.y) > state.maxSpeed()) v.y = state.maxSpeed()* Math.signum(getAccelerationY());
             }
         }
+        */
+        Vec2 a = getAcceleration();
+        Vec2 v = getVelocity();
+        a.mul(deltaSec);
+        setVelocity(v.add(a));
 
-        //System.out.println("a=("+getAccelerationX()+", "+ getAccelerationY() + ")   v=(" + v.x+", "+v.y+")   pressingLeft="+ pressingLeft);
-
-        setVelocity(v);
-
-        Vec2 p = getPosition();
+        Vec2 goal = getPosition();
         v.mul(deltaSec);
-        p.add(v);
-        triggerContacts(p, entities);
-
+        goal.add(v);
+        triggerContacts(goal, entities); //Note: this method will modify goal so that it does not pass into an object.
 
         if (touchEntity[RIGHT] != null && getVelocityX() < 0) touchEntity[RIGHT].setTriggered(false);
         if (touchEntity[LEFT] != null && getVelocityX() > 0) touchEntity[LEFT].setTriggered(false);
         if (touchEntity[UP] != null && getVelocityY()> 0) touchEntity[UP].setTriggered(false);
         if (touchEntity[DOWN] != null && getVelocityY() < 0)  touchEntity[DOWN].setTriggered(false);
-        setPosition(p);
+        setPosition(goal);
 
         setState(determineState());
     }
@@ -391,10 +403,17 @@ public class Actor extends Entity
         boolean isGrounded() { return false; }
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
+
+
+        //Drag is a a force that acts in the opposite direction to velocity with a magnitude directly proportional
+        //  to the magnitude of the velocity.
+        //The acceleration caused by this force is applied independently in X and Y directions.
+        //In these calculations, drag is expressed in meters/sec/sec where a drag of 1 means an object moving
+        //  without other forces acting on it will come to rest in 1 second.
         float drag()
         {
-            if (isGrounded()) return 0.9999f;
-            else return 0.01f;
+            if (isGrounded()) return 5f;
+            else return 0.5f;
         }
 
         abstract float startSpeed();
@@ -411,7 +430,7 @@ public class Actor extends Entity
         if (state == State.RISE)
         {
             setVelocityY(-state.startSpeed());
-            setAcclerationY(-state.acceleration());
+            setAccelerationY(-state.acceleration());
             pressedJumpTime = 0;
         }
 
@@ -471,6 +490,4 @@ public class Actor extends Entity
 
         }
     }
-
-
 }

@@ -160,11 +160,20 @@ abstract public class Entity
         velocity.y = y;
     }
 
-    public void setAccleration(float x, float y)
+    public void setAcceleration(Vec2 v)
+    {
+        accleration.x = v.x;
+        accleration.y = v.y;
+    }
+
+    public void setAcceleration(float x, float y)
     {
         accleration.x = x;
         accleration.y = y;
     }
+
+    public Vec2 getAcceleration() {return new Vec2(accleration);}
+
 
     public float getAccelerationX() {return accleration.x;}
 
@@ -172,7 +181,7 @@ abstract public class Entity
 
     public void setAccelerationX(float x) {accleration.x = x;}
 
-    public void setAcclerationY(float y) {accleration.y = y;}
+    public void setAccelerationY(float y) {accleration.y = y;}
 
     //public Vec2 getNewPos(long)
     //{
