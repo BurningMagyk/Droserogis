@@ -70,18 +70,36 @@ public class Actor extends Entity
 
         if (state == State.RUN)
         {
+            float vx = getVelocityX();
             if (pressingLeft)
             {
-                float vx = getVelocityX() - state.acceleration();
+                vx = vx - state.acceleration();
                 if (vx < -state.maxSpeed()) vx = -state.maxSpeed();
-                setVelocityX(vx);
             }
-            if (pressingRight)
+            else if (pressingRight)
             {
-                float vx = getVelocityX() + state.acceleration();
+                vx = vx + state.acceleration();
                 if (vx > state.maxSpeed()) vx = state.maxSpeed();
-                setVelocityX(vx);
             }
+            setVelocityX(vx);
+        }
+
+
+
+        if (state == State.WALL_CLIMB)
+        {
+            float vy = getVelocityY();
+            if (pressingUp)
+            {
+                vy = vy - state.acceleration();
+                if (vy < -state.maxSpeed()) vy = -state.maxSpeed();
+            }
+            else if (pressingDown)
+            {
+                vy = vy + state.acceleration();
+                if (vy > state.maxSpeed()) vy = state.maxSpeed();
+            }
+            setVelocityY(vy);
         }
 
 
@@ -214,179 +232,55 @@ public class Actor extends Entity
         Direction opposite() { return null; }
     }
 
-    /**
-     * Returns which direction the other entity is in relation to this Actor.
-     */
-    private Direction inBoundsHoriz(Entity other, boolean checkWithin)
-    {
-        if (!checkWithin)
-        {
-            if (getRightEdge() < other.getLeftEdge()) return Direction.RIGHT;
-            if (getLeftEdge() > other.getRightEdge()) return Direction.LEFT;
-            return null;
-        }
-
-        if (getRightEdge() < other.getRightEdge()) return Direction.RIGHT;
-        if (getLeftEdge() > other.getLeftEdge()) return Direction.LEFT;
-
-        Print.red("Error: Could not determine relative position");
-        return null;
-    }
-    /**
-     * Returns which direction the other entity is in relation to this Actor.
-     */
-    private Direction inBoundsVert(Entity other, boolean checkWithin)
-    {
-        if (!checkWithin)
-        {
-            if (getBottomEdge() < other.getTopEdge()) return Direction.DOWN;
-            if (getTopEdge() > other.getBottomEdge()) return Direction.UP;
-            return null;
-        }
-
-        if (getBottomEdge() < other.getBottomEdge()) return Direction.DOWN;
-        if (getTopEdge() > other.getTopEdge()) return Direction.UP;
-
-        Print.red("Error: Could not determine relative position");
-        return null;
-    }
-
-    private enum State
-    {
-        PRONE
-        {
-            boolean isGrounded() { return true; }
-            boolean isIncapacitated() { return true; }
-            Color getColor() { return Color.BLACK; }
-            float startSpeed() {return 0;}
-            float maxSpeed()  {return 0;}
-            float acceleration() {return 0;}
-        },
-        TUMBLE
-        {
-            boolean isGrounded() { return true; }
-            boolean isIncapacitated() { return true; }
-            Color getColor() { return Color.GREY; }
-            float startSpeed() {return 2f;}
-            float maxSpeed()  {return 2f;}
-            float acceleration() {return 1f;}
-        },
-        BALISTIC
-                {
-                    boolean isAirborne() { return true; }
-                    boolean isIncapacitated() { return true; }
-                    Color getColor() { return Color.BLACK; }
-                    float startSpeed() {return 0f;}
-                    float maxSpeed()  {return 0f;}
-                    float acceleration() {return 0f;}
-                },
-        RISE
-        {
-            boolean isAirborne() { return true; }
-            Color getColor() { return Color.CORNFLOWERBLUE; }
-            float startSpeed() {return 10f;}
-            float maxSpeed()  {return 25f;}
-            float acceleration() {return 4.5f;}  //This could be used as a different way of reducing gravity
-        },
-        FALL
-        {
-            boolean isAirborne() { return true; }
-            Color getColor() { return Color.CYAN; }
-            float startSpeed() {return 1f;}
-            float maxSpeed()  {return 10f;}
-            float acceleration() {return 9.8f;}
-        },
-        STAND
-        {
-            boolean isGrounded() { return true; }
-            Color getColor() { return Color.MAROON; }
-            float startSpeed() {return 0;}
-            float maxSpeed()  {return 0;}
-            float acceleration() {return 0;}
-        },
-        RUN
-        {
-            boolean isGrounded() { return true; }
-            Color getColor() { return Color.BROWN; }
-            float startSpeed() {return 5f;}
-            float maxSpeed()  {return 7f;}
-            float acceleration() {return 2;}
-        },
-        WALL_STICK
-        {
-            boolean isOnWall() { return true; }
-            Color getColor() { return Color.GREENYELLOW; }
-            float startSpeed() {return 0f;}
-            float maxSpeed()  {return 0f;}
-            float acceleration() {return 0;}
-        },
-        WALL_CLIMB
-        {
-            boolean isOnWall() { return true; }
-            Color getColor() { return Color.LIGHTGREEN; }
-            float startSpeed() {return 0.5f;}
-            float maxSpeed()  {return 1f;}
-            float acceleration() {return 1;}
-        },
-        CROUCH
-        {
-            boolean isGrounded() { return true; }
-            Color getColor() { return Color.RED; }
-            float startSpeed() {return 0.7f;}
-            float maxSpeed()  {return 1f;}
-            float acceleration() {return 1f;}
-        },
-        SLIDE
-        {
-            boolean isGrounded() { return true; }
-            Color getColor() { return Color.HOTPINK; }
-            float startSpeed() {return 2f;}
-            float maxSpeed()  {return 4f;}
-            float acceleration() {return 2f;}
-        },
-        SWIM
-        {
-            Color getColor() { return Color.BLUE; }
-            float startSpeed() {return 0.5f;}
-            float maxSpeed()  {return 1f;}
-            float acceleration() {return 1f;}
-        };
-
-        boolean isOnWall() { return false; }
-        boolean isAirborne() { return false; }
-        boolean isGrounded() { return false; }
-        boolean isIncapacitated() { return false; }
-        Color getColor() { return Color.BLACK; }
 
 
-        //Drag is a a force that acts in the opposite direction to velocity with a magnitude directly proportional
-        //  to the magnitude of the velocity.
-        //The acceleration caused by this force is applied independently in X and Y directions.
-        //In these calculations, drag is expressed in meters/sec/sec where a drag of 1 means an object moving
-        //  without other forces acting on it will come to rest in 1 second.
-        float drag()
-        {
-            if (isGrounded()) return 5f;
-            else return 0.25f;
-        }
-
-        abstract float startSpeed();
-        abstract float maxSpeed();
-        abstract float acceleration();
-
-    }
 
 
 
     private State determineState()
     {
         if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
-
         if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
         {
-            System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
+            //System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
             return State.STAND;
         }
+
+        //if (pressingRight && touchEntity[RIGHT]!=null) pressingRight = false;
+        //if (pressingLeft && touchEntity[LEFT]!=null) pressingLeft = false;
+        //if (pressingUp && touchEntity[UP]!=null) pressingUp = false;
+        if (pressingDown && touchEntity[DOWN]!=null)
+        {
+            if (state == State.STAND) return State.CROUCH;
+        }
+
+        if (state == State.WALL_CLIMB)
+        {
+            System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
+            if (touchEntity[LEFT] == null && touchEntity[RIGHT] == null)
+            {
+                return State.FALL;
+            }
+        }
+
+
+        //if (state == State.WALL_STICK)
+        //{
+        //    if (!pressingUp && !pressingDown && !pressingRight && !pressingLeft) return State.WALL_STICK;
+        //    if (pressingUp || pressingDown) return State.WALL_CLIMB;
+        //    if (pressingRight || pressingLeft) return State.RISE;
+        //}
+
+
+        if (state != State.WALL_CLIMB)
+        {
+            if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
+            {
+                if (pressingUp || (touchEntity[DOWN] == null)) return State.WALL_CLIMB;
+                //if (!pressingDown && !pressingUp && (touchEntity[DOWN] == null)) return State.WALL_STICK;
+            }
+        }
+
 
         if (state == State.STAND)
         {
@@ -409,16 +303,27 @@ public class Actor extends Entity
 
     void setState(State state)
     {
+        if (state == State.STAND)
+        {
+            setVelocity(Vec2.ZERO);
+        }
+
         if (this.state == state) return;
 
 
-        if (state == State.RISE)
+        else if (state == State.RISE)
         {
-            setVelocityY(-state.startSpeed());
+            if (this.state == State.WALL_CLIMB)
+            {
+                if (pressingLeft) setVelocityX(-State.RUN.startSpeed());
+                else if (pressingRight) setVelocityX(State.RUN.startSpeed());
+                setVelocityY(-state.startSpeed()/2);
+            }
+            else setVelocityY(-state.startSpeed());
             pressedJumpTime = 0;
         }
 
-        if (state == State.RUN)
+        else if (state == State.RUN)
         {
            float vx = getVelocityX();
            float dir=0;
@@ -428,6 +333,22 @@ public class Actor extends Entity
            vx = vx + dir*state.startSpeed();
            if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
            setVelocityX(vx);
+        }
+
+        else if (state == State.WALL_STICK)
+        {
+            setVelocity(Vec2.ZERO);
+        }
+
+        else if (state == State.WALL_CLIMB)
+        {
+            float vx = Math.abs(getVelocityX()); //change horz speed to vertical
+            float vy = getVelocityY();
+            float dir=-1; //go up
+            if (pressingDown) dir=1;
+            if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
+            setVelocity(0, vy + dir*vx);
+            System.out.println("    setState(WALL_CLIMB): velocity="+getVelocity());
         }
 
 
@@ -454,7 +375,7 @@ public class Actor extends Entity
                 float top =  entity.getTopEdge();
                 if ((getY() + getHeight() / 2 < top) && (goal.y + getHeight() / 2 >= top))
                 {
-                    setVelocityY(0);
+                    //setVelocityY(0);
                     goal.y = (entity.getY() - entity.getHeight() / 1.999f) - getHeight() / 2;
                     touchEntity[DOWN] = entity;
                 }
@@ -466,7 +387,7 @@ public class Actor extends Entity
                 float left = entity.getLeftEdge();
                 if ((getX() + getWidth() / 2 < left) && (goal.x + getWidth() / 2 >= left))
                 {
-                    setVelocityX(0);
+                    //setVelocityX(0);
                     goal.x = (entity.getX() - entity.getWidth() / 1.999f) - getWidth() / 2;
                     touchEntity[RIGHT] = entity;
                 }
@@ -478,7 +399,7 @@ public class Actor extends Entity
                 float right = entity.getRightEdge();
                 if ((getX() - getWidth() / 2 > right) && (goal.x - getWidth() / 2 <= right))
                 {
-                    setVelocityX(0);
+                    //setVelocityX(0);
                     goal.x = (entity.getX() + entity.getWidth() / 1.999f) + getWidth() / 2;
                     touchEntity[LEFT] = entity;
                 }
@@ -510,5 +431,138 @@ public class Actor extends Entity
             touchEntity[DOWN].setTriggered(false);
             touchEntity[DOWN] = null;
         }
+    }
+
+
+
+
+
+    //================================================================================================================
+    // State
+    //================================================================================================================
+    private enum State
+    {
+        PRONE
+                {
+                    boolean isGrounded() { return true; }
+                    boolean isIncapacitated() { return true; }
+                    Color getColor() { return Color.BLACK; }
+                    float startSpeed() {return 0;}
+                    float maxSpeed()  {return 0;}
+                    float acceleration() {return 0;}
+                },
+        TUMBLE
+                {
+                    boolean isGrounded() { return true; }
+                    boolean isIncapacitated() { return true; }
+                    Color getColor() { return Color.GREY; }
+                    float startSpeed() {return 2f;}
+                    float maxSpeed()  {return 2f;}
+                    float acceleration() {return 1f;}
+                },
+        BALISTIC
+                {
+                    boolean isAirborne() { return true; }
+                    boolean isIncapacitated() { return true; }
+                    Color getColor() { return Color.BLACK; }
+                    float startSpeed() {return 0f;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0f;}
+                },
+        RISE
+                {
+                    boolean isAirborne() { return true; }
+                    Color getColor() { return Color.CORNFLOWERBLUE; }
+                    float startSpeed() {return 10f;}
+                    float maxSpeed()  {return 25f;}
+                    float acceleration() {return 0;}  //This could be used as a different way of reducing gravity
+                },
+        FALL
+                {
+                    boolean isAirborne() { return true; }
+                    Color getColor() { return Color.CYAN; }
+                    float startSpeed() {return 1f;}
+                    float maxSpeed()  {return 10f;}
+                    float acceleration() {return 9.8f;}
+                },
+        STAND
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.MAROON; }
+                    float startSpeed() {return 0;}
+                    float maxSpeed()  {return 0;}
+                    float acceleration() {return 0;}
+                },
+        RUN
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.BROWN; }
+                    float startSpeed() {return 5f;}
+                    float maxSpeed()  {return 7f;}
+                    float acceleration() {return 2;}
+                },
+        WALL_STICK
+                {
+                    boolean isOnWall() { return true; }
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.GREENYELLOW; }
+                    float startSpeed() {return 0f;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0;}
+                },
+        WALL_CLIMB
+                {
+                    boolean isOnWall() { return true; }
+                    Color getColor() { return Color.LIGHTGREEN; }
+                    float startSpeed() {return 1;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
+                    float maxSpeed()  {return 12f;}  //can only reach this when climbing down (with gravity)
+                    float acceleration() {return 5;} //less than gravity (9.8)
+                },
+        CROUCH
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.RED; }
+                    float startSpeed() {return 0.7f;}
+                    float maxSpeed()  {return 1f;}
+                    float acceleration() {return 1f;}
+                },
+        SLIDE
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.HOTPINK; }
+                    float startSpeed() {return 2f;}
+                    float maxSpeed()  {return 4f;}
+                    float acceleration() {return 2f;}
+                },
+        SWIM
+                {
+                    Color getColor() { return Color.BLUE; }
+                    float startSpeed() {return 0.5f;}
+                    float maxSpeed()  {return 1f;}
+                    float acceleration() {return 1f;}
+                };
+
+        boolean isOnWall() { return false; }
+        boolean isAirborne() { return false; }
+        boolean isGrounded() { return false; }
+        boolean isIncapacitated() { return false; }
+        Color getColor() { return Color.BLACK; }
+
+
+        //Drag is a a force that acts in the opposite direction to velocity with a magnitude directly proportional
+        //  to the magnitude of the velocity.
+        //The acceleration caused by this force is applied independently in X and Y directions.
+        //In these calculations, drag is expressed in meters/sec/sec where a drag of 1 means an object moving
+        //  without other forces acting on it will come to rest in 1 second.
+        float drag()
+        {
+            if (isGrounded()) return 5f;
+            else return 0.25f;
+        }
+
+        abstract float startSpeed();
+        abstract float maxSpeed();
+        abstract float acceleration();
+
     }
 }
