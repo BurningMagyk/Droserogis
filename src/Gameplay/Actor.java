@@ -354,8 +354,8 @@ public class Actor extends Entity
         {
             boolean isGrounded() { return true; }
             Color getColor() { return Color.BROWN; }
-            float startSpeed() {return 2f;}
-            float maxSpeed()  {return 4f;}
+            float startSpeed() {return 10f;}
+            float maxSpeed()  {return 15f;}
             float acceleration() {return 2;}
         },
         WALL_STICK
@@ -412,8 +412,8 @@ public class Actor extends Entity
         //  without other forces acting on it will come to rest in 1 second.
         float drag()
         {
-            if (isGrounded()) return 5f;
-            else return 0.5f;
+            if (isGrounded()) return 2.5f;
+            else return 0.25f;
         }
 
         abstract float startSpeed();
