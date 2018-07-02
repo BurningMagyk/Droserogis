@@ -67,48 +67,23 @@ public class Actor extends Entity
         setAcceleration(0,0);
 
         if (!state.isGrounded()) setAccelerationY(gravity);
-        else
+
+        if (state == State.RUN)
         {
-            if (pressingLeft) setVelocityX(getVelocityX() - state.acceleration());
-            if (pressingRight) setVelocityX(getVelocityX() + state.acceleration());
+            if (pressingLeft)
+            {
+                float vx = getVelocityX() - state.acceleration();
+                if (vx < -state.maxSpeed()) vx = -state.maxSpeed();
+                setVelocityX(vx);
+            }
+            if (pressingRight)
+            {
+                float vx = getVelocityX() + state.acceleration();
+                if (vx > state.maxSpeed()) vx = state.maxSpeed();
+                setVelocityX(vx);
+            }
         }
 
-
-
-/*
-        if(getAccelerationX() != 0)
-        {
-            if (v.x == 0) v.x = state.startSpeed()*Math.signum(getAccelerationX());
-            else if (Math.signum(getAccelerationX()) == -Math.signum(v.x))
-            {
-                v.x = 0.5f*state.startSpeed()*Math.signum(getAccelerationX());
-            }
-            else
-            {
-                v.x += getAccelerationX();
-                if (Math.abs(v.x) > state.maxSpeed()) v.x = state.maxSpeed()* Math.signum(getAccelerationX());
-            }
-
-            //System.out.println("v.x="+v.x);
-        }
-
-        if(getAccelerationY() != 0)
-        {
-            if (v.y == 0) v.y = state.startSpeed()*Math.signum(getAccelerationY());
-            else if (Math.signum(getAccelerationY()) == -Math.signum(v.y))
-            {
-                v.y = 0.5f*state.startSpeed()*Math.signum(getAccelerationY());
-            }
-            else
-            {
-                v.y += getAccelerationY();
-                if (Math.abs(v.y) > state.maxSpeed()) v.y = state.maxSpeed()* Math.signum(getAccelerationY());
-            }
-        }
-*/
-
-
-        //Vec2 v = getVelocity();
 
         float dragX = -state.drag()*getVelocityX();
         float dragY = -state.drag()*getVelocityY();
@@ -116,13 +91,6 @@ public class Actor extends Entity
         setAccelerationY(getAccelerationY() + dragY);
 
         System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
-
-        //v.mul((1-state.drag())/deltaSec);
-
-
-
-
-
 
 
         Vec2 a = getAcceleration();
@@ -152,7 +120,13 @@ public class Actor extends Entity
     private State determineState()
     {
         if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
-        if (touchEntity[DOWN] != null) return State.STAND;
+
+        if ((!state.isGrounded()) && (touchEntity[DOWN] != null)) return State.STAND;
+
+        if (state == State.STAND)
+        {
+            if (pressingLeft || pressingRight) return State.RUN;
+        }
         return state;
     }
 
@@ -167,8 +141,6 @@ public class Actor extends Entity
             if (state.isOnWall()) dirSecondary = Direction.LEFT;
             /* It changes your primary direction regardless */
             dirPrimary = Direction.LEFT;
-
-            if (state == State.STAND) setState(State.RUN);
         }
         /* If you release the key when already moving left */
         else if (dirPrimary == Direction.LEFT)
@@ -196,7 +168,6 @@ public class Actor extends Entity
             /* It changes your primary direction regardless */
             dirPrimary = Direction.RIGHT;
 
-            if (state == State.STAND) setState(State.RUN);
         }
         /* If you release the key when already moving right */
         else if (dirPrimary == Direction.RIGHT)
@@ -353,8 +324,8 @@ public class Actor extends Entity
         {
             boolean isGrounded() { return true; }
             Color getColor() { return Color.BROWN; }
-            float startSpeed() {return 10f;}
-            float maxSpeed()  {return 15f;}
+            float startSpeed() {return 5f;}
+            float maxSpeed()  {return 7f;}
             float acceleration() {return 2;}
         },
         WALL_STICK
@@ -411,7 +382,7 @@ public class Actor extends Entity
         //  without other forces acting on it will come to rest in 1 second.
         float drag()
         {
-            if (isGrounded()) return 2.5f;
+            if (isGrounded()) return 5f;
             else return 0.25f;
         }
 
@@ -431,6 +402,18 @@ public class Actor extends Entity
             setVelocityY(-state.startSpeed());
             setAccelerationY(-state.acceleration());
             pressedJumpTime = 0;
+        }
+
+        if (state == State.RUN)
+        {
+           float vx = getVelocityX();
+           float dir=0;
+           if (pressingLeft) dir=-1;
+           else if (pressingRight) dir=1;
+
+           vx = vx + dir*state.startSpeed();
+           if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
+           setVelocityX(vx);
         }
 
 
