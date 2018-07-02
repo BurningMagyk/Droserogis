@@ -69,33 +69,13 @@ public class Actor extends Entity
         if (!state.isGrounded()) setAccelerationY(gravity);
         else
         {
-            if (pressingLeft)
-            {
-                setAccelerationX(-state.acceleration());
-                //System.out.println("AccelerationX="+getAccelerationX());
-            }
-            if (pressingRight) setAccelerationX(state.acceleration());
+            if (pressingLeft) setVelocityX(getVelocityX() - state.acceleration());
+            if (pressingRight) setVelocityX(getVelocityX() + state.acceleration());
         }
 
 
 
-        //Vec2 v = getVelocity();
-
-        float dragX = -state.drag()*getVelocityX();
-        float dragY = -state.drag()*getVelocityY();
-        setAccelerationX(getAccelerationX() + dragX);
-        setAccelerationY(getAccelerationY() + dragY);
-
-        System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
-
-        //v.mul((1-state.drag())/deltaSec);
-
-
-
-
-
-
-        /*
+/*
         if(getAccelerationX() != 0)
         {
             if (v.x == 0) v.x = state.startSpeed()*Math.signum(getAccelerationX());
@@ -125,7 +105,26 @@ public class Actor extends Entity
                 if (Math.abs(v.y) > state.maxSpeed()) v.y = state.maxSpeed()* Math.signum(getAccelerationY());
             }
         }
-        */
+*/
+
+
+        //Vec2 v = getVelocity();
+
+        float dragX = -state.drag()*getVelocityX();
+        float dragY = -state.drag()*getVelocityY();
+        setAccelerationX(getAccelerationX() + dragX);
+        setAccelerationY(getAccelerationY() + dragY);
+
+        System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
+
+        //v.mul((1-state.drag())/deltaSec);
+
+
+
+
+
+
+
         Vec2 a = getAcceleration();
         Vec2 v = getVelocity();
         a.mul(deltaSec);
