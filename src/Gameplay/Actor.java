@@ -73,12 +73,12 @@ public class Actor extends Entity
             float vx = getVelocityX();
             if (pressingLeft)
             {
-                vx = vx - state.acceleration();
+                vx = vx - state.acceleration()*deltaSec;
                 if (vx < -state.maxSpeed()) vx = -state.maxSpeed();
             }
             else if (pressingRight)
             {
-                vx = vx + state.acceleration();
+                vx = vx + state.acceleration()*deltaSec;
                 if (vx > state.maxSpeed()) vx = state.maxSpeed();
             }
             setVelocityX(vx);
@@ -91,12 +91,12 @@ public class Actor extends Entity
             float vy = getVelocityY();
             if (pressingUp)
             {
-                vy = vy - state.acceleration();
+                vy = vy - state.acceleration()*deltaSec;
                 if (vy < -state.maxSpeed()) vy = -state.maxSpeed();
             }
             else if (pressingDown)
             {
-                vy = vy + state.acceleration();
+                vy = vy + state.acceleration()*deltaSec;
                 if (vy > state.maxSpeed()) vy = state.maxSpeed();
             }
             setVelocityY(vy);
@@ -260,7 +260,7 @@ public class Actor extends Entity
 
         if (state == State.WALL_CLIMB)
         {
-            System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
+            //System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
             if (touchEntity[LEFT] == null && touchEntity[RIGHT] == null)
             {
                 return State.FALL;
@@ -467,7 +467,7 @@ public class Actor extends Entity
                 {
                     boolean isOnWall() { return true; }
                     Color getColor() { return Color.LIGHTGREEN; }
-                    float startSpeed() {return 1;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
+                    float startSpeed() {return 5;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
                     float maxSpeed()  {return 12f;}  //can only reach this when climbing down (with gravity)
                     float acceleration() {return 5;} //less than gravity (9.8)
                 },
