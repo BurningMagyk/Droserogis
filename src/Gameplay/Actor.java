@@ -502,7 +502,7 @@ public class Actor extends Entity
                     Color getColor() { return Color.BROWN; }
                     float startSpeed() {return 5f;}
                     float maxSpeed()  {return 7f;}
-                    float acceleration() {return 2;}
+                    float acceleration() {return 15;}
                 },
         WALL_STICK
                 {
@@ -517,7 +517,7 @@ public class Actor extends Entity
                 {
                     boolean isOnWall() { return true; }
                     Color getColor() { return Color.LIGHTGREEN; }
-                    float startSpeed() {return 5;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
+                    float startSpeed() {return 2;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
                     float maxSpeed()  {return 12f;}  //can only reach this when climbing down (with gravity)
                     float acceleration() {return 5;} //less than gravity (9.8)
                 },
