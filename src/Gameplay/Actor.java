@@ -72,13 +72,13 @@ public class Actor extends Entity
             float vx = getVelocityX();
             if (pressingLeft)
             {
-                vx = vx - runAccel;
-                if (vx < -topRunSpeed) vx = -topRunSpeed;
+                vx = vx - state.acceleration()*deltaSec;
+                if (vx < -state.maxSpeed()) vx = -state.maxSpeed();
             }
             else if (pressingRight)
             {
-                vx = vx + runAccel;
-                if (vx > topRunSpeed) vx = topRunSpeed;
+                vx = vx + state.acceleration()*deltaSec;
+                if (vx > state.maxSpeed()) vx = state.maxSpeed();
             }
             setVelocityX(vx);
         }
@@ -90,13 +90,13 @@ public class Actor extends Entity
             float vy = getVelocityY();
             if (pressingUp)
             {
-                //vy = vy - state.acceleration();
-                if (vy < -maxClimbSpeed) vy = -maxClimbSpeed;
+                vy = vy - state.acceleration()*deltaSec;
+                if (vy < -state.maxSpeed()) vy = -state.maxSpeed();
             }
             else if (pressingDown)
             {
-                //vy = vy + state.acceleration();
-                if (vy > maxClimbSpeed) vy = maxClimbSpeed;
+                vy = vy + state.acceleration()*deltaSec;
+                if (vy > state.maxSpeed()) vy = state.maxSpeed();
             }
             setVelocityY(vy);
         }
@@ -318,11 +318,11 @@ public class Actor extends Entity
         {
             if (this.state == State.WALL_CLIMB)
             {
-                if (pressingLeft) setVelocityX(-initRunSpeed);
-                else if (pressingRight) setVelocityX(initRunSpeed);
-                //setVelocityY(-state.startSpeed()/2);
+                if (pressingLeft) setVelocityX(-State.RUN.startSpeed());
+                else if (pressingRight) setVelocityX(State.RUN.startSpeed());
+                setVelocityY(-state.startSpeed()/2);
             }
-            //else setVelocityY(-state.startSpeed());
+            else setVelocityY(-state.startSpeed());
             pressedJumpTime = 0;
         }
 
@@ -333,8 +333,8 @@ public class Actor extends Entity
            if (pressingLeft) dir=-1;
            else if (pressingRight) dir=1;
 
-           vx = vx + dir * initRunSpeed;
-           if (Math.abs(vx) > topRunSpeed) vx = dir * topRunSpeed;
+           vx = vx + dir*state.startSpeed();
+           if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
            setVelocityX(vx);
         }
 
@@ -349,7 +349,7 @@ public class Actor extends Entity
             float vy = getVelocityY();
             float dir=-1; //go up
             if (pressingDown) dir=1;
-            //if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
+            if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
             setVelocity(0, vy + dir*vx);
             System.out.println("    setState(WALL_CLIMB): velocity="+getVelocity());
         }
@@ -397,7 +397,7 @@ public class Actor extends Entity
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 7F;
+    private float topRunspeed = 7F;
 
     /* This is the lowest speed the player can be running before changing
      * their state to STAND. */
@@ -408,25 +408,21 @@ public class Actor extends Entity
     private float initRunSpeed = 5F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is running on the ground. */
+     * is not null. */
     private float runAccel = 2F;
 
     /* This is the highest speed the player can be crawling or crouching
      * before changing their state to TUMBLE. */
-    private float maxCrawlSpeed = 3F;
+    private float maxCrawlSpeed = 6F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topCrawlSpeed = 1F;
+    private float topCrawlSpeed = 4F;
 
     /* This is the lowest speed the player can be crawling before changing
      * their state to CROUCH. */
     private float minCrawlSpeed = 0.5F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is crawling on the ground. */
-    private float crawlAccel = 1F;
 
     /* This is the highest speed the player can be sliding before changing
      * their state to TUMBLE. */
@@ -444,16 +440,6 @@ public class Actor extends Entity
      * changing their state to FALL. */
     private float maxStickSpeed = 12F;
 
-    // This is the acceleration that is applied to the player when on a wall.
-    private float climbAccel = 5F;
-
-    /* This is the highest speed the player can move in the air. */
-    private float maxAirSpeed = 25F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is airborne. */
-    private float airAccel = 1F;
-
     //================================================================================================================
     // State
     //================================================================================================================
@@ -464,63 +450,99 @@ public class Actor extends Entity
                     boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
+                    float startSpeed() {return 0;}
+                    float maxSpeed()  {return 0;}
+                    float acceleration() {return 0;}
                 },
         TUMBLE
                 {
                     boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.GREY; }
+                    float startSpeed() {return 2f;}
+                    float maxSpeed()  {return 2f;}
+                    float acceleration() {return 1f;}
                 },
         BALLISTIC
                 {
                     boolean isAirborne() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
+                    float startSpeed() {return 0f;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0f;}
                 },
         RISE
                 {
                     boolean isAirborne() { return true; }
                     Color getColor() { return Color.CORNFLOWERBLUE; }
+                    float startSpeed() {return 10f;}
+                    float maxSpeed()  {return 25f;}
+                    float acceleration() {return 0;}  //This could be used as a different way of reducing gravity
                 },
         FALL
                 {
                     boolean isAirborne() { return true; }
                     Color getColor() { return Color.CYAN; }
+                    float startSpeed() {return 1f;}
+                    float maxSpeed()  {return 10f;}
+                    float acceleration() {return 9.8f;}
                 },
         STAND
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.MAROON; }
+                    float startSpeed() {return 0;}
+                    float maxSpeed()  {return 0;}
+                    float acceleration() {return 0;}
                 },
         RUN
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.BROWN; }
+                    float startSpeed() {return 5f;}
+                    float maxSpeed()  {return 7f;}
+                    float acceleration() {return 15;}
                 },
         WALL_STICK
                 {
                     boolean isOnWall() { return true; }
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.GREENYELLOW; }
+                    float startSpeed() {return 0f;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0;}
                 },
         WALL_CLIMB
                 {
                     boolean isOnWall() { return true; }
                     Color getColor() { return Color.LIGHTGREEN; }
+                    float startSpeed() {return 2;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
+                    float maxSpeed()  {return 12f;}  //can only reach this when climbing down (with gravity)
+                    float acceleration() {return 5;} //less than gravity (9.8)
                 },
         CROUCH
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.RED; }
+                    float startSpeed() {return 0.7f;}
+                    float maxSpeed()  {return 1f;}
+                    float acceleration() {return 1f;}
                 },
         SLIDE
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.HOTPINK; }
+                    float startSpeed() {return 2f;}
+                    float maxSpeed()  {return 4f;}
+                    float acceleration() {return 2f;}
                 },
         SWIM
                 {
                     Color getColor() { return Color.BLUE; }
+                    float startSpeed() {return 0.5f;}
+                    float maxSpeed()  {return 1f;}
+                    float acceleration() {return 1f;}
                 };
 
         boolean isOnWall() { return false; }
@@ -537,8 +559,13 @@ public class Actor extends Entity
         //  without other forces acting on it will come to rest in 1 second.
         float drag()
         {
-            if (isAirborne()) return 0.25F;
-            else return 5F;
+            if (isGrounded()) return 5f;
+            else return 0.25f;
         }
+
+        abstract float startSpeed();
+        abstract float maxSpeed();
+        abstract float acceleration();
+
     }
 }
