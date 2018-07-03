@@ -231,14 +231,62 @@ abstract public class Entity
     //================================================================================================================
     //
     //================================================================================================================
-    public boolean isHit(Entity other, Vec2 goal)
+    public int getTouchEdge(Entity other, Vec2 goal)
     {
-        if (goal.x + other.width / 2 <= pos.x - width / 2) return false;
-        if (goal.x - other.width / 2 >= pos.x + width / 2) return false;
-        if (goal.y + other.height / 2 <= pos.y - height / 2) return false;
-        if (goal.y - other.height / 2 >= pos.y + height / 2) return false;
+        if (goal.x + other.width / 2 <= pos.x - width / 1.999) return -1;
+        if (goal.x - other.width / 2 >= pos.x + width / 1.999) return  -1;
+        if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  -1;
+        if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  -1;
 
-        return true;
+        if (other.getY() < pos.y - height/2)
+        {
+            if (goal.y + other.height / 1.999 > pos.y - height / 2)
+            {
+                if (other.getX() - other.width / 2 <= pos.x + width / 1.999)
+                {
+                    if (other.getX() + other.width / 2 >= pos.x - width / 1.999) return DOWN;
+                }
+            }
+        }
+
+
+        if (other.getX() < pos.x - width/2)
+        {
+            if (goal.x + other.width/1.999 > pos.x - width/ 2)
+            {
+                if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
+                {
+                    if (other.getY() + other.width / 2 >= pos.y - height/ 1.999) return RIGHT;
+                }
+            }
+        }
+
+
+        if (other.getX() > pos.x + width/2)
+        {
+            if (goal.x - other.width/1.999 < pos.x + width/ 2)
+            {
+                if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
+                {
+                    if (other.getY() + other.width / 2 >= pos.y - height/ 1.999) return LEFT;
+                }
+            }
+        }
+
+        return -1;
     }
+
+    //================================================================================================================
+    //
+    //================================================================================================================
+    //public boolean isNear(Entity other, Vec2 goal)
+    //{
+    //    if (goal.x + other.width / 2 <= pos.x - width / 2) return false;
+   //     if (goal.x - other.width / 2 >= pos.x + width / 2) return false;
+     //   if (goal.y + other.height / 2 <= pos.y - height / 2) return false;
+    //    if (goal.y - other.height / 2 >= pos.y + height / 2) return false;
+//
+     //   return true;
+    //}
 
 }
