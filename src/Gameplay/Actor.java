@@ -19,11 +19,15 @@ import java.util.ArrayList;
 //================================================================================================================
 public class Actor extends Entity
 {
-    private Direction dirPrimary = null;
-    private Direction dirSecondary = null;
-    private Direction dirVertical = null;
+    /* The horizontal direction that the player intends to move towards */
+    private Direction dirHoriz = null;
+    /* The horizontal direction that the player intends to face towards.
+     * This does not need to keep track of vertical direction. */
+    private Direction dirFace = null;
+    /* The vertical direction that the player intents to move towards */
+    private Direction dirVert = null;
 
-    private Direction wallStickPos = null;
+    //private Direction dirWall = null;
 
     private State state = State.FALL;
 
@@ -57,7 +61,7 @@ public class Actor extends Entity
      */
     void act(ArrayList<Entity> entities, float deltaSec)
     {
-        if (pressedJumpTime > 0) pressedJumpTime-=deltaSec;
+        if (pressedJumpTime > 0) pressedJumpTime -= deltaSec;
         //triggerContacts(entities);
 
         //Location and velocity carry over from frame to frame.
@@ -67,25 +71,64 @@ public class Actor extends Entity
 
         if (!state.isGrounded()) setAccelerationY(gravity);
 
-        if (state == State.RUN)
+        float vx = getVelocityX();
+
+        if (state.isGrounded())
         {
-            float vx = getVelocityX();
-            if (pressingLeft)
+            if (dirHoriz == Direction.LEFT)
             {
-                vx = vx - state.acceleration()*deltaSec;
-                if (vx < -state.maxSpeed()) vx = -state.maxSpeed();
+                if (vx > -topRunSpeed) vx -= runAccel * deltaSec;
             }
-            else if (pressingRight)
+            else if (dirHoriz == Direction.RIGHT)
             {
-                vx = vx + state.acceleration()*deltaSec;
-                if (vx > state.maxSpeed()) vx = state.maxSpeed();
+                if (vx < topRunSpeed) vx += runAccel * deltaSec;
             }
+
             setVelocityX(vx);
         }
 
+        else if (state.isAirborne())
+        {
+            if (dirHoriz == Direction.LEFT)
+            {
+                if (vx > -topAirSpeed) vx -= airAccel * deltaSec;
+            }
+            else if (dirHoriz == Direction.RIGHT)
+            {
+                if (vx < topAirSpeed) vx += airAccel * deltaSec;
+            }
 
+            if (vx > maxAirSpeed) vx = maxAirSpeed;
+            else if (vx < -maxAirSpeed) vx = -maxAirSpeed;
 
-        if (state == State.WALL_CLIMB)
+            setVelocityX(vx);
+        }
+
+        else if (state == State.SWIM)
+        {
+            float vy = getVelocityY();
+
+            if (dirHoriz == Direction.LEFT)
+            {
+                if (vx > -maxSwimSpeed) vx -= swimAccel * deltaSec;
+            }
+            else if (dirHoriz == Direction.RIGHT)
+            {
+                if (vx < maxSwimSpeed) vx += swimAccel * deltaSec;
+            }
+            if (dirVert == Direction.UP)
+            {
+                if (vy > -maxSwimSpeed) vy -= swimAccel * deltaSec;
+            }
+            else if (dirVert == Direction.DOWN)
+            {
+                if (vy < maxSwimSpeed) vy += swimAccel * deltaSec;
+            }
+
+            setVelocity(vx, vy);
+        }
+
+        else if (state == State.WALL_CLIMB)
         {
             float vy = getVelocityY();
             if (pressingUp)
@@ -102,13 +145,12 @@ public class Actor extends Entity
         }
 
 
-        float dragX = -state.drag()*getVelocityX();
-        float dragY = -state.drag()*getVelocityY();
+        float dragX = -state.drag() * getVelocityX();
+        float dragY = -state.drag() * getVelocityY();
         setAccelerationX(getAccelerationX() + dragX);
         setAccelerationY(getAccelerationY() + dragY);
 
         //System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
-
 
         Vec2 a = getAcceleration();
         Vec2 v = getVelocity();
@@ -126,98 +168,78 @@ public class Actor extends Entity
 
 
 
-
-
-
-
-
-
-
-
     public void pressLeft(boolean pressed)
     {
         if (pressed)
         {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirSecondary = Direction.LEFT;
+            if (state.isOnWall()) dirFace = Direction.LEFT;
             /* It changes your primary direction regardless */
-            dirPrimary = Direction.LEFT;
+            dirHoriz = Direction.LEFT;
         }
         /* If you release the key when already moving left */
-        else if (dirPrimary == Direction.LEFT)
+        else if (dirHoriz == Direction.LEFT)
         {
-            if (pressingRight) dirPrimary = Direction.RIGHT;
-            else dirPrimary = null;
+            if (pressingRight) dirHoriz = Direction.RIGHT;
+            else dirHoriz = null;
             /* If you release the key when already moving left with a wall */
             if (state.isOnWall())
             {
-                if (pressingRight) dirSecondary = Direction.RIGHT;
-                else dirSecondary = null;
+                if (pressingRight) dirFace = Direction.RIGHT;
+                else dirFace = null;
             }
         }
         pressingLeft = pressed;
     }
-
-
-
     public void pressRight(boolean pressed)
     {
         if (pressed)
         {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirSecondary = Direction.RIGHT;
+            if (state.isOnWall()) dirFace = Direction.RIGHT;
             /* It changes your primary direction regardless */
-            dirPrimary = Direction.RIGHT;
+            dirHoriz = Direction.RIGHT;
 
         }
         /* If you release the key when already moving right */
-        else if (dirPrimary == Direction.RIGHT)
+        else if (dirHoriz == Direction.RIGHT)
         {
-            if (pressingLeft) dirPrimary = Direction.LEFT;
-            else dirPrimary = null;
+            if (pressingLeft) dirHoriz = Direction.LEFT;
+            else dirHoriz = null;
             /* If you release the key when already moving right with a wall */
             if (state.isOnWall())
             {
-                if (pressingLeft) dirSecondary = Direction.LEFT;
-                else dirSecondary = null;
+                if (pressingLeft) dirFace = Direction.LEFT;
+                else dirFace = null;
             }
         }
         pressingRight = pressed;
     }
-
-
     public void pressUp(boolean pressed)
     {
-        if (pressed) dirVertical = Direction.UP;
-        else if (dirVertical == Direction.UP)
+        if (pressed) dirVert = Direction.UP;
+        else if (dirVert == Direction.UP)
         {
-            if (pressingDown) dirVertical = Direction.DOWN;
-            else dirVertical = null;
+            if (pressingDown) dirVert = Direction.DOWN;
+            else dirVert = null;
         }
         pressingUp = pressed;
     }
-
-
     public void pressDown(boolean pressed)
     {
-        if (pressed) dirVertical = Direction.DOWN;
-        else if (dirVertical == Direction.DOWN)
+        if (pressed) dirVert = Direction.DOWN;
+        else if (dirVert == Direction.DOWN)
         {
-            if (pressingUp) dirVertical = Direction.UP;
-            else dirVertical = null;
+            if (pressingUp) dirVert = Direction.UP;
+            else dirVert = null;
         }
         pressingDown = pressed;
     }
-
-
-
     public void pressJump(boolean pressed)
     {
         if (pressedJumpTime >0) { return; }
         else pressedJumpTime = 1.0f;
     }
-
-
 
     private enum Direction
     {
@@ -230,11 +252,6 @@ public class Actor extends Entity
         abstract int dirToNum();
         Direction opposite() { return null; }
     }
-
-
-
-
-
 
     private State determineState()
     {
@@ -416,7 +433,7 @@ public class Actor extends Entity
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is running on the ground. */
-    private float runAccel = 2F;
+    private float runAccel = 3F;
 
     /* This is the highest speed the player can be crawling or crouching
      * before changing their state to TUMBLE. */
@@ -457,12 +474,20 @@ public class Actor extends Entity
     /* This is the highest speed the player can move in the air. */
     private float maxAirSpeed = 25F;
 
+    /* This is the highest speed the player can get from moving themselves in
+     * the air. They can go faster in the air with the help of external
+     * influences such as wind or being pushed by a faster object. */
+    private float topAirSpeed = 7F;
+
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is airborne. */
     private float airAccel = 1F;
 
     /* This is the highest speed the player can move in water. */
     private float maxSwimSpeed = 3F;
+
+    /* A variable "topSwimSpeed" won't be needed because the drag underwater
+     * will be high enough to cap the player's speed. */
 
     /* This is the acceleration that is applied to the player when in water. */
     private float swimAccel = 1F;
@@ -587,7 +612,7 @@ public class Actor extends Entity
         float drag()
         {
             if (isAirborne()) return 0.25f;
-            else return 5f;
+            else return 0f;
         }
 
         abstract float startSpeed();
