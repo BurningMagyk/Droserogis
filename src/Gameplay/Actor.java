@@ -239,6 +239,10 @@ public class Actor extends Entity
 
     private State determineState()
     {
+        if (pressedJumpTime >0)
+        {
+            System.out.println("   determineState(): jump: touchEntity[DOWN]="+touchEntity[DOWN]);
+        }
         if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
         if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
         {
@@ -363,73 +367,22 @@ public class Actor extends Entity
 
     private void triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
+        touchEntity[UP] = null;
+        touchEntity[DOWN] = null;
+        touchEntity[LEFT] = null;
+        touchEntity[RIGHT] = null;
         for (Entity entity : entityList)
         {
             if (entity == this) continue;
-            if (!entity.isHit(this, goal)) continue;
+            int edge = entity.getTouchEdge(this, goal);
+            if (edge < 0) continue;
 
             entity.setTriggered(true);
+            touchEntity[edge] = entity;
 
-            if (getVelocityY() > 0)
-            {
-                float top =  entity.getTopEdge();
-                if ((getY() + getHeight() / 2 < top) && (goal.y + getHeight() / 2 >= top))
-                {
-                    //setVelocityY(0);
-                    goal.y = (entity.getY() - entity.getHeight() / 1.999f) - getHeight() / 2;
-                    touchEntity[DOWN] = entity;
-                }
-            }
-
-
-            if (getVelocityX() > 0)
-            {
-                float left = entity.getLeftEdge();
-                if ((getX() + getWidth() / 2 < left) && (goal.x + getWidth() / 2 >= left))
-                {
-                    //setVelocityX(0);
-                    goal.x = (entity.getX() - entity.getWidth() / 1.999f) - getWidth() / 2;
-                    touchEntity[RIGHT] = entity;
-                }
-            }
-
-
-            else if (getVelocityX() < 0)
-            {
-                float right = entity.getRightEdge();
-                if ((getX() - getWidth() / 2 > right) && (goal.x - getWidth() / 2 <= right))
-                {
-                    //setVelocityX(0);
-                    goal.x = (entity.getX() + entity.getWidth() / 1.999f) + getWidth() / 2;
-                    touchEntity[LEFT] = entity;
-                }
-            }
-
-        }
-
-
-        if (touchEntity[RIGHT] != null && getVelocityX() < 0)
-        {
-            touchEntity[RIGHT].setTriggered(false);
-            touchEntity[RIGHT] = null;
-        }
-
-        if (touchEntity[LEFT] != null && getVelocityX() > 0)
-        {
-            touchEntity[LEFT].setTriggered(false);
-            touchEntity[LEFT] = null;
-        }
-
-        if (touchEntity[UP] != null && getVelocityY()> 0)
-        {
-            touchEntity[UP].setTriggered(false);
-            touchEntity[UP] = null;
-        }
-
-        if (touchEntity[DOWN] != null && getVelocityY() < 0)
-        {
-            touchEntity[DOWN].setTriggered(false);
-            touchEntity[DOWN] = null;
+            if (edge == DOWN) goal.y = entity.getTopEdge() - getHeight() / 2;
+            else if (edge == LEFT) goal.x = entity.getRightEdge() + getWidth() / 2;
+            else if (edge == RIGHT) goal.x = entity.getLeftEdge() - getWidth() / 2;
         }
     }
 

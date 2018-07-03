@@ -86,7 +86,7 @@ public class Gameplay implements Reactor
       context.setFill(Color.BLACK);
 
       // triggerContacts() sets every entity's flags correctly only if they've all been reset
-     // for (Entity entity : entities) entity.resetFlags();
+      for (Entity entity : entities) entity.resetFlags();
 
       for (Actor actor : actors) actor.act(entities, deltaSec);
 
