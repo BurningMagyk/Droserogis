@@ -30,13 +30,12 @@ public class Actor extends Entity
 
     private Entity[] touchEntity = new Entity[4];
 
-
     private boolean pressingLeft = false;
     private boolean pressingRight = false;
     private boolean pressingUp = false;
     private boolean pressingDown = false;
-    private float pressedJumpTime = 0;
 
+    private float pressedJumpTime = 0;
     private float gravity = 9.8f;
 
 
@@ -256,7 +255,7 @@ public class Actor extends Entity
 
         if (state == State.WALL_CLIMB)
         {
-            System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
+            //System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
             if (touchEntity[LEFT] == null && touchEntity[RIGHT] == null)
             {
                 return State.FALL;
@@ -434,8 +433,59 @@ public class Actor extends Entity
     }
 
 
+    /*=======================================================================*/
+    /* Variables that are set by the character's stats                       */
+    /*=======================================================================*/
 
+    /* This is the highest speed the player can be running before changing
+     * their state to TUMBLE. */
+    private float maxRunSpeed = 9F;
 
+    /* This is the highest speed the player can get from running alone.
+     * They can go faster while running with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topRunspeed = 7F;
+
+    /* This is the lowest speed the player can be running before changing
+     * their state to STAND. */
+    private float minRunSpeed = 0.5F;
+
+    /* This is the speed the player start with when transitioning states from
+     * STAND to RUN. */
+    private float initRunSpeed = 5F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null. */
+    private float runAccel = 2F;
+
+    /* This is the highest speed the player can be crawling or crouching
+     * before changing their state to TUMBLE. */
+    private float maxCrawlSpeed = 6F;
+
+    /* This is the highest speed the player can get from crawling alone.
+     * They can go faster while crawling with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topCrawlSpeed = 4F;
+
+    /* This is the lowest speed the player can be crawling before changing
+     * their state to CROUCH. */
+    private float minCrawlSpeed = 0.5F;
+
+    /* This is the highest speed the player can be sliding before changing
+     * their state to TUMBLE. */
+    private float maxSlideSpeed = 12F;
+
+    /* This is the lowest speed the player can be sliding before changing
+     * their state to PRONE. */
+    private float minSlideSpeed = 2F;
+
+    /* This is the highest speed the player can be climbing before changing
+     * their state to RISE. */
+    private float maxClimbSpeed = 7F;
+
+    /* This is the highest speed the player can be skidding down a wall before
+     * changing their state to FALL. */
+    private float maxStickSpeed = 12F;
 
     //================================================================================================================
     // State
@@ -460,7 +510,7 @@ public class Actor extends Entity
                     float maxSpeed()  {return 2f;}
                     float acceleration() {return 1f;}
                 },
-        BALISTIC
+        BALLISTIC
                 {
                     boolean isAirborne() { return true; }
                     boolean isIncapacitated() { return true; }
