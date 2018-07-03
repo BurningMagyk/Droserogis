@@ -284,6 +284,10 @@ public class Actor extends Entity
             }
         }
 
+        if (state == State.STAND  || state == State.RUN)
+        {
+           if (touchEntity[DOWN] == null) return State.FALL;
+        }
 
         if (state == State.STAND)
         {
@@ -294,7 +298,10 @@ public class Actor extends Entity
         {
             if (!pressingLeft && !pressingRight)
             {
-                if (getVelocityX() < 0.01) return State.STAND;
+                if (getVelocityX() < 0.01)
+                {
+                    return State.STAND;
+                }
             }
         }
         return state;
