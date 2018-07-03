@@ -397,7 +397,7 @@ public class Actor extends Entity
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunspeed = 7F;
+    private float topRunSpeed = 7F;
 
     /* This is the lowest speed the player can be running before changing
      * their state to STAND. */
@@ -408,21 +408,25 @@ public class Actor extends Entity
     private float initRunSpeed = 5F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null. */
+     * is not null and the player is running on the ground. */
     private float runAccel = 2F;
 
     /* This is the highest speed the player can be crawling or crouching
      * before changing their state to TUMBLE. */
-    private float maxCrawlSpeed = 6F;
+    private float maxCrawlSpeed = 3F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topCrawlSpeed = 4F;
+    private float topCrawlSpeed = 1F;
 
     /* This is the lowest speed the player can be crawling before changing
      * their state to CROUCH. */
     private float minCrawlSpeed = 0.5F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is crawling on the ground. */
+    private float crawlAccel = 1F;
 
     /* This is the highest speed the player can be sliding before changing
      * their state to TUMBLE. */
@@ -439,6 +443,22 @@ public class Actor extends Entity
     /* This is the highest speed the player can be skidding down a wall before
      * changing their state to FALL. */
     private float maxStickSpeed = 12F;
+
+    // This is the acceleration that is applied to the player when on a wall.
+    private float climbAccel = 5F;
+
+    /* This is the highest speed the player can move in the air. */
+    private float maxAirSpeed = 25F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is airborne. */
+    private float airAccel = 1F;
+
+    /* This is the highest speed the player can move in water. */
+    private float maxSwimSpeed = 3F;
+
+    /* This is the acceleration that is applied to the player when in water. */
+    private float swimAccel = 1F;
 
     //================================================================================================================
     // State
@@ -559,8 +579,8 @@ public class Actor extends Entity
         //  without other forces acting on it will come to rest in 1 second.
         float drag()
         {
-            if (isGrounded()) return 5f;
-            else return 0.25f;
+            if (isAirborne()) return 0.25f;
+            else return 5f;
         }
 
         abstract float startSpeed();
