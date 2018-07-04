@@ -11,7 +11,7 @@
 <b>Project Head:</b> Robin Campos<br>
 <b>Programmers:</b> Joel Castellanos, Dustin Loughrin, Robin Campos<br>
 <b>Novelists:</b> Michael Burbank, Robin Campos, Dustin Loughrin<br>
-<b>Graphic Artists:</b> <i>--to be decided--</i><br>
+<b>Graphic Artists:</b> Alex <i>Zerandi</i> <br>
 <b>Composers:</b> <i>--to be decided--</i><br>
 <b>Voice Actors:</b> <i>--to be decided--</i><br>
 <b>Translators:</b> Robin Campos (Spanish), <i>--to be decided--</i> (Italian), 
