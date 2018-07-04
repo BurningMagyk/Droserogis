@@ -31,7 +31,6 @@ public class Actor extends Entity
 
     private State state = State.FALL;
 
-
     private Entity[] touchEntity = new Entity[4];
 
     private boolean pressingLeft = false;
@@ -41,7 +40,8 @@ public class Actor extends Entity
 
     private float pressedJumpTime = 0;
     private float gravity = 9.8f;
-
+    private float airDrag = 0.25F;
+    private float waterDrag = 1F;
 
     void debug()
     {
@@ -144,11 +144,33 @@ public class Actor extends Entity
             setVelocityY(vy);
         }
 
+        float dragX, dragY;
+        if (state == State.SWIM)
+        {
+            dragX = -waterDrag * getVelocityX();
+            dragY = -waterDrag * getVelocityY();
+        }
+        else
+        {
+            dragX = -airDrag * getVelocityX();
+            dragY = -airDrag * getVelocityY();
+        }
+        float frictionX = 0, frictionY = 0;
+        if (state.isGrounded())
+        {
+            frictionX = touchEntity[DOWN].getFriction() + getFriction();
+            frictionX *= -getVelocityX();
+        }
+        else if (state.isOnWall())
+        {
+            if (touchEntity[LEFT] == null)
+                frictionY = touchEntity[RIGHT].getFriction() + getFriction();
+            else frictionY = touchEntity[LEFT].getFriction() + getFriction();
+            frictionY *= -getVelocityY();
+        }
 
-        float dragX = -state.drag() * getVelocityX();
-        float dragY = -state.drag() * getVelocityY();
-        setAccelerationX(getAccelerationX() + dragX);
-        setAccelerationY(getAccelerationY() + dragY);
+        setAccelerationX(getAccelerationX() + dragX + frictionX);
+        setAccelerationY(getAccelerationY() + dragY + frictionY);
 
         //System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
 
