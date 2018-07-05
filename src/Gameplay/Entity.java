@@ -49,7 +49,7 @@ abstract public class Entity
 
     private boolean triggered = false;
     private float gravityScale = 1;
-    private float friction = 1;
+    private float friction = 3;
 
 
     Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, boolean dynamic)

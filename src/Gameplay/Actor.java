@@ -38,7 +38,6 @@ public class Actor extends Entity
     private boolean pressingUp = false;
     private boolean pressingDown = false;
 
-    private float pressedJumpTime = 0;
     private float gravity = 9.8f;
     private float gravJumpReduct = 0.3F;
     private float gravClimbReduct = 0.7F;
@@ -47,7 +46,7 @@ public class Actor extends Entity
 
     void debug()
     {
-        Print.blue(state);
+        Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
     @Override
@@ -108,8 +107,11 @@ public class Actor extends Entity
             if (vx > maxAirSpeed) vx = maxAirSpeed;
             else if (vx < -maxAirSpeed) vx = -maxAirSpeed;
 
-            // TODO: Should set the y-velocity to be the initial y-velocity just before the player jumped, if they jumped
-            if (pressedJumpTime == -1 && state == State.RISE) setVelocityY(0F);
+            if (pressedJumpTime == -1 && state == State.RISE)
+            {
+                // TODO: Those 0F's should be "initJumpVel" instead, but getVelocity() isn't working properly
+                setVelocityY(Math.max(0F, 0F + (getVelocityY() / 2F)));
+            }
 
             setVelocityX(vx);
         }
@@ -179,7 +181,13 @@ public class Actor extends Entity
         float frictionX = 0, frictionY = 0;
         if (state.isGrounded())
         {
-            frictionX = touchEntity[DOWN].getFriction() * getFriction();
+            if (dirHoriz == null
+                    || getVelocityX() < 0 && dirHoriz == Direction.RIGHT
+                    || getVelocityX() > 0 && dirHoriz == Direction.LEFT)
+            {
+                frictionX = touchEntity[DOWN].getFriction() * getFriction();
+            }
+            else frictionX = 0F;
         }
         else if (state.isOnWall())
         {
@@ -194,17 +202,19 @@ public class Actor extends Entity
         if (getVelocityX() > 0) frictionX = -frictionX;
         if (getVelocityY() > 0) frictionY = -frictionY;
 
-        /* If the reductive forces are negative while the acceleration is
-         * positive, and the reductive forces are greater, then the
-         * acceleration should go to zero. Same if the reductive forces are
-         * positive while the acceleration is negative. */
-        if (dragX + frictionX < 0 && getAccelerationX() > 0 && Math.abs(dragX + frictionX) > getAccelerationX()) setAccelerationX(0F);
+        /*if (dragX + frictionX < 0 && getAccelerationX() > 0 && Math.abs(dragX + frictionX) > getAccelerationX()) setAccelerationX(0F);
         else if (dragX + frictionX > 0 && getAccelerationX() < 0 && Math.abs(dragX + frictionX) > Math.abs(getAccelerationX())) setAccelerationX(0F);
         else setAccelerationX(getAccelerationX() + dragX + frictionX);
 
         if (dragY + frictionY < 0 && getAccelerationY() > 0 && Math.abs(dragY + frictionY) > getAccelerationY()) setAccelerationY(0F);
         else if (dragY + frictionY > 0 && getAccelerationY() < 0 && Math.abs(dragY + frictionY) > Math.abs(getAccelerationY())) setAccelerationY(0F);
-        else setAccelerationY(getAccelerationY() + dragY + frictionY);
+        else setAccelerationY(getAccelerationY() + dragY + frictionY);*/
+
+        //frictionX = 0F;
+        //frictionY = 0F;
+
+        setAccelerationX(getAccelerationX() + dragX + frictionX);
+        setAccelerationY(getAccelerationY() + dragY + frictionY);
 
         /*===================================================================*/
         /*     Move actor according to current acceleration and velocity     */
@@ -292,10 +302,21 @@ public class Actor extends Entity
         }
         pressingDown = pressed;
     }
+
+    private boolean pressingJump = false;
+    private float pressedJumpTime = 0;
+    /* Only for the y-velocity */
+    private float initJumpVel = 0F;
     public void pressJump(boolean pressed)
     {
-        if (pressed) pressedJumpTime = 1F;
-        else pressedJumpTime = -1F;
+        if (pressed && !pressingJump)
+        {
+            pressedJumpTime = 1F;
+            initJumpVel = getVelocityY();
+            Print.green("initJumpVel: " + initJumpVel);
+        }
+        else if (!pressed) pressedJumpTime = -1F;
+        pressingJump = pressed;
     }
 
     private enum Direction
