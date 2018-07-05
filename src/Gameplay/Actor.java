@@ -40,6 +40,8 @@ public class Actor extends Entity
 
     private float pressedJumpTime = 0;
     private float gravity = 9.8f;
+    private float gravJumpReduct = 0.3F;
+    private float gravClimbReduct = 0.7F;
     private float airDrag = 0.25F;
     private float waterDrag = 1F;
 
@@ -128,9 +130,9 @@ public class Actor extends Entity
             setVelocity(vx, vy);
         }
 
-        else if (state == State.WALL_CLIMB)
+        else if (state.isOnWall())
         {
-            float vy = getVelocityY();
+            /*float vy = getVelocityY();
             if (pressingUp)
             {
                 vy = vy - state.acceleration()*deltaSec;
@@ -141,9 +143,13 @@ public class Actor extends Entity
                 vy = vy + state.acceleration()*deltaSec;
                 if (vy > state.maxSpeed()) vy = state.maxSpeed();
             }
-            setVelocityY(vy);
+
+            setVelocityY(vy);*/
         }
 
+        /*===================================================================*/
+        /*                      Apply drag and friction                      */
+        /*===================================================================*/
         float dragX, dragY;
         if (state == State.SWIM)
         {
@@ -158,22 +164,38 @@ public class Actor extends Entity
         float frictionX = 0, frictionY = 0;
         if (state.isGrounded())
         {
-            frictionX = touchEntity[DOWN].getFriction() + getFriction();
-            frictionX *= -getVelocityX();
+            frictionX = touchEntity[DOWN].getFriction() * getFriction();
+            //frictionX *= -getVelocityX();
         }
         else if (state.isOnWall())
         {
-            if (touchEntity[LEFT] == null)
-                frictionY = touchEntity[RIGHT].getFriction() + getFriction();
-            else frictionY = touchEntity[LEFT].getFriction() + getFriction();
-            frictionY *= -getVelocityY();
+            if ((dirHoriz == null && dirVert == null) || getVelocityY() < 0)
+                frictionY = -gravity * gravClimbReduct;
+            else if (touchEntity[LEFT] == null)
+                frictionY = touchEntity[RIGHT].getFriction() * getFriction();
+            else frictionY = touchEntity[LEFT].getFriction() * getFriction();
+            //frictionY *= -getVelocityY();
         }
+        else if (state == State.RISE) frictionY = -gravity * gravJumpReduct;
 
-        setAccelerationX(getAccelerationX() + dragX + frictionX);
-        setAccelerationY(getAccelerationY() + dragY + frictionY);
+        if (getVelocityX() > 0) frictionX = -frictionX;
+        if (getVelocityY() > 0) frictionY = -frictionY;
 
-        //System.out.println("vel="+getVelocity() + ",  dragX="+dragX +  ",  dragY="+dragY);
+        /* If the reductive forces are negative while the acceleration is
+         * positive, and the reductive forces are greater, then the
+         * acceleration should go to zero. Same if the reductive forces are
+         * positive while the acceleration is negative. */
+        if (dragX + frictionX < 0 && getAccelerationX() > 0 && Math.abs(dragX + frictionX) > getAccelerationX()) setAccelerationX(0F);
+        else if (dragX + frictionX > 0 && getAccelerationX() < 0 && Math.abs(dragX + frictionX) > Math.abs(getAccelerationX())) setAccelerationX(0F);
+        else setAccelerationX(getAccelerationX() + dragX + frictionX);
 
+        if (dragY + frictionY < 0 && getAccelerationY() > 0 && Math.abs(dragY + frictionY) > getAccelerationY()) setAccelerationY(0F);
+        else if (dragY + frictionY > 0 && getAccelerationY() < 0 && Math.abs(dragY + frictionY) > Math.abs(getAccelerationY())) setAccelerationY(0F);
+        else setAccelerationY(getAccelerationY() + dragY + frictionY);
+
+        /*===================================================================*/
+        /*     Move actor according to current acceleration and velocity     */
+        /*===================================================================*/
         Vec2 a = getAcceleration();
         Vec2 v = getVelocity();
         a.mul(deltaSec);
@@ -352,13 +374,12 @@ public class Actor extends Entity
 
     void setState(State state)
     {
-        if (state == State.STAND)
-        {
-            setVelocity(Vec2.ZERO);
-        }
-
         if (this.state == state) return;
 
+        if (state == State.STAND)
+        {
+            //setVelocity(Vec2.ZERO);
+        }
 
         else if (state == State.RISE)
         {
