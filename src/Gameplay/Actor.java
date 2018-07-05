@@ -165,7 +165,6 @@ public class Actor extends Entity
         if (state.isGrounded())
         {
             frictionX = touchEntity[DOWN].getFriction() * getFriction();
-            //frictionX *= -getVelocityX();
         }
         else if (state.isOnWall())
         {
@@ -174,7 +173,6 @@ public class Actor extends Entity
             else if (touchEntity[LEFT] == null)
                 frictionY = touchEntity[RIGHT].getFriction() * getFriction();
             else frictionY = touchEntity[LEFT].getFriction() * getFriction();
-            //frictionY *= -getVelocityY();
         }
         else if (state == State.RISE) frictionY = -gravity * gravJumpReduct;
 
@@ -299,28 +297,49 @@ public class Actor extends Entity
 
     private State determineState()
     {
-        if (pressedJumpTime >0)
+        /*if (pressedJumpTime >0)
         {
             System.out.println("   determineState(): jump: touchEntity[DOWN]="+touchEntity[DOWN]);
-        }
-        if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
-        if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
+        }*/
+        //if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
+        if (inWater()) return State.SWIM;
+        else if (touchEntity[DOWN] != null)
         {
-            //System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
+            if (dirVert == Direction.DOWN)
+            {
+                if (getVelocityX() >= minCrawlSpeed || getVelocityX() <= -minCrawlSpeed) return State.CRAWL;
+                return State.CROUCH;
+            }
+            if (getVelocityX() >= minRunSpeed || getVelocityX() <= -minRunSpeed) return State.RUN;
             return State.STAND;
         }
+        else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
+        {
+            if (getVelocityY() < 0) return State.WALL_CLIMB;
+            return State.WALL_STICK;
+        }
+        else
+        {
+            if (getVelocityY() < 0) return State.RISE;
+            else return State.FALL;
+        }
+        /*if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
+        {
+            System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
+            return State.STAND;
+        }*/
 
         //if (pressingRight && touchEntity[RIGHT]!=null) pressingRight = false;
         //if (pressingLeft && touchEntity[LEFT]!=null) pressingLeft = false;
         //if (pressingUp && touchEntity[UP]!=null) pressingUp = false;
-        if (pressingDown && touchEntity[DOWN]!=null)
+        /*if (pressingDown && touchEntity[DOWN]!=null)
         {
             if (state == State.STAND) return State.CROUCH;
         }
 
         if (state == State.WALL_CLIMB)
         {
-            //System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
+            System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
             if (touchEntity[LEFT] == null && touchEntity[RIGHT] == null)
             {
                 return State.FALL;
@@ -365,7 +384,7 @@ public class Actor extends Entity
                 }
             }
         }
-        return state;
+        return state;*/
     }
 
 
@@ -376,9 +395,9 @@ public class Actor extends Entity
     {
         if (this.state == state) return;
 
-        if (state == State.STAND)
+        /*if (state == State.STAND)
         {
-            //setVelocity(Vec2.ZERO);
+            setVelocity(Vec2.ZERO);
         }
 
         else if (state == State.RISE)
@@ -419,7 +438,7 @@ public class Actor extends Entity
             if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
             setVelocity(0, vy + dir*vx);
             System.out.println("    setState(WALL_CLIMB): velocity="+getVelocity());
-        }
+        }*/
 
 
         /* Temporary */
@@ -624,10 +643,18 @@ public class Actor extends Entity
                     float maxSpeed()  {return 1f;}
                     float acceleration() {return 1f;}
                 },
-        SLIDE
+        CRAWL
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.HOTPINK; }
+                    float startSpeed() {return 0F;}
+                    float maxSpeed()  {return 0f;}
+                    float acceleration() {return 0f;}
+                },
+        SLIDE
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.PINK; }
                     float startSpeed() {return 2f;}
                     float maxSpeed()  {return 4f;}
                     float acceleration() {return 2f;}
@@ -663,4 +690,6 @@ public class Actor extends Entity
         abstract float acceleration();
 
     }
+
+    private boolean inWater() { return false; }
 }
