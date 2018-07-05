@@ -63,7 +63,6 @@ public class Actor extends Entity
      */
     void act(ArrayList<Entity> entities, float deltaSec)
     {
-        if (pressedJumpTime > 0) pressedJumpTime -= deltaSec;
         //triggerContacts(entities);
 
         //Location and velocity carry over from frame to frame.
@@ -86,6 +85,12 @@ public class Actor extends Entity
                 if (vx < topRunSpeed) vx += runAccel * deltaSec;
             }
 
+            if (pressedJumpTime > 0)
+            {
+                setVelocityY(-jumpVel);
+                pressedJumpTime = 0F;
+            }
+
             setVelocityX(vx);
         }
 
@@ -102,6 +107,9 @@ public class Actor extends Entity
 
             if (vx > maxAirSpeed) vx = maxAirSpeed;
             else if (vx < -maxAirSpeed) vx = -maxAirSpeed;
+
+            // TODO: Should set the y-velocity to be the initial y-velocity just before the player jumped, if they jumped
+            if (pressedJumpTime == -1 && state == State.RISE) setVelocityY(0F);
 
             setVelocityX(vx);
         }
@@ -146,6 +154,13 @@ public class Actor extends Entity
 
             setVelocityY(vy);*/
         }
+
+        if (pressedJumpTime > 0)
+        {
+            pressedJumpTime -= deltaSec;
+            if (pressedJumpTime < 0) pressedJumpTime = 0F;
+        }
+        else if (pressedJumpTime == -1) pressedJumpTime = 0F;
 
         /*===================================================================*/
         /*                      Apply drag and friction                      */
@@ -279,8 +294,8 @@ public class Actor extends Entity
     }
     public void pressJump(boolean pressed)
     {
-        if (pressedJumpTime >0) { return; }
-        else pressedJumpTime = 1.0f;
+        if (pressed) pressedJumpTime = 1F;
+        else pressedJumpTime = -1F;
     }
 
     private enum Direction
@@ -386,10 +401,6 @@ public class Actor extends Entity
         }
         return state;*/
     }
-
-
-
-
 
     void setState(State state)
     {
@@ -554,6 +565,9 @@ public class Actor extends Entity
     /* This is the acceleration that is applied to the player when in water. */
     private float swimAccel = 1F;
 
+    /* The velocity used to jump */
+    private float jumpVel = 10F;
+
     //================================================================================================================
     // State
     //================================================================================================================
@@ -564,107 +578,67 @@ public class Actor extends Entity
                     boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
-                    float startSpeed() {return 0;}
-                    float maxSpeed()  {return 0;}
-                    float acceleration() {return 0;}
                 },
         TUMBLE
                 {
                     boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.GREY; }
-                    float startSpeed() {return 2f;}
-                    float maxSpeed()  {return 2f;}
-                    float acceleration() {return 1f;}
                 },
         BALLISTIC
                 {
                     boolean isAirborne() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
-                    float startSpeed() {return 0f;}
-                    float maxSpeed()  {return 0f;}
-                    float acceleration() {return 0f;}
                 },
         RISE
                 {
                     boolean isAirborne() { return true; }
                     Color getColor() { return Color.CORNFLOWERBLUE; }
-                    float startSpeed() {return 10f;}
-                    float maxSpeed()  {return 25f;}
-                    float acceleration() {return 0;}  //This could be used as a different way of reducing gravity
                 },
         FALL
                 {
                     boolean isAirborne() { return true; }
                     Color getColor() { return Color.CYAN; }
-                    float startSpeed() {return 1f;}
-                    float maxSpeed()  {return 10f;}
-                    float acceleration() {return 9.8f;}
                 },
         STAND
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.MAROON; }
-                    float startSpeed() {return 0;}
-                    float maxSpeed()  {return 0;}
-                    float acceleration() {return 0;}
                 },
         RUN
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.BROWN; }
-                    float startSpeed() {return 5f;}
-                    float maxSpeed()  {return 7f;}
-                    float acceleration() {return 15;}
                 },
         WALL_STICK
                 {
                     boolean isOnWall() { return true; }
-                    boolean isGrounded() { return true; }
                     Color getColor() { return Color.GREENYELLOW; }
-                    float startSpeed() {return 0f;}
-                    float maxSpeed()  {return 0f;}
-                    float acceleration() {return 0;}
                 },
         WALL_CLIMB
                 {
                     boolean isOnWall() { return true; }
                     Color getColor() { return Color.LIGHTGREEN; }
-                    float startSpeed() {return 2;}   //Keep whatever y speed you have and change x speed to y speed plus this boost.
-                    float maxSpeed()  {return 12f;}  //can only reach this when climbing down (with gravity)
-                    float acceleration() {return 5;} //less than gravity (9.8)
                 },
         CROUCH
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.RED; }
-                    float startSpeed() {return 0.7f;}
-                    float maxSpeed()  {return 1f;}
-                    float acceleration() {return 1f;}
                 },
         CRAWL
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.HOTPINK; }
-                    float startSpeed() {return 0F;}
-                    float maxSpeed()  {return 0f;}
-                    float acceleration() {return 0f;}
                 },
         SLIDE
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.PINK; }
-                    float startSpeed() {return 2f;}
-                    float maxSpeed()  {return 4f;}
-                    float acceleration() {return 2f;}
                 },
         SWIM
                 {
                     Color getColor() { return Color.BLUE; }
-                    float startSpeed() {return 0.5f;}
-                    float maxSpeed()  {return 1f;}
-                    float acceleration() {return 1f;}
                 };
 
         boolean isOnWall() { return false; }
@@ -672,23 +646,6 @@ public class Actor extends Entity
         boolean isGrounded() { return false; }
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
-
-
-        //Drag is a a force that acts in the opposite direction to velocity with a magnitude directly proportional
-        //  to the magnitude of the velocity.
-        //The acceleration caused by this force is applied independently in X and Y directions.
-        //In these calculations, drag is expressed in meters/sec/sec where a drag of 1 means an object moving
-        //  without other forces acting on it will come to rest in 1 second.
-        float drag()
-        {
-            if (isAirborne()) return 0.25f;
-            else return 0f;
-        }
-
-        abstract float startSpeed();
-        abstract float maxSpeed();
-        abstract float acceleration();
-
     }
 
     private boolean inWater() { return false; }
