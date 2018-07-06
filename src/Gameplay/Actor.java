@@ -427,7 +427,7 @@ public class Actor extends Entity
     {
         if (this.state == state) return;
 
-        /*if (state == State.STAND)
+        if (state == State.STAND)
         {
             setVelocity(Vec2.ZERO);
         }
@@ -436,11 +436,11 @@ public class Actor extends Entity
         {
             if (this.state == State.WALL_CLIMB)
             {
-                if (pressingLeft) setVelocityX(-State.RUN.startSpeed());
-                else if (pressingRight) setVelocityX(State.RUN.startSpeed());
-                setVelocityY(-state.startSpeed()/2);
+                //if (pressingLeft) setVelocityX(-State.RUN.startSpeed());
+                //else if (pressingRight) setVelocityX(State.RUN.startSpeed());
+                //setVelocityY(-state.startSpeed()/2);
             }
-            else setVelocityY(-state.startSpeed());
+            //else setVelocityY(-state.startSpeed());
             pressedJumpTime = 0;
         }
 
@@ -451,8 +451,8 @@ public class Actor extends Entity
            if (pressingLeft) dir=-1;
            else if (pressingRight) dir=1;
 
-           vx = vx + dir*state.startSpeed();
-           if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
+           //vx = vx + dir*state.startSpeed();
+           //if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
            setVelocityX(vx);
         }
 
@@ -467,10 +467,10 @@ public class Actor extends Entity
             float vy = getVelocityY();
             float dir=-1; //go up
             if (pressingDown) dir=1;
-            if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
+            //if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
             setVelocity(0, vy + dir*vx);
             System.out.println("    setState(WALL_CLIMB): velocity="+getVelocity());
-        }*/
+        }
 
 
         /* Temporary */
