@@ -343,10 +343,21 @@ public class Actor extends Entity
         {
             if (dirVert == Direction.DOWN)
             {
-                if (getVelocityX() >= minCrawlSpeed || getVelocityX() <= -minCrawlSpeed) return State.CRAWL;
+                if (getVelocityX() >= minCrawlSpeed && dirHoriz == Direction.RIGHT) return State.CRAWL;
+                else if (getVelocityX() <= -minCrawlSpeed && dirHoriz == Direction.LEFT) return State.CRAWL;
                 return State.CROUCH;
             }
-            if (getVelocityX() >= minRunSpeed || getVelocityX() <= -minRunSpeed) return State.RUN;
+            if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
+            {
+                if (dirVert == Direction.UP || dirHoriz == Direction.RIGHT) return State.WALL_CLIMB;
+                else return State.STAND;
+            }
+            if (getVelocityX() < 0 && touchEntity[LEFT] != null)
+            {
+                if (dirVert == Direction.UP || dirHoriz == Direction.LEFT) return State.WALL_CLIMB;
+                else return State.STAND;
+            }
+            if (Math.abs(getVelocityX()) >= minRunSpeed)  return State.RUN;
             return State.STAND;
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
@@ -359,68 +370,7 @@ public class Actor extends Entity
             if (getVelocityY() < 0) return State.RISE;
             else return State.FALL;
         }
-        /*if ((!state.isGrounded()) && (touchEntity[DOWN] != null))
-        {
-            System.out.println("  determineState(): state="+state   +"  , touchEntity[DOWN]="+touchEntity[DOWN]);
-            return State.STAND;
-        }*/
 
-        //if (pressingRight && touchEntity[RIGHT]!=null) pressingRight = false;
-        //if (pressingLeft && touchEntity[LEFT]!=null) pressingLeft = false;
-        //if (pressingUp && touchEntity[UP]!=null) pressingUp = false;
-        /*if (pressingDown && touchEntity[DOWN]!=null)
-        {
-            if (state == State.STAND) return State.CROUCH;
-        }
-
-        if (state == State.WALL_CLIMB)
-        {
-            System.out.println("     walls: "+ touchEntity[LEFT] +", " + touchEntity[RIGHT]);
-            if (touchEntity[LEFT] == null && touchEntity[RIGHT] == null)
-            {
-                return State.FALL;
-            }
-        }
-
-
-        //if (state == State.WALL_STICK)
-        //{
-        //    if (!pressingUp && !pressingDown && !pressingRight && !pressingLeft) return State.WALL_STICK;
-        //    if (pressingUp || pressingDown) return State.WALL_CLIMB;
-        //    if (pressingRight || pressingLeft) return State.RISE;
-        //}
-
-
-        if (state != State.WALL_CLIMB)
-        {
-            if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
-            {
-                if (pressingUp || (touchEntity[DOWN] == null)) return State.WALL_CLIMB;
-                //if (!pressingDown && !pressingUp && (touchEntity[DOWN] == null)) return State.WALL_STICK;
-            }
-        }
-
-        if (state == State.STAND  || state == State.RUN)
-        {
-           if (touchEntity[DOWN] == null) return State.FALL;
-        }
-
-        if (state == State.STAND)
-        {
-            if (pressingLeft || pressingRight) return State.RUN;
-        }
-
-        if (state == State.RUN)
-        {
-            if (!pressingLeft && !pressingRight)
-            {
-                if (getVelocityX() < 0.01)
-                {
-                    return State.STAND;
-                }
-            }
-        }
-        return state;*/
     }
 
     void setState(State state)
@@ -432,18 +382,7 @@ public class Actor extends Entity
             setVelocity(Vec2.ZERO);
         }
 
-        else if (state == State.RISE)
-        {
-            if (this.state == State.WALL_CLIMB)
-            {
-                //if (pressingLeft) setVelocityX(-State.RUN.startSpeed());
-                //else if (pressingRight) setVelocityX(State.RUN.startSpeed());
-                //setVelocityY(-state.startSpeed()/2);
-            }
-            //else setVelocityY(-state.startSpeed());
-            pressedJumpTime = 0;
-        }
-
+        /*
         else if (state == State.RUN)
         {
            float vx = getVelocityX();
@@ -451,10 +390,10 @@ public class Actor extends Entity
            if (pressingLeft) dir=-1;
            else if (pressingRight) dir=1;
 
-           //vx = vx + dir*state.startSpeed();
-           //if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
+           vx = vx + dir*state.startSpeed();
+           if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
            setVelocityX(vx);
-        }
+        }*/
 
         else if (state == State.WALL_STICK)
         {
@@ -465,11 +404,7 @@ public class Actor extends Entity
         {
             float vx = Math.abs(getVelocityX()); //change horz speed to vertical
             float vy = getVelocityY();
-            float dir=-1; //go up
-            if (pressingDown) dir=1;
-            //if (pressingUp) vy = vy - State.WALL_CLIMB.startSpeed();
-            setVelocity(0, vy + dir*vx);
-            System.out.println("    setState(WALL_CLIMB): velocity="+getVelocity());
+            setVelocity(0, vy + vx);
         }
 
 
