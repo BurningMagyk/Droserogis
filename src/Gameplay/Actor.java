@@ -216,9 +216,9 @@ public class Actor extends Entity
         setAccelerationX(getAccelerationX() + dragX + frictionX);
         setAccelerationY(getAccelerationY() + dragY + frictionY);
 
-        /*===================================================================*/
-        /*     Move actor according to current acceleration and velocity     */
-        /*===================================================================*/
+        //=====================================================================
+        //     Move actor according to current acceleration and velocity
+        //=====================================================================
         Vec2 a = getAcceleration();
         Vec2 v = getVelocity();
         a.mul(deltaSec);
@@ -227,7 +227,7 @@ public class Actor extends Entity
         Vec2 goal = getPosition();
         v.mul(deltaSec);
         goal.add(v);
-        triggerContacts(goal, entities); //Note: this method will modify goal so that it does not pass into an object.
+        Vec2 orginalVel = triggerContacts(goal, entities); //returns null if the actor does not hit anything
         setPosition(goal);
 
         setState(determineState());
@@ -417,8 +417,25 @@ public class Actor extends Entity
 
 
 
-    private void triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
+
+    //===============================================================================================================
+    //  triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
+    //
+    // This method iterates through entityList and assigns each element of the class array touchEntity[] to null
+    //  (if this actor is not touching anything on that edge) or to an entity reference of whatever entity it is
+    //  touching.
+    //
+    // The given Vec2 goal is the location where this actor would move if it does not hit anything.
+    //   This method changes the location in goal so that the object overlap anything.
+    //
+    // It a collision is detected, this actor's velocity is set to zero.
+    //
+    // The method returns null if this actor's velocity is unchanged. Otherwise, it returns this actors original
+    // velocity.
+    //===============================================================================================================
+    private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
+        Vec2 orginalVel = null;
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
         touchEntity[LEFT] = null;
@@ -429,13 +446,17 @@ public class Actor extends Entity
             int edge = entity.getTouchEdge(this, goal);
             if (edge < 0) continue;
 
+            if (orginalVel == null) orginalVel = this.getVelocity();
+            setVelocity(Vec2.ZERO);
             entity.setTriggered(true);
             touchEntity[edge] = entity;
+
 
             if (edge == DOWN) goal.y = entity.getTopEdge() - getHeight() / 2;
             else if (edge == LEFT) goal.x = entity.getRightEdge() + getWidth() / 2;
             else if (edge == RIGHT) goal.x = entity.getLeftEdge() - getWidth() / 2;
         }
+        return orginalVel;
     }
 
 
