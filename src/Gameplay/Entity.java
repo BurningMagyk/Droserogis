@@ -34,32 +34,27 @@ abstract public class Entity
     public static final int DOWN=2;
     public static final int LEFT=3;
 
-
     private Vec2 pos;
     private Vec2 velocity = new Vec2(Vec2.ZERO);
-    private Vec2 accleration = new Vec2(Vec2.ZERO);
+    private Vec2 acceleration = new Vec2(Vec2.ZERO);
 
     private float width, height;
-    private boolean dynamic;
     private Vec2[] vertexList;
 
     private final ShapeEnum shape;
     private Color color = Color.BLACK;
-    ;
 
     private boolean triggered = false;
-    private float gravityScale = 1;
     private float friction = 3;
 
 
-    Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, boolean dynamic)
+    Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)
     {
         this.width = width;
         this.height = height;
         this.shape = shape;
 
         pos = new Vec2(xPos, yPos);
-        this.dynamic = dynamic;
 
 
         //For a triangle, the given (xPos,yPos) is the center of the hypotenuse.
@@ -95,17 +90,6 @@ abstract public class Entity
             vertexList[1] = new Vec2(width / 2, height / 2);
             vertexList[2] = new Vec2(-width / 2, -height / 2);
         }
-
-        //bodyDef.position.set(xPos, yPos);
-        //bodyDef.type = dynamic ? BodyType.DYNAMIC : BodyType.KINEMATIC;
-        //body = world.createBody(bodyDef);
-
-        //fixtureDef.density = 0.005F;
-        //fixtureDef.friction = 0.3F;
-        //fixtureDef.friction = 0F;
-        //fixtureDef.shape = polygonShape;
-
-        //body.setFixedRotation(true);
     }
 
 
@@ -114,8 +98,6 @@ abstract public class Entity
     public float getX() { return pos.x; }
 
     public float getY() { return pos.y; }
-
-    public boolean isDynamic() {return dynamic;}
 
     public float getWidth() { return width; }
 
@@ -160,28 +142,35 @@ abstract public class Entity
         velocity.y = y;
     }
 
+    void addVelocity(float x, float y) { velocity.add(new Vec2(x, y)); }
+    void addVelocityX(float x) { velocity.x += x; }
+    void addVelocityY(float y) { velocity.y += y; }
+
     public void setAcceleration(Vec2 v)
     {
-        accleration.x = v.x;
-        accleration.y = v.y;
+        acceleration.x = v.x;
+        acceleration.y = v.y;
     }
 
     public void setAcceleration(float x, float y)
     {
-        accleration.x = x;
-        accleration.y = y;
+        acceleration.x = x;
+        acceleration.y = y;
     }
 
-    public Vec2 getAcceleration() {return new Vec2(accleration);}
+    Vec2 getAcceleration() {return new Vec2(acceleration);}
 
+    float getAccelerationX() {return acceleration.x;}
 
-    public float getAccelerationX() {return accleration.x;}
+    float getAccelerationY() {return acceleration.y;}
 
-    public float getAccelerationY() {return accleration.y;}
+    void setAccelerationX(float x) {acceleration.x = x;}
 
-    public void setAccelerationX(float x) {accleration.x = x;}
+    void setAccelerationY(float y) {acceleration.y = y;}
 
-    public void setAccelerationY(float y) {accleration.y = y;}
+    void addAcceleration(float x, float y) {acceleration.add(new Vec2(x, y));}
+    void addAccelerationX(float x) { acceleration.x += x; }
+    void addAccelerationY(float y) { acceleration.y += y; }
 
     //public Vec2 getNewPos(long)
     //{
@@ -220,8 +209,6 @@ abstract public class Entity
     public boolean getTriggered() { return triggered;}
 
     public void setTriggered(boolean triggered) { this.triggered = triggered;}
-
-    public void setGravityScale(float scale) {gravityScale = scale;}
 
     public float getFriction() { return friction; }
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 //================================================================================================================
 // Key Commands:
-//    WASD   : move left, right, up, down
+//    W,A,S,D: move left, right, up, down
 //    J      : jump
 //    ESC    : exit game
 //    Arrow keys pan the camera. Q and E zoom in and out
@@ -33,12 +33,11 @@ public class Actor extends Entity
 
     private Entity[] touchEntity = new Entity[4];
 
-    private boolean pressingLeft = false;
-    private boolean pressingRight = false;
-    private boolean pressingUp = false;
-    private boolean pressingDown = false;
+    private boolean
+            pressingLeft = false, pressingRight = false,
+            pressingUp = false, pressingDown = false;
 
-    private float gravity = 9.8f;
+    private float gravity = 9.8F;
     private float gravJumpReduct = 0.3F;
     private float gravClimbReduct = 0.7F;
     private float airDrag = 0.25F;
@@ -54,7 +53,7 @@ public class Actor extends Entity
 
     Actor(float xPos, float yPos, float width, float height)
     {
-        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, true);
+        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
     }
 
     /**
@@ -62,11 +61,10 @@ public class Actor extends Entity
      */
     void act(ArrayList<Entity> entities, float deltaSec)
     {
-        //triggerContacts(entities);
-
-        //Location and velocity carry over from frame to frame.
-        // Acceleration, however exists only when there is a force. Thus, each frame, we set acceleration to 0,
-        //   figure out which forces are acting on it and add in acceleration for those forces.
+        /* Location and velocity carry over from frame to frame.
+         * Acceleration, however exists only when there is a force.
+         * Thus, each frame, we set acceleration to 0, figure out which forces
+         * are acting on it and add in acceleration for those forces. */
         setAcceleration(0,0);
 
         if (!state.isGrounded()) setAccelerationY(gravity);
@@ -77,43 +75,35 @@ public class Actor extends Entity
         {
             if (dirHoriz == Direction.LEFT)
             {
-                if (vx > -topRunSpeed) vx -= runAccel * deltaSec;
+                if (vx > -topRunSpeed) addAccelerationX(-runAccel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
-                if (vx < topRunSpeed) vx += runAccel * deltaSec;
+                if (vx < topRunSpeed) addAccelerationX(runAccel);
             }
 
             if (pressedJumpTime > 0)
             {
-                setVelocityY(-jumpVel);
+                addVelocityY(-jumpVel);
                 pressedJumpTime = 0F;
             }
-
-            setVelocityX(vx);
         }
 
         else if (state.isAirborne())
         {
             if (dirHoriz == Direction.LEFT)
             {
-                if (vx > -topAirSpeed) vx -= airAccel * deltaSec;
+                if (vx > -topAirSpeed) addAccelerationX(-airAccel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
-                if (vx < topAirSpeed) vx += airAccel * deltaSec;
+                if (vx < topAirSpeed) addAccelerationX(airAccel);
             }
-
-            if (vx > maxAirSpeed) vx = maxAirSpeed;
-            else if (vx < -maxAirSpeed) vx = -maxAirSpeed;
 
             if (pressedJumpTime == -1 && state == State.RISE)
             {
-                // TODO: Those 0F's should be "initJumpVel" instead, but getVelocity() isn't working properly
-                setVelocityY(Math.max(0F, 0F + (getVelocityY() / 2F)));
+                // TODO: set gravity back to normal
             }
-
-            setVelocityX(vx);
         }
 
         else if (state == State.SWIM)
@@ -122,22 +112,20 @@ public class Actor extends Entity
 
             if (dirHoriz == Direction.LEFT)
             {
-                if (vx > -maxSwimSpeed) vx -= swimAccel * deltaSec;
+                if (vx > -maxSwimSpeed) addAccelerationX(-swimAccel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
-                if (vx < maxSwimSpeed) vx += swimAccel * deltaSec;
+                if (vx < maxSwimSpeed) addAccelerationX(swimAccel);
             }
             if (dirVert == Direction.UP)
             {
-                if (vy > -maxSwimSpeed) vy -= swimAccel * deltaSec;
+                if (vy > -maxSwimSpeed) addAccelerationY(-swimAccel);
             }
             else if (dirVert == Direction.DOWN)
             {
-                if (vy < maxSwimSpeed) vy += swimAccel * deltaSec;
+                if (vy < maxSwimSpeed) addAccelerationY(swimAccel);
             }
-
-            setVelocity(vx, vy);
         }
 
         else if (state.isOnWall())
@@ -162,6 +150,9 @@ public class Actor extends Entity
             pressedJumpTime -= deltaSec;
             if (pressedJumpTime < 0) pressedJumpTime = 0F;
         }
+        /* If pressedJumpTime is -1, that means the player let go of the
+         * jump key while airborne and its effect on the player's movement
+         * already occurred this frame. */
         else if (pressedJumpTime == -1) pressedJumpTime = 0F;
 
         /*===================================================================*/
@@ -213,6 +204,22 @@ public class Actor extends Entity
         //frictionX = 0F;
         //frictionY = 0F;
 
+        boolean deceleratingX = false;
+        if (Math.abs(getAccelerationX()) < Math.abs(dragX + frictionX))
+        {
+            if (getAccelerationX() < 0 && (dragX + frictionX) > 0
+                    || getAccelerationX() > 0 && (dragX + frictionX) < 0)
+                deceleratingX = true;
+        }
+        boolean deceleratingY = false;
+        if (Math.abs(getAccelerationY()) < Math.abs(dragY + frictionY))
+        {
+            if (getAccelerationY() < 0 && (dragY + frictionY) > 0
+                    || getAccelerationY() > 0 && (dragY + frictionY) < 0)
+                deceleratingY = true;
+        }
+
+        Vec2 a_old = new Vec2(getAccelerationX(), getAccelerationY());
         setAccelerationX(getAccelerationX() + dragX + frictionX);
         setAccelerationY(getAccelerationY() + dragY + frictionY);
 
@@ -221,8 +228,11 @@ public class Actor extends Entity
         //=====================================================================
         Vec2 a = getAcceleration();
         Vec2 v = getVelocity();
+        Vec2 v_old = new Vec2(v.x, v.y);
         a.mul(deltaSec);
         setVelocity(v.add(a));
+        if (deceleratingX) neutralizeVelocity(v_old, a_old, true);
+        if (deceleratingY) neutralizeVelocity(v_old, a_old, false);
 
         Vec2 goal = getPosition();
         v.mul(deltaSec);
@@ -232,8 +242,6 @@ public class Actor extends Entity
 
         setState(determineState());
     }
-
-
 
     public void pressLeft(boolean pressed)
     {
@@ -321,13 +329,18 @@ public class Actor extends Entity
 
     private enum Direction
     {
-        UP { boolean vertical() { return true; } int dirToNum() { return -1; } Direction opposite() { return DOWN; } },
-        LEFT { boolean horizontal() { return true; } int dirToNum() { return -1; } Direction opposite() { return RIGHT; } },
-        DOWN { boolean vertical() { return true; } int dirToNum() { return 1; } Direction opposite() { return UP; } },
-        RIGHT { boolean horizontal() { return true; } int dirToNum() { return 1; } Direction opposite() { return LEFT; } };
+        UP { boolean vertical() { return true; } int ID() { return 0; }
+        int dirToNum() { return -1; } Direction opposite() { return DOWN; } },
+        LEFT { boolean horizontal() { return true; } int ID() { return 3; }
+        int dirToNum() { return -1; } Direction opposite() { return RIGHT; } },
+        DOWN { boolean vertical() { return true; } int ID() { return 2; }
+        int dirToNum() { return 1; } Direction opposite() { return UP; } },
+        RIGHT { boolean horizontal() { return true; } int ID() { return 1; }
+        int dirToNum() { return 1; } Direction opposite() { return LEFT; } };
         boolean vertical() { return false; }
         boolean horizontal() { return false; }
         abstract int dirToNum();
+        int ID() { return -1; }
         Direction opposite() { return null; }
     }
 
@@ -459,6 +472,33 @@ public class Actor extends Entity
         return orginalVel;
     }
 
+    /**
+     *  Call this method
+     */
+    private void neutralizeVelocity(Vec2 oldVecVel, Vec2 oldVecAcc,  boolean isHoriz)
+    {
+        float acc, newVel, oldVel;
+        if (isHoriz)
+        {
+            acc = oldVecAcc.x;
+            newVel = getVelocityX();
+            oldVel = oldVecVel.x;
+            /* If going left, decelerating to the right, and now is going right */
+            if (oldVel < 0 && acc > 0 && newVel > 0) setVelocityX(0F);
+            /* If going right, decelerating to the left, and now is going left */
+            if (oldVel > 0 && acc < 0 && newVel < 0) setVelocityX(0F);
+        }
+        else
+        {
+            acc = oldVecAcc.y;
+            newVel = getVelocityY();
+            oldVel = oldVecVel.y;
+            /* If going up, decelerating to the down, and now is going down */
+            if (oldVel < 0 && acc > 0 && newVel > 0) setVelocityY(0F);
+            /* If going down, decelerating to the up, and now is going up */
+            if (oldVel > 0 && acc < 0 && newVel < 0) setVelocityY(0F);
+        }
+    }
 
     /*=======================================================================*/
     /* Variables that are set by the character's stats                       */
