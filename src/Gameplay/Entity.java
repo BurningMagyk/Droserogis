@@ -45,7 +45,7 @@ abstract public class Entity
     private Color color = Color.BLACK;
 
     private boolean triggered = false;
-    private float friction = 3;
+    private float friction = 1;
 
 
     Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)

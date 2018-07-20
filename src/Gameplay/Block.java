@@ -13,7 +13,7 @@ class Block extends Entity
 
     public Block(float xPos, float yPos, float width, float height, ShapeEnum shape)
     {
-        super(xPos, yPos, width, height, shape, false);
+        super(xPos, yPos, width, height, shape);
 
 
 

@@ -158,40 +158,6 @@ public class Actor extends Entity
         /*===================================================================*/
         /*                      Apply drag and friction                      */
         /*===================================================================*/
-        float dragX, dragY;
-        if (state == State.SWIM)
-        {
-            dragX = -waterDrag * getVelocityX();
-            dragY = -waterDrag * getVelocityY();
-        }
-        else
-        {
-            dragX = -airDrag * getVelocityX();
-            dragY = -airDrag * getVelocityY();
-        }
-        float frictionX = 0, frictionY = 0;
-        if (state.isGrounded())
-        {
-            if (dirHoriz == null
-                    || getVelocityX() < 0 && dirHoriz == Direction.RIGHT
-                    || getVelocityX() > 0 && dirHoriz == Direction.LEFT)
-            {
-                frictionX = touchEntity[DOWN].getFriction() * getFriction();
-            }
-            else frictionX = 0F;
-        }
-        else if (state.isOnWall())
-        {
-            if ((dirHoriz == null && dirVert == null) || getVelocityY() < 0)
-                frictionY = -gravity * gravClimbReduct;
-            else if (touchEntity[LEFT] == null)
-                frictionY = touchEntity[RIGHT].getFriction() * getFriction();
-            else frictionY = touchEntity[LEFT].getFriction() * getFriction();
-        }
-        else if (state == State.RISE) frictionY = -gravity * gravJumpReduct;
-
-        if (getVelocityX() > 0) frictionX = -frictionX;
-        if (getVelocityY() > 0) frictionY = -frictionY;
 
         /*if (dragX + frictionX < 0 && getAccelerationX() > 0 && Math.abs(dragX + frictionX) > getAccelerationX()) setAccelerationX(0F);
         else if (dragX + frictionX > 0 && getAccelerationX() < 0 && Math.abs(dragX + frictionX) > Math.abs(getAccelerationX())) setAccelerationX(0F);
@@ -204,7 +170,7 @@ public class Actor extends Entity
         //frictionX = 0F;
         //frictionY = 0F;
 
-        boolean deceleratingX = false;
+        /*boolean deceleratingX = false;
         if (Math.abs(getAccelerationX()) < Math.abs(dragX + frictionX))
         {
             if (getAccelerationX() < 0 && (dragX + frictionX) > 0
@@ -221,26 +187,116 @@ public class Actor extends Entity
 
         Vec2 a_old = new Vec2(getAccelerationX(), getAccelerationY());
         setAccelerationX(getAccelerationX() + dragX + frictionX);
-        setAccelerationY(getAccelerationY() + dragY + frictionY);
+        setAccelerationY(getAccelerationY() + dragY + frictionY);*/
 
         //=====================================================================
         //     Move actor according to current acceleration and velocity
         //=====================================================================
-        Vec2 a = getAcceleration();
-        Vec2 v = getVelocity();
-        Vec2 v_old = new Vec2(v.x, v.y);
-        a.mul(deltaSec);
-        setVelocity(v.add(a));
-        if (deceleratingX) neutralizeVelocity(v_old, a_old, true);
-        if (deceleratingY) neutralizeVelocity(v_old, a_old, false);
+        //Vec2 a = getAcceleration();
+        //Vec2 v = getVelocity();
+        //Vec2 v_old = new Vec2(v.x, v.y);
+        //a.mul(deltaSec);
+        //setVelocity(v.add(a));
+        //if (deceleratingX) neutralizeVelocity(v_old, a_old, true);
+        //if (deceleratingY) neutralizeVelocity(v_old, a_old, false);
 
-        Vec2 goal = getPosition();
-        v.mul(deltaSec);
-        goal.add(v);
-        Vec2 orginalVel = triggerContacts(goal, entities); //returns null if the actor does not hit anything
-        setPosition(goal);
+        applyAcceleration(getAcceleration(), deltaSec, false);
+
+        applyAcceleration(determineDrag(), deltaSec, true);
+
+        applyAcceleration(determineFriction(), deltaSec, true);
+
+        applyVelocity(deltaSec, entities);
 
         setState(determineState());
+    }
+
+    private void applyAcceleration(Vec2 acceleration, float deltaSec, boolean reductive)
+    {
+        Vec2 v = getVelocity();
+        acceleration.mul(deltaSec);
+
+        Vec2 oldVel = getVelocity();
+        setVelocity(v.add(acceleration));
+
+        if (reductive)
+        {
+            int unitPosVelX = 0;
+            if (oldVel.x > 0) unitPosVelX = 1;
+            else if (oldVel.x < 0) unitPosVelX = -1;
+
+            int unitPosVelY = 0;
+            if (oldVel.y > 0) unitPosVelY = 1;
+            else if (oldVel.y < 0) unitPosVelY = -1;
+
+            Vec2 newVel = getVelocity();
+
+            int unitPosVelXNew = 0;
+            if (newVel.x > 0) unitPosVelXNew = 1;
+            else if (newVel.x < 0) unitPosVelXNew = -1;
+
+            int unitPosVelYNew = 0;
+            if (newVel.y > 0) unitPosVelYNew = 1;
+            else if (newVel.y < 0) unitPosVelYNew = -1;
+
+            if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
+            if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
+        }
+    }
+
+    private Vec2 determineDrag()
+    {
+        float dragX, dragY;
+        if (state == State.SWIM)
+        {
+            dragX = -waterDrag * getVelocityX();
+            dragY = -waterDrag * getVelocityY();
+        }
+        else
+        {
+            dragX = -airDrag * getVelocityX();
+            dragY = -airDrag * getVelocityY();
+        }
+        return new Vec2(dragX, dragY);
+    }
+
+    private Vec2 determineFriction()
+    {
+        float frictionX = 0, frictionY = 0;
+        if (state.isGrounded())
+        {
+            if (dirHoriz == null
+                    || (getVelocityX() < 0 && dirHoriz == Direction.RIGHT)
+                    || (getVelocityX() > 0 && dirHoriz == Direction.LEFT))
+            {
+                frictionX = touchEntity[DOWN].getFriction() * getFriction();
+            }
+        }
+        else if (state.isOnWall())
+        {
+            if (dirHoriz != Direction.RIGHT && dirVert != Direction.UP)
+                if (touchEntity[RIGHT] != null)
+                    frictionY = touchEntity[RIGHT].getFriction()
+                            * getFriction();
+            else if (dirHoriz != Direction.LEFT) // && dirVert != Direction.UP)
+                if (touchEntity[LEFT] != null)
+                    frictionY = touchEntity[LEFT].getFriction()
+                            * getFriction();
+        }
+
+        if (getVelocityX() > 0) frictionX = -frictionX;
+        if (getVelocityY() > 0) frictionY = -frictionY;
+
+        return new Vec2(frictionX, frictionY);
+    }
+
+    private void applyVelocity(float deltaSec, ArrayList<Entity> entities)
+    {
+        Vec2 goal = getPosition();
+        getVelocity().mul(deltaSec);
+        goal.add(getVelocity());
+        Vec2 orginalVel = triggerContacts(goal, entities); //returns null if the actor does not hit anything
+        setPosition(goal);
     }
 
     public void pressLeft(boolean pressed)
@@ -313,16 +369,9 @@ public class Actor extends Entity
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
-    /* Only for the y-velocity */
-    private float initJumpVel = 0F;
     public void pressJump(boolean pressed)
     {
-        if (pressed && !pressingJump)
-        {
-            pressedJumpTime = 1F;
-            initJumpVel = getVelocityY();
-            Print.green("initJumpVel: " + initJumpVel);
-        }
+        if (pressed && !pressingJump) pressedJumpTime = 1F;
         else if (!pressed) pressedJumpTime = -1F;
         pressingJump = pressed;
     }
@@ -390,10 +439,10 @@ public class Actor extends Entity
     {
         if (this.state == state) return;
 
-        if (state == State.STAND)
+        /*if (state == State.STAND)
         {
             setVelocity(Vec2.ZERO);
-        }
+        }*/
 
         /*
         else if (state == State.RUN)
@@ -408,7 +457,7 @@ public class Actor extends Entity
            setVelocityX(vx);
         }*/
 
-        else if (state == State.WALL_STICK)
+        /*else if (state == State.WALL_STICK)
         {
             setVelocity(Vec2.ZERO);
         }
@@ -418,7 +467,7 @@ public class Actor extends Entity
             float vx = Math.abs(getVelocityX()); //change horz speed to vertical
             float vy = getVelocityY();
             setVelocity(0, vy + vx);
-        }
+        }*/
 
 
         /* Temporary */
@@ -459,15 +508,26 @@ public class Actor extends Entity
             int edge = entity.getTouchEdge(this, goal);
             if (edge < 0) continue;
 
-            if (orginalVel == null) orginalVel = this.getVelocity();
-            setVelocity(Vec2.ZERO);
+            /* Actor has touched another entity a this point */
+            orginalVel = this.getVelocity();
             entity.setTriggered(true);
             touchEntity[edge] = entity;
 
-
-            if (edge == DOWN) goal.y = entity.getTopEdge() - getHeight() / 2;
-            else if (edge == LEFT) goal.x = entity.getRightEdge() + getWidth() / 2;
-            else if (edge == RIGHT) goal.x = entity.getLeftEdge() - getWidth() / 2;
+            if (edge == DOWN)
+            {
+                goal.y = entity.getTopEdge() - getHeight() / 2;
+                setVelocityY(0);
+            }
+            else if (edge == LEFT)
+            {
+                goal.x = entity.getRightEdge() + getWidth() / 2;
+                setVelocityX(0);
+            }
+            else if (edge == RIGHT)
+            {
+                goal.x = entity.getLeftEdge() - getWidth() / 2;
+                setVelocityX(0);
+            }
         }
         return orginalVel;
     }
@@ -583,7 +643,7 @@ public class Actor extends Entity
     private float swimAccel = 1F;
 
     /* The velocity used to jump */
-    private float jumpVel = 10F;
+    private float jumpVel = 2F;
 
     //================================================================================================================
     // State
