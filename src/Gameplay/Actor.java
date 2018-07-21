@@ -37,7 +37,7 @@ public class Actor extends Entity
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false;
 
-    private float gravity = 9.8F;
+    private float gravity = 2F;
     private float gravJumpReduct = 0.3F;
     private float gravClimbReduct = 0.7F;
     private float airDrag = 0.25F;
@@ -54,6 +54,9 @@ public class Actor extends Entity
     Actor(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
+
+        /* Temporary */
+        setFriction(2);
     }
 
     /**
@@ -69,7 +72,7 @@ public class Actor extends Entity
 
         if (!state.isGrounded()) setAccelerationY(gravity);
 
-        float vx = getVelocityX();
+        float vx = getVelocityX(), vy = getVelocityY();
 
         if (state.isGrounded())
         {
@@ -99,17 +102,10 @@ public class Actor extends Entity
             {
                 if (vx < topAirSpeed) addAccelerationX(airAccel);
             }
-
-            if (pressedJumpTime == -1 && state == State.RISE)
-            {
-                // TODO: set gravity back to normal
-            }
         }
 
         else if (state == State.SWIM)
         {
-            float vy = getVelocityY();
-
             if (dirHoriz == Direction.LEFT)
             {
                 if (vx > -maxSwimSpeed) addAccelerationX(-swimAccel);
@@ -130,19 +126,49 @@ public class Actor extends Entity
 
         else if (state.isOnWall())
         {
-            /*float vy = getVelocityY();
-            if (pressingUp)
+            if (pressedJumpTime > 0)
             {
-                vy = vy - state.acceleration()*deltaSec;
-                if (vy < -state.maxSpeed()) vy = -state.maxSpeed();
+                if (touchEntity[LEFT] != null)
+                {
+                    if (dirHoriz == Direction.RIGHT)
+                    {
+                        addVelocityX(jumpVel * 0.70712F); // sin(45)
+                        addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        pressedJumpTime = 0F;
+                    }
+                    else if (dirVert == Direction.UP)
+                    {
+                        addVelocityX(jumpVel * 0.34202F); // sin(20)
+                        addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        pressedJumpTime = 0F;
+                    }
+                    else if (dirVert == Direction.DOWN)
+                    {
+                        addVelocityX(jumpVel);
+                        pressedJumpTime = 0;
+                    }
+                }
+                else // if (touchEntity[RIGHT] != null)
+                {
+                    if (dirHoriz == Direction.LEFT)
+                    {
+                        addVelocityX(-jumpVel * 0.70712F); // sin(45)
+                        addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        pressedJumpTime = 0F;
+                    }
+                    else if (dirVert == Direction.UP)
+                    {
+                        addVelocityX(-jumpVel * 0.34202F); // sin(20)
+                        addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        pressedJumpTime = 0F;
+                    }
+                    else if (dirVert == Direction.DOWN)
+                    {
+                        addVelocityX(-jumpVel);
+                        pressedJumpTime = 0;
+                    }
+                }
             }
-            else if (pressingDown)
-            {
-                vy = vy + state.acceleration()*deltaSec;
-                if (vy > state.maxSpeed()) vy = state.maxSpeed();
-            }
-
-            setVelocityY(vy);*/
         }
 
         if (pressedJumpTime > 0)
@@ -155,63 +181,16 @@ public class Actor extends Entity
          * already occurred this frame. */
         else if (pressedJumpTime == -1) pressedJumpTime = 0F;
 
-        /*===================================================================*/
-        /*                      Apply drag and friction                      */
-        /*===================================================================*/
-
-        /*if (dragX + frictionX < 0 && getAccelerationX() > 0 && Math.abs(dragX + frictionX) > getAccelerationX()) setAccelerationX(0F);
-        else if (dragX + frictionX > 0 && getAccelerationX() < 0 && Math.abs(dragX + frictionX) > Math.abs(getAccelerationX())) setAccelerationX(0F);
-        else setAccelerationX(getAccelerationX() + dragX + frictionX);
-
-        if (dragY + frictionY < 0 && getAccelerationY() > 0 && Math.abs(dragY + frictionY) > getAccelerationY()) setAccelerationY(0F);
-        else if (dragY + frictionY > 0 && getAccelerationY() < 0 && Math.abs(dragY + frictionY) > Math.abs(getAccelerationY())) setAccelerationY(0F);
-        else setAccelerationY(getAccelerationY() + dragY + frictionY);*/
-
-        //frictionX = 0F;
-        //frictionY = 0F;
-
-        /*boolean deceleratingX = false;
-        if (Math.abs(getAccelerationX()) < Math.abs(dragX + frictionX))
-        {
-            if (getAccelerationX() < 0 && (dragX + frictionX) > 0
-                    || getAccelerationX() > 0 && (dragX + frictionX) < 0)
-                deceleratingX = true;
-        }
-        boolean deceleratingY = false;
-        if (Math.abs(getAccelerationY()) < Math.abs(dragY + frictionY))
-        {
-            if (getAccelerationY() < 0 && (dragY + frictionY) > 0
-                    || getAccelerationY() > 0 && (dragY + frictionY) < 0)
-                deceleratingY = true;
-        }
-
-        Vec2 a_old = new Vec2(getAccelerationX(), getAccelerationY());
-        setAccelerationX(getAccelerationX() + dragX + frictionX);
-        setAccelerationY(getAccelerationY() + dragY + frictionY);*/
-
-        //=====================================================================
-        //     Move actor according to current acceleration and velocity
-        //=====================================================================
-        //Vec2 a = getAcceleration();
-        //Vec2 v = getVelocity();
-        //Vec2 v_old = new Vec2(v.x, v.y);
-        //a.mul(deltaSec);
-        //setVelocity(v.add(a));
-        //if (deceleratingX) neutralizeVelocity(v_old, a_old, true);
-        //if (deceleratingY) neutralizeVelocity(v_old, a_old, false);
-
-        applyAcceleration(getAcceleration(), deltaSec, false);
-
-        applyAcceleration(determineDrag(), deltaSec, true);
-
-        applyAcceleration(determineFriction(), deltaSec, true);
-
+        applyAcceleration(getAcceleration(), deltaSec);
+        Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
+        neutralizeVelocity(beforeDrag);
+        Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
+        neutralizeVelocity(beforeFriction);
         applyVelocity(deltaSec, entities);
-
         setState(determineState());
     }
 
-    private void applyAcceleration(Vec2 acceleration, float deltaSec, boolean reductive)
+    private Vec2 applyAcceleration(Vec2 acceleration, float deltaSec)
     {
         Vec2 v = getVelocity();
         acceleration.mul(deltaSec);
@@ -219,29 +198,31 @@ public class Actor extends Entity
         Vec2 oldVel = getVelocity();
         setVelocity(v.add(acceleration));
 
-        if (reductive)
-        {
-            int unitPosVelX = 0;
-            if (oldVel.x > 0) unitPosVelX = 1;
-            else if (oldVel.x < 0) unitPosVelX = -1;
+        return oldVel;
+    }
 
-            int unitPosVelY = 0;
-            if (oldVel.y > 0) unitPosVelY = 1;
-            else if (oldVel.y < 0) unitPosVelY = -1;
+    void neutralizeVelocity(Vec2 oldVel)
+    {
+        int unitPosVelX = 0;
+        if (oldVel.x > 0) unitPosVelX = 1;
+        else if (oldVel.x < 0) unitPosVelX = -1;
 
-            Vec2 newVel = getVelocity();
+        int unitPosVelY = 0;
+        if (oldVel.y > 0) unitPosVelY = 1;
+        else if (oldVel.y < 0) unitPosVelY = -1;
 
-            int unitPosVelXNew = 0;
-            if (newVel.x > 0) unitPosVelXNew = 1;
-            else if (newVel.x < 0) unitPosVelXNew = -1;
+        Vec2 newVel = getVelocity();
 
-            int unitPosVelYNew = 0;
-            if (newVel.y > 0) unitPosVelYNew = 1;
-            else if (newVel.y < 0) unitPosVelYNew = -1;
+        int unitPosVelXNew = 0;
+        if (newVel.x > 0) unitPosVelXNew = 1;
+        else if (newVel.x < 0) unitPosVelXNew = -1;
 
-            if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
-            if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
-        }
+        int unitPosVelYNew = 0;
+        if (newVel.y > 0) unitPosVelYNew = 1;
+        else if (newVel.y < 0) unitPosVelYNew = -1;
+
+        if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
+        if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
     }
 
     private Vec2 determineDrag()
@@ -274,14 +255,23 @@ public class Actor extends Entity
         }
         else if (state.isOnWall())
         {
-            if (dirHoriz != Direction.RIGHT && dirVert != Direction.UP)
+            /* Don't apply friction if climbing up a wall */
+            if (getVelocityY() < 0) return new Vec2(frictionX, frictionY);
+
+            if (dirHoriz != null || dirVert != null)
+                frictionY = touchEntity[touchEntity[LEFT] != null
+                        ? LEFT : RIGHT].getFriction() * getFriction();
+
+            /* This code should be used for determining reduced gravity
+             * for wall-climbing */
+            /*if (dirHoriz != Direction.RIGHT && dirVert != Direction.UP)
                 if (touchEntity[RIGHT] != null)
                     frictionY = touchEntity[RIGHT].getFriction()
                             * getFriction();
             else if (dirHoriz != Direction.LEFT) // && dirVert != Direction.UP)
                 if (touchEntity[LEFT] != null)
                     frictionY = touchEntity[LEFT].getFriction()
-                            * getFriction();
+                            * getFriction();*/
         }
 
         if (getVelocityX() > 0) frictionX = -frictionX;
@@ -477,9 +467,6 @@ public class Actor extends Entity
         this.state = state;
     }
 
-
-
-
     //===============================================================================================================
     //  triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     //
@@ -532,34 +519,6 @@ public class Actor extends Entity
         return orginalVel;
     }
 
-    /**
-     *  Call this method
-     */
-    private void neutralizeVelocity(Vec2 oldVecVel, Vec2 oldVecAcc,  boolean isHoriz)
-    {
-        float acc, newVel, oldVel;
-        if (isHoriz)
-        {
-            acc = oldVecAcc.x;
-            newVel = getVelocityX();
-            oldVel = oldVecVel.x;
-            /* If going left, decelerating to the right, and now is going right */
-            if (oldVel < 0 && acc > 0 && newVel > 0) setVelocityX(0F);
-            /* If going right, decelerating to the left, and now is going left */
-            if (oldVel > 0 && acc < 0 && newVel < 0) setVelocityX(0F);
-        }
-        else
-        {
-            acc = oldVecAcc.y;
-            newVel = getVelocityY();
-            oldVel = oldVecVel.y;
-            /* If going up, decelerating to the down, and now is going down */
-            if (oldVel < 0 && acc > 0 && newVel > 0) setVelocityY(0F);
-            /* If going down, decelerating to the up, and now is going up */
-            if (oldVel > 0 && acc < 0 && newVel < 0) setVelocityY(0F);
-        }
-    }
-
     /*=======================================================================*/
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
@@ -571,7 +530,7 @@ public class Actor extends Entity
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 7F;
+    private float topRunSpeed = 4F;
 
     /* This is the lowest speed the player can be running before changing
      * their state to STAND. */
@@ -579,11 +538,12 @@ public class Actor extends Entity
 
     /* This is the speed the player start with when transitioning states from
      * STAND to RUN. */
+    // TODO: Not sure we really want this
     private float initRunSpeed = 5F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is running on the ground. */
-    private float runAccel = 3F;
+    private float runAccel = 0.3F;
 
     /* This is the highest speed the player can be crawling or crouching
      * before changing their state to TUMBLE. */
@@ -596,7 +556,7 @@ public class Actor extends Entity
 
     /* This is the lowest speed the player can be crawling before changing
      * their state to CROUCH. */
-    private float minCrawlSpeed = 0.5F;
+    private float minCrawlSpeed = 0.1F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is crawling on the ground. */
@@ -631,7 +591,7 @@ public class Actor extends Entity
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is airborne. */
-    private float airAccel = 1F;
+    private float airAccel = 0.5F;
 
     /* This is the highest speed the player can move in water. */
     private float maxSwimSpeed = 3F;
@@ -643,7 +603,7 @@ public class Actor extends Entity
     private float swimAccel = 1F;
 
     /* The velocity used to jump */
-    private float jumpVel = 2F;
+    private float jumpVel = 0.5F;
 
     //================================================================================================================
     // State
