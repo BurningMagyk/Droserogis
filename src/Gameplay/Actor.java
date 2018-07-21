@@ -2,6 +2,7 @@ package Gameplay;
 
 import Util.Print;
 import Util.Vec2;
+import com.sun.org.apache.regexp.internal.RE;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -19,6 +20,11 @@ import java.util.ArrayList;
 //================================================================================================================
 public class Actor extends Entity
 {
+    private final float NORMAL_GRAVITY = 2;
+    private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
+
+    private final float NORMAL_FRICTION, GREATER_FRICTION;
+
     /* The horizontal direction that the player intends to move towards */
     private Direction dirHoriz = null;
     /* The horizontal direction that the player intends to face towards.
@@ -37,9 +43,7 @@ public class Actor extends Entity
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false;
 
-    private float gravity = 2F;
-    private float gravJumpReduct = 0.3F;
-    private float gravClimbReduct = 0.7F;
+    private float gravity = NORMAL_GRAVITY;
     private float airDrag = 0.25F;
     private float waterDrag = 1F;
 
@@ -55,8 +59,9 @@ public class Actor extends Entity
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
-        /* Temporary */
-        setFriction(2);
+        NORMAL_FRICTION = 2;
+        GREATER_FRICTION = NORMAL_FRICTION * 3;
+        setFriction(NORMAL_FRICTION);
     }
 
     /**
@@ -74,15 +79,32 @@ public class Actor extends Entity
 
         float vx = getVelocityX(), vy = getVelocityY();
 
-        if (state.isGrounded())
+        if (state == State.SLIDE || state == State.PRONE)
         {
+            // TODO: fill this in
+        }
+
+        else if (state.isGrounded())
+        {
+            float accel, topSpeed;
+            if (state == State.CROUCH || state == State.CRAWL)
+            {
+                accel = crawlAccel;
+                topSpeed = topCrawlSpeed;
+            }
+            else
+            {
+                accel = runAccel;
+                topSpeed = topRunSpeed;
+            }
+
             if (dirHoriz == Direction.LEFT)
             {
-                if (vx > -topRunSpeed) addAccelerationX(-runAccel);
+                if (vx > -topSpeed) addAccelerationX(-accel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
-                if (vx < topRunSpeed) addAccelerationX(runAccel);
+                if (vx < topSpeed) addAccelerationX(accel);
             }
 
             if (pressedJumpTime > 0)
@@ -181,13 +203,16 @@ public class Actor extends Entity
          * already occurred this frame. */
         else if (pressedJumpTime == -1) pressedJumpTime = 0F;
 
+        if (getVelocityY() >= 0) gravity = NORMAL_GRAVITY;
+
         applyAcceleration(getAcceleration(), deltaSec);
         Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
         neutralizeVelocity(beforeDrag);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
         neutralizeVelocity(beforeFriction);
-        applyVelocity(deltaSec, entities);
-        setState(determineState());
+        Vec2 contactVelocity = applyVelocity(deltaSec, entities);
+        if (setState(determineState()) && contactVelocity != null)
+            addVelocityY(-Math.abs(contactVelocity.x));
     }
 
     private Vec2 applyAcceleration(Vec2 acceleration, float deltaSec)
@@ -261,17 +286,6 @@ public class Actor extends Entity
             if (dirHoriz != null || dirVert != null)
                 frictionY = touchEntity[touchEntity[LEFT] != null
                         ? LEFT : RIGHT].getFriction() * getFriction();
-
-            /* This code should be used for determining reduced gravity
-             * for wall-climbing */
-            /*if (dirHoriz != Direction.RIGHT && dirVert != Direction.UP)
-                if (touchEntity[RIGHT] != null)
-                    frictionY = touchEntity[RIGHT].getFriction()
-                            * getFriction();
-            else if (dirHoriz != Direction.LEFT) // && dirVert != Direction.UP)
-                if (touchEntity[LEFT] != null)
-                    frictionY = touchEntity[LEFT].getFriction()
-                            * getFriction();*/
         }
 
         if (getVelocityX() > 0) frictionX = -frictionX;
@@ -280,13 +294,18 @@ public class Actor extends Entity
         return new Vec2(frictionX, frictionY);
     }
 
-    private void applyVelocity(float deltaSec, ArrayList<Entity> entities)
+    /**
+     *  Returns the velocity upon hitting a surface
+     */
+    private Vec2 applyVelocity(float deltaSec, ArrayList<Entity> entities)
     {
         Vec2 goal = getPosition();
         getVelocity().mul(deltaSec);
         goal.add(getVelocity());
-        Vec2 orginalVel = triggerContacts(goal, entities); //returns null if the actor does not hit anything
+        /* triggerContacts() returns null if the actor does not hit anything */
+        Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
+        return contactVel;
     }
 
     public void pressLeft(boolean pressed)
@@ -385,11 +404,6 @@ public class Actor extends Entity
 
     private State determineState()
     {
-        /*if (pressedJumpTime >0)
-        {
-            System.out.println("   determineState(): jump: touchEntity[DOWN]="+touchEntity[DOWN]);
-        }*/
-        //if (pressedJumpTime >0 && (touchEntity[DOWN] != null)) return State.RISE;
         if (inWater()) return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
@@ -422,49 +436,35 @@ public class Actor extends Entity
             if (getVelocityY() < 0) return State.RISE;
             else return State.FALL;
         }
-
     }
 
-    void setState(State state)
+    /**
+     *  Returns true if Actor transitioned from RISE to WALL_CLIMB
+     */
+    boolean setState(State state)
     {
-        if (this.state == state) return;
+        if (this.state == state) return false;
 
-        /*if (state == State.STAND)
+        if (state == State.RISE) gravity = REDUCED_GRAVITY;
+
+        if (state == State.WALL_CLIMB && getVelocityY() < 0)
+            gravity = REDUCED_GRAVITY;
+
+        if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
-            setVelocity(Vec2.ZERO);
-        }*/
-
-        /*
-        else if (state == State.RUN)
-        {
-           float vx = getVelocityX();
-           float dir=0;
-           if (pressingLeft) dir=-1;
-           else if (pressingRight) dir=1;
-
-           vx = vx + dir*state.startSpeed();
-           if (Math.abs(vx)>state.maxSpeed()) vx = dir*state.maxSpeed();
-           setVelocityX(vx);
-        }*/
-
-        /*else if (state == State.WALL_STICK)
-        {
-            setVelocity(Vec2.ZERO);
+            this.state = state;
+            return true;
         }
 
-        else if (state == State.WALL_CLIMB)
-        {
-            float vx = Math.abs(getVelocityX()); //change horz speed to vertical
-            float vy = getVelocityY();
-            setVelocity(0, vy + vx);
-        }*/
-
+        if (state == State.CROUCH) setFriction(GREATER_FRICTION);
+        else setFriction(NORMAL_FRICTION);
 
         /* Temporary */
         Print.blue("Changing from state \"" + this.state + "\" to \"" + state + "\"");
         //Print.blue("dirPrimary: " + dirPrimary + ", dirVertical: " + dirVertical + "\n");
 
         this.state = state;
+        return false;
     }
 
     //===============================================================================================================
@@ -535,11 +535,6 @@ public class Actor extends Entity
     /* This is the lowest speed the player can be running before changing
      * their state to STAND. */
     private float minRunSpeed = 0.5F;
-
-    /* This is the speed the player start with when transitioning states from
-     * STAND to RUN. */
-    // TODO: Not sure we really want this
-    private float initRunSpeed = 5F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is running on the ground. */
