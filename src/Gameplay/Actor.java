@@ -23,7 +23,7 @@ public class Actor extends Entity
     private final float NORMAL_GRAVITY = 2;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
 
-    private final float NORMAL_FRICTION, GREATER_FRICTION;
+    private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
     /* The horizontal direction that the player intends to move towards */
     private Direction dirHoriz = null;
@@ -59,8 +59,9 @@ public class Actor extends Entity
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
-        NORMAL_FRICTION = 2;
+        NORMAL_FRICTION = 1;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
+        REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
     }
 
@@ -87,7 +88,8 @@ public class Actor extends Entity
         else if (state.isGrounded())
         {
             float accel, topSpeed;
-            if (state == State.CROUCH || state == State.CRAWL)
+            if (state == State.CROUCH || state == State.CRAWL
+                    || state == State.SLIDE)
             {
                 accel = crawlAccel;
                 topSpeed = topCrawlSpeed;
@@ -100,10 +102,12 @@ public class Actor extends Entity
 
             if (dirHoriz == Direction.LEFT)
             {
-                if (vx > -topSpeed) addAccelerationX(-accel);
+                if (state == State.SLIDE && vx > 0) addAccelerationX(-accel);
+                else if (vx > -topSpeed) addAccelerationX(-accel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
+                if (state == State.SLIDE && vx < 0) addAccelerationX(accel);
                 if (vx < topSpeed) addAccelerationX(accel);
             }
 
@@ -191,6 +195,13 @@ public class Actor extends Entity
                     }
                 }
             }
+
+            if (dirHoriz != null)
+            {
+                if (dirHoriz == Direction.UP
+                        || touchEntity[dirHoriz.ID()] != null)
+                    addAccelerationY(-climbAccel);
+            }
         }
 
         if (pressedJumpTime > 0)
@@ -202,6 +213,12 @@ public class Actor extends Entity
          * jump key while airborne and its effect on the player's movement
          * already occurred this frame. */
         else if (pressedJumpTime == -1) pressedJumpTime = 0F;
+
+        /* Cap overall speed */
+        if (getVelocityX() > maxTotalSpeed) setVelocityX(maxTotalSpeed);
+        else if (getVelocityX() < -maxTotalSpeed) setVelocityX(-maxTotalSpeed);
+        if (getVelocityY() > maxTotalSpeed) setVelocityY(maxTotalSpeed);
+        else if (getVelocityY() < -maxTotalSpeed) setVelocityY(-maxTotalSpeed);
 
         if (getVelocityY() >= 0) gravity = NORMAL_GRAVITY;
 
@@ -409,18 +426,22 @@ public class Actor extends Entity
         {
             if (dirVert == Direction.DOWN)
             {
-                if (dirHoriz == Direction.RIGHT) return State.CRAWL;
-                else if (dirHoriz == Direction.LEFT) return State.CRAWL;
+                if (Math.abs(getVelocityX()) > maxCrawlSpeed)
+                    return State.SLIDE;
+                if (dirHoriz != null && dirHoriz.horizontal())
+                    return State.CRAWL;
                 return State.CROUCH;
             }
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
-                if (dirVert == Direction.UP || dirHoriz == Direction.RIGHT) return State.WALL_CLIMB;
+                if (dirVert == Direction.UP || dirHoriz == Direction.RIGHT)
+                    return State.WALL_CLIMB;
                 else return State.STAND;
             }
             if (getVelocityX() < 0 && touchEntity[LEFT] != null)
             {
-                if (dirVert == Direction.UP || dirHoriz == Direction.LEFT) return State.WALL_CLIMB;
+                if (dirVert == Direction.UP || dirHoriz == Direction.LEFT)
+                    return State.WALL_CLIMB;
                 else return State.STAND;
             }
 
@@ -448,8 +469,7 @@ public class Actor extends Entity
         if (this.state == state) return false;
 
         if (state == State.RISE) gravity = REDUCED_GRAVITY;
-
-        if (state == State.WALL_CLIMB && getVelocityY() < 0)
+        else if (state == State.WALL_CLIMB && getVelocityY() < 0)
             gravity = REDUCED_GRAVITY;
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
@@ -460,6 +480,7 @@ public class Actor extends Entity
         }
 
         if (state == State.CROUCH) setFriction(GREATER_FRICTION);
+        else if (state == State.SLIDE) setFriction(REDUCED_FRICTION);
         else setFriction(NORMAL_FRICTION);
 
         /* Temporary */
@@ -528,60 +549,62 @@ public class Actor extends Entity
 
     /* This is the highest speed the player can be running before changing
      * their state to TUMBLE. */
-    private float maxRunSpeed = 9F;
+    private float maxRunSpeed = 0.2F;
 
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 0.1F;
+    private float topRunSpeed = 0.15F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is running on the ground. */
-    private float runAccel = 0.3F;
+    private float runAccel = 0.2F;
 
-    /* This is the highest speed the player can be crawling or crouching
-     * before changing their state to TUMBLE. */
-    private float maxCrawlSpeed = 3F;
+    /* This is the highest speed the player can be running before changing
+     * their state to TUMBLE or SLIDE. */
+    private float maxCrawlSpeed = 0.06F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
+     * such as going down a slope or being pushed by a faster object.
+     *
+     * This is the highest speed the player can be crawling or crouching
+     * before changing their state to TUMBLE. */
     private float topCrawlSpeed = 0.05F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is crawling on the ground. */
-    private float crawlAccel = 0.2F;
+    private float crawlAccel = 0.1F;
 
     /* This is the highest speed the player can be sliding before changing
      * their state to TUMBLE. */
-    private float maxSlideSpeed = 12F;
-
-    /* This is the lowest speed the player can be sliding before changing
-     * their state to PRONE. */
-    private float minSlideSpeed = 2F;
+    private float maxSlideSpeed = 0.3F;
 
     /* This is the highest speed the player can be climbing before changing
      * their state to RISE. */
-    private float maxClimbSpeed = 7F;
+    private float maxClimbSpeed = 1F;
 
     /* This is the highest speed the player can be skidding down a wall before
      * changing their state to FALL. */
-    private float maxStickSpeed = 12F;
+    private float maxStickSpeed = 1.5F;
 
-    // This is the acceleration that is applied to the player when on a wall.
-    private float climbAccel = 5F;
+    /* This is the acceleration that is applied to the player when on a wall.
+     * Most characters should use their crawlAccel value for this, unless they
+     * know how to climb without needing a running start. */
+    private float climbAccel = crawlAccel;
 
-    /* This is the highest speed the player can move in the air. */
-    private float maxAirSpeed = 25F;
+    /* This is the highest speed the player can move.
+     * (In the air or anywhere) */
+    private float maxTotalSpeed = 5F;
 
     /* This is the highest speed the player can get from moving themselves in
      * the air. They can go faster in the air with the help of external
      * influences such as wind or being pushed by a faster object. */
-    private float topAirSpeed = 7F;
+    private float topAirSpeed = 0.2F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is airborne. */
-    private float airAccel = 0.5F;
+    private float airAccel = 0.1F;
 
     /* This is the highest speed the player can move in water. */
     private float maxSwimSpeed = 3F;
@@ -594,6 +617,7 @@ public class Actor extends Entity
 
     /* The velocity used to jump */
     private float jumpVel = 0.4F;
+
 
     //================================================================================================================
     // State
@@ -676,4 +700,14 @@ public class Actor extends Entity
     }
 
     private boolean inWater() { return false; }
+
+    private int getSlopeType()
+    {
+        if (touchEntity[DOWN] == null) return UP;
+        else if (touchEntity[LEFT] != null
+                && touchEntity[LEFT] == touchEntity[DOWN]) return LEFT;
+        else if (touchEntity[RIGHT] != null
+                && touchEntity[RIGHT] == touchEntity[DOWN]) return RIGHT;
+        return DOWN;
+    }
 }
