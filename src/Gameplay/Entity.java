@@ -29,10 +29,10 @@ abstract public class Entity
         public boolean isTriangle() {return false;}
     }
 
-    public static final int UP=0;
-    public static final int RIGHT=1;
-    public static final int DOWN=2;
-    public static final int LEFT=3;
+    public static final int UP = 0;
+    public static final int RIGHT = 1;
+    public static final int DOWN = 2;
+    public static final int LEFT = 3;
 
     private Vec2 pos;
     private Vec2 velocity = new Vec2(Vec2.ZERO);
@@ -220,49 +220,65 @@ abstract public class Entity
     //================================================================================================================
     //
     //================================================================================================================
-    public int getTouchEdge(Entity other, Vec2 goal)
+    public int[] getTouchEdge(Entity other, Vec2 goal)
     {
-        if (goal.x + other.width / 2 <= pos.x - width / 1.999) return -1;
-        if (goal.x - other.width / 2 >= pos.x + width / 1.999) return  -1;
-        if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  -1;
-        if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  -1;
+        int[] directions = {-1, -1};
 
-        if (other.getY() < pos.y - height/2)
+        if (goal.x + other.width / 2 <= pos.x - width / 1.999) return directions;
+        if (goal.x - other.width / 2 >= pos.x + width / 1.999) return  directions;
+        if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  directions;
+        if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  directions;
+
+        if (shape.isTriangle()) { return directions; }
+
+        if (other.getX() - other.width / 2 <= pos.x + width / 1.999)
         {
-            if (goal.y + other.height / 1.999 > pos.y - height / 2)
+            if (other.getX() + other.width / 2 >= pos.x - width / 1.999)
             {
-                if (other.getX() - other.width / 2 <= pos.x + width / 1.999)
+                if (other.getY() > pos.y + height / 2)
                 {
-                    if (other.getX() + other.width / 2 >= pos.x - width / 1.999) return DOWN;
+                    if (goal.y - other.height / 1.999 < pos.y + height / 2)
+                    {
+                        directions[0] = UP;
+                        return directions;
+                    }
+                }
+                if (other.getY() < pos.y - height / 2)
+                {
+                    if (goal.y + other.height / 1.999 > pos.y - height / 2)
+                    {
+                        directions[0] = DOWN;
+                        return directions;
+                    }
+                }
+            }
+        }
+
+        if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
+        {
+            if (other.getY() + other.width / 2 >= pos.y - height / 1.999)
+            {
+                if (other.getX() < pos.x - width / 2)
+                {
+                    if (goal.x + other.width /1.999 > pos.x - width / 2)
+                    {
+                        directions[0] = RIGHT;
+                        return directions;
+                    }
+                }
+                if (other.getX() > pos.x + width / 2)
+                {
+                    if (goal.x - other.width / 1.999 < pos.x + width / 2)
+                    {
+                        directions[0] = LEFT;
+                        return directions;
+                    }
                 }
             }
         }
 
 
-        if (other.getX() < pos.x - width/2)
-        {
-            if (goal.x + other.width/1.999 > pos.x - width/ 2)
-            {
-                if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
-                {
-                    if (other.getY() + other.width / 2 >= pos.y - height/ 1.999) return RIGHT;
-                }
-            }
-        }
-
-
-        if (other.getX() > pos.x + width/2)
-        {
-            if (goal.x - other.width/1.999 < pos.x + width/ 2)
-            {
-                if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
-                {
-                    if (other.getY() + other.width / 2 >= pos.y - height/ 1.999) return LEFT;
-                }
-            }
-        }
-
-        return -1;
+        return directions;
     }
 
     //================================================================================================================

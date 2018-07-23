@@ -194,7 +194,6 @@ public class Gameplay implements Reactor
                 yPos[i] = (entity.getVertexY(i) + cPos.y - cameraPosY + cameraOffsetY) * cameraZoom;
             }
             context.fillPolygon(xPos, yPos, 3);
-
         }
         else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
@@ -225,7 +224,7 @@ public class Gameplay implements Reactor
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
         addEntity(new Block(5.5f, -2, 2F, 6F, Entity.ShapeEnum.RECTANGLE));
         addEntity(new Block(-5, 0, 4F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
+        addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.RECTANGLE));
 
 
         player = new Actor(1F, -3F, .5f, .5f);

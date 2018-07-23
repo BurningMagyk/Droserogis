@@ -516,25 +516,30 @@ public class Actor extends Entity
         for (Entity entity : entityList)
         {
             if (entity == this) continue;
-            int edge = entity.getTouchEdge(this, goal);
-            if (edge < 0) continue;
+            int[] edge = entity.getTouchEdge(this, goal);
+            if (edge[0] < 0) continue;
 
             /* Actor has touched another entity a this point */
             orginalVel = this.getVelocity();
             entity.setTriggered(true);
-            touchEntity[edge] = entity;
+            touchEntity[edge[0]] = entity;
 
-            if (edge == DOWN)
+            if (edge[0] == UP)
+            {
+                goal.y = entity.getBottomEdge() + getHeight() / 2;
+                setVelocityY(0);
+            }
+            else if (edge[0] == DOWN)
             {
                 goal.y = entity.getTopEdge() - getHeight() / 2;
                 setVelocityY(0);
             }
-            else if (edge == LEFT)
+            else if (edge[0] == LEFT)
             {
                 goal.x = entity.getRightEdge() + getWidth() / 2;
                 setVelocityX(0);
             }
-            else if (edge == RIGHT)
+            else if (edge[0] == RIGHT)
             {
                 goal.x = entity.getLeftEdge() - getWidth() / 2;
                 setVelocityX(0);
