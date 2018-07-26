@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
@@ -12,21 +13,26 @@ abstract public class Entity
         TRIANGLE_UP_R
                 {
                     public boolean isTriangle() {return true;}
+                    public int[] getDirs() {return new int[]{UP, RIGHT};}
                 },
         TRIANGLE_UP_L
                 {
                     public boolean isTriangle() {return true;}
+                    public int[] getDirs() {return new int[]{UP, LEFT};}
                 },
         TRIANGLE_DW_R
                 {
                     public boolean isTriangle() {return true;}
+                    public int[] getDirs() {return new int[]{DOWN, RIGHT};}
                 },
         TRIANGLE_DW_L
                 {
                     public boolean isTriangle() {return true;}
+                    public int[] getDirs() {return new int[]{DOWN, LEFT};}
                 };
 
         public boolean isTriangle() {return false;}
+        public int[] getDirs() {return new int[]{-1, -1};}
     }
 
     public static final int UP = 0;
@@ -63,17 +69,17 @@ abstract public class Entity
         if (shape == ShapeEnum.TRIANGLE_UP_R)
         {
             vertexList = new Vec2[3];
-            vertexList[0] = new Vec2(-width / 2, height / 2);
-            vertexList[1] = new Vec2(-width / 2, -height / 2);
-            vertexList[2] = new Vec2(width / 2, height / 2);
+            vertexList[0] = new Vec2(-width / 2, height / 2);   // Lower-left corner (square corner)
+            vertexList[1] = new Vec2(-width / 2, -height / 2);  // Upper-left corner
+            vertexList[2] = new Vec2(width / 2, height / 2);    // Lower-right corner
         }
 
         else if (shape == ShapeEnum.TRIANGLE_UP_L)
         {
             vertexList = new Vec2[3];
-            vertexList[0] = new Vec2(width / 2, height / 2);
-            vertexList[1] = new Vec2(-width / 2, height / 2);
-            vertexList[2] = new Vec2(width / 3, -height / 2);
+            vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
+            vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
+            vertexList[2] = new Vec2(width / 3, -height / 2);   // Upper-right corner
         }
 
         else if (shape == ShapeEnum.TRIANGLE_DW_R)
@@ -179,22 +185,22 @@ abstract public class Entity
     //}
 
 
-    public float getLeftEdge() { return pos.x - width/2; }
+    public float getLeftEdge() { return pos.x - width / 2; }
 
-    public float getRightEdge() { return pos.x + width/2; }
+    public float getRightEdge() { return pos.x + width / 2; }
 
-    public float getTopEdge() { return pos.y - height/2; }
+    public float getTopEdge() { return pos.y - height / 2; }
 
-    public float getBottomEdge() { return pos.y + height/2; }
+    public float getBottomEdge() { return pos.y + height / 2; }
 
     public float getVertexX(int i)
     {
-        return vertexList[i].x;
+        return vertexList[i].x + pos.x;
     }
 
     public float getVertexY(int i)
     {
-        return vertexList[i].y;
+        return vertexList[i].y + pos.y;
     }
 
     public void setColor(Color c) {color = c;}
@@ -216,7 +222,6 @@ abstract public class Entity
 
     public ShapeEnum getShape() {return shape;}
 
-
     //================================================================================================================
     //
     //================================================================================================================
@@ -229,56 +234,103 @@ abstract public class Entity
         if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  directions;
         if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  directions;
 
-        if (shape.isTriangle()) { return directions; }
-
-        if (other.getX() - other.width / 2 <= pos.x + width / 1.999)
+        /* The Actor is within the x-bounds */
+        if (other.getX() - other.width / 2 <= pos.x + width / 1.999
+                && other.getX() + other.width / 2 >= pos.x - width / 1.999)
         {
-            if (other.getX() + other.width / 2 >= pos.x - width / 1.999)
+            /* This Entity has a level bottom side */
+            if (shape.getDirs()[0] != DOWN)
             {
-                if (other.getY() > pos.y + height / 2)
+                if (other.getY() > getBottomEdge()
+                        && goal.y - other.height / 1.999 < getBottomEdge())
                 {
-                    if (goal.y - other.height / 1.999 < pos.y + height / 2)
-                    {
-                        directions[0] = UP;
-                        return directions;
-                    }
+                    directions[0] = UP;
+                    return directions;
                 }
-                if (other.getY() < pos.y - height / 2)
+            }
+            /* This Entity has a level top side */
+            if (shape.getDirs()[0] != UP)
+            {
+                if (other.getY() < getTopEdge()
+                        && goal.y + other.height / 1.999 > getTopEdge())
                 {
-                    if (goal.y + other.height / 1.999 > pos.y - height / 2)
+                    directions[0] = DOWN;
+                    return directions;
+                }
+            }
+            /* This entity has an upper-left slope */
+            else if (shape.getDirs()[1] == LEFT)
+            {
+                /*vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
+                vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
+                vertexList[2] = new Vec2(width / 3, -height / 2);   // Upper-right corner*/
+
+                if (other.getY() < getTopEdge(other.getX()))
+                {
+                    if (goal.y + other.height / 1.999 > getTopEdge(goal.x))
                     {
                         directions[0] = DOWN;
+                        directions[1] = RIGHT;
                         return directions;
                     }
                 }
             }
-        }
-
-        if (other.getY() - other.height / 2 <= pos.y + height / 1.999)
-        {
-            if (other.getY() + other.width / 2 >= pos.y - height / 1.999)
+            else // if (shape.getDirs()[1] == RIGHT)
             {
-                if (other.getX() < pos.x - width / 2)
+                if (other.getY() < getTopEdge(other.getX()))
                 {
-                    if (goal.x + other.width /1.999 > pos.x - width / 2)
+                    if (goal.y + other.height / 1.999 > getTopEdge(goal.x))
                     {
-                        directions[0] = RIGHT;
-                        return directions;
-                    }
-                }
-                if (other.getX() > pos.x + width / 2)
-                {
-                    if (goal.x - other.width / 1.999 < pos.x + width / 2)
-                    {
-                        directions[0] = LEFT;
+                        directions[0] = DOWN;
+                        directions[1] = RIGHT;
                         return directions;
                     }
                 }
             }
         }
 
+        /* This Actor is within the y-bounds */
+        if (other.getY() - other.height / 2 <= pos.y + height / 1.999
+                && other.getY() + other.width / 2 >= pos.y - height / 1.999)
+        {
+            /* This Entity has a level left side */
+            if (shape.getDirs()[1] != LEFT)
+            {
+                if (other.getX() < getLeftEdge()
+                        && goal.x + other.width /1.999 > getLeftEdge())
+                {
+                    directions[0] = RIGHT;
+                    return directions;
+                }
+            }
+            /* This Entity has a level right side */
+            if (shape.getDirs()[1] != RIGHT)
+            {
+                if (other.getX() > getRightEdge()
+                        && goal.x - other.width / 1.999 < getRightEdge())
+                {
+                    directions[0] = LEFT;
+                    return directions;
+                }
+            }
+        }
 
         return directions;
+    }
+
+    public float getTopEdge(float otherX)
+    {
+        if (!shape.isTriangle()) return pos.y - height / 2;
+        if (shape.getDirs()[1] == LEFT)
+        {
+            float xRatio = width / (getVertexX(0)- otherX);
+            return getVertexY(0) - (xRatio * height);
+        }
+        else // if (shape.getDirs()[1] == RIGHT)
+        {
+            float xRatio = (getVertexX(2) - otherX) / width;
+            return getVertexY(0) - (xRatio * height);
+        }
     }
 
     //================================================================================================================

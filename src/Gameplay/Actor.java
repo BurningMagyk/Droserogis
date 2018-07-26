@@ -59,7 +59,7 @@ public class Actor extends Entity
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
-        NORMAL_FRICTION = 1;
+        NORMAL_FRICTION = 0.5F;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
@@ -102,13 +102,13 @@ public class Actor extends Entity
 
             if (dirHoriz == Direction.LEFT)
             {
-                if (state == State.SLIDE && vx > 0) addAccelerationX(-accel);
+                if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
                 else if (vx > -topSpeed) addAccelerationX(-accel);
             }
             else if (dirHoriz == Direction.RIGHT)
             {
-                if (state == State.SLIDE && vx < 0) addAccelerationX(accel);
-                if (vx < topSpeed) addAccelerationX(accel);
+                if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
+                else if (vx < topSpeed) addAccelerationX(accel);
             }
 
             if (pressedJumpTime > 0)
@@ -290,7 +290,8 @@ public class Actor extends Entity
         {
             if (dirHoriz == null
                     || (getVelocityX() < 0 && dirHoriz == Direction.RIGHT)
-                    || (getVelocityX() > 0 && dirHoriz == Direction.LEFT))
+                    || (getVelocityX() > 0 && dirHoriz == Direction.LEFT)
+                    || state == State.SLIDE)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
             }
@@ -531,7 +532,7 @@ public class Actor extends Entity
             }
             else if (edge[0] == DOWN)
             {
-                goal.y = entity.getTopEdge() - getHeight() / 2;
+                goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
                 setVelocityY(0);
             }
             else if (edge[0] == LEFT)
