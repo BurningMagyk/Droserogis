@@ -2,7 +2,6 @@ package Gameplay;
 
 import Util.Print;
 import Util.Vec2;
-import com.sun.org.apache.regexp.internal.RE;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
