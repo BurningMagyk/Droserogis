@@ -3,10 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/indev</output-path>
     <root id="archive" name="Droserogis.jar">
       <element id="module-output" name="Droserogis" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/playn-jbox2d-1.9.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jbox2d-library-2.2.1.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/playn-core-1.9.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/pythagoras-1.4.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
