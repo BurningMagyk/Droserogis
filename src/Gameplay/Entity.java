@@ -14,6 +14,10 @@ abstract public class Entity
                 {
                     public boolean isTriangle() {return true;}
                     public int[] getDirs() {return new int[]{UP, RIGHT};}
+                    public Vec2 getNewVel(Vec2 oldVel)
+                    {
+                        return null;// TODO: finish this
+                    }
                 },
         TRIANGLE_UP_L
                 {
@@ -33,6 +37,7 @@ abstract public class Entity
 
         public boolean isTriangle() {return false;}
         public int[] getDirs() {return new int[]{-1, -1};}
+        public Vec2 getNewVel(Vec2 oldVel) {return null;}
     }
 
     public static final int UP = 0;

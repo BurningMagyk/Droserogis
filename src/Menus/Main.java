@@ -68,7 +68,7 @@ public class Main extends Application
         GraphicsContext context = CANVAS.getGraphicsContext2D();
         IMPORTER.setContext(context);
 
-        /* Sample code to draw on the canvas: */
+        /* Draw on the canvas: */
         drawOnCanvas(context);
 
         /* Add the canvas and widgets in order */
@@ -76,9 +76,10 @@ public class Main extends Application
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
         root.getStylesheets().add("CSS/opening.css");
 
-        /* Set the stage at the center of the screen */
-        stage.setX(SCREEN_WIDTH / 4);
-        stage.setY(SCREEN_HEIGHT / 4);
+        /* Set the stage at the center of the screen.
+         * ">> 2" divides by 4 */
+        stage.setX(SCREEN_WIDTH >> 2);
+        stage.setY(SCREEN_HEIGHT >> 2);
 
         /* Set scene, set stage style, and make stage visible */
         stage.setScene(SCENE);
@@ -103,7 +104,7 @@ public class Main extends Application
         int comboBoxHeight = height / 10;
 
         /* Try importing the Supernatural Knight and Kaisho fonts */
-        double fontSize = Math.min(width, height) / 25;
+        double fontSize = Math.min(width, height) / 25F;
         FontResource font = IMPORTER.getFont(
                 "planewalker.otf", "kaisho.ttf", fontSize);
 
@@ -164,7 +165,7 @@ public class Main extends Application
         startButton.setOnAction(event -> startGame(stage, group));
         exitButton.setOnAction(event -> quitGame(stage, group));
 
-        /* Add widgets to the ArrayList */
+        /* Add widgets to root */
         group.getChildren().add(startButton);
         group.getChildren().add(exitButton);
         group.getChildren().add(langComboBox);
