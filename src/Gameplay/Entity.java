@@ -222,6 +222,15 @@ abstract public class Entity
 
     public ShapeEnum getShape() {return shape;}
 
+    public Vec2 getSlopeGravity()
+    {
+        if (shape != ShapeEnum.TRIANGLE_UP_L
+                && shape != ShapeEnum.TRIANGLE_UP_R) return new Vec2(0, 0);
+        float heightRatio = height - width / height,
+                widthRatio = width - height / width;
+        return new Vec2(2 * widthRatio, 2 * heightRatio); // gravity = 2
+    }
+
     //================================================================================================================
     //
     //================================================================================================================

@@ -2,7 +2,6 @@ package Gameplay;
 
 import Util.Print;
 import Util.Vec2;
-import com.sun.org.apache.regexp.internal.RE;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -77,15 +76,11 @@ public class Actor extends Entity
         setAcceleration(0,0);
 
         if (!state.isGrounded()) setAccelerationY(gravity);
+        else if (touchEntity[DOWN] != null) setAcceleration(touchEntity[DOWN].getSlopeGravity());
 
         float vx = getVelocityX(), vy = getVelocityY();
 
-        if (state == State.SLIDE || state == State.PRONE)
-        {
-            // TODO: fill this in
-        }
-
-        else if (state.isGrounded())
+        if (state.isGrounded())
         {
             float accel, topSpeed;
             if (state == State.CROUCH || state == State.CRAWL
