@@ -50,6 +50,8 @@ abstract public class Entity
     private Vec2 acceleration = new Vec2(Vec2.ZERO);
 
     private float width, height;
+    private double sinTheta;
+    private Vec2 normal = null;
     private Vec2[] vertexList;
 
     private final ShapeEnum shape;
@@ -67,7 +69,6 @@ abstract public class Entity
 
         pos = new Vec2(xPos, yPos);
 
-
         //For a triangle, the given (xPos,yPos) is the center of the hypotenuse.
         //  This is done to make it easy to align objects in level building. However, the center of the hypotenuse would NOT
         //  be the center of mass of a right triangle of a thin lamina of uniform density.
@@ -77,6 +78,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(-width / 2, height / 2);   // Lower-left corner (square corner)
             vertexList[1] = new Vec2(-width / 2, -height / 2);  // Upper-left corner
             vertexList[2] = new Vec2(width / 2, height / 2);    // Lower-right corner
+            normal = new Vec2(width, -height);
         }
 
         else if (shape == ShapeEnum.TRIANGLE_UP_L)
@@ -85,6 +87,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
             vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
             vertexList[2] = new Vec2(width / 3, -height / 2);   // Upper-right corner
+            normal = new Vec2(-width, -height);
         }
 
         else if (shape == ShapeEnum.TRIANGLE_DW_R)
@@ -93,6 +96,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(-width / 2, -height / 2);
             vertexList[1] = new Vec2(width / 2, -height / 2);
             vertexList[2] = new Vec2(-width / 2, height / 2);
+            normal = new Vec2(width, height);
         }
         else if (shape == ShapeEnum.TRIANGLE_DW_L)
         {
@@ -100,9 +104,13 @@ abstract public class Entity
             vertexList[0] = new Vec2(width / 2, -height / 2);
             vertexList[1] = new Vec2(width / 2, height / 2);
             vertexList[2] = new Vec2(-width / 2, -height / 2);
+            normal = new Vec2(-width, height);
         }
-    }
 
+        /* Calculate sinTheta */
+        double hypotenuse = Math.sqrt(width * width + height * height);
+        sinTheta = (double) height / hypotenuse;
+    }
 
     public Vec2 getPosition() { return new Vec2(pos); }
 
@@ -227,13 +235,19 @@ abstract public class Entity
 
     public ShapeEnum getShape() {return shape;}
 
-    public Vec2 getSlopeGravity()
+    public Vec2 applySlope(Vec2 origin)
     {
         if (shape != ShapeEnum.TRIANGLE_UP_L
                 && shape != ShapeEnum.TRIANGLE_UP_R) return new Vec2(0, 0);
-        float heightRatio = height - width / height,
-                widthRatio = width - height / width;
-        return new Vec2(2 * widthRatio, 2 * heightRatio); // gravity = 2
+        /* Dot product of origin and normal */
+        float dotProduct = origin.x * normal.x + origin.y * normal.y;
+        double originMagnitude = Math.sqrt(origin.x * origin.x + origin.y * origin.y);
+        double normalMagnitude = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+        double cosTheta = dotProduct / (originMagnitude * normalMagnitude);
+
+        /* The direction of the sloped surface multiplied by cos(theta) */
+        return new Vec2((float) (width * cosTheta / normalMagnitude),
+                (float) (-height * cosTheta / normalMagnitude) + 1);
     }
 
     //================================================================================================================
@@ -334,6 +348,10 @@ abstract public class Entity
 
     public float getTopEdge(float otherX)
     {
+        /* The Actor is within the x-bounds */
+        /*if (otherX - other.width / 2 <= pos.x + width / 1.999
+                && other.getX() + other.width / 2 >= pos.x - width / 1.999)*/
+
         if (!shape.isTriangle()) return pos.y - height / 2;
         if (shape.getDirs()[1] == LEFT)
         {
@@ -346,18 +364,4 @@ abstract public class Entity
             return getVertexY(0) - (xRatio * height);
         }
     }
-
-    //================================================================================================================
-    //
-    //================================================================================================================
-    //public boolean isNear(Entity other, Vec2 goal)
-    //{
-    //    if (goal.x + other.width / 2 <= pos.x - width / 2) return false;
-   //     if (goal.x - other.width / 2 >= pos.x + width / 2) return false;
-     //   if (goal.y + other.height / 2 <= pos.y - height / 2) return false;
-    //    if (goal.y - other.height / 2 >= pos.y + height / 2) return false;
-//
-     //   return true;
-    //}
-
 }

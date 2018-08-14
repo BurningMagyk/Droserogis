@@ -77,7 +77,12 @@ public class Actor extends Entity
         setAcceleration(0,0);
 
         if (!state.isGrounded()) setAccelerationY(gravity);
-        else if (touchEntity[DOWN] != null) setAcceleration(touchEntity[DOWN].getSlopeGravity());
+        // TODO: This is not correct
+        else if (touchEntity[DOWN] != null)
+        {
+            Vec2 gravity = new Vec2(0, -this.gravity);
+            setAcceleration(touchEntity[DOWN].applySlope(gravity));
+        }
 
         float vx = getVelocityX(), vy = getVelocityY();
 
@@ -510,6 +515,7 @@ public class Actor extends Entity
     //===============================================================================================================
     private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
+        Entity ground = touchEntity[DOWN];
         Vec2 orginalVel = null;
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
@@ -538,11 +544,12 @@ public class Actor extends Entity
                 /* Colliding with level surface from above */
                 else setVelocityY(0);
             }
-            else if (edge[0] == DOWN)
+            else if (edge[0] == DOWN || ground != null)
             {
                 goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
+                setVelocityY(0);
                 /* Colliding with down-left slope */
-                if (edge[1] == LEFT) {/*TODO: convert originalVel to direction of slope*/}
+                if (edge[1] == LEFT){} //{entity.applySlope(orginalVel);}
                 /* Colliding with down-right slope */
                 else if (edge[1] == RIGHT) {}
                 /* Colliding with level surface from below */
