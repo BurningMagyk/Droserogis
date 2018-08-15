@@ -19,6 +19,8 @@ import java.util.ArrayList;
 //================================================================================================================
 public class Actor extends Entity
 {
+    private final float MIN_VELOCITY = 0.000001F;
+
     private final float NORMAL_GRAVITY = 2;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
 
@@ -326,12 +328,19 @@ public class Actor extends Entity
      */
     private Vec2 applyVelocity(float deltaSec, ArrayList<Entity> entities)
     {
+        Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
         getVelocity().mul(deltaSec);
         goal.add(getVelocity());
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
+        /* Stop velocity from building up by setting it to match change in
+         * position */
+        setVelocity(getX() - posOriginal.x, getY() - posOriginal.y);
+        /* Neutralize velocity if it's too small */
+        if (Math.abs(getVelocityX()) < MIN_VELOCITY) setVelocityX(0F);
+        if (Math.abs(getVelocityY()) < MIN_VELOCITY) setVelocityY(0F);
         return contactVel;
     }
 
@@ -515,7 +524,6 @@ public class Actor extends Entity
     //===============================================================================================================
     private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
-        Entity ground = touchEntity[DOWN];
         Vec2 orginalVel = null;
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
@@ -544,12 +552,13 @@ public class Actor extends Entity
                 /* Colliding with level surface from above */
                 else setVelocityY(0);
             }
-            else if (edge[0] == DOWN || ground != null)
+            else if (edge[0] == DOWN)
             {
+                Print.yellow(getVelocityY());
                 goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
-                setVelocityY(0);
+                //setVelocityY(0);
                 /* Colliding with down-left slope */
-                if (edge[1] == LEFT){} //{entity.applySlope(orginalVel);}
+                if (edge[1] == LEFT) entity.applySlope(orginalVel);
                 /* Colliding with down-right slope */
                 else if (edge[1] == RIGHT) {}
                 /* Colliding with level surface from below */
