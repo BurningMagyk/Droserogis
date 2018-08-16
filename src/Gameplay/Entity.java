@@ -235,6 +235,14 @@ abstract public class Entity
 
     public ShapeEnum getShape() {return shape;}
 
+    /**
+     * Returns the direction that the other entity would move in. However,
+     * if an Actor is in contact with the edge, the Actor will only take the
+     * horizontal velocity and update its position using getTopEdge(...) to
+     * stay in contact with the edge if withinBoundsX(...) returns true and its
+     * velocity is positive. Otherwise, the vertical component will be applied
+     * along with the horizontal.
+     */
     public Vec2 applySlope(Vec2 origin)
     {
         if (shape != ShapeEnum.TRIANGLE_UP_L
@@ -253,6 +261,18 @@ abstract public class Entity
     //================================================================================================================
     //
     //================================================================================================================
+    boolean withinBoundsX(Entity other)
+    {
+        return other.getX() - other.width / 2 <= pos.x + width / 1.999
+                && other.getX() + other.width / 2 >= pos.x - width / 1.999;
+    }
+
+    boolean withinBoundsY(Entity other)
+    {
+        return other.getY() - other.height / 2 <= pos.y + height / 1.999
+                && other.getY() + other.width / 2 >= pos.y - height / 1.999;
+    }
+
     public int[] getTouchEdge(Entity other, Vec2 goal)
     {
         int[] directions = {-1, -1};
@@ -263,8 +283,7 @@ abstract public class Entity
         if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  directions;
 
         /* The Actor is within the x-bounds */
-        if (other.getX() - other.width / 2 <= pos.x + width / 1.999
-                && other.getX() + other.width / 2 >= pos.x - width / 1.999)
+        if (withinBoundsX(other))
         {
             /* This Entity has a level bottom side */
             if (shape.getDirs()[0] != DOWN)
@@ -318,8 +337,7 @@ abstract public class Entity
         }
 
         /* This Actor is within the y-bounds */
-        if (other.getY() - other.height / 2 <= pos.y + height / 1.999
-                && other.getY() + other.width / 2 >= pos.y - height / 1.999)
+        if (withinBoundsY(other))
         {
             /* This Entity has a level left side */
             if (shape.getDirs()[1] != LEFT)
