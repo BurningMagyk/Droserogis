@@ -255,7 +255,7 @@ abstract public class Entity
 
         /* The direction of the sloped surface multiplied by cos(theta) */
         return new Vec2((float) (width * cosTheta / normalMagnitude),
-                (float) (-height * cosTheta / normalMagnitude) + 1);
+                (float) (-height * cosTheta / normalMagnitude) + 0.1F);
     }
 
     //================================================================================================================
