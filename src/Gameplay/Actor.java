@@ -6,21 +6,19 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
-//================================================================================================================
-// Key Commands:
-//    W,A,S,D: move left, right, up, down
-//    J      : jump
-//    ESC    : exit game
-//    Arrow keys pan the camera. Q and E zoom in and out
-//    Crouch : press down when on surface.
-//    When crouching, A and D: player crawl.
-//    If player jumps and holds down an arrow as he comes into contact with the wall, he'll stick to it.
-//    If player presses jump and presses one of the other movement keys, he'll jump off the wall.
-//================================================================================================================
+/**
+ * Key Commands:
+ *   W,A,S,D: move left, right, up, down
+ *   J      : jump
+ *   ESC    : exit game
+ *   Arrow keys pan the camera. Q and E zoom in and out.
+ *   Crouch : press down when on surface.
+ *   When crouching, A and D: player crawl.
+ *   If player jumps and holds down an arrow as he comes into contact with the wall, he'll stick to it.
+ *   If player presses jump and presses one of the other movement keys, he'll jump off the wall.
+ */
 public class Actor extends Entity
 {
-    private final float MIN_VELOCITY = 0.000001F;
-
     private final float NORMAL_GRAVITY = 2;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
 
@@ -54,6 +52,8 @@ public class Actor extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
+    private float slopeJumpBuffer = 0.1F;
+
     @Override
     public Color getColor() { return state.getColor(); }
 
@@ -62,6 +62,7 @@ public class Actor extends Entity
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
         NORMAL_FRICTION = 0.5F;
+        //NORMAL_FRICTION = 0F;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
@@ -79,17 +80,14 @@ public class Actor extends Entity
         setAcceleration(0,0);
 
         if (!state.isGrounded()) setAccelerationY(gravity);
-        // TODO: This is not correct
-        else if (touchEntity[DOWN] != null)
-        {
-            Vec2 gravity = new Vec2(0, -this.gravity);
-            setAcceleration(touchEntity[DOWN].applySlope(gravity));
-        }
 
         float vx = getVelocityX(), vy = getVelocityY();
 
         if (state.isGrounded())
         {
+            Vec2 gravity = new Vec2(0, this.gravity);
+            setAcceleration(touchEntity[DOWN].applySlopeY(this.gravity));
+
             float accel, topSpeed;
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
@@ -106,17 +104,17 @@ public class Actor extends Entity
             if (dirHoriz == Direction.LEFT)
             {
                 if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
-                else if (vx > -topSpeed) addAccelerationX(-accel);
+                else if (vx > -topSpeed) addAccelerationX(-accel);//addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
             }
             else if (dirHoriz == Direction.RIGHT)
             {
                 if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
-                else if (vx < topSpeed) addAccelerationX(accel);
+                else if (vx < topSpeed) addAccelerationX(accel);//addAcceleration(touchEntity[DOWN].applySlopeX(accel));
             }
 
             if (pressedJumpTime > 0)
             {
-                addVelocityY(-jumpVel);
+                addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP] ? -jumpVel : -jumpVel - slopeJumpBuffer);
                 pressedJumpTime = 0F;
             }
         }
@@ -303,6 +301,12 @@ public class Actor extends Entity
                     || state == State.SLIDE)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
+                if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
+                {
+                    Vec2 slopeVel = touchEntity[DOWN].applySlopeX(frictionX);
+                    frictionX = slopeVel.x;
+                    frictionY = slopeVel.y;
+                }
             }
         }
         else if (state.isOnWall())
@@ -335,12 +339,13 @@ public class Actor extends Entity
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
-        /* Stop velocity from building up by setting it to match change in
-         * position */
-        setVelocity(getX() - posOriginal.x, getY() - posOriginal.y);
-        /* Neutralize velocity if it's too small */
-        if (Math.abs(getVelocityX()) < MIN_VELOCITY) setVelocityX(0F);
-        if (Math.abs(getVelocityY()) < MIN_VELOCITY) setVelocityY(0F);
+
+        /* Stop horizontal velocity from building up by setting it to match change in
+         * position. Needed for jumping to work correctly and when falling off block. */
+        if (touchEntity[DOWN] != null
+                && !touchEntity[DOWN].getShape().getDirs()[UP])
+            setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
+
         return contactVel;
     }
 
@@ -500,7 +505,6 @@ public class Actor extends Entity
         else if (state == State.SLIDE) setFriction(REDUCED_FRICTION);
         else setFriction(NORMAL_FRICTION);
 
-        /* Temporary */
         Print.blue(this.state + " -> " + state);
 
         this.state = state;
@@ -525,6 +529,7 @@ public class Actor extends Entity
     private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
         Vec2 orginalVel = null;
+
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
         touchEntity[LEFT] = null;
@@ -544,24 +549,28 @@ public class Actor extends Entity
 
             if (edge[0] == UP)
             {
-                goal.y = entity.getBottomEdge() + getHeight() / 2;
-                /* Colliding with up-left slope */
-                if (edge[1] == LEFT) {/*TODO: convert originalVel to direction of slope*/}
-                /* Colliding with up-right slope */
-                else if (edge[1] == RIGHT) {}
-                /* Colliding with level surface from above */
+                goal.y = entity.getBottomEdge(goal.x) + getHeight() / 2;
+
+                /* Colliding with down-right slope or down-left slope */
+                if (edge[1] == LEFT || edge[1] == RIGHT)
+                {
+                    if (!state.isGrounded())
+                        setVelocity(entity.applySlope(orginalVel));
+                }
+                /* Colliding with level surface from below */
                 else setVelocityY(0);
             }
             else if (edge[0] == DOWN)
             {
-                Print.yellow(getVelocityY());
                 goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
-                //setVelocityY(0);
-                /* Colliding with down-left slope */
-                if (edge[1] == LEFT) entity.applySlope(orginalVel);
-                /* Colliding with down-right slope */
-                else if (edge[1] == RIGHT) {}
-                /* Colliding with level surface from below */
+
+                /* Colliding with up-right slope or up-left slope */
+                if (edge[1] == LEFT || edge[1] == RIGHT)
+                {
+                    if (!state.isGrounded())
+                        setVelocity(entity.applySlope(orginalVel));
+                }
+                /* Colliding with level surface from above */
                 else setVelocityY(0);
             }
             else if (edge[0] == LEFT)
