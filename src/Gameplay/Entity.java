@@ -85,7 +85,7 @@ abstract public class Entity
             vertexList = new Vec2[3];
             vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
             vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
-            vertexList[2] = new Vec2(width / 3, -height / 2);   // Upper-right corner
+            vertexList[2] = new Vec2(width / 2, -height / 2);   // Upper-right corner
             normal = new Vec2(-width, -height);
         }
 
@@ -270,9 +270,17 @@ abstract public class Entity
      */
     public Vec2 applySlopeX(float totalVel)
     {
-        if (shape == ShapeEnum.RECTANGLE) return new Vec2(totalVel, 0);
-        return new Vec2((float) (totalVel * cosTheta),
-                (float) (totalVel * sinTheta));
+        switch (shape)
+        {
+            case TRIANGLE_UP_L:
+                return new Vec2((float) (totalVel * cosTheta),
+                        (float) (-totalVel * sinTheta));
+            case TRIANGLE_UP_R:
+                return new Vec2((float) (totalVel * cosTheta),
+                        (float) (totalVel * sinTheta));
+            default:
+                return new Vec2(totalVel, 0);
+        }
     }
 
     /**
@@ -281,9 +289,17 @@ abstract public class Entity
      */
     public Vec2 applySlopeY(float totalVel)
     {
-        if (shape == ShapeEnum.RECTANGLE) return new Vec2(0, totalVel);
-        return new Vec2((float) (totalVel * sinTheta),
-                (float) (totalVel * cosTheta));
+        switch (shape)
+        {
+            case TRIANGLE_UP_L:
+                return new Vec2((float) (-totalVel * sinTheta),
+                        (float) (totalVel * cosTheta));
+            case TRIANGLE_UP_R:
+                return new Vec2((float) (totalVel * sinTheta),
+                        (float) (totalVel * cosTheta));
+            default:
+                return new Vec2(0, totalVel);
+        }
     }
 
     //================================================================================================================
@@ -409,14 +425,14 @@ abstract public class Entity
 
     float getTopEdge(float otherX)
     {
-        /* The Actor is within the x-bounds */
+        /* Assumes that the Actor is within the x-bounds */
 
         if (!shape.isTriangle() || shape.getDirs()[UP])
             return getTopEdge();
         if (shape.getDirs()[RIGHT])
         {
-            float xRatio = width / (getVertexX(0) - otherX);
-            return getVertexY(0) - (xRatio * height);
+            float xRatio = (getVertexX(2) - otherX) / width;
+            return getVertexY(2) + (xRatio * height);
         }
         else // if (shape.getDirs()[LEFT])
         {
@@ -428,7 +444,7 @@ abstract public class Entity
     // TODO: finish this
     float getBottomEdge(float otherX)
     {
-        /* The Actor is within the x-bounds */
+        /* Assumes that the Actor is within the x-bounds */
 
         if (!shape.isTriangle() || shape.getDirs()[DOWN])
             return getBottomEdge();

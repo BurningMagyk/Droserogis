@@ -96,9 +96,8 @@ class Block extends Entity
     @Override
     public Color getColor()
     {
-      return getTriggered() ? Color.ORANGE : Color.YELLOW;
+        return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
-
 
 
     /**
