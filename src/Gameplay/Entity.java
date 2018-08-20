@@ -114,48 +114,34 @@ abstract public class Entity
     }
 
     public Vec2 getPosition() { return new Vec2(pos); }
-
     public float getX() { return pos.x; }
-
     public float getY() { return pos.y; }
 
     public float getWidth() { return width; }
-
     public float getHeight() { return height; }
 
     public Vec2 getVelocity() {return new Vec2(velocity);}
-
     public float getVelocityX() {return velocity.x;}
-
     public float getVelocityY() {return velocity.y;}
-
 
     public void setVelocity(Vec2 v)
     {
         velocity.x = v.x;
         velocity.y = v.y;
     }
-
     public void setPosition(Vec2 p)
     {
         pos.x = p.x;
         pos.y = p.y;
     }
+    public void setPositionX(float x) { pos.x = x; }
+    public void setPositionY(float y) { pos.y = y; }
 
-    public void setPositionX(float x) {pos.x = x;}
-
-    public void setPositionY(float y) {pos.y = y;}
-
-    public void setVelocityX(float x)
-    {
-        velocity.x = x;
-    }
-
+    public void setVelocityX(float x) { velocity.x = x; }
     public void setVelocityY(float y)
     {
         velocity.y = y;
     }
-
     public void setVelocity(float x, float y)
     {
         velocity.x = x;
@@ -166,38 +152,27 @@ abstract public class Entity
     void addVelocityX(float x) { velocity.x += x; }
     void addVelocityY(float y) { velocity.y += y; }
 
+    Vec2 getAcceleration() {return new Vec2(acceleration);}
+    float getAccelerationX() {return acceleration.x;}
+    float getAccelerationY() {return acceleration.y;}
+
     public void setAcceleration(Vec2 v)
     {
         acceleration.x = v.x;
         acceleration.y = v.y;
     }
-
     public void setAcceleration(float x, float y)
     {
         acceleration.x = x;
         acceleration.y = y;
     }
-
-    Vec2 getAcceleration() {return new Vec2(acceleration);}
-
-    float getAccelerationX() {return acceleration.x;}
-
-    float getAccelerationY() {return acceleration.y;}
-
     void setAccelerationX(float x) {acceleration.x = x;}
-
     void setAccelerationY(float y) {acceleration.y = y;}
 
     void addAcceleration(Vec2 a) { acceleration.add(a); }
-    void addAcceleration(float x, float y) {acceleration.add(new Vec2(x, y));}
+    void addAcceleration(float x, float y) { acceleration.add(new Vec2(x, y)); }
     void addAccelerationX(float x) { acceleration.x += x; }
     void addAccelerationY(float y) { acceleration.y += y; }
-
-    //public Vec2 getNewPos(long)
-    //{
-    //  Vec2 p = new Vec2(pos);
-    //  velocity
-    //}
 
 
     public float getLeftEdge() { return pos.x - width / 2; }
@@ -208,34 +183,23 @@ abstract public class Entity
 
     public float getBottomEdge() { return pos.y + height / 2; }
 
-    public float getVertexX(int i)
-    {
-        return vertexList[i].x + pos.x;
-    }
+    public float getVertexX(int i) { return vertexList[i].x + pos.x; }
 
-    public float getVertexY(int i)
-    {
-        return vertexList[i].y + pos.y;
-    }
+    public float getVertexY(int i) { return vertexList[i].y + pos.y; }
 
-    public void setColor(Color c) {color = c;}
+    public void setColor(Color c) { color = c; }
 
     public Color getColor() {return color;}
 
-    public void resetFlags()
-    {
-        triggered = false;
-    }
-
+    public void resetFlags() { triggered = false; }
     public boolean getTriggered() { return triggered;}
-
-    public void setTriggered(boolean triggered) { this.triggered = triggered;}
+    public void setTriggered(boolean triggered) { this.triggered = triggered; }
 
     public float getFriction() { return friction; }
 
-    public void setFriction(float friction) {this.friction = friction;}
+    public void setFriction(float friction) { this.friction = friction; }
 
-    public ShapeEnum getShape() {return shape;}
+    public ShapeEnum getShape() { return shape; }
 
     /**
      * Returns the direction that the other entity would move in according to
