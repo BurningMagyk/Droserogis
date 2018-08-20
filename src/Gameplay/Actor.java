@@ -38,6 +38,7 @@ public class Actor extends Entity
 
     /* The entities that are in contact from each of 4 directions */
     private Entity[] touchEntity = new Entity[4];
+    private LateSurface[] touchLateSurface = new LateSurface[4];
 
     private boolean
             pressingLeft = false, pressingRight = false,
@@ -83,6 +84,59 @@ public class Actor extends Entity
         if (!state.isGrounded()) setAccelerationY(gravity);
 
         float vx = getVelocityX(), vy = getVelocityY();
+
+        if (pressedJumpTime > 0)
+        {
+            if (touchLateSurface[DOWN] != null)
+            {
+                float lateVelY = touchLateSurface[DOWN].getLateVel().y;
+                setVelocityY(touchLateSurface[DOWN].getShape().getDirs()[UP]
+                        ? -jumpVel + lateVelY : -jumpVel - slopeJumpBuffer + lateVelY);
+                pressedJumpTime = 0F;
+            }
+            else if (touchLateSurface[LEFT] != null)
+            {
+                Vec2 lateVel = touchLateSurface[LEFT].getLateVel();
+                if (dirHoriz == Direction.RIGHT)
+                {
+                    setVelocityX(jumpVel * 0.70712F + lateVel.x); // sin(45)
+                    setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    pressedJumpTime = 0F;
+                }
+                else if (dirVert == Direction.UP)
+                {
+                    setVelocityX(jumpVel * 0.34202F + lateVel.x); // sin(20)
+                    setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    pressedJumpTime = 0F;
+                }
+                else if (dirVert == Direction.DOWN)
+                {
+                    setVelocityX(jumpVel + lateVel.x);
+                    pressedJumpTime = 0;
+                }
+            }
+            else if (touchLateSurface[RIGHT] != null)
+            {
+                Vec2 lateVel = touchLateSurface[RIGHT].getLateVel();
+                if (dirHoriz == Direction.LEFT)
+                {
+                    setVelocityX(-jumpVel * 0.70712F + lateVel.x); // sin(45)
+                    setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    pressedJumpTime = 0F;
+                }
+                else if (dirVert == Direction.UP)
+                {
+                    setVelocityX(-jumpVel * 0.34202F + lateVel.x); // sin(20)
+                    setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    pressedJumpTime = 0F;
+                }
+                else if (dirVert == Direction.DOWN)
+                {
+                    setVelocityX(-jumpVel + lateVel.x);
+                    pressedJumpTime = 0;
+                }
+            }
+        }
 
         if (state.isGrounded())
         {
@@ -342,7 +396,7 @@ public class Actor extends Entity
         getVelocity().mul(deltaSec);
         goal.add(getVelocity());
         /* triggerContacts() returns null if the actor does not hit anything */
-        Vec2 contactVel = triggerContacts(goal, entities);
+        Vec2 contactVel = triggerContacts(deltaSec, goal, entities);
         setPosition(goal);
 
         /* Stop horizontal velocity from building up by setting it to match change in
@@ -531,15 +585,27 @@ public class Actor extends Entity
     // The method returns null if this actor's velocity is unchanged. Otherwise, it returns this actors original
     // velocity.
     //===============================================================================================================
-    private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
+    private Vec2 triggerContacts(float deltaSec, Vec2 goal, ArrayList<Entity> entityList)
     {
         Vec2 orginalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
 
         touchEntity[UP] = null;
+        if (touchLateSurface[UP] != null
+                && touchLateSurface[UP].countdown(deltaSec))
+            touchLateSurface[UP] = null;
         touchEntity[DOWN] = null;
+        if (touchLateSurface[DOWN] != null
+                && touchLateSurface[DOWN].countdown(deltaSec))
+            touchLateSurface[DOWN] = null;
         touchEntity[LEFT] = null;
+        if (touchLateSurface[LEFT] != null
+                && touchLateSurface[LEFT].countdown(deltaSec))
+            touchLateSurface[LEFT] = null;
         touchEntity[RIGHT] = null;
+        if (touchLateSurface[RIGHT] != null
+                && touchLateSurface[RIGHT].countdown(deltaSec))
+            touchLateSurface[RIGHT] = null;
         for (Entity entity : entityList)
         {
             if (entity == this) continue;
@@ -552,6 +618,7 @@ public class Actor extends Entity
             orginalVel = this.getVelocity();
             entity.setTriggered(true);
             touchEntity[edge[0]] = entity;
+            touchLateSurface[edge[0]] = new LateSurface(entity, getVelocity());
 
             if (edge[0] == UP)
             {
@@ -750,6 +817,30 @@ public class Actor extends Entity
     }
 
     private boolean inWater() { return false; }
+
+    private class LateSurface
+    {
+        private Entity entity;
+        private Vec2 lateVel;
+        private float duration = 0.1F;
+
+        LateSurface(Entity entity, Vec2 lateVel)
+        {
+            this.entity = entity;
+            this.lateVel = lateVel;
+        }
+
+        boolean countdown(float deltaSec)
+        {
+            duration -= deltaSec;
+            if (duration <= 0) return true;
+            return false;
+        }
+
+        Vec2 getLateVel() { return lateVel; }
+
+        ShapeEnum getShape() { return entity.getShape(); }
+    }
 
     private int getSlopeType()
     {
