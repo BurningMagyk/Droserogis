@@ -418,7 +418,6 @@ abstract public class Entity
         }
     }
 
-    // TODO: finish this
     float getBottomEdge(float otherX)
     {
         /* Assumes that the Actor is within the x-bounds */
