@@ -221,12 +221,13 @@ public class Gameplay implements Reactor
     private void buildLevels()
     {
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(5.5F, -1.75F, 2F, 5.5F, Entity.ShapeEnum.RECTANGLE));
+        //addEntity(new Block(5.5F, -1.75F, 2F, 5.5F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
         addEntity(new Block(-4, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_R));
-        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_R));
+
+        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_L));
 
 
         player = new Actor(1F, -3F, .5f, .5f);

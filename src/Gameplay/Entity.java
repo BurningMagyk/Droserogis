@@ -278,6 +278,12 @@ abstract public class Entity
             case TRIANGLE_UP_R:
                 return new Vec2((float) (totalVel * cosTheta),
                         (float) (totalVel * sinTheta));
+            case TRIANGLE_DW_L:
+                return new Vec2((float) (totalVel * cosTheta),
+                        (float) (totalVel * sinTheta));
+            case TRIANGLE_DW_R:
+                return new Vec2((float) (totalVel * cosTheta),
+                        (float) (-totalVel * sinTheta));
             default:
                 return new Vec2(totalVel, 0);
         }
@@ -296,6 +302,12 @@ abstract public class Entity
                         (float) (totalVel * cosTheta));
             case TRIANGLE_UP_R:
                 return new Vec2((float) (totalVel * sinTheta),
+                        (float) (totalVel * cosTheta));
+            case TRIANGLE_DW_L:
+                return new Vec2((float) (totalVel * sinTheta),
+                        (float) (totalVel * cosTheta));
+            case TRIANGLE_DW_R:
+                return new Vec2((float) (-totalVel * sinTheta),
                         (float) (totalVel * cosTheta));
             default:
                 return new Vec2(0, totalVel);
@@ -429,14 +441,15 @@ abstract public class Entity
 
         if (!shape.isTriangle() || shape.getDirs()[UP])
             return getTopEdge();
+        float xRatio = (getVertexX(2) - otherX) / width;
+        /* Up-left */
         if (shape.getDirs()[RIGHT])
         {
-            float xRatio = (getVertexX(2) - otherX) / width;
             return getVertexY(2) + (xRatio * height);
         }
+        /* Up-right */
         else // if (shape.getDirs()[LEFT])
         {
-            float xRatio = (getVertexX(2) - otherX) / width;
             return getVertexY(0) - (xRatio * height);
         }
     }
@@ -448,10 +461,13 @@ abstract public class Entity
 
         if (!shape.isTriangle() || shape.getDirs()[DOWN])
             return getBottomEdge();
+        float xRatio = (getVertexX(1) - otherX) / width;
+        /* Down-left */
         if (shape.getDirs()[RIGHT])
         {
-
+            return getVertexY(1) - (xRatio * height);
         }
+        /* Down-right */
         else // if (shape.getDirs()[RIGHT])
         {
 

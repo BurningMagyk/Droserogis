@@ -53,6 +53,7 @@ public class Actor extends Entity
     }
 
     private float slopeJumpBuffer = 0.1F;
+    private boolean bumpingCeiling = false;
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -85,8 +86,9 @@ public class Actor extends Entity
 
         if (state.isGrounded())
         {
-            Vec2 gravity = new Vec2(0, this.gravity);
-            setAcceleration(touchEntity[DOWN].applySlopeY(this.gravity));
+            /* If the entity being stood on is an upward-slope triangle */
+            if (!touchEntity[DOWN].getShape().getDirs()[UP])
+                setAcceleration(touchEntity[DOWN].applySlopeY(this.gravity));
 
             float accel, topSpeed;
             if (state == State.CROUCH || state == State.CRAWL
@@ -529,6 +531,7 @@ public class Actor extends Entity
     private Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
         Vec2 orginalVel = null;
+        boolean bumpingCeiling = touchEntity[UP] == null;
 
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
@@ -554,7 +557,7 @@ public class Actor extends Entity
                 /* Colliding with down-right slope or down-left slope */
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
-                    if (!state.isGrounded())
+                    if (this.bumpingCeiling)
                         setVelocity(entity.applySlope(orginalVel));
                 }
                 /* Colliding with level surface from below */
@@ -584,6 +587,9 @@ public class Actor extends Entity
                 setVelocityX(0);
             }
         }
+
+        this.bumpingCeiling = bumpingCeiling && touchEntity[UP] != null;
+
         return orginalVel;
     }
 
