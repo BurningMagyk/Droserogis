@@ -106,17 +106,20 @@ public class Actor extends Entity
             if (dirHoriz == Direction.LEFT)
             {
                 if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
-                else if (vx > -topSpeed) addAccelerationX(-accel);//addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
+                else if (vx > -topSpeed) addAccelerationX(-accel);
+                //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
             }
             else if (dirHoriz == Direction.RIGHT)
             {
                 if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
-                else if (vx < topSpeed) addAccelerationX(accel);//addAcceleration(touchEntity[DOWN].applySlopeX(accel));
+                else if (vx < topSpeed) addAccelerationX(accel);
+                //addAcceleration(touchEntity[DOWN].applySlopeX(accel));
             }
 
             if (pressedJumpTime > 0)
             {
-                addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP] ? -jumpVel : -jumpVel - slopeJumpBuffer);
+                addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
+                        ? -jumpVel : -jumpVel - slopeJumpBuffer);
                 pressedJumpTime = 0F;
             }
         }
@@ -250,7 +253,7 @@ public class Actor extends Entity
 
     /**
      * Sets velocity to zero if the acceleration was high enough to make it
-     * negative
+     * reverse direction.
      */
     void neutralizeVelocity(Vec2 oldVel)
     {
@@ -610,16 +613,13 @@ public class Actor extends Entity
      * is not null and the player is running on the ground. */
     private float runAccel = 0.2F;
 
-    /* This is the highest speed the player can be running before changing
-     * their state to TUMBLE or SLIDE. */
+    /* This is the highest speed the player can be crawling or crouching before
+     * changing their state to TUMBLE or SLIDE. */
     private float maxCrawlSpeed = 0.06F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
-     * such as going down a slope or being pushed by a faster object.
-     *
-     * This is the highest speed the player can be crawling or crouching
-     * before changing their state to TUMBLE. */
+     * such as going down a slope or being pushed by a faster object. */
     private float topCrawlSpeed = 0.05F;
 
     /* This is the acceleration that is applied to the player when dirPrimary

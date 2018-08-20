@@ -470,9 +470,7 @@ abstract public class Entity
         /* Down-right */
         else // if (shape.getDirs()[RIGHT])
         {
-
+            return getVertexY(0) + (xRatio * height);
         }
-
-        return 0;
     }
 }

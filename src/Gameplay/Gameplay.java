@@ -227,7 +227,7 @@ public class Gameplay implements Reactor
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
         addEntity(new Block(-4, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_R));
 
-        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_L));
+        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
 
 
         player = new Actor(1F, -3F, .5f, .5f);
