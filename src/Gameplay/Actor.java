@@ -21,6 +21,7 @@ public class Actor extends Entity
 {
     private final float NORMAL_GRAVITY = 2;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
+    private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.05F;
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
@@ -46,7 +47,7 @@ public class Actor extends Entity
 
     private float gravity = NORMAL_GRAVITY;
     private float airDrag = 0.25F;
-    private float waterDrag = 1F;
+    private float waterDrag = 20F;
 
     void debug()
     {
@@ -55,6 +56,7 @@ public class Actor extends Entity
 
     private float slopeJumpBuffer = 0.1F;
     private boolean bumpingCeiling = false;
+    private boolean inWater = false, submerged = false;
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -336,7 +338,7 @@ public class Actor extends Entity
     private Vec2 determineDrag()
     {
         float dragX, dragY;
-        if (state == State.SWIM)
+        if (inWater)
         {
             dragX = -waterDrag * getVelocityX();
             dragY = -waterDrag * getVelocityY();
@@ -504,7 +506,7 @@ public class Actor extends Entity
 
     private State determineState()
     {
-        if (inWater()) return State.SWIM;
+        if (submerged) return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
             if (dirVert == Direction.DOWN)
@@ -549,7 +551,12 @@ public class Actor extends Entity
     {
         if (this.state == state) return false;
 
-        if (state == State.RISE) gravity = REDUCED_GRAVITY;
+        if (submerged)
+        {
+            if (dirHoriz != null || dirVert != null) gravity = 0;
+            else gravity = WEAK_GRAVITY;
+        }
+        else if (state == State.RISE) gravity = REDUCED_GRAVITY;
         else if (state == State.WALL_CLIMB && getVelocityY() < 0)
             gravity = REDUCED_GRAVITY;
 
@@ -589,6 +596,7 @@ public class Actor extends Entity
     {
         Vec2 orginalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
+        inWater = false; submerged = false;
 
         touchEntity[UP] = null;
         if (touchLateSurface[UP] != null
@@ -609,12 +617,29 @@ public class Actor extends Entity
         for (Entity entity : entityList)
         {
             if (entity == this) continue;
+
+            /* If inside a block of liquid */
+            if (((Block) entity).isLiquid() && entity.withinBounds(this))
+            {
+                inWater = true;
+                /* If completely inside a block of liquid */
+                if (entity.surrounds(this)) submerged = true;
+                continue;
+            }
+
             int[] edge = entity.getTouchEdge(this, goal);
 
             /* Actor made no contact with the entity */
             if (edge[0] < 0) continue;
 
-            /* Actor has touched another entity a this point */
+            /* If touching a block of liquid */
+            if (((Block) entity).isLiquid())
+            {
+                inWater = true;
+                continue;
+            }
+
+            /* Actor has touched another non-liquid entity a this point */
             orginalVel = this.getVelocity();
             entity.setTriggered(true);
             touchEntity[edge[0]] = entity;
@@ -730,7 +755,7 @@ public class Actor extends Entity
      * will be high enough to cap the player's speed. */
 
     /* This is the acceleration that is applied to the player when in water. */
-    private float swimAccel = 1F;
+    private float swimAccel = 0.5F;
 
     /* The velocity used to jump */
     private float jumpVel = 0.4F;
@@ -815,8 +840,6 @@ public class Actor extends Entity
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
     }
-
-    private boolean inWater() { return false; }
 
     private class LateSurface
     {

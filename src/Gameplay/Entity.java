@@ -293,6 +293,28 @@ abstract public class Entity
                 && other.getY() + other.width / 2 >= pos.y - height / 1.999;
     }
 
+    boolean withinBounds(Entity other)
+    {
+        return withinBoundsX(other) && withinBoundsY(other);
+    }
+
+    boolean surroundsX(Entity other)
+    {
+        return other.getX() - other.width / 2 >= pos.x - width / 2
+                && other.getX() + other.width / 2 <= pos.x + width / 2;
+    }
+
+    boolean surroundsY(Entity other)
+    {
+        return other.getY() - other.height / 2 >= pos.y - height / 2
+                && other.getY() + other.height / 2 <= pos.y + height / 2;
+    }
+
+    boolean surrounds(Entity other)
+    {
+        return surroundsX(other) && surroundsY(other);
+    }
+
     public int[] getTouchEdge(Entity other, Vec2 goal)
     {
         int[] directions = {-1, -1};

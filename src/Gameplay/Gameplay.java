@@ -220,7 +220,7 @@ public class Gameplay implements Reactor
     private void buildLevels()
     {
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(5.5F, -1.75F, 2F, 5.5F, Entity.ShapeEnum.RECTANGLE));
+        addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
@@ -231,6 +231,10 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .5f, .5f);
         addEntity(player);
+
+        Block water = new Block(7F, -1.75F, 4F, 5.5F, Entity.ShapeEnum.RECTANGLE);
+        water.setLiquid(true);
+        addEntity(water);
     }
 
     /**
