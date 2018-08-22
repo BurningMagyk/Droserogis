@@ -17,11 +17,11 @@ import java.util.ArrayList;
  *   If player jumps and holds down an arrow as he comes into contact with the wall, he'll stick to it.
  *   If player presses jump and presses one of the other movement keys, he'll jump off the wall.
  */
-public class Actor extends Entity
+public class Actor extends Item
 {
     private final float NORMAL_GRAVITY = 2;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
-    private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.05F;
+    private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
@@ -63,7 +63,7 @@ public class Actor extends Entity
 
     Actor(float xPos, float yPos, float width, float height)
     {
-        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
+        super(xPos, yPos, width, height);
 
         NORMAL_FRICTION = 0.5F;
         //NORMAL_FRICTION = 0F;
@@ -268,8 +268,14 @@ public class Actor extends Entity
         if (getVelocityY() > maxTotalSpeed) setVelocityY(maxTotalSpeed);
         else if (getVelocityY() < -maxTotalSpeed) setVelocityY(-maxTotalSpeed);
 
-        /* When an Actor starts falling, they lose reduced gravity */
-        if (getVelocityY() >= 0)
+        /* When travelling on a ramp, they get weak gravity */
+        if (touchEntity[DOWN] != null
+                && !touchEntity[DOWN].getShape().getDirs()[UP]
+                && dirHoriz != null) {
+            gravity = WEAK_GRAVITY;
+        }
+        /* When starting to fall, they lose reduced gravity */
+        else if (getVelocityY() >= 0)
         {
             /* If in water, the gravity is weak when still,
              * zero when swimming. */
@@ -285,6 +291,10 @@ public class Actor extends Entity
         neutralizeVelocity(beforeDrag);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
         neutralizeVelocity(beforeFriction);
+
+        /* This is needed so that the Actor sinks when inactive in liquid */
+        if (state == State.SWIM && getVelocityY() < 0 && getVelocityY() > -1E-3) setVelocityY(0);
+
         Vec2 contactVelocity = applyVelocity(deltaSec, entities);
         if (setState(determineState()) && contactVelocity != null)
             addVelocityY(-Math.abs(contactVelocity.x));
