@@ -47,7 +47,7 @@ public class Actor extends Entity
 
     private float gravity = NORMAL_GRAVITY;
     private float airDrag = 0.25F;
-    private float waterDrag = 20F;
+    private float waterDrag = 10F;
 
     void debug()
     {
@@ -269,7 +269,16 @@ public class Actor extends Entity
         else if (getVelocityY() < -maxTotalSpeed) setVelocityY(-maxTotalSpeed);
 
         /* When an Actor starts falling, they lose reduced gravity */
-        if (getVelocityY() >= 0) gravity = NORMAL_GRAVITY;
+        if (getVelocityY() >= 0)
+        {
+            /* If in water, the gravity is weak when still,
+             * zero when swimming. */
+            if (inWater){
+                if (dirHoriz == null && dirVert == null)
+                    gravity = WEAK_GRAVITY;
+                else gravity = 0;
+            } else gravity = NORMAL_GRAVITY;
+        }
 
         applyAcceleration(getAcceleration(), deltaSec);
         Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
@@ -506,7 +515,8 @@ public class Actor extends Entity
 
     private State determineState()
     {
-        if (submerged) return State.SWIM;
+        if (submerged || (inWater && touchLateSurface[DOWN] == null))
+            return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
             if (dirVert == Direction.DOWN)
@@ -550,12 +560,6 @@ public class Actor extends Entity
     boolean setState(State state)
     {
         if (this.state == state) return false;
-
-        if (submerged)
-        {
-            if (dirHoriz != null || dirVert != null) gravity = 0;
-            else gravity = WEAK_GRAVITY;
-        }
         else if (state == State.RISE) gravity = REDUCED_GRAVITY;
         else if (state == State.WALL_CLIMB && getVelocityY() < 0)
             gravity = REDUCED_GRAVITY;
@@ -755,7 +759,7 @@ public class Actor extends Entity
      * will be high enough to cap the player's speed. */
 
     /* This is the acceleration that is applied to the player when in water. */
-    private float swimAccel = 0.5F;
+    private float swimAccel = 0.3F;
 
     /* The velocity used to jump */
     private float jumpVel = 0.4F;

@@ -232,7 +232,7 @@ public class Gameplay implements Reactor
         player = new Actor(1F, -3F, .5f, .5f);
         addEntity(player);
 
-        Block water = new Block(7F, -1.75F, 4F, 5.5F, Entity.ShapeEnum.RECTANGLE);
+        Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
         water.setLiquid(true);
         addEntity(water);
     }
