@@ -65,7 +65,7 @@ public class Actor extends Item
     {
         super(xPos, yPos, width, height);
 
-        NORMAL_FRICTION = 0.5F;
+        NORMAL_FRICTION = 1F;
         //NORMAL_FRICTION = 0F;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
@@ -272,7 +272,8 @@ public class Actor extends Item
         if (touchEntity[DOWN] != null
                 && !touchEntity[DOWN].getShape().getDirs()[UP]
                 && dirHoriz != null) {
-            gravity = WEAK_GRAVITY;
+            //gravity = WEAK_GRAVITY;
+            gravity = REDUCED_GRAVITY;
         }
         /* When starting to fall, they lose reduced gravity */
         else if (getVelocityY() >= 0)
@@ -291,10 +292,6 @@ public class Actor extends Item
         neutralizeVelocity(beforeDrag);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
         neutralizeVelocity(beforeFriction);
-
-        /* This is needed so that the Actor sinks when inactive in liquid */
-        if (state == State.SWIM && getVelocityY() < 0 && getVelocityY() > -1E-3) setVelocityY(0);
-
         Vec2 contactVelocity = applyVelocity(deltaSec, entities);
         if (setState(determineState()) && contactVelocity != null)
             addVelocityY(-Math.abs(contactVelocity.x));
@@ -352,6 +349,10 @@ public class Actor extends Item
 
         if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
         if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
+
+        /* This is needed so that the Actor sinks when inactive in liquid */
+        if (Math.abs(getVelocityX()) < 1E-3) setVelocityX(0);
+        if (Math.abs(getVelocityY()) < 1E-3) setVelocityY(0);
     }
 
     private Vec2 determineDrag()
@@ -608,7 +609,7 @@ public class Actor extends Item
     //===============================================================================================================
     private Vec2 triggerContacts(float deltaSec, Vec2 goal, ArrayList<Entity> entityList)
     {
-        Vec2 orginalVel = null;
+        Vec2 originalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
         inWater = false; submerged = false;
 
@@ -654,7 +655,7 @@ public class Actor extends Item
             }
 
             /* Actor has touched another non-liquid entity a this point */
-            orginalVel = this.getVelocity();
+            originalVel = this.getVelocity();
             entity.setTriggered(true);
             touchEntity[edge[0]] = entity;
             touchLateSurface[edge[0]] = new LateSurface(entity, getVelocity());
@@ -667,7 +668,7 @@ public class Actor extends Item
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (this.bumpingCeiling)
-                        setVelocity(entity.applySlope(orginalVel));
+                        setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from below */
                 else setVelocityY(0);
@@ -680,7 +681,7 @@ public class Actor extends Item
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (!state.isGrounded())
-                        setVelocity(entity.applySlope(orginalVel));
+                        setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from above */
                 else setVelocityY(0);
@@ -699,7 +700,7 @@ public class Actor extends Item
 
         this.bumpingCeiling = bumpingCeiling && touchEntity[UP] != null;
 
-        return orginalVel;
+        return originalVel;
     }
 
     /*=======================================================================*/

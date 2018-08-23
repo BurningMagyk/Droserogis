@@ -49,7 +49,7 @@ abstract public class Entity
     private Vec2 acceleration = new Vec2(Vec2.ZERO);
 
     private float width, height;
-    private double sinTheta, cosTheta, normalMagnitude;
+    private double sinTheta, cosTheta;
     private Vec2 normal = null;
     private Vec2[] vertexList;
 
@@ -106,8 +106,6 @@ abstract public class Entity
             normal = new Vec2(-width, height);
         }
 
-        if (normal != null) normalMagnitude
-                = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
         double hypotenuse = Math.sqrt(width * width + height * height);
         sinTheta = (double) height / hypotenuse;
         cosTheta = (double) width / hypotenuse;
