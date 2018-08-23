@@ -162,13 +162,21 @@ public class Actor extends Item
             if (dirHoriz == Direction.LEFT)
             {
                 if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
-                else if (vx > -topSpeed) addAccelerationX(-accel);
+                else if (vx > -topSpeed)
+                {
+                    addAccelerationX(-accel);
+                    addVelocityX((float) -minThreshSpeed * 1.5F);
+                }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
             }
             else if (dirHoriz == Direction.RIGHT)
             {
                 if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
-                else if (vx < topSpeed) addAccelerationX(accel);
+                else if (vx < topSpeed)
+                {
+                    addAccelerationX(accel);
+                    addVelocityX((float) minThreshSpeed * 1.5F);
+                }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(accel));
             }
 
@@ -351,8 +359,8 @@ public class Actor extends Item
         if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
 
         /* This is needed so that the Actor sinks when inactive in liquid */
-        if (Math.abs(getVelocityX()) < 1E-3) setVelocityX(0);
-        if (Math.abs(getVelocityY()) < 1E-3) setVelocityY(0);
+        if (Math.abs(getVelocityX()) < minThreshSpeed) setVelocityX(0);
+        if (Math.abs(getVelocityY()) < minThreshSpeed) setVelocityY(0);
     }
 
     private Vec2 determineDrag()
@@ -731,7 +739,7 @@ public class Actor extends Item
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is crawling on the ground. */
-    private float crawlAccel = 0.1F;
+    private float crawlAccel = 0.3F;
 
     /* This is the highest speed the player can be sliding before changing
      * their state to TUMBLE. */
@@ -753,6 +761,11 @@ public class Actor extends Item
     /* This is the highest speed the player can move.
      * (In the air or anywhere) */
     private float maxTotalSpeed = 5F;
+
+    /* This is the speed the player gets automatically when running or
+     * crawling. Also used for the threshold when neutralizing velocity.
+     * Fixes the glitch of not being able to run up a slope after stopping. */
+    private double minThreshSpeed = 1E-3;
 
     /* This is the highest speed the player can get from moving themselves in
      * the air. They can go faster in the air with the help of external
