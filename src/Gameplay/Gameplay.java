@@ -24,7 +24,7 @@ public class Gameplay implements Reactor
     private Vec2 scale = new Vec2(1,1); //pixels per meter
 
     private ArrayList<Entity> entities;
-    private ArrayList<Actor> actors;
+    private ArrayList<Item> items;
 
     private Actor player;
     private long lastUpdateTime = -1;
@@ -39,7 +39,7 @@ public class Gameplay implements Reactor
       this.viewHeight = (int) context.getCanvas().getHeight();
 
       entities = new ArrayList<>();
-      actors = new ArrayList<>();
+      items = new ArrayList<>();
 
       /* Set up initial position and zoom of the camera */
       moveCamera(0, 0, 100);
@@ -88,7 +88,7 @@ public class Gameplay implements Reactor
       // triggerContacts() sets every entity's flags correctly only if they've all been reset
       for (Entity entity : entities) entity.resetFlags();
 
-      for (Actor actor : actors) actor.act(entities, deltaSec);
+      for (Item item : items) item.update(entities, deltaSec);
 
       //for (Actor actor : actors) actor.move(entities, deltaSec);
 
@@ -253,7 +253,7 @@ public class Gameplay implements Reactor
 
     private void addEntity(Entity entity)
     {
-        if (entity.getClass() == Actor.class) actors.add((Actor) entity);
+        if (entity instanceof Item) items.add((Item) entity);
 
         entities.add(entity);
     }

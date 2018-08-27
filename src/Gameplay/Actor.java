@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class Actor extends Item
 {
-    private final float NORMAL_GRAVITY = 2;
+    private final float NORMAL_GRAVITY = gravity;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
     private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
 
@@ -37,26 +37,11 @@ public class Actor extends Item
 
     private State state = State.FALL;
 
-    /* The entities that are in contact from each of 4 directions */
-    private Entity[] touchEntity = new Entity[4];
     private LateSurface[] touchLateSurface = new LateSurface[4];
 
     private boolean
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false;
-
-    private float gravity = NORMAL_GRAVITY;
-    private float airDrag = 0.25F;
-    private float waterDrag = 10F;
-
-    void debug()
-    {
-        Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
-    }
-
-    private float slopeJumpBuffer = 0.1F;
-    private boolean bumpingCeiling = false;
-    private boolean inWater = false, submerged = false;
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -66,25 +51,23 @@ public class Actor extends Item
         super(xPos, yPos, width, height);
 
         NORMAL_FRICTION = 1F;
-        //NORMAL_FRICTION = 0F;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
     }
 
+    void update(ArrayList<Entity> entities, float deltaSec)
+    {
+        resetAcceleration();
+        act(deltaSec);
+        applyPhysics(entities, deltaSec);
+    }
+
     /**
      * Called every frame to update the Actor's will.
      */
-    void act(ArrayList<Entity> entities, float deltaSec)
+    private void act(float deltaSec)
     {
-        /* Location and velocity carry over from frame to frame.
-         * Acceleration, however exists only when there is a force.
-         * Thus, each frame, we set acceleration to 0, figure out which forces
-         * are acting on it and add in acceleration for those forces. */
-        setAcceleration(0,0);
-
-        if (!state.isGrounded()) setAccelerationY(gravity);
-
         float vx = getVelocityX(), vy = getVelocityY();
 
         if (pressedJumpTime > 0)
@@ -294,7 +277,10 @@ public class Actor extends Item
                 else gravity = 0;
             } else gravity = NORMAL_GRAVITY;
         }
+    }
 
+    void applyPhysics(ArrayList<Entity> entities, float deltaSec)
+    {
         applyAcceleration(getAcceleration(), deltaSec);
         Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
         neutralizeVelocity(beforeDrag);
@@ -315,68 +301,6 @@ public class Actor extends Item
         {
             if (vx < topAirSpeed) addAccelerationX(airAccel);
         }
-    }
-
-    /**
-     * Returns what the velocity was before being updated by acceleration.
-     */
-    private Vec2 applyAcceleration(Vec2 acceleration, float deltaSec)
-    {
-        Vec2 v = getVelocity();
-        acceleration.mul(deltaSec);
-
-        Vec2 oldVel = getVelocity();
-        setVelocity(v.add(acceleration));
-
-        return oldVel;
-    }
-
-    /**
-     * Sets velocity to zero if the acceleration was high enough to make it
-     * reverse direction.
-     */
-    void neutralizeVelocity(Vec2 oldVel)
-    {
-        int unitPosVelX = 0;
-        if (oldVel.x > 0) unitPosVelX = 1;
-        else if (oldVel.x < 0) unitPosVelX = -1;
-
-        int unitPosVelY = 0;
-        if (oldVel.y > 0) unitPosVelY = 1;
-        else if (oldVel.y < 0) unitPosVelY = -1;
-
-        Vec2 newVel = getVelocity();
-
-        int unitPosVelXNew = 0;
-        if (newVel.x > 0) unitPosVelXNew = 1;
-        else if (newVel.x < 0) unitPosVelXNew = -1;
-
-        int unitPosVelYNew = 0;
-        if (newVel.y > 0) unitPosVelYNew = 1;
-        else if (newVel.y < 0) unitPosVelYNew = -1;
-
-        if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
-        if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
-
-        /* This is needed so that the Actor sinks when inactive in liquid */
-        if (Math.abs(getVelocityX()) < minThreshSpeed) setVelocityX(0);
-        if (Math.abs(getVelocityY()) < minThreshSpeed) setVelocityY(0);
-    }
-
-    private Vec2 determineDrag()
-    {
-        float dragX, dragY;
-        if (inWater)
-        {
-            dragX = -waterDrag * getVelocityX();
-            dragY = -waterDrag * getVelocityY();
-        }
-        else
-        {
-            dragX = -airDrag * getVelocityX();
-            dragY = -airDrag * getVelocityY();
-        }
-        return new Vec2(dragX, dragY);
     }
 
     private Vec2 determineFriction()
@@ -617,98 +541,20 @@ public class Actor extends Item
     //===============================================================================================================
     private Vec2 triggerContacts(float deltaSec, Vec2 goal, ArrayList<Entity> entityList)
     {
-        Vec2 originalVel = null;
-        boolean bumpingCeiling = touchEntity[UP] == null;
-        inWater = false; submerged = false;
-
-        touchEntity[UP] = null;
         if (touchLateSurface[UP] != null
                 && touchLateSurface[UP].countdown(deltaSec))
             touchLateSurface[UP] = null;
-        touchEntity[DOWN] = null;
         if (touchLateSurface[DOWN] != null
                 && touchLateSurface[DOWN].countdown(deltaSec))
             touchLateSurface[DOWN] = null;
-        touchEntity[LEFT] = null;
         if (touchLateSurface[LEFT] != null
                 && touchLateSurface[LEFT].countdown(deltaSec))
             touchLateSurface[LEFT] = null;
-        touchEntity[RIGHT] = null;
         if (touchLateSurface[RIGHT] != null
                 && touchLateSurface[RIGHT].countdown(deltaSec))
             touchLateSurface[RIGHT] = null;
-        for (Entity entity : entityList)
-        {
-            if (entity == this) continue;
 
-            /* If inside a block of liquid */
-            if (((Block) entity).isLiquid() && entity.withinBounds(this))
-            {
-                inWater = true;
-                /* If completely inside a block of liquid */
-                if (entity.surrounds(this)) submerged = true;
-                continue;
-            }
-
-            int[] edge = entity.getTouchEdge(this, goal);
-
-            /* Actor made no contact with the entity */
-            if (edge[0] < 0) continue;
-
-            /* If touching a block of liquid */
-            if (((Block) entity).isLiquid())
-            {
-                inWater = true;
-                continue;
-            }
-
-            /* Actor has touched another non-liquid entity a this point */
-            originalVel = this.getVelocity();
-            entity.setTriggered(true);
-            touchEntity[edge[0]] = entity;
-            touchLateSurface[edge[0]] = new LateSurface(entity, getVelocity());
-
-            if (edge[0] == UP)
-            {
-                goal.y = entity.getBottomEdge(goal.x) + getHeight() / 2;
-
-                /* Colliding with down-right slope or down-left slope */
-                if (edge[1] == LEFT || edge[1] == RIGHT)
-                {
-                    if (this.bumpingCeiling)
-                        setVelocity(entity.applySlope(originalVel));
-                }
-                /* Colliding with level surface from below */
-                else setVelocityY(0);
-            }
-            else if (edge[0] == DOWN)
-            {
-                goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
-
-                /* Colliding with up-right slope or up-left slope */
-                if (edge[1] == LEFT || edge[1] == RIGHT)
-                {
-                    if (!state.isGrounded())
-                        setVelocity(entity.applySlope(originalVel));
-                }
-                /* Colliding with level surface from above */
-                else setVelocityY(0);
-            }
-            else if (edge[0] == LEFT)
-            {
-                goal.x = entity.getRightEdge() + getWidth() / 2;
-                setVelocityX(0);
-            }
-            else if (edge[0] == RIGHT)
-            {
-                goal.x = entity.getLeftEdge() - getWidth() / 2;
-                setVelocityX(0);
-            }
-        }
-
-        this.bumpingCeiling = bumpingCeiling && touchEntity[UP] != null;
-
-        return originalVel;
+        return super.triggerContacts(goal, entityList);
     }
 
     /*=======================================================================*/
@@ -761,11 +607,6 @@ public class Actor extends Item
     /* This is the highest speed the player can move.
      * (In the air or anywhere) */
     private float maxTotalSpeed = 5F;
-
-    /* This is the speed the player gets automatically when running or
-     * crawling. Also used for the threshold when neutralizing velocity.
-     * Fixes the glitch of not being able to run up a slope after stopping. */
-    private double minThreshSpeed = 1E-3;
 
     /* This is the highest speed the player can get from moving themselves in
      * the air. They can go faster in the air with the help of external
