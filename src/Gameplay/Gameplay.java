@@ -235,6 +235,8 @@ public class Gameplay implements Reactor
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
         water.setLiquid(true);
         addEntity(water);
+
+        addEntity(new Item(1F, -5F, .5f, .5f));
     }
 
     /**

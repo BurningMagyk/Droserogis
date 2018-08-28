@@ -189,9 +189,12 @@ abstract public class Entity
 
     public Color getColor() {return color;}
 
-    public void resetFlags() { triggered = false; }
-    public boolean getTriggered() { return triggered;}
-    public void setTriggered(boolean triggered) { this.triggered = triggered; }
+    void resetFlags() { triggered = false; }
+    boolean getTriggered() { return triggered;}
+    boolean setTriggered(boolean triggered)
+    {
+        this.triggered = triggered; return true;
+    }
 
     public float getFriction() { return friction; }
 

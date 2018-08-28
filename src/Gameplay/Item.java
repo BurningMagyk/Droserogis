@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Item extends Entity
 {
-    private boolean reactive = false;
+    private boolean reactive = true;
     private boolean receptive = false;
 
     /* The entities that are in contact from each of 4 directions */
@@ -185,7 +185,8 @@ public class Item extends Entity
             if (entity == this) continue;
 
             /* If inside a block of liquid */
-            if (((Block) entity).isLiquid() && entity.withinBounds(this))
+            if (entity instanceof Block && ((Block) entity).isLiquid()
+                    && entity.withinBounds(this))
             {
                 inWater = true;
                 /* If completely inside a block of liquid */
@@ -199,7 +200,7 @@ public class Item extends Entity
             if (edge[0] < 0) continue;
 
             /* If touching a block of liquid */
-            if (((Block) entity).isLiquid())
+            if (entity instanceof Block && ((Block) entity).isLiquid())
             {
                 inWater = true;
                 continue;
@@ -207,7 +208,9 @@ public class Item extends Entity
 
             /* Actor has touched another non-liquid entity a this point */
             originalVel = this.getVelocity();
-            entity.setTriggered(true);
+
+            if (!entity.setTriggered(true)) continue;
+
             touchEntity[edge[0]] = entity;
 
             if (edge[0] == UP)
@@ -252,6 +255,12 @@ public class Item extends Entity
         isGrounded = touchEntity[DOWN] != null;
 
         return originalVel;
+    }
+
+    boolean setTriggered(boolean triggered)
+    {
+        super.setTriggered(triggered);
+        return reactive;
     }
 
     /* This is the speed the player gets automatically when running or
