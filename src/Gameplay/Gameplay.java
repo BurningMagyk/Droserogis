@@ -2,6 +2,7 @@ package Gameplay;
 
 import Menus.Main;
 import Util.DebugEnum;
+import Util.Print;
 import Util.Reactor;
 import Util.Vec2;
 import javafx.animation.AnimationTimer;
@@ -26,7 +27,7 @@ public class Gameplay implements Reactor
     private ArrayList<Entity> entities;
     private ArrayList<Item> items;
 
-    private Actor player;
+    private Actor player, player2;
     private long lastUpdateTime = -1;
 
 
@@ -117,21 +118,29 @@ public class Gameplay implements Reactor
         {
             player.debug();
         }
-        else if (code == KeyCode.LEFT && pressed)
+        else if (code == KeyCode.LEFT)// && pressed)
         {
-            moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
+            //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
+            player2.pressLeft(pressed);
         }
-        else if (code == KeyCode.RIGHT && pressed)
+        else if (code == KeyCode.RIGHT)// && pressed)
         {
-            moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
+            //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
+            player2.pressRight(pressed);
         }
-        else if (code == KeyCode.UP && pressed)
+        else if (code == KeyCode.UP)// && pressed)
         {
-            moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
+            //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
+            player2.pressUp(pressed);
         }
-        else if (code == KeyCode.DOWN && pressed)
+        else if (code == KeyCode.DOWN)// && pressed)
         {
-            moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
+            //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
+            player2.pressDown(pressed);
+        }
+        else if (code == KeyCode.NUMPAD0)
+        {
+            player2.pressJump(pressed);
         }
         else if (code == KeyCode.Q && pressed)
         {
@@ -231,6 +240,8 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .5f, .5f);
         addEntity(player);
+        player2 = new Actor(1F, -5F, .5f, .5f);
+        addEntity(player2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
         water.setLiquid(true);
@@ -253,11 +264,25 @@ public class Gameplay implements Reactor
         cameraOffsetY = viewHeight / 2F / cameraZoom;
     }
 
+    /**
+     * Checks to make sure duplicates aren't being added.
+     * Also adds the entity to a list of items if it's an Item or Actor.
+     */
     private void addEntity(Entity entity)
     {
-        if (entity instanceof Item) items.add((Item) entity);
+        if (entity instanceof Item)
+        {
+            if (items.contains(entity))
+            {
+                Print.red("Error: Attempted to add duplicate Item");
+                return;
+            }
+            else items.add((Item) entity);
+        }
 
-        entities.add(entity);
+        if (entities.contains(entity))
+            Print.red("Error: Attempted to add duplicate Item");
+        else entities.add(entity);
     }
 
     /**

@@ -710,6 +710,12 @@ public class Actor extends Item
         Color getColor() { return Color.BLACK; }
     }
 
+    boolean setTriggered(boolean triggered)
+    {
+        super.setTriggered(triggered);
+        return true;
+    }
+
     private class LateSurface
     {
         private Entity entity;
@@ -732,15 +738,5 @@ public class Actor extends Item
         Vec2 getLateVel() { return lateVel; }
 
         ShapeEnum getShape() { return entity.getShape(); }
-    }
-
-    private int getSlopeType()
-    {
-        if (touchEntity[DOWN] == null) return UP;
-        else if (touchEntity[LEFT] != null
-                && touchEntity[LEFT] == touchEntity[DOWN]) return LEFT;
-        else if (touchEntity[RIGHT] != null
-                && touchEntity[RIGHT] == touchEntity[DOWN]) return RIGHT;
-        return DOWN;
     }
 }

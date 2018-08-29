@@ -193,7 +193,8 @@ abstract public class Entity
     boolean getTriggered() { return triggered;}
     boolean setTriggered(boolean triggered)
     {
-        this.triggered = triggered; return true;
+        this.triggered = triggered;
+        return true;
     }
 
     public float getFriction() { return friction; }

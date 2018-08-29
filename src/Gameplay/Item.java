@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 public class Item extends Entity
 {
-    private boolean reactive = true;
+    private int hitPoints;
+
+    private boolean reactive = false;
     private boolean receptive = false;
 
     /* The entities that are in contact from each of 4 directions */
@@ -33,7 +35,8 @@ public class Item extends Entity
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
-
+        // TODO: get this value from Character or Weapon
+        hitPoints = 10;
     }
 
     void update(ArrayList<Entity> entities, float deltaSec)
@@ -211,6 +214,11 @@ public class Item extends Entity
 
             if (!entity.setTriggered(true)) continue;
 
+            /* This specifically stops items from physically being moved around
+             * by Actors */
+            if (this.getClass() == Item.class
+                    && entity.getClass() == Actor.class) continue;
+
             touchEntity[edge[0]] = entity;
 
             if (edge[0] == UP)
@@ -257,10 +265,20 @@ public class Item extends Entity
         return originalVel;
     }
 
+    /**
+     * @return - false if other entities can move through it, true otherwise.
+     * The Item class is the only class that returns false instead of true.
+     */
     boolean setTriggered(boolean triggered)
     {
         super.setTriggered(triggered);
-        return reactive;
+        return false;
+    }
+
+    void takeDamage(int amount)
+    {
+        Print.green("Took " + amount + " points of damage");
+        hitPoints -= amount;
     }
 
     /* This is the speed the player gets automatically when running or
