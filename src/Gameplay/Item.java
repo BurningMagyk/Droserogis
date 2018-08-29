@@ -15,6 +15,8 @@ public class Item extends Entity
     /* The entities that are in contact from each of 4 directions */
     Entity[] touchEntity = new Entity[4];
 
+    ArrayList<Item> colliders = new ArrayList<>();
+
     float slopeJumpBuffer = 0.1F;
 
     float gravity = 2;
@@ -43,6 +45,12 @@ public class Item extends Entity
     {
         resetAcceleration();
         applyPhysics(entities, deltaSec);
+    }
+
+    void resetFlags()
+    {
+        super.resetFlags();
+        colliders.clear();
     }
 
     /**
@@ -232,7 +240,7 @@ public class Item extends Entity
                         setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from below */
-                else setVelocityY(0);
+                else collide(entity);//setVelocityY(0);
             }
             else if (edge[0] == DOWN)
             {
@@ -245,7 +253,7 @@ public class Item extends Entity
                         setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from above */
-                else setVelocityY(0);
+                else collide(entity);//setVelocityY(0);
             }
             else if (edge[0] == LEFT)
             {
@@ -275,8 +283,42 @@ public class Item extends Entity
         return false;
     }
 
+    void collide(Entity other)
+    {
+        /* If the ArrayList "colliders" contains the other, its velocity has
+         * already been updated */
+        if (colliders.contains(other)) return;
+        if (other.getClass() != Block.class) ((Item) other).colliders.add(this);
+
+        if (other == touchEntity[UP] || other == touchEntity[DOWN])
+        {
+            float otherVel = other.getVelocityY();
+            float thisVel = getVelocityY();
+            /* This is falling faster or rising slower */
+            if (other == touchEntity[UP]
+                    ? otherVel < thisVel : otherVel > thisVel) return;
+            /* This is falling slower or rising faster */
+            else
+            {
+                float thisMass = getMass();
+                float otherMass = other.getMass();
+                float totalEulers = thisMass * thisVel + otherMass * otherVel;
+                float newVel = totalEulers / (thisMass + otherMass);
+                setVelocityY(newVel); takeDamage(totalEulers);
+                if (other.getClass() != Block.class)
+                {
+                    other.setVelocityY(newVel);
+                    ((Item) other).takeDamage(totalEulers);
+                }
+            }
+        }
+    }
+
+    void takeDamage(float amount) { takeDamage((int) amount); }
+
     void takeDamage(int amount)
     {
+        if (amount == 0) return;
         Print.green("Took " + amount + " points of damage");
         hitPoints -= amount;
     }

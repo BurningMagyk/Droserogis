@@ -58,6 +58,7 @@ abstract public class Entity
 
     private boolean triggered = false;
     private float friction = 0.5F;
+    private float mass = 5;
 
 
     Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)
@@ -118,9 +119,9 @@ abstract public class Entity
     public float getWidth() { return width; }
     public float getHeight() { return height; }
 
-    public Vec2 getVelocity() {return new Vec2(velocity);}
-    public float getVelocityX() {return velocity.x;}
-    public float getVelocityY() {return velocity.y;}
+    public Vec2 getVelocity() { return new Vec2(velocity); }
+    public float getVelocityX() { return velocity.x; }
+    public float getVelocityY() { return velocity.y; }
 
     public void setVelocity(Vec2 v)
     {
@@ -197,9 +198,11 @@ abstract public class Entity
         return true;
     }
 
-    public float getFriction() { return friction; }
+    float getFriction() { return friction; }
+    void setFriction(float friction) { this.friction = friction; }
 
-    public void setFriction(float friction) { this.friction = friction; }
+    float getMass() { return mass; }
+    void setMass(float mass) { this.mass = mass; }
 
     public ShapeEnum getShape() { return shape; }
 
@@ -460,4 +463,6 @@ abstract public class Entity
             return getVertexY(0) + (xRatio * height);
         }
     }
+
+    abstract void collide(Entity other);
 }
