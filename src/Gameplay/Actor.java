@@ -471,13 +471,15 @@ public class Actor extends Item
             }
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
-                if (dirVert == Direction.UP || dirHoriz == Direction.RIGHT)
+                if ((dirVert == Direction.UP || dirHoriz == Direction.RIGHT)
+                        && touchEntity[RIGHT] instanceof Block)
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
             if (getVelocityX() < 0 && touchEntity[LEFT] != null)
             {
-                if (dirVert == Direction.UP || dirHoriz == Direction.LEFT)
+                if ((dirVert == Direction.UP || dirHoriz == Direction.LEFT)
+                        && touchEntity[LEFT] instanceof Block)
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }

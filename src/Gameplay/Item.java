@@ -15,7 +15,7 @@ public class Item extends Entity
     /* The entities that are in contact from each of 4 directions */
     Entity[] touchEntity = new Entity[4];
 
-    ArrayList<Item> colliders = new ArrayList<>();
+    private Collision[] collisions = new Collision[4];
 
     float slopeJumpBuffer = 0.1F;
 
@@ -50,7 +50,73 @@ public class Item extends Entity
     void resetFlags()
     {
         super.resetFlags();
-        colliders.clear();
+
+        applyCollisionsHoriz();
+        applyCollisionsVert();
+
+        collisions[UP] = null;
+        collisions[DOWN] = null;
+        collisions[LEFT] = null;
+        collisions[RIGHT] = null;
+    }
+
+    void applyCollisionsHoriz()
+    {
+        if (collisions[LEFT] != null)
+        {
+            if (collisions[LEFT].withBlock) { setVelocityX(0); return; }
+            float fromLeft = collisions[LEFT].getVelocity();
+            if (collisions[RIGHT] != null)
+            {
+                /* Combine both collisions */
+                float fromRight = collisions[RIGHT].getVelocity();
+                setVelocityX(fromLeft + fromRight);
+            }
+            else
+            {
+                /* Only apply the LEFT collision */
+                setVelocityX(fromLeft);
+            }
+        }
+        if (collisions[RIGHT] != null)
+        {
+            if (collisions[RIGHT].withBlock) { setVelocityX(0); return; }
+            if (collisions[LEFT] == null)
+            {
+                /* Only apply the RIGHT collision */
+                float fromRight = collisions[RIGHT].getVelocity();
+                setVelocityX(fromRight);
+            }
+        }
+    }
+    void applyCollisionsVert()
+    {
+        if (collisions[UP] != null)
+        {
+            if (collisions[UP].withBlock) { setVelocityY(0); return; }
+            float fromUp = collisions[UP].getVelocity();
+            if (collisions[DOWN] != null)
+            {
+                /* Combine both collisions */
+                float fromDown = collisions[DOWN].getVelocity();
+                setVelocityY(fromUp + fromDown);
+            }
+            else
+            {
+                /* Only apply the UP collision */
+                setVelocityY(fromUp);
+            }
+        }
+        if (collisions[DOWN] != null)
+        {
+            if (collisions[DOWN].withBlock) { setVelocityY(0); return; }
+            if (collisions[UP] == null)
+            {
+                /* Only apply the DOWN collision */
+                float fromDown = collisions[DOWN].getVelocity();
+                setVelocityY(fromDown);
+            }
+        }
     }
 
     /**
@@ -195,8 +261,9 @@ public class Item extends Entity
         {
             if (entity == this) continue;
 
+            boolean withBlock = entity instanceof Block;
             /* If inside a block of liquid */
-            if (entity instanceof Block && ((Block) entity).isLiquid()
+            if (withBlock && ((Block) entity).isLiquid()
                     && entity.withinBounds(this))
             {
                 inWater = true;
@@ -211,7 +278,7 @@ public class Item extends Entity
             if (edge[0] < 0) continue;
 
             /* If touching a block of liquid */
-            if (entity instanceof Block && ((Block) entity).isLiquid())
+            if (withBlock && ((Block) entity).isLiquid())
             {
                 inWater = true;
                 continue;
@@ -240,7 +307,11 @@ public class Item extends Entity
                         setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from below */
-                else collide(entity);//setVelocityY(0);
+                else
+                {
+                    collide(entity, UP, withBlock);//setVelocityY(0);
+                    if (withBlock) setVelocityY(0);
+                }
             }
             else if (edge[0] == DOWN)
             {
@@ -253,17 +324,23 @@ public class Item extends Entity
                         setVelocity(entity.applySlope(originalVel));
                 }
                 /* Colliding with level surface from above */
-                else collide(entity);//setVelocityY(0);
+                else
+                {
+                    collide(entity, DOWN, withBlock);//setVelocityY(0);
+                    if (withBlock) setVelocityY(0);
+                }
             }
             else if (edge[0] == LEFT)
             {
                 goal.x = entity.getRightEdge() + getWidth() / 2;
-                setVelocityX(0);
+                collide(entity, LEFT, withBlock);//setVelocityX(0);
+                if (withBlock) setVelocityX(0);
             }
             else if (edge[0] == RIGHT)
             {
                 goal.x = entity.getLeftEdge() - getWidth() / 2;
-                setVelocityX(0);
+                collide(entity, RIGHT, withBlock);//setVelocityX(0);
+                if (withBlock) setVelocityX(0);
             }
         }
 
@@ -283,33 +360,55 @@ public class Item extends Entity
         return false;
     }
 
-    void collide(Entity other)
+    private class Collision
     {
-        /* If the ArrayList "colliders" contains the other, its velocity has
-         * already been updated */
-        if (colliders.contains(other)) return;
-        if (other.getClass() != Block.class) ((Item) other).colliders.add(this);
+        boolean withBlock;
+        private float totalEulers, totalMass;
 
-        if (other == touchEntity[UP] || other == touchEntity[DOWN])
+        Collision(float velocityThis, float velocityOther, float massThis, float massOther, boolean withBlock)
+        {
+            totalEulers = velocityThis * massThis + velocityOther * massOther;
+            totalMass = massThis + massOther;
+            this.withBlock = withBlock;
+        }
+
+        float getVelocity() { return totalEulers / totalMass; }
+    }
+
+    void collide(Collision collision, int dir) { collisions[dir] = collision; }
+
+    void collide(Entity other, int dir, boolean withBlock)
+    {
+        if (dir == UP || dir == DOWN)
         {
             float otherVel = other.getVelocityY();
             float thisVel = getVelocityY();
             /* This is falling faster or rising slower */
-            if (other == touchEntity[UP]
-                    ? otherVel < thisVel : otherVel > thisVel) return;
+            if (dir == UP ? otherVel < thisVel : otherVel > thisVel) return;
             /* This is falling slower or rising faster */
-            else
+            else if (collisions[dir] == null)
             {
-                float thisMass = getMass();
-                float otherMass = other.getMass();
-                float totalEulers = thisMass * thisVel + otherMass * otherVel;
-                float newVel = totalEulers / (thisMass + otherMass);
-                setVelocityY(newVel); takeDamage(totalEulers);
-                if (other.getClass() != Block.class)
-                {
-                    other.setVelocityY(newVel);
-                    ((Item) other).takeDamage(totalEulers);
-                }
+                Collision collision = new Collision(thisVel, otherVel,
+                        getMass(), other.getMass(), withBlock);
+                collisions[dir] = collision;
+                if (other instanceof Item)
+                    ((Item) other).collide(collision, dir);
+            }
+        }
+        else // if (dir == LEFT || dir == RIGHT)
+        {
+            float otherVel = other.getVelocityX();
+            float thisVel = getVelocityX();
+            /* This is moving right faster or moving left slower */
+            if (dir == LEFT ? otherVel < thisVel : otherVel > thisVel) return;
+                /* This is moving right slower or moving left faster */
+            else if (collisions[dir] == null)
+            {
+                Collision collision = new Collision(thisVel, otherVel,
+                        getMass(), other.getMass(), withBlock);
+                collisions[dir] = collision;
+                if (other instanceof Item)
+                    ((Item) other).collide(collision, dir);
             }
         }
     }

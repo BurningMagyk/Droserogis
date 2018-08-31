@@ -2,7 +2,7 @@
 <project version="4">
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Droserogis" options="--add-modules=javafx.graphics" />
+      <module name="Droserogis" options="--add-modules=javafx.graphics,javafx.base,javafx.controls" />
     </option>
   </component>
 </project>

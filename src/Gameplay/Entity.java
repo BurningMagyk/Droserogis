@@ -464,5 +464,5 @@ abstract public class Entity
         }
     }
 
-    abstract void collide(Entity other);
+    abstract void collide(Entity other, int dir, boolean withBlock);
 }

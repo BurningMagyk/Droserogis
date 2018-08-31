@@ -16,7 +16,7 @@ class Block extends Entity
     public void setLiquid(boolean liquid) { isLiquid = liquid; }
     boolean isLiquid() { return isLiquid; }
 
-    void collide(Entity other){}
+    void collide(Entity other, int dir, boolean withBlock){}
 
     @Override
     public Color getColor()
