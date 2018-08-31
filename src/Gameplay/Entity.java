@@ -11,6 +11,15 @@ abstract public class Entity
     static final int DOWN = 2;
     static final int LEFT = 3;
 
+    int opp(int dir)
+    {
+        if (dir == UP) return DOWN;
+        if (dir == DOWN) return UP;
+        if (dir == LEFT) return LEFT;
+        if (dir == RIGHT) return RIGHT;
+        return -1;
+    }
+
     enum ShapeEnum
     {
         RECTANGLE,

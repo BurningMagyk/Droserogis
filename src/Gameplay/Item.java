@@ -236,6 +236,7 @@ public class Item extends Entity
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
+        //snugCollided();
 
         /* Stop horizontal velocity from building up by setting it to match change in
          * position. Needed for jumping to work correctly and when falling off block. */
@@ -364,12 +365,16 @@ public class Item extends Entity
     {
         boolean withBlock;
         private float totalEulers, totalMass;
+        Item collider;
 
-        Collision(float velocityThis, float velocityOther, float massThis, float massOther, boolean withBlock)
+        Collision(float velocityThis, float velocityOther, float massThis,
+                  float massOther, boolean withBlock, Entity collider)
         {
             totalEulers = velocityThis * massThis + velocityOther * massOther;
             totalMass = massThis + massOther;
             this.withBlock = withBlock;
+            if (collider instanceof Block) this.collider = null;
+            else this.collider = (Item) collider;
         }
 
         float getVelocity() { return totalEulers / totalMass; }
@@ -389,7 +394,7 @@ public class Item extends Entity
             else if (collisions[dir] == null)
             {
                 Collision collision = new Collision(thisVel, otherVel,
-                        getMass(), other.getMass(), withBlock);
+                        getMass(), other.getMass(), withBlock, other);
                 collisions[dir] = collision;
                 if (other instanceof Item)
                     ((Item) other).collide(collision, dir);
@@ -405,7 +410,7 @@ public class Item extends Entity
             else if (collisions[dir] == null)
             {
                 Collision collision = new Collision(thisVel, otherVel,
-                        getMass(), other.getMass(), withBlock);
+                        getMass(), other.getMass(), withBlock, other);
                 collisions[dir] = collision;
                 if (other instanceof Item)
                     ((Item) other).collide(collision, dir);
