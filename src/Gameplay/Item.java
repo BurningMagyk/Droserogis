@@ -64,7 +64,7 @@ public class Item extends Entity
     {
         if (collisions[LEFT] != null)
         {
-            if (collisions[LEFT].withBlock) { setVelocityX(0); return; }
+            if (collisions[LEFT].withBlock) return;
             float fromLeft = collisions[LEFT].getVelocity();
             if (collisions[RIGHT] != null)
             {
@@ -80,7 +80,7 @@ public class Item extends Entity
         }
         if (collisions[RIGHT] != null)
         {
-            if (collisions[RIGHT].withBlock) { setVelocityX(0); return; }
+            if (collisions[RIGHT].withBlock) return;
             if (collisions[LEFT] == null)
             {
                 /* Only apply the RIGHT collision */
@@ -93,7 +93,7 @@ public class Item extends Entity
     {
         if (collisions[UP] != null)
         {
-            if (collisions[UP].withBlock) { setVelocityY(0); return; }
+            if (collisions[UP].withBlock) return;
             float fromUp = collisions[UP].getVelocity();
             if (collisions[DOWN] != null)
             {
@@ -109,7 +109,7 @@ public class Item extends Entity
         }
         if (collisions[DOWN] != null)
         {
-            if (collisions[DOWN].withBlock) { setVelocityY(0); return; }
+            if (collisions[DOWN].withBlock) return;
             if (collisions[UP] == null)
             {
                 /* Only apply the DOWN collision */
