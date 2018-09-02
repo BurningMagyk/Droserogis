@@ -33,8 +33,6 @@ public class Actor extends Item
     /* The vertical direction that the player intents to move towards */
     private Direction dirVert = null;
 
-    //private Direction dirWall = null;
-
     private State state = State.FALL;
 
     private LateSurface[] touchLateSurface = new LateSurface[4];
