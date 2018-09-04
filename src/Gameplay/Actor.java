@@ -26,12 +26,12 @@ public class Actor extends Item
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
     /* The horizontal direction that the player intends to move towards */
-    private Direction dirHoriz = null;
+    private int dirHoriz = -1;
     /* The horizontal direction that the player intends to face towards.
      * This does not need to keep track of vertical direction. */
-    private Direction dirFace = null;
+    private int dirFace = -1;
     /* The vertical direction that the player intents to move towards */
-    private Direction dirVert = null;
+    private int dirVert = -1;
 
     //private Direction dirWall = null;
 
@@ -82,19 +82,19 @@ public class Actor extends Item
             else if (touchLateSurface[LEFT] != null)
             {
                 Vec2 lateVel = touchLateSurface[LEFT].getLateVel();
-                if (dirHoriz == Direction.RIGHT)
+                if (dirHoriz == RIGHT)
                 {
                     setVelocityX(jumpVel * 0.70712F + lateVel.x); // sin(45)
                     setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
                     pressedJumpTime = 0F;
                 }
-                else if (dirVert == Direction.UP)
+                else if (dirVert == UP)
                 {
                     setVelocityX(jumpVel * 0.34202F + lateVel.x); // sin(20)
                     setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
                     pressedJumpTime = 0F;
                 }
-                else if (dirVert == Direction.DOWN)
+                else if (dirVert == DOWN)
                 {
                     setVelocityX(jumpVel + lateVel.x);
                     pressedJumpTime = 0;
@@ -103,19 +103,19 @@ public class Actor extends Item
             else if (touchLateSurface[RIGHT] != null)
             {
                 Vec2 lateVel = touchLateSurface[RIGHT].getLateVel();
-                if (dirHoriz == Direction.LEFT)
+                if (dirHoriz == LEFT)
                 {
                     setVelocityX(-jumpVel * 0.70712F + lateVel.x); // sin(45)
                     setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
                     pressedJumpTime = 0F;
                 }
-                else if (dirVert == Direction.UP)
+                else if (dirVert == UP)
                 {
                     setVelocityX(-jumpVel * 0.34202F + lateVel.x); // sin(20)
                     setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
                     pressedJumpTime = 0F;
                 }
-                else if (dirVert == Direction.DOWN)
+                else if (dirVert == DOWN)
                 {
                     setVelocityX(-jumpVel + lateVel.x);
                     pressedJumpTime = 0;
@@ -142,7 +142,7 @@ public class Actor extends Item
                 topSpeed = topRunSpeed;
             }
 
-            if (dirHoriz == Direction.LEFT)
+            if (dirHoriz == LEFT)
             {
                 if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
                 else if (vx > -topSpeed)
@@ -152,7 +152,7 @@ public class Actor extends Item
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
             }
-            else if (dirHoriz == Direction.RIGHT)
+            else if (dirHoriz == RIGHT)
             {
                 if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
                 else if (vx < topSpeed)
@@ -179,11 +179,11 @@ public class Actor extends Item
         else if (state == State.SWIM)
         {
             suspendedMovement(vx, maxSwimSpeed, swimAccel);
-            if (dirVert == Direction.UP)
+            if (dirVert == UP)
             {
                 if (vy > -maxSwimSpeed) addAccelerationY(-swimAccel);
             }
-            else if (dirVert == Direction.DOWN)
+            else if (dirVert == DOWN)
             {
                 if (vy < maxSwimSpeed) addAccelerationY(swimAccel);
             }
@@ -195,19 +195,19 @@ public class Actor extends Item
             {
                 if (touchEntity[LEFT] != null)
                 {
-                    if (dirHoriz == Direction.RIGHT)
+                    if (dirHoriz == RIGHT)
                     {
                         addVelocityX(jumpVel * 0.70712F); // sin(45)
                         addVelocityY(-jumpVel * 0.70712F); // cos(45)
                         pressedJumpTime = 0F;
                     }
-                    else if (dirVert == Direction.UP)
+                    else if (dirVert == UP)
                     {
                         addVelocityX(jumpVel * 0.34202F); // sin(20)
                         addVelocityY(-jumpVel * 0.93969F); // cos(20)
                         pressedJumpTime = 0F;
                     }
-                    else if (dirVert == Direction.DOWN)
+                    else if (dirVert == DOWN)
                     {
                         addVelocityX(jumpVel);
                         pressedJumpTime = 0;
@@ -215,19 +215,19 @@ public class Actor extends Item
                 }
                 else // if (touchEntity[RIGHT] != null)
                 {
-                    if (dirHoriz == Direction.LEFT)
+                    if (dirHoriz == LEFT)
                     {
                         addVelocityX(-jumpVel * 0.70712F); // sin(45)
                         addVelocityY(-jumpVel * 0.70712F); // cos(45)
                         pressedJumpTime = 0F;
                     }
-                    else if (dirVert == Direction.UP)
+                    else if (dirVert == UP)
                     {
                         addVelocityX(-jumpVel * 0.34202F); // sin(20)
                         addVelocityY(-jumpVel * 0.93969F); // cos(20)
                         pressedJumpTime = 0F;
                     }
-                    else if (dirVert == Direction.DOWN)
+                    else if (dirVert == DOWN)
                     {
                         addVelocityX(-jumpVel);
                         pressedJumpTime = 0;
@@ -235,10 +235,10 @@ public class Actor extends Item
                 }
             }
 
-            if (dirHoriz != null)
+            if (dirHoriz != -1)
             {
-                if (dirHoriz == Direction.UP
-                        || touchEntity[dirHoriz.ID()] != null)
+                if (dirHoriz == UP
+                        || touchEntity[dirHoriz] != null)
                     addAccelerationY(-climbAccel);
             }
         }
@@ -262,7 +262,7 @@ public class Actor extends Item
         /* When travelling on a ramp, they get weak gravity */
         if (touchEntity[DOWN] != null
                 && !touchEntity[DOWN].getShape().getDirs()[UP]
-                && dirHoriz != null) {
+                && dirHoriz != -1) {
             //gravity = WEAK_GRAVITY;
             gravity = REDUCED_GRAVITY;
         }
@@ -272,7 +272,7 @@ public class Actor extends Item
             /* If in water, the gravity is weak when still,
              * zero when swimming. */
             if (inWater){
-                if (dirHoriz == null && dirVert == null)
+                if (dirHoriz == -1 && dirVert == -1)
                     gravity = WEAK_GRAVITY;
                 else gravity = 0;
             } else gravity = NORMAL_GRAVITY;
@@ -293,11 +293,11 @@ public class Actor extends Item
 
     /* Used for airborne and swimming, horizontal */
     private void suspendedMovement(float vx, float topAirSpeed, float airAccel) {
-        if (dirHoriz == Direction.LEFT)
+        if (dirHoriz == LEFT)
         {
             if (vx > -topAirSpeed) addAccelerationX(-airAccel);
         }
-        else if (dirHoriz == Direction.RIGHT)
+        else if (dirHoriz == RIGHT)
         {
             if (vx < topAirSpeed) addAccelerationX(airAccel);
         }
@@ -308,9 +308,9 @@ public class Actor extends Item
         float frictionX = 0, frictionY = 0;
         if (state.isGrounded())
         {
-            if (dirHoriz == null
-                    || (getVelocityX() < 0 && dirHoriz == Direction.RIGHT)
-                    || (getVelocityX() > 0 && dirHoriz == Direction.LEFT)
+            if (dirHoriz == -1
+                    || (getVelocityX() < 0 && dirHoriz == RIGHT)
+                    || (getVelocityX() > 0 && dirHoriz == LEFT)
                     || state == State.SLIDE)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
@@ -327,7 +327,7 @@ public class Actor extends Item
             /* Don't apply friction if climbing up a wall */
             if (getVelocityY() < 0) return new Vec2(frictionX, frictionY);
 
-            if (dirHoriz != null || dirVert != null)
+            if (dirHoriz != -1 || dirVert != -1)
                 frictionY = touchEntity[touchEntity[LEFT] != null
                         ? LEFT : RIGHT].getFriction() * getFriction();
         }
@@ -367,20 +367,20 @@ public class Actor extends Item
         if (pressed)
         {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirFace = Direction.LEFT;
+            if (state.isOnWall()) dirFace = LEFT;
             /* It changes your primary direction regardless */
-            dirHoriz = Direction.LEFT;
+            dirHoriz = LEFT;
         }
         /* If you release the key when already moving left */
-        else if (dirHoriz == Direction.LEFT)
+        else if (dirHoriz == LEFT)
         {
-            if (pressingRight) dirHoriz = Direction.RIGHT;
-            else dirHoriz = null;
+            if (pressingRight) dirHoriz = RIGHT;
+            else dirHoriz = -1;
             /* If you release the key when already moving left with a wall */
             if (state.isOnWall())
             {
-                if (pressingRight) dirFace = Direction.RIGHT;
-                else dirFace = null;
+                if (pressingRight) dirFace = RIGHT;
+                else dirFace = -1;
             }
         }
         pressingLeft = pressed;
@@ -390,42 +390,42 @@ public class Actor extends Item
         if (pressed)
         {
             /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirFace = Direction.RIGHT;
+            if (state.isOnWall()) dirFace = RIGHT;
             /* It changes your primary direction regardless */
-            dirHoriz = Direction.RIGHT;
+            dirHoriz = RIGHT;
 
         }
         /* If you release the key when already moving right */
-        else if (dirHoriz == Direction.RIGHT)
+        else if (dirHoriz == RIGHT)
         {
-            if (pressingLeft) dirHoriz = Direction.LEFT;
-            else dirHoriz = null;
+            if (pressingLeft) dirHoriz = LEFT;
+            else dirHoriz = -1;
             /* If you release the key when already moving right with a wall */
             if (state.isOnWall())
             {
-                if (pressingLeft) dirFace = Direction.LEFT;
-                else dirFace = null;
+                if (pressingLeft) dirFace = LEFT;
+                else dirFace = -1;
             }
         }
         pressingRight = pressed;
     }
     public void pressUp(boolean pressed)
     {
-        if (pressed) dirVert = Direction.UP;
-        else if (dirVert == Direction.UP)
+        if (pressed) dirVert = UP;
+        else if (dirVert == UP)
         {
-            if (pressingDown) dirVert = Direction.DOWN;
-            else dirVert = null;
+            if (pressingDown) dirVert = DOWN;
+            else dirVert = -1;
         }
         pressingUp = pressed;
     }
     public void pressDown(boolean pressed)
     {
-        if (pressed) dirVert = Direction.DOWN;
-        else if (dirVert == Direction.DOWN)
+        if (pressed) dirVert = DOWN;
+        else if (dirVert == DOWN)
         {
-            if (pressingUp) dirVert = Direction.UP;
-            else dirVert = null;
+            if (pressingUp) dirVert = UP;
+            else dirVert = -1;
         }
         pressingDown = pressed;
     }
@@ -439,52 +439,35 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    private enum Direction
-    {
-        UP { boolean vertical() { return true; } int ID() { return 0; }
-        int dirToNum() { return -1; } Direction opposite() { return DOWN; } },
-        LEFT { boolean horizontal() { return true; } int ID() { return 3; }
-        int dirToNum() { return -1; } Direction opposite() { return RIGHT; } },
-        DOWN { boolean vertical() { return true; } int ID() { return 2; }
-        int dirToNum() { return 1; } Direction opposite() { return UP; } },
-        RIGHT { boolean horizontal() { return true; } int ID() { return 1; }
-        int dirToNum() { return 1; } Direction opposite() { return LEFT; } };
-        boolean vertical() { return false; }
-        boolean horizontal() { return false; }
-        abstract int dirToNum();
-        int ID() { return -1; }
-        Direction opposite() { return null; }
-    }
-
     private State determineState()
     {
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if (dirVert == Direction.DOWN)
+            if (dirVert == DOWN)
             {
                 if (Math.abs(getVelocityX()) > maxCrawlSpeed)
                     return State.SLIDE;
-                if (dirHoriz != null) return State.CRAWL;
+                if (dirHoriz != -1) return State.CRAWL;
                 return State.CROUCH;
             }
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
-                if ((dirVert == Direction.UP || dirHoriz == Direction.RIGHT)
+                if ((dirVert == UP || dirHoriz == RIGHT)
                         && touchEntity[RIGHT] instanceof Block)
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
             if (getVelocityX() < 0 && touchEntity[LEFT] != null)
             {
-                if ((dirVert == Direction.UP || dirHoriz == Direction.LEFT)
+                if ((dirVert == UP || dirHoriz == LEFT)
                         && touchEntity[LEFT] instanceof Block)
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
 
-            if (dirHoriz != null) return State.RUN;
+            if (dirHoriz != -1) return State.RUN;
             return State.STAND;
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)

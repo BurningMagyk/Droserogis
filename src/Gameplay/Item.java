@@ -9,9 +9,6 @@ public class Item extends Entity
 {
     private int hitPoints;
 
-    private boolean reactive = false;
-    private boolean receptive = false;
-
     /* The entities that are in contact from each of 4 directions */
     Entity[] touchEntity = new Entity[4];
 
