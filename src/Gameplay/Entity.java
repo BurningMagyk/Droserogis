@@ -472,6 +472,4 @@ abstract public class Entity
             return getVertexY(0) + (xRatio * height);
         }
     }
-
-    abstract void collide(Entity other, int dir, boolean withBlock);
 }
