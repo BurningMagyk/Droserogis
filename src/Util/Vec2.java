@@ -52,6 +52,15 @@ public class Vec2
     return this;
   }
 
+  public Vec2 minus(Vec2 v)
+  {
+      return new Vec2(x - v.x, y - v.y);
+  }
+
+  public double mag()
+  {
+      return Math.sqrt(x * x + y * y);
+  }
 
   public void rotate(float theta)
   {

@@ -231,13 +231,17 @@ public class Item extends Entity
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (this.bumpingCeiling)
-                        setVelocity(entity.applySlope(originalVel));
+                    {
+                        Vec2 newVel = entity.applySlope(originalVel);
+                        takeDamage((float) newVel.minus(originalVel).mag());
+                        setVelocity(newVel);
+                    }
                 }
                 /* Colliding with level surface from below */
                 else
                 {
+                    takeDamage(Math.abs(getVelocityY()));
                     setVelocityY(0);
-                    if (withBlock) setVelocityY(0);
                 }
             }
             else if (edge[0] == DOWN)
@@ -248,26 +252,30 @@ public class Item extends Entity
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (!isGrounded)
-                        setVelocity(entity.applySlope(originalVel));
+                    {
+                        Vec2 newVel = entity.applySlope(originalVel);
+                        takeDamage((float) newVel.minus(originalVel).mag());
+                        setVelocity(newVel);
+                    }
                 }
                 /* Colliding with level surface from above */
                 else
                 {
+                    takeDamage(Math.abs(getVelocityY()));
                     setVelocityY(0);
-                    if (withBlock) setVelocityY(0);
                 }
             }
             else if (edge[0] == LEFT)
             {
                 goal.x = entity.getRightEdge() + getWidth() / 2;
+                takeDamage(Math.abs(getVelocityX()));
                 setVelocityX(0);
-                if (withBlock) setVelocityX(0);
             }
             else if (edge[0] == RIGHT)
             {
                 goal.x = entity.getLeftEdge() - getWidth() / 2;
+                takeDamage(Math.abs(getVelocityX()));
                 setVelocityX(0);
-                if (withBlock) setVelocityX(0);
             }
         }
 
@@ -287,12 +295,13 @@ public class Item extends Entity
         return false;
     }
 
-    void takeDamage(float amount) { takeDamage((int) amount); }
+    void takeDamage(float amount) { takeDamage((int) (amount * 3)); }
 
     void takeDamage(int amount)
     {
         if (amount == 0) return;
-        Print.green("Took " + amount + " points of damage");
+        Print.green("Took " + amount + " point"
+                + (amount == 1 ? "" : "s") + " of damage");
         hitPoints -= amount;
     }
 
