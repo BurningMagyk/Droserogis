@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Weapon;
 import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
@@ -40,6 +41,8 @@ public class Actor extends Item
     private boolean
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false;
+
+    private Weapon weapon;
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -505,6 +508,11 @@ public class Actor extends Item
 
         this.state = state;
         return false;
+    }
+
+    void equip(Weapon weapon)
+    {
+        this.weapon = weapon;
     }
 
     //===============================================================================================================

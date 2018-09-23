@@ -28,7 +28,7 @@ public class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    Item(float xPos, float yPos, float width, float height)
+    protected Item(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
