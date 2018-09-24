@@ -4,7 +4,7 @@ public enum DirEnum
 {
     UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT;
 
-    DirEnum get(int horiz, int vert)
+    static public DirEnum get(int horiz, int vert)
     {
         if (vert == Entity.UP)
         {

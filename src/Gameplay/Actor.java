@@ -440,9 +440,10 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    void pressAttack(boolean pressed, boolean primary)
+    void pressAttack(boolean pressed, int keyCombo)
     {
-        //weapon.operate(0, dirFace);
+        weapon.operate(pressed, keyCombo, dirHoriz < 0
+                ? dirFace : dirHoriz, dirVert);
     }
 
     private State determineState()
