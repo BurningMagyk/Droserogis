@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Sword;
 import Menus.Main;
 import Util.DebugEnum;
 import Util.Print;
@@ -239,6 +240,7 @@ public class Gameplay implements Reactor
 
 
         player = new Actor(1F, -3F, .5f, .5f);
+        player.equip(new Sword(0, 0, 0, 0));
         addEntity(player);
         player2 = new Actor(1F, -5F, .5f, .5f);
         addEntity(player2);

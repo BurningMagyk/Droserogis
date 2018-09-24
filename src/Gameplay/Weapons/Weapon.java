@@ -1,16 +1,15 @@
 package Gameplay.Weapons;
 
+import Gameplay.DirEnum;
 import Gameplay.Item;
-import Util.KeyCombo;
-import Util.Print;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class Weapon extends Item
 {
     private boolean ballistic = true;
-    private KeyCombo[] keyCombos;
-    private Style currentStyle = null;
+    private Map<Integer, Operation> keyCombos;
+    private Style currentStyle = Style.DEFAULT;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
@@ -21,52 +20,43 @@ public class Weapon extends Item
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
      */
-    void operate(KeyCombo keyCombo)
+    void operate(int keyCombo, DirEnum direction)
     {
-        boolean matches = false;
-        int i = 0;
-        for (; i < keyCombos.length; i++)
-        {
-            if (keyCombo.matches(keyCombos[i]))
-            {
-                matches = true;
-                break;
-            }
-        }
-        if (matches) currentStyle.operate(i);
+        keyCombos.get(keyCombo).run(direction);
     }
 
-    void setStyle(Style style) { currentStyle = style; }
-
-    private class Style
+    enum Style
     {
-        private Operation[] operations;
-        String name;
+        HALF
+                {
+                    boolean isValid(Weapon weapon)
+                    {
+                        if (weapon instanceof Sword) return true;
+                        return false;
+                    }
+                },
+        MURDER
+                {
+                    boolean isValid(Weapon weapon)
+                    {
+                        if (weapon instanceof Sword) return true;
+                        return false;
+                    }
+                },
+        DEFAULT;
 
-        Style(String name, Operation... operations)
-        {
-            this.operations = operations;
-            this.name = name;
-        }
-
-        void operate(int i)
-        {
-            operations[i].run(name);
-        }
+        boolean isValid(Weapon weapon) { return true; }
     }
 
-    private class Operation
+    Style getStyle()
     {
-        private String name;
+        return currentStyle;
+    }
 
-        Operation(String name)
-        {
-            this.name = name;
-        }
+    interface Operation
+    {
+        String name = "";
 
-        void run(String styleName)
-        {
-            Print.blue("Operating " + name + " using " + styleName);
-        }
+        void run(DirEnum direction);
     }
 }
