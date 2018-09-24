@@ -57,7 +57,7 @@ public class Actor extends Item
         setFriction(NORMAL_FRICTION);
     }
 
-    void update(ArrayList<Entity> entities, float deltaSec)
+    protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         resetAcceleration();
         act(deltaSec);
@@ -363,7 +363,7 @@ public class Actor extends Item
         return contactVel;
     }
 
-    public void pressLeft(boolean pressed)
+    void pressLeft(boolean pressed)
     {
         if (pressed)
         {
@@ -386,7 +386,7 @@ public class Actor extends Item
         }
         pressingLeft = pressed;
     }
-    public void pressRight(boolean pressed)
+    void pressRight(boolean pressed)
     {
         if (pressed)
         {
@@ -410,7 +410,7 @@ public class Actor extends Item
         }
         pressingRight = pressed;
     }
-    public void pressUp(boolean pressed)
+    void pressUp(boolean pressed)
     {
         if (pressed) dirVert = UP;
         else if (dirVert == UP)
@@ -420,7 +420,7 @@ public class Actor extends Item
         }
         pressingUp = pressed;
     }
-    public void pressDown(boolean pressed)
+    void pressDown(boolean pressed)
     {
         if (pressed) dirVert = DOWN;
         else if (dirVert == DOWN)
@@ -433,11 +433,16 @@ public class Actor extends Item
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
-    public void pressJump(boolean pressed)
+    void pressJump(boolean pressed)
     {
         if (pressed && !pressingJump) pressedJumpTime = 1F;
         else if (!pressed) pressedJumpTime = -1F;
         pressingJump = pressed;
+    }
+
+    void pressAttack(boolean pressed, boolean primary)
+    {
+        //weapon.operate(0, dirFace);
     }
 
     private State determineState()
@@ -512,7 +517,7 @@ public class Actor extends Item
 
     void equip(Weapon weapon)
     {
-        this.weapon = weapon;
+        this.weapon = weapon.equip(this);
     }
 
     //===============================================================================================================

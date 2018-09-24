@@ -36,7 +36,7 @@ public class Item extends Entity
         hitPoints = 10;
     }
 
-    void update(ArrayList<Entity> entities, float deltaSec)
+    protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         resetAcceleration();
         applyPhysics(entities, deltaSec);

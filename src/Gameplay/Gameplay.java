@@ -171,6 +171,10 @@ public class Gameplay implements Reactor
         {
             player.pressDown(pressed);
         }
+        else if (code == KeyCode.K)
+        {
+            player.pressAttack(pressed, true);
+        }
     }
 
     @Override

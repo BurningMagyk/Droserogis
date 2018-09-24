@@ -1,8 +1,11 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Gameplay.Entity;
 import Gameplay.Item;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Weapon extends Item
@@ -16,11 +19,19 @@ public class Weapon extends Item
         super(xPos, yPos, width, height);
     }
 
+    @Override
+    protected void update(ArrayList<Entity> entities, float deltaSec)
+    {
+        if (ballistic) super.update(entities, deltaSec);
+        // to check line intersections:
+        // https://stackoverflow.com/questions/4977491/determining-if-two-line-segments-intersect/4977569#4977569
+    }
+
     /**
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
      */
-    void operate(int keyCombo, DirEnum direction)
+    public void operate(int keyCombo, DirEnum direction)
     {
         keyCombos.get(keyCombo).run(direction);
     }
@@ -46,6 +57,12 @@ public class Weapon extends Item
         DEFAULT;
 
         boolean isValid(Weapon weapon) { return true; }
+    }
+
+    public Weapon equip(Actor actor)
+    {
+        ballistic = false;
+        return this;
     }
 
     Style getStyle()
