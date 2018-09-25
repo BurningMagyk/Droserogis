@@ -2,7 +2,47 @@ package Gameplay;
 
 public enum DirEnum
 {
-    UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT;
+    UP
+            {
+                public int getSign() { return -1; }
+                public DirEnum getVert() { return this; }
+            },
+    DOWN
+            {
+                public int getSign() { return 1; }
+                public DirEnum getVert() { return this; }
+            },
+    LEFT
+            {
+                public int getSign() { return -1; }
+                public DirEnum getHoriz() { return this; }
+            },
+    RIGHT
+            {
+                public int getSign() { return 1; }
+                public DirEnum getHoriz() { return this; }
+            },
+    UPLEFT
+            {
+                public DirEnum getHoriz() { return LEFT; }
+                public DirEnum getVert() { return UP; }
+            },
+    UPRIGHT
+            {
+                public DirEnum getHoriz()  { return RIGHT; }
+                public DirEnum getVert() { return UP; }
+            },
+    DOWNLEFT
+            {
+                public DirEnum getHoriz() { return LEFT; }
+                public DirEnum getVert() { return DOWN; }
+            },
+    DOWNRIGHT
+            {
+                public DirEnum getHoriz() { return RIGHT; }
+                public DirEnum getVert() { return DOWN; }
+            },
+    NONE;
 
     static public DirEnum get(int horiz, int vert)
     {
@@ -20,6 +60,10 @@ public enum DirEnum
         }
         if (horiz == Entity.LEFT) return LEFT;
         if (horiz == Entity.RIGHT) return RIGHT;
-        return null;
+        return NONE;
     }
+
+    public int getSign() { return 0; }
+    public DirEnum getHoriz() { return NONE; }
+    public DirEnum getVert() { return NONE; }
 }

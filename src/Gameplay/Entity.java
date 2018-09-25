@@ -127,6 +127,7 @@ abstract public class Entity
 
     public float getWidth() { return width; }
     public float getHeight() { return height; }
+    public Vec2 getDims() { return new Vec2(width, height); }
 
     public Vec2 getVelocity() { return new Vec2(velocity); }
     public float getVelocityX() { return velocity.x; }
@@ -137,7 +138,7 @@ abstract public class Entity
         velocity.x = v.x;
         velocity.y = v.y;
     }
-    public void setPosition(Vec2 p)
+    void setPosition(Vec2 p)
     {
         pos.x = p.x;
         pos.y = p.y;

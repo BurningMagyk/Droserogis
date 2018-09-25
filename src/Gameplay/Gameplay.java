@@ -79,7 +79,7 @@ public class Gameplay implements Reactor
         return;
       }
 
-      float deltaSec = (now - lastUpdateTime)*1e-9f;
+      float deltaSec = (now - lastUpdateTime) * 1e-9f;
       lastUpdateTime = now;
 
       //System.out.println(now);
@@ -173,7 +173,11 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.K)
         {
-            player.pressAttack(pressed, true);
+            player.pressAttack(pressed, 0);
+        }
+        else if (code == KeyCode.L)
+        {
+            player.pressAttack(pressed, 1);
         }
     }
 
@@ -244,9 +248,12 @@ public class Gameplay implements Reactor
 
 
         player = new Actor(1F, -3F, .5f, .5f);
-        player.equip(new Sword(0, 0, 0, 0));
+        Sword sword = new Sword(0, -4, 0.1F, 0.8F);
+        addEntity(sword);
+        player.equip(sword);
         addEntity(player);
         player2 = new Actor(1F, -5F, .5f, .5f);
+        player2.equip(new Sword(0, -4, 0.1F, 0.8F));
         addEntity(player2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
