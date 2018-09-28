@@ -18,6 +18,7 @@ public class Weapon extends Item
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos;
     private Style style = Style.DEFAULT;
+    private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
@@ -30,9 +31,9 @@ public class Weapon extends Item
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         if (ballistic) super.update(entities, deltaSec);
-        else if (true /* if started an attack, go through frames of attacking */)
+        else if (currentOp != null && currentOp.run(deltaSec))
         {
-
+            currentOp = null;
         }
         // to check line intersections:
         // https://stackoverflow.com/questions/4977491/determining-if-two-line-segments-intersect/4977569#4977569
@@ -52,7 +53,11 @@ public class Weapon extends Item
     {
         if (!pressed) return; /* Temporary */
         Operation op = keyCombos.get(keyCombo);
-        if (op != null) op.run(DirEnum.get(dirHoriz, dirVert));
+        if (op != null)
+        {
+            op.start(DirEnum.get(dirHoriz, dirVert));
+            currentOp = op;
+        }
     }
 
     enum Style
@@ -93,7 +98,10 @@ public class Weapon extends Item
     {
         String getName();
 
-        void run(DirEnum direction);
+        void start(DirEnum direction);
+
+        /** Returns true if the operation finished */
+        boolean run(float deltaSec);
     }
 
     void addOperation(Operation op, int keyCombo)

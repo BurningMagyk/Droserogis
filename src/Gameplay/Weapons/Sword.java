@@ -24,6 +24,13 @@ public class Sword extends Weapon
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
         }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            Print.blue("testing");
+            return true;
+        }
     }
 
     private class Swing implements Operation
@@ -35,6 +42,13 @@ public class Sword extends Weapon
         public void run(DirEnum direction) {
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            Print.blue("testing");
+            return true;
         }
     }
 }
