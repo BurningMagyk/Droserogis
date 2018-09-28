@@ -366,7 +366,7 @@ public class Actor extends Item
     void setPosition(Vec2 p)
     {
         weapon.updatePosition(p, getDims(),
-                DirEnum.get(dirHoriz < 0 ? dirFace : dirHoriz, dirVert));
+                DirEnum.get(dirFace < 0 ? dirHoriz : dirFace, dirVert));
         super.setPosition(p);
     }
 
@@ -378,6 +378,9 @@ public class Actor extends Item
             if (state.isOnWall()) dirFace = LEFT;
             /* It changes your primary direction regardless */
             dirHoriz = LEFT;
+            /* If you're not forcing a secondary direction,
+             * this will change it */
+            if (dirFace != LEFT && !pressingRight) dirFace = LEFT;
         }
         /* If you release the key when already moving left */
         else if (dirHoriz == LEFT)
@@ -401,7 +404,9 @@ public class Actor extends Item
             if (state.isOnWall()) dirFace = RIGHT;
             /* It changes your primary direction regardless */
             dirHoriz = RIGHT;
-
+            /* If you're not forcing a secondary direction,
+             * this will change it */
+            if (dirFace != RIGHT && !pressingLeft) dirFace = RIGHT;
         }
         /* If you release the key when already moving right */
         else if (dirHoriz == RIGHT)

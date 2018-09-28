@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class Weapon extends Item
 {
-    Vec2 relativePos = new Vec2(0, 0);
+    Vec2 relativePos = new Vec2(0.5F, 0.5F);
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos;
@@ -40,7 +40,6 @@ public class Weapon extends Item
 
     public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
     {
-        // TODO: this isn't working correctly
         setPositionX(p.x + dims.x * relativePos.x * dir.getHoriz().getSign());
         setPositionY(p.y + dims.y * relativePos.y * dir.getVert().getSign());
     }
