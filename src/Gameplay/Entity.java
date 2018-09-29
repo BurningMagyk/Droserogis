@@ -138,7 +138,7 @@ abstract public class Entity
         velocity.x = v.x;
         velocity.y = v.y;
     }
-    void setPosition(Vec2 p)
+    public void setPosition(Vec2 p)
     {
         pos.x = p.x;
         pos.y = p.y;

@@ -13,7 +13,8 @@ import java.util.Map;
 
 public class Weapon extends Item
 {
-    Vec2 relativePos = new Vec2(0.5F, 0.5F);
+    Vec2 relativePos = new Vec2(1F, 0F);
+    Vec2 wieldPos;
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos;
@@ -23,7 +24,7 @@ public class Weapon extends Item
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
-
+        wieldPos = getPosition();
         keyCombos = new HashMap<>();
     }
 
@@ -41,8 +42,10 @@ public class Weapon extends Item
 
     public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
     {
-        setPositionX(p.x + dims.x * relativePos.x * dir.getHoriz().getSign());
-        setPositionY(p.y + dims.y * relativePos.y * dir.getVert().getSign());
+        setPosition(p);
+        wieldPos = new Vec2(p.x + dims.x * relativePos.x
+                * (dir.getVert() == DirEnum.UP ? 0 : dir.getHoriz().getSign()),
+                p.y + dims.y * relativePos.y);
     }
 
     /**
@@ -89,10 +92,9 @@ public class Weapon extends Item
         return this;
     }
 
-    Style getStyle()
-    {
-        return style;
-    }
+    boolean isBallistic() { return ballistic; }
+    public Vec2 getWieldPos() { return wieldPos; }
+    Style getStyle() { return style; }
 
     interface Operation
     {

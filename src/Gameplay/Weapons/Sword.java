@@ -20,7 +20,7 @@ public class Sword extends Weapon
         public String getName() { return "thrust"; }
 
         @Override
-        public void run(DirEnum direction) {
+        public void start(DirEnum direction) {
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
         }
@@ -39,7 +39,7 @@ public class Sword extends Weapon
         public String getName() { return "swing"; }
 
         @Override
-        public void run(DirEnum direction) {
+        public void start(DirEnum direction) {
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
         }

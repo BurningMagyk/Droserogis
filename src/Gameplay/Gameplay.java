@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Gameplay.Weapons.Sword;
+import Gameplay.Weapons.Weapon;
 import Menus.Main;
 import Util.DebugEnum;
 import Util.Print;
@@ -213,7 +214,8 @@ public class Gameplay implements Reactor
         }
         else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
-            Vec2 position = entity.getPosition();
+            Vec2 position = entity instanceof Weapon
+                    ? ((Weapon) entity).getWieldPos() : entity.getPosition();
             context.fillRect(
                     (position.x - entity.getWidth()/2 - cameraPosX + cameraOffsetX)
                             * cameraZoom,
@@ -248,12 +250,12 @@ public class Gameplay implements Reactor
 
 
         player = new Actor(1F, -3F, .5f, .5f);
-        Sword sword = new Sword(0, -4, 0.1F, 0.8F);
-        addEntity(sword);
+        Sword sword = new Sword(0, -4, 0.5F, 0.1F);
         player.equip(sword);
         addEntity(player);
+        addEntity(sword);
         player2 = new Actor(1F, -5F, .5f, .5f);
-        player2.equip(new Sword(0, -4, 0.1F, 0.8F));
+        player2.equip(new Sword(0, -4, 0.5F, 0.1F));
         addEntity(player2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);

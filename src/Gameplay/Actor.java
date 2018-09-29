@@ -363,7 +363,7 @@ public class Actor extends Item
         return contactVel;
     }
 
-    void setPosition(Vec2 p)
+    public void setPosition(Vec2 p)
     {
         weapon.updatePosition(p, getDims(),
                 DirEnum.get(dirFace < 0 ? dirHoriz : dirFace, dirVert));
