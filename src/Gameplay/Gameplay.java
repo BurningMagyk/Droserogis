@@ -214,17 +214,37 @@ public class Gameplay implements Reactor
         }
         else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
-            Vec2 position = entity instanceof Weapon
-                    ? ((Weapon) entity).getWieldPos() : entity.getPosition();
-            context.fillRect(
-                    (position.x - entity.getWidth()/2 - cameraPosX + cameraOffsetX)
-                            * cameraZoom,
-                    (position.y - entity.getHeight()/2 - cameraPosY + cameraOffsetY)
-                            * cameraZoom,
-                    entity.getWidth()
-                            * cameraZoom,
-                    entity.getHeight()
-                            * cameraZoom);
+            if (entity instanceof Weapon)
+            {
+                Vec2 pos = ((Weapon) entity).getWieldPos();
+                Vec2.setTheta(0);
+                Vec2 upLeft = new Vec2(- entity.getWidth() / 2,
+                        - entity.getHeight() / 2); upLeft.rotate();
+                Vec2 upRight = new Vec2(+ entity.getWidth() / 2,
+                        - entity.getHeight() / 2); upRight.rotate();
+                Vec2 downLeft = new Vec2(- entity.getWidth() / 2,
+                        + entity.getHeight() / 2); downLeft.rotate();
+                Vec2 downRight = new Vec2(+ entity.getWidth() / 2,
+                        + entity.getHeight() / 2); downRight.rotate();
+                double xPoints[] = {
+                        (pos.x + upLeft.x - cameraPosX + cameraOffsetX) * cameraZoom, // top left
+                        (pos.x + upRight.x - cameraPosX + cameraOffsetX) * cameraZoom, // top right
+                        (pos.x + downRight.x - cameraPosX + cameraOffsetX) * cameraZoom, // bottom right
+                        (pos.x + downLeft.x - cameraPosX + cameraOffsetX) * cameraZoom}; // bottom left
+                double yPoints[] = {
+                        (pos.y + upLeft.y - cameraPosY + cameraOffsetY) * cameraZoom, // top left
+                        (pos.y + upRight.y - cameraPosY + cameraOffsetY) * cameraZoom, // top right
+                        (pos.y + downRight.y - cameraPosY + cameraOffsetY) * cameraZoom, // bottom right
+                        (pos.y + downLeft.y - cameraPosY + cameraOffsetY) * cameraZoom}; // bottom left
+                context.fillPolygon(xPoints, yPoints, 4);
+            } else {
+                Vec2 pos = entity.getPosition();
+                context.fillRect(
+                        (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
+                        (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
+                        entity.getWidth() * cameraZoom,
+                        entity.getHeight() * cameraZoom);
+            }
         }
 
         /* Draws vertical and horizontal lines through the middle for debugging */

@@ -28,7 +28,7 @@ public class Sword extends Weapon
         @Override
         public boolean run(float deltaSec)
         {
-            Print.blue("testing");
+            relativePos.x *= -1;
             return true;
         }
     }

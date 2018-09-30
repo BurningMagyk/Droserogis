@@ -96,6 +96,12 @@ public class Weapon extends Item
     public Vec2 getWieldPos() { return wieldPos; }
     Style getStyle() { return style; }
 
+    void setRelativePos(Vec2 p)
+    {
+        relativePos.x = p.x;
+        relativePos.y = p.y;
+    }
+
     interface Operation
     {
         String getName();
@@ -109,5 +115,10 @@ public class Weapon extends Item
     void addOperation(Operation op, int keyCombo)
     {
         keyCombos.put(keyCombo, op);
+    }
+
+    void travel()
+    {
+
     }
 }
