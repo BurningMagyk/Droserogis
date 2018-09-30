@@ -216,27 +216,15 @@ public class Gameplay implements Reactor
         {
             if (entity instanceof Weapon)
             {
-                Vec2 pos = ((Weapon) entity).getWieldPos();
-                Vec2.setTheta(0);
-                Vec2 upLeft = new Vec2(- entity.getWidth() / 2,
-                        - entity.getHeight() / 2); upLeft.rotate();
-                Vec2 upRight = new Vec2(+ entity.getWidth() / 2,
-                        - entity.getHeight() / 2); upRight.rotate();
-                Vec2 downLeft = new Vec2(- entity.getWidth() / 2,
-                        + entity.getHeight() / 2); downLeft.rotate();
-                Vec2 downRight = new Vec2(+ entity.getWidth() / 2,
-                        + entity.getHeight() / 2); downRight.rotate();
-                double xPoints[] = {
-                        (pos.x + upLeft.x - cameraPosX + cameraOffsetX) * cameraZoom, // top left
-                        (pos.x + upRight.x - cameraPosX + cameraOffsetX) * cameraZoom, // top right
-                        (pos.x + downRight.x - cameraPosX + cameraOffsetX) * cameraZoom, // bottom right
-                        (pos.x + downLeft.x - cameraPosX + cameraOffsetX) * cameraZoom}; // bottom left
-                double yPoints[] = {
-                        (pos.y + upLeft.y - cameraPosY + cameraOffsetY) * cameraZoom, // top left
-                        (pos.y + upRight.y - cameraPosY + cameraOffsetY) * cameraZoom, // top right
-                        (pos.y + downRight.y - cameraPosY + cameraOffsetY) * cameraZoom, // bottom right
-                        (pos.y + downLeft.y - cameraPosY + cameraOffsetY) * cameraZoom}; // bottom left
-                context.fillPolygon(xPoints, yPoints, 4);
+                Vec2[] c = ((Weapon) entity).getCorners();
+                double xCorners[] = {c[0].x, c[1].x, c[2].x, c[3].x};
+                double yCorners[] = {c[0].y, c[1].y, c[2].y, c[3].y};
+                for (int i = 0; i < xCorners.length; i++)
+                {
+                    xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                    yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                }
+                context.fillPolygon(xCorners, yCorners, 4);
             } else {
                 Vec2 pos = entity.getPosition();
                 context.fillRect(
@@ -271,6 +259,7 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .5f, .5f);
         Sword sword = new Sword(0, -4, 0.5F, 0.1F);
+        sword.setTheta(3.141F/4F);
         player.equip(sword);
         addEntity(player);
         addEntity(sword);

@@ -15,6 +15,13 @@ public class Weapon extends Item
 {
     Vec2 relativePos = new Vec2(1F, 0F);
     Vec2 wieldPos;
+    public Vec2 wieldDimsDefault[] = {
+            new Vec2(-getWidth() / 2, -getHeight() / 2),
+            new Vec2(+getWidth() / 2, -getHeight() / 2),
+            new Vec2(+getWidth() / 2, +getHeight() / 2),
+            new Vec2(-getWidth() / 2, +getHeight() / 2)};
+    private Vec2 wieldDims[] = wieldDimsDefault.clone();
+    private float theta = 0;
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos;
@@ -38,6 +45,14 @@ public class Weapon extends Item
         }
         // to check line intersections:
         // https://stackoverflow.com/questions/4977491/determining-if-two-line-segments-intersect/4977569#4977569
+    }
+
+    public void setTheta(float theta)
+    {
+        wieldDims = wieldDimsDefault.clone();
+        Vec2.setTheta(theta);
+        for (Vec2 wieldDim : wieldDims) { wieldDim.rotate(); }
+        this.theta = theta;
     }
 
     public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
@@ -94,6 +109,16 @@ public class Weapon extends Item
 
     boolean isBallistic() { return ballistic; }
     public Vec2 getWieldPos() { return wieldPos; }
+    public Vec2[] getCorners()
+    {
+        Vec2[] corners = wieldDims.clone();
+        for (int i = 0; i < wieldDims.length; i++)
+        {
+            corners[i] = new Vec2(wieldDims[i].x + wieldPos.x,
+                    wieldDims[i].y + wieldPos.y);
+        }
+        return corners;
+    }
     Style getStyle() { return style; }
 
     void setRelativePos(Vec2 p)
