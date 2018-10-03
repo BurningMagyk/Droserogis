@@ -15,6 +15,7 @@ public class Weapon extends Item
 {
     Vec2 relativePos = new Vec2(1F, 0F);
     Vec2 wieldPos;
+    DirEnum dirFace = DirEnum.RIGHT;
     public Vec2 wieldDimsDefault[] = {
             new Vec2(-getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, -getHeight() / 2),
@@ -50,7 +51,7 @@ public class Weapon extends Item
     public void setTheta(float theta)
     {
         wieldDims = wieldDimsDefault.clone();
-        Vec2.setTheta(theta);
+        Vec2.setTheta(dirFace.getHoriz().getSign() * theta);
         for (Vec2 wieldDim : wieldDims) { wieldDim.rotate(); }
         this.theta = theta;
     }
@@ -61,6 +62,7 @@ public class Weapon extends Item
         wieldPos = new Vec2(p.x + dims.x * relativePos.x
                 * (dir.getVert() == DirEnum.UP ? 0 : dir.getHoriz().getSign()),
                 p.y + dims.y * relativePos.y);
+        dirFace = dir;
     }
 
     /**
