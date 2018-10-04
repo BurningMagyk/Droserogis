@@ -21,7 +21,7 @@ public class Weapon extends Item
             new Vec2(+getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, +getHeight() / 2),
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
-    private Vec2 wieldDims[] = wieldDimsDefault.clone();
+    private Vec2 wieldDims[] = new Vec2[4];
     private float theta = 0;
 
     private boolean ballistic = true;
@@ -34,6 +34,9 @@ public class Weapon extends Item
         super(xPos, yPos, width, height);
         wieldPos = getPosition();
         keyCombos = new HashMap<>();
+
+        for (int i = 0; i < wieldDims.length; i++)
+        { wieldDims[i] = wieldDimsDefault[i].clone(); }
     }
 
     @Override
@@ -50,7 +53,9 @@ public class Weapon extends Item
 
     public void setTheta(float theta)
     {
-        wieldDims = wieldDimsDefault.clone();
+        for (int i = 0; i < wieldDims.length; i++)
+        { wieldDims[i] = wieldDimsDefault[i].clone(); }
+
         Vec2.setTheta(dirFace.getHoriz().getSign() * theta);
         for (Vec2 wieldDim : wieldDims) { wieldDim.rotate(); }
         this.theta = theta;
@@ -62,6 +67,7 @@ public class Weapon extends Item
         wieldPos = new Vec2(p.x + dims.x * relativePos.x
                 * (dir.getVert() == DirEnum.UP ? 0 : dir.getHoriz().getSign()),
                 p.y + dims.y * relativePos.y);
+        setTheta(theta);
         dirFace = dir;
     }
 

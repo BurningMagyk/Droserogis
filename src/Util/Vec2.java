@@ -81,6 +81,8 @@ public class Vec2
         cos = Math.cos(theta);
     }
 
+    public Vec2 clone() { return new Vec2(x, y); }
+
     public String toString()
     {
         return "(" + x + ", " + y + ")";
