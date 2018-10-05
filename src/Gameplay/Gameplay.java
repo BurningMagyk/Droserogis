@@ -259,7 +259,6 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .5f, .5f);
         Sword sword = new Sword(0, -4, 0.5F, 0.1F);
-        sword.setTheta(3.141F/4F);
         player.equip(sword);
         addEntity(player);
         addEntity(sword);

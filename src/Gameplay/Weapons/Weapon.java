@@ -51,12 +51,16 @@ public class Weapon extends Item
         // https://stackoverflow.com/questions/4977491/determining-if-two-line-segments-intersect/4977569#4977569
     }
 
-    public void setTheta(float theta)
+    public void setTheta(float theta, DirEnum opDir)
     {
         for (int i = 0; i < wieldDims.length; i++)
-        { wieldDims[i] = wieldDimsDefault[i].clone(); }
+        {
+            wieldDims[i].x = wieldDimsDefault[i].x;
+            wieldDims[i].y = wieldDimsDefault[i].y;
+        }
 
-        Vec2.setTheta(dirFace.getHoriz().getSign() * theta);
+        Vec2.setTheta(opDir.getHoriz().getSign() * theta);
+
         for (Vec2 wieldDim : wieldDims) { wieldDim.rotate(); }
         this.theta = theta;
     }
@@ -67,7 +71,7 @@ public class Weapon extends Item
         wieldPos = new Vec2(p.x + dims.x * relativePos.x
                 * (dir.getVert() == DirEnum.UP ? 0 : dir.getHoriz().getSign()),
                 p.y + dims.y * relativePos.y);
-        setTheta(theta);
+        if (dirFace != dir && currentOp == null) setTheta(theta, dirFace);
         dirFace = dir;
     }
 
@@ -138,6 +142,10 @@ public class Weapon extends Item
     interface Operation
     {
         String getName();
+
+        int getResilience();
+
+        void interrupt();
 
         void start(DirEnum direction);
 

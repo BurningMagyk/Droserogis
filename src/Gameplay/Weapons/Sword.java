@@ -12,23 +12,36 @@ public class Sword extends Weapon
 
         addOperation(new Thrust(), 0);
         addOperation(new Swing(), 1);
+
+        setTheta(3.141F/4F, DirEnum.RIGHT);
     }
 
     private class Thrust implements Operation
     {
+        DirEnum dirFace;
+
         @Override
         public String getName() { return "thrust"; }
+
+        @Override
+        public int getResilience() { return 1; }
+
+        @Override
+        public void interrupt() {
+
+        }
 
         @Override
         public void start(DirEnum direction) {
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
+            dirFace = direction;
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            relativePos.x *= -1;
+            setTheta(80, dirFace);
             return true;
         }
     }
@@ -37,6 +50,14 @@ public class Sword extends Weapon
     {
         @Override
         public String getName() { return "swing"; }
+
+        @Override
+        public int getResilience() { return 1; }
+
+        @Override
+        public void interrupt() {
+
+        }
 
         @Override
         public void start(DirEnum direction) {
