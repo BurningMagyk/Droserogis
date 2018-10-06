@@ -1,5 +1,7 @@
 package Util;
 
+import java.awt.geom.Line2D;
+
 //======================================================================================================================
 //This class tests intersections of convex polygons.
 //======================================================================================================================
@@ -89,12 +91,7 @@ public class PolygonIntersection
     //==================================================================================================================
     public static boolean isIntersect(Point p1, Point p2, Point p3, Point p4)
     {
-        //if (p1.x < rect.getLeft() && p2.x < rect.getLeft()) return false;
-        //if (p1.y < rect.getTop()  && p2.y < rect.getTop())  return false;
-
-        //if (p1.x > rect.getRight()  && p2.x > rect.getRight())  return false;
-        //if (p1.y > rect.getBottom() && p2.y > rect.getBottom()) return false;
-        return true;
+        return Line2D.linesIntersect(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
     }
 
 
@@ -128,7 +125,31 @@ public class PolygonIntersection
         assert(isIntersect(poly1, rect2) == false);
 
 
+        Point[] sword =
+        {
+                new Point( 0,10),
+                new Point(10, 0),
+                new Point(40,30),
+                new Point(30,40)
+        };
 
+        Point[] tri1 =
+        {
+                new Point(40,0),
+                new Point(50,10),
+                new Point(30,10)
+        };
+
+        Point[] tri2 =
+        {
+                new Point(40,0),
+                new Point(50,10),
+                new Point(20,20)
+        };
+
+
+        assert(isIntersect(sword, tri1) == false);
+        assert(isIntersect(sword, tri2) == true);
 
     }
 }
