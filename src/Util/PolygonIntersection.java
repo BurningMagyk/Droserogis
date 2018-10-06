@@ -14,7 +14,7 @@ public class PolygonIntersection
     //
     // returns true iff the polygons 1 and 2 intersect.
     //==================================================================================================================
-    public static boolean isIntersect(Point[] poly1, Point[] poly2)
+    public static boolean isIntersect(Vec2[] poly1, Vec2[] poly2)
     {
         for (int i=0; i<poly1.length; i++)
         {
@@ -45,7 +45,7 @@ public class PolygonIntersection
     //
     // returns true iff the polygon and rectangle intersect.
     //==================================================================================================================
-    public static boolean isIntersect(Point[] poly, Rect rect)
+    public static boolean isIntersect(Vec2[] poly, Rect rect)
     {
         for (int i=0; i<poly.length; i++)
         {
@@ -67,7 +67,7 @@ public class PolygonIntersection
     //
     // returns true iff the line segment and rectangle intersect.
     //==================================================================================================================
-    public static boolean isIntersect(Point p1, Point p2, Rect rect)
+    public static boolean isIntersect(Vec2 p1, Vec2 p2, Rect rect)
     {
         if (p1.x < rect.getLeft() && p2.x < rect.getLeft()) return false;
         if (p1.y < rect.getTop()  && p2.y < rect.getTop())  return false;
@@ -89,7 +89,7 @@ public class PolygonIntersection
     //
     // returns true iff the line segments a and b intersect.
     //==================================================================================================================
-    public static boolean isIntersect(Point p1, Point p2, Point p3, Point p4)
+    public static boolean isIntersect(Vec2 p1, Vec2 p2, Vec2 p3, Vec2 p4)
     {
         return Line2D.linesIntersect(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
     }
@@ -106,12 +106,12 @@ public class PolygonIntersection
 
         Rect rect1 = new Rect(10,0, 20, 10);
 
-        Point[] poly1 =
+        Vec2[] poly1 =
         {
-                new Point( 0,40),
-                new Point(20,20),
-                new Point(30,30),
-                new Point(10,50)
+                new Vec2( 0,40),
+                new Vec2(20,20),
+                new Vec2(30,30),
+                new Vec2(10,50)
         };
 
         assert(isIntersect(poly1, rect1) == false);
@@ -125,26 +125,26 @@ public class PolygonIntersection
         assert(isIntersect(poly1, rect2) == false);
 
 
-        Point[] sword =
+        Vec2[] sword =
         {
-                new Point( 0,10),
-                new Point(10, 0),
-                new Point(40,30),
-                new Point(30,40)
+                new Vec2( 0,10),
+                new Vec2(10, 0),
+                new Vec2(40,30),
+                new Vec2(30,40)
         };
 
-        Point[] tri1 =
+        Vec2[] tri1 =
         {
-                new Point(40,0),
-                new Point(50,10),
-                new Point(30,10)
+                new Vec2(40,0),
+                new Vec2(50,10),
+                new Vec2(30,10)
         };
 
-        Point[] tri2 =
+        Vec2[] tri2 =
         {
-                new Point(40,0),
-                new Point(50,10),
-                new Point(20,20)
+                new Vec2(40,0),
+                new Vec2(50,10),
+                new Vec2(20,20)
         };
 
 
