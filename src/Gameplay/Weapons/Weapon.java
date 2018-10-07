@@ -26,6 +26,7 @@ public class Weapon extends Item
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos;
+    Map<Operation, ArrayList<MovementFrame>[]> movementFrames;
     private Style style = Style.DEFAULT;
     private Operation currentOp;
 
@@ -34,6 +35,7 @@ public class Weapon extends Item
         super(xPos, yPos, width, height);
         wieldPos = getPosition();
         keyCombos = new HashMap<>();
+        movementFrames = new HashMap<>();
 
         for (int i = 0; i < wieldDims.length; i++)
         { wieldDims[i] = wieldDimsDefault[i].clone(); }
@@ -145,7 +147,7 @@ public class Weapon extends Item
 
         int getResilience();
 
-        void interrupt();
+        void nextFrame(float relX, float relY, float theta);
 
         void start(DirEnum direction);
 
@@ -158,8 +160,33 @@ public class Weapon extends Item
         keyCombos.put(keyCombo, op);
     }
 
-    void travel()
+    class MovementFrame
     {
+        float totalSec;
+        Vec2 relativePos;
+        float theta;
 
+        MovementFrame(float totalSec, float relativePosX, float relativePosY,
+                      float theta)
+        {
+            this.totalSec = totalSec;
+            this.relativePos = new Vec2(relativePosX, relativePosY);
+            this.theta = theta;
+        }
+
+        boolean check(float totalSec, Operation op)
+        {
+            if (totalSec < this.totalSec)
+            {
+                op.nextFrame(relativePos.x, relativePos.y, theta);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    void addMovementFrames(Operation op, ArrayList<MovementFrame>... frames)
+    {
+        movementFrames.put(op, frames);
     }
 }

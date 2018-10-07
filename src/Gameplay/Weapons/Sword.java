@@ -3,6 +3,8 @@ package Gameplay.Weapons;
 import Gameplay.DirEnum;
 import Util.Print;
 
+import java.util.ArrayList;
+
 public class Sword extends Weapon
 {
 
@@ -10,8 +12,14 @@ public class Sword extends Weapon
     {
         super(xPos, yPos, width, height);
 
-        addOperation(new Thrust(), 0);
-        addOperation(new Swing(), 1);
+        Thrust thrust = new Thrust();
+        addOperation(thrust, 0);
+
+        Swing swing = new Swing();
+        ArrayList<MovementFrame> swingList = new ArrayList<>();
+        swingList.add(new MovementFrame(2, 2, 0, 3.141F/4F));
+        addMovementFrames(swing, swingList);
+        addOperation(swing, 1);
 
         setTheta(3.141F/4F, DirEnum.RIGHT);
     }
@@ -27,7 +35,7 @@ public class Sword extends Weapon
         public int getResilience() { return 1; }
 
         @Override
-        public void interrupt() {
+        public void nextFrame(float relX, float relY, float theta) {
 
         }
 
@@ -48,6 +56,9 @@ public class Sword extends Weapon
 
     private class Swing implements Operation
     {
+        private float totalSec = 0;
+        private DirEnum dir;
+
         @Override
         public String getName() { return "swing"; }
 
@@ -55,20 +66,32 @@ public class Sword extends Weapon
         public int getResilience() { return 1; }
 
         @Override
-        public void interrupt() {
-
+        public void nextFrame(float relX, float relY, float theta)
+        {
+            relativePos.x = relX;
+            relativePos.y = relY;
+            setTheta(theta, dir);
         }
 
         @Override
         public void start(DirEnum direction) {
             Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
                     + direction + " direction");
+            dir = direction;
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            Print.blue("testing");
+            totalSec += deltaSec;
+            Print.blue(totalSec);
+
+            for (MovementFrame frame : movementFrames.get(this)[0])
+            {
+                if (frame.check(totalSec, this)) return false;
+            }
+
+            totalSec = 0;
             return true;
         }
     }
