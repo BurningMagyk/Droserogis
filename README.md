@@ -5,7 +5,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>El Hermano</i> is the code name for this 2D-platformer fighting game. 
     An official title for the game has not yet been decided. The game will serve as an adaptation for various amateur
     novels written by the programmers.
-</p><br>
+</p>
 
 ## CREDITS<br>
 ### Project Head:
@@ -34,13 +34,13 @@
 + Spanish
    * <h6>Robin Campos</h6>
 + Italian
-   * <h6><i>--to be decided</i></h6>
+   * <h6><i>--to be decided--</i></h6>
 + French
-   * <h6><i>--to be decided</i></h6>
+   * <h6><i>--to be decided--</i></h6>
 + German
-   * <h6><i>--to be decided</i></h6>
+   * <h6><i>--to be decided--</i></h6>
 + Wapanese
-   * <h6><i>--to be decided</i></h6>
+   * <h6><i>--to be decided--</i></h6>
 <br>
 
 |     | OFFICIAL CANON POWER RANKINGS |
