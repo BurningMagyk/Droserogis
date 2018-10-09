@@ -7,17 +7,41 @@
     novels written by the programmers.
 </p><br>
 
-<p>
-<b>Project Head:</b> Robin Campos<br>
-<b>Programmers:</b> Joel Castellanos, Dustin Loughrin, Robin Campos<br>
-<b>Novelists:</b> Michael Burbank, Robin Campos, Dustin Loughrin<br>
-<b>Graphic Artists:</b> Alex Dineen <br>
-<b>Composers:</b> <i>--to be decided--</i><br>
-<b>Voice Actors:</b> <i>--to be decided--</i><br>
-<b>Translators:</b> Robin Campos (Spanish), <i>--to be decided--</i> (Italian), 
-<i>--to be decided--</i> (French), <i>--to be decided--</i> (German), 
-<i>--to be decided--</i> (Wapanese)<br>
-</p><br>
+## CREDITS<br>
+### Project Head:
++ <h6>Robin Campos</h6>
+
+### Programmers:
++ <h6>Joel Castellanos</h6>
++ <h6>Dustin Loughrin</h6>
++ <h6>Robin Campos</h6>
+
+### Novelists:
++ <h6>Michael Burbank</h6>
++ <h6>Robin Campos</h6>
++ <h6>Dustin Loughrin</h6>
+
+### Graphic Artists:
++ <h6>Alex Dineen</h6>
+
+### Composers:
++ <h6><i>--to be decided--</i></h6>
+
+### Voice Actors:
++ <h6><i>--to be decided--</i></h6>
+
+### Translators:
++ Spanish
+   * <h6>Robin Campos</h6>
++ Italian
+   * <h6><i>--to be decided</i></h6>
++ French
+   * <h6><i>--to be decided</i></h6>
++ German
+   * <h6><i>--to be decided</i></h6>
++ Wapanese
+   * <h6><i>--to be decided</i></h6>
+<br>
 
 |     | OFFICIAL CANON POWER RANKINGS |
 |:---:|-------------------------------|
