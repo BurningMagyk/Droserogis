@@ -5,7 +5,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>El Hermano</i> is the code name for this 2D-platformer fighting game. 
     An official title for the game has not yet been decided. The game will serve as an adaptation for various amateur
     novels written by the programmers.
-</p>
+</p><br>
 
 ## CREDITS<br>
 ### Project Head:
