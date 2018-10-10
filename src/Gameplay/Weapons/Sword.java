@@ -16,26 +16,29 @@ public class Sword extends Weapon
         addOperation(thrust, 0);
 
         Swing swing = new Swing();
-        ArrayList<MovementFrame> swingList = new ArrayList<>();
-        swingList.add(new MovementFrame(2, 2, 0, 3.141F/4F));
-        addMovementFrames(swing, swingList);
+        ArrayList<Tick> swingList = new ArrayList<>();
+        swingList.add(new Tick(0.05F, 1.05F, -0.7F, -0.8F));
+        swingList.add(new Tick(0.1F, 1.4F, -0.4F, -0.4F));
+        swingList.add(new Tick(0.15F, 1.5F, -0.1F, -0.1F));
+        swingList.add(new Tick(0.2F, 1.4F, 0.2F, 0.2F));
+        setTicks(swing, swingList);
         addOperation(swing, 1);
 
-        setTheta(3.141F/4F, DirEnum.RIGHT);
+        setTheta(-3.141F/4F, DirEnum.RIGHT);
     }
 
     private class Thrust implements Operation
     {
-        DirEnum dirFace;
+        private DirEnum dir;
 
         @Override
         public String getName() { return "thrust"; }
 
         @Override
-        public int getResilience() { return 1; }
+        public DirEnum getDir() { return dir; }
 
         @Override
-        public void nextFrame(float relX, float relY, float theta) {
+        public void nextFrame(Orient _orient) {
 
         }
 
@@ -58,19 +61,19 @@ public class Sword extends Weapon
     {
         private float totalSec = 0;
         private DirEnum dir;
+        private State state = State.WARMUP;
 
         @Override
         public String getName() { return "swing"; }
 
         @Override
-        public int getResilience() { return 1; }
+        public DirEnum getDir() { return dir; }
 
         @Override
-        public void nextFrame(float relX, float relY, float theta)
+        public void nextFrame(Orient _orient)
         {
-            relativePos.x = relX;
-            relativePos.y = relY;
-            setTheta(theta, dir);
+            orient.set(_orient);
+            setTheta(_orient.getTheta(), dir);
         }
 
         @Override
@@ -86,9 +89,10 @@ public class Sword extends Weapon
             totalSec += deltaSec;
             Print.blue(totalSec);
 
-            for (MovementFrame frame : movementFrames.get(this)[0])
+
+            for (Tick tick : ticks.get(this))
             {
-                if (frame.check(totalSec, this)) return false;
+                if (tick.check(totalSec, this)) return false;
             }
 
             totalSec = 0;

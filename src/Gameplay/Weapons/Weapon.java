@@ -13,32 +13,30 @@ import java.util.Map;
 
 public class Weapon extends Item
 {
-    Vec2 relativePos = new Vec2(1F, 0F);
-    Vec2 wieldPos;
     DirEnum dirFace = DirEnum.RIGHT;
-    public Vec2 wieldDimsDefault[] = {
+
+    private Vec2 shapeCornersOffset = getPosition();
+    private Vec2 shapeCorners_notRotated[] = {
             new Vec2(-getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, +getHeight() / 2),
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
-    private Vec2 wieldDims[] = new Vec2[4];
-    private float theta = 0;
+    private Vec2 shapeCorners_Rotated[] = new Vec2[4];
+
+    Orient orient = new Orient(new Vec2(1F, 0F), 0);
 
     private boolean ballistic = true;
-    private Map<Integer, Operation> keyCombos;
-    Map<Operation, ArrayList<MovementFrame>[]> movementFrames;
+    private Map<Integer, Operation> keyCombos = new HashMap<>();
+    Map<Operation, ArrayList<Tick>> ticks = new HashMap<>();
     private Style style = Style.DEFAULT;
     private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
-        wieldPos = getPosition();
-        keyCombos = new HashMap<>();
-        movementFrames = new HashMap<>();
 
-        for (int i = 0; i < wieldDims.length; i++)
-        { wieldDims[i] = wieldDimsDefault[i].clone(); }
+        for (int i = 0; i < shapeCorners_Rotated.length; i++)
+        { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
     }
 
     @Override
@@ -49,31 +47,35 @@ public class Weapon extends Item
         {
             currentOp = null;
         }
-        // to check line intersections:
-        // https://stackoverflow.com/questions/4977491/determining-if-two-line-segments-intersect/4977569#4977569
     }
 
     public void setTheta(float theta, DirEnum opDir)
     {
-        for (int i = 0; i < wieldDims.length; i++)
+        for (int i = 0; i < shapeCorners_Rotated.length; i++)
         {
-            wieldDims[i].x = wieldDimsDefault[i].x;
-            wieldDims[i].y = wieldDimsDefault[i].y;
+            shapeCorners_Rotated[i].x = shapeCorners_notRotated[i].x;
+            shapeCorners_Rotated[i].y = shapeCorners_notRotated[i].y;
         }
 
         Vec2.setTheta(opDir.getHoriz().getSign() * theta);
 
-        for (Vec2 wieldDim : wieldDims) { wieldDim.rotate(); }
-        this.theta = theta;
+        for (Vec2 wieldDim : shapeCorners_Rotated) { wieldDim.rotate(); }
+        orient.setTheta(theta);
     }
 
     public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
     {
         setPosition(p);
-        wieldPos = new Vec2(p.x + dims.x * relativePos.x
-                * (dir.getVert() == DirEnum.UP ? 0 : dir.getHoriz().getSign()),
-                p.y + dims.y * relativePos.y);
-        if (dirFace != dir && currentOp == null) setTheta(theta, dirFace);
+        if (dir != DirEnum.UP && dir != DirEnum.DOWN)
+        {
+            shapeCornersOffset = new Vec2(p.x + dims.x * orient.getX()
+                    * (currentOp == null ? dir.getHoriz().getSign()
+                    : currentOp.getDir().getHoriz().getSign()),
+                    p.y + dims.y * orient.getY());
+        }
+
+        if (dirFace != dir && currentOp == null)
+            setTheta(orient.getTheta(), dir);
         dirFace = dir;
     }
 
@@ -122,14 +124,13 @@ public class Weapon extends Item
     }
 
     boolean isBallistic() { return ballistic; }
-    public Vec2 getWieldPos() { return wieldPos; }
-    public Vec2[] getCorners()
+    public Vec2[] getShapeCorners()
     {
-        Vec2[] corners = wieldDims.clone();
-        for (int i = 0; i < wieldDims.length; i++)
+        Vec2[] corners = new Vec2[shapeCorners_Rotated.length];
+        for (int i = 0; i < shapeCorners_Rotated.length; i++)
         {
-            corners[i] = new Vec2(wieldDims[i].x + wieldPos.x,
-                    wieldDims[i].y + wieldPos.y);
+            corners[i] = new Vec2(shapeCorners_Rotated[i].x + shapeCornersOffset.x,
+                    shapeCorners_Rotated[i].y + shapeCornersOffset.y);
         }
         return corners;
     }
@@ -137,22 +138,24 @@ public class Weapon extends Item
 
     void setRelativePos(Vec2 p)
     {
-        relativePos.x = p.x;
-        relativePos.y = p.y;
+        orient.setX(p.x);
+        orient.setY(p.y);
     }
 
     interface Operation
     {
         String getName();
 
-        int getResilience();
+        DirEnum getDir();
 
-        void nextFrame(float relX, float relY, float theta);
+        void nextFrame(Orient orient);
 
         void start(DirEnum direction);
 
         /** Returns true if the operation finished */
         boolean run(float deltaSec);
+
+        enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
     void addOperation(Operation op, int keyCombo)
@@ -160,33 +163,58 @@ public class Weapon extends Item
         keyCombos.put(keyCombo, op);
     }
 
-    class MovementFrame
+    class Tick
     {
         float totalSec;
-        Vec2 relativePos;
-        float theta;
+        Orient orient;
 
-        MovementFrame(float totalSec, float relativePosX, float relativePosY,
+        Tick(float totalSec, float relativePosX, float relativePosY,
                       float theta)
         {
             this.totalSec = totalSec;
-            this.relativePos = new Vec2(relativePosX, relativePosY);
-            this.theta = theta;
+            orient = new Orient(new Vec2(relativePosX, relativePosY), theta);
         }
 
         boolean check(float totalSec, Operation op)
         {
             if (totalSec < this.totalSec)
             {
-                op.nextFrame(relativePos.x, relativePos.y, theta);
+                op.nextFrame(orient);
                 return true;
             }
             return false;
         }
     }
 
-    void addMovementFrames(Operation op, ArrayList<MovementFrame>... frames)
+    void setTicks(Operation op, ArrayList<Tick> ticks)
     {
-        movementFrames.put(op, frames);
+        this.ticks.put(op, ticks);
+    }
+
+    class Orient
+    {
+        private Vec2 pos;
+        private float theta;
+
+        Orient(Vec2 pos, float theta)
+        {
+            this.pos = new Vec2(pos.x, pos.y);
+            this.theta = theta;
+        }
+
+        float getX() { return pos.x; } void setX(float x) { pos.x = x; }
+        float getY() { return pos.y; } void setY(float y) { pos.y = y; }
+        float getTheta() { return theta; }
+        void setTheta(float theta)
+        {
+            this.theta = theta;
+        }
+
+        void set(Orient orient)
+        {
+            pos.x = orient.getX();
+            pos.y = orient.getY();
+            theta = orient.getTheta();
+        }
     }
 }

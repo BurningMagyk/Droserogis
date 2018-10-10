@@ -216,7 +216,7 @@ public class Gameplay implements Reactor
         {
             if (entity instanceof Weapon)
             {
-                Vec2[] c = ((Weapon) entity).getCorners();
+                Vec2[] c = ((Weapon) entity).getShapeCorners();
                 double xCorners[] = {c[0].x, c[1].x, c[2].x, c[3].x};
                 double yCorners[] = {c[0].y, c[1].y, c[2].y, c[3].y};
                 for (int i = 0; i < xCorners.length; i++)
@@ -257,12 +257,12 @@ public class Gameplay implements Reactor
         addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
 
 
-        player = new Actor(1F, -3F, .5f, .5f);
-        Sword sword = new Sword(0, -4, 0.5F, 0.1F);
+        player = new Actor(1F, -3F, .4f, .7f);
+        Sword sword = new Sword(0, -4, 0.45F, 0.075F);
         player.equip(sword);
         addEntity(player);
         addEntity(sword);
-        player2 = new Actor(1F, -5F, .5f, .5f);
+        player2 = new Actor(1F, -5F, .4f, .7f);
         player2.equip(new Sword(0, -4, 0.5F, 0.1F));
         addEntity(player2);
 
