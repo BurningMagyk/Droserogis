@@ -23,7 +23,8 @@ public class Weapon extends Item
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
     private Vec2 shapeCorners_Rotated[] = new Vec2[4];
 
-    Orient orient = new Orient(new Vec2(1F, 0F), 0);
+    Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
+    Orient orient = defaultOrient.copy();
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos = new HashMap<>();
@@ -148,8 +149,6 @@ public class Weapon extends Item
 
         DirEnum getDir();
 
-        void nextFrame(Orient orient);
-
         void start(DirEnum direction);
 
         /** Returns true if the operation finished */
@@ -158,7 +157,7 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
-    void addOperation(Operation op, int keyCombo)
+    void setOperation(Operation op, int keyCombo)
     {
         keyCombos.put(keyCombo, op);
     }
@@ -166,29 +165,67 @@ public class Weapon extends Item
     class Tick
     {
         float totalSec;
-        Orient orient;
+        Orient tickOrient;
 
-        Tick(float totalSec, float relativePosX, float relativePosY,
-                      float theta)
+        Tick(float totalSec, float posX, float posY, float theta)
         {
             this.totalSec = totalSec;
-            orient = new Orient(new Vec2(relativePosX, relativePosY), theta);
+            tickOrient = new Orient(new Vec2(posX, posY), theta);
         }
 
-        boolean check(float totalSec, Operation op)
+        boolean check(float totalSec, DirEnum dir)
         {
             if (totalSec < this.totalSec)
             {
-                op.nextFrame(orient);
+                orient.setX(tickOrient.getX());
+                orient.setY(tickOrient.getY());
+                setTheta(tickOrient.getTheta(), dir);
                 return true;
             }
             return false;
         }
+
+        Orient getOrient() { return tickOrient; }
     }
 
-    void setTicks(Operation op, ArrayList<Tick> ticks)
+    class Journey
     {
-        this.ticks.put(op, ticks);
+        private Orient start, end, distance;
+        private float totalTime;
+
+        Journey(Orient start, Orient end, float totalTime)
+        {
+            end.reduceTheta();
+            this.end = end;
+            this.totalTime = totalTime;
+            setStart(start);
+        }
+
+        boolean check(float time, DirEnum dir)
+        {
+            float ratio = time / totalTime;
+            if (ratio >= 1.0)
+            {
+                orient.set(end);
+                return true;
+            }
+            orient.setX(start.getX() + (distance.getX() * ratio));
+            orient.setY(start.getY() + (distance.getY() * ratio));
+            setTheta(start.getTheta() + (distance.getTheta() * ratio), dir);
+            return false;
+        }
+
+        void setStart(Orient start)
+        {
+            start.reduceTheta();
+            Print.blue("start.theta: " + start.getTheta());
+            Print.blue("end.theta: " + end.getTheta());
+            this.start = start.copy();
+            distance = new Orient(
+                    new Vec2(end.getX() - start.getX(),
+                            end.getY() - start.getY()),
+                    end.getTheta() - start.getTheta());
+        }
     }
 
     class Orient
@@ -205,16 +242,24 @@ public class Weapon extends Item
         float getX() { return pos.x; } void setX(float x) { pos.x = x; }
         float getY() { return pos.y; } void setY(float y) { pos.y = y; }
         float getTheta() { return theta; }
-        void setTheta(float theta)
-        {
-            this.theta = theta;
-        }
+        void setTheta(float theta) { this.theta = theta; }
 
         void set(Orient orient)
         {
             pos.x = orient.getX();
             pos.y = orient.getY();
             theta = orient.getTheta();
+        }
+
+        void reduceTheta()
+        {
+            while (theta < 0) { theta += Math.PI; }
+            while (theta >= Math.PI * 2) { theta -= Math.PI; }
+        }
+
+        Orient copy()
+        {
+            return new Orient(new Vec2(pos.x, pos.y), theta);
         }
     }
 }
