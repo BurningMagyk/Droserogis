@@ -61,7 +61,7 @@ public class Weapon extends Item
         Vec2.setTheta(opDir.getHoriz().getSign() * theta);
 
         for (Vec2 wieldDim : shapeCorners_Rotated) { wieldDim.rotate(); }
-        orient.setTheta(theta);
+        orient.setTheta(reduceTheta(theta));
     }
 
     public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
@@ -170,7 +170,7 @@ public class Weapon extends Item
         Tick(float totalSec, float posX, float posY, float theta)
         {
             this.totalSec = totalSec;
-            tickOrient = new Orient(new Vec2(posX, posY), theta);
+            tickOrient = new Orient(new Vec2(posX, posY), reduceTheta(theta));
         }
 
         boolean check(float totalSec, DirEnum dir)
@@ -195,7 +195,7 @@ public class Weapon extends Item
 
         Journey(Orient start, Orient end, float totalTime)
         {
-            end.reduceTheta();
+            end._reduceTheta();
             this.end = end;
             this.totalTime = totalTime;
             setStart(start);
@@ -215,16 +215,28 @@ public class Weapon extends Item
             return false;
         }
 
+        /** Called every time an Operation starts so that the weapon moves
+          * directly from the position its Operation was called at. */
         void setStart(Orient start)
         {
-            start.reduceTheta();
+            start._reduceTheta();
             Print.blue("start.theta: " + start.getTheta());
             Print.blue("end.theta: " + end.getTheta());
             this.start = start.copy();
+
+            /* All this mess here is just for making sure it rotates in the
+             * correct direction. */
+            double endMinimal = Math.min(end.getTheta(), (Math.PI * 2) - end.getTheta());
+            double startMinimal = Math.min(start.getTheta(), (Math.PI * 2) - start.getTheta());
+            double thetaDistance;
+            if (Math.abs(end.getTheta() - start.getTheta()) < endMinimal + startMinimal)
+                thetaDistance = end.getTheta() - start.getTheta();
+            else thetaDistance = (endMinimal + startMinimal) * start.getTheta() > end.getTheta() ? 1 : -1;
+
             distance = new Orient(
                     new Vec2(end.getX() - start.getX(),
                             end.getY() - start.getY()),
-                    end.getTheta() - start.getTheta());
+                    (float) thetaDistance);
         }
     }
 
@@ -251,15 +263,21 @@ public class Weapon extends Item
             theta = orient.getTheta();
         }
 
-        void reduceTheta()
+        void _reduceTheta()
         {
-            while (theta < 0) { theta += Math.PI; }
-            while (theta >= Math.PI * 2) { theta -= Math.PI; }
+            theta = reduceTheta(theta);
         }
 
         Orient copy()
         {
             return new Orient(new Vec2(pos.x, pos.y), theta);
         }
+    }
+
+    private float reduceTheta(float theta)
+    {
+        while (theta < 0) { theta += Math.PI * 2; }
+        while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
+        return theta;
     }
 }
