@@ -53,20 +53,23 @@ public class Sword extends Weapon
 
     private class Swing implements Operation
     {
-        private Journey warmJourney;
+        private Journey warmJourney, coolJourney;
 
         Swing()
         {
             ArrayList<Tick> swingList = new ArrayList<>();
-            swingList.add(new Tick(0.05F, 1.05F, -0.7F, -0.8F));
-            swingList.add(new Tick(0.1F, 1.4F, -0.4F, -0.4F));
-            swingList.add(new Tick(0.15F, 1.5F, -0.1F, -0.1F));
-            swingList.add(new Tick(0.2F, 1.4F, 0.2F, 0.2F));
+            swingList.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
+            swingList.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+            swingList.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+            swingList.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
             ticks.put(this, swingList);
             setOperation(this, 1);
 
             warmJourney = new Journey(
-                    defaultOrient, swingList.get(0).getOrient(), 0.25F);
+                    defaultOrient, swingList.get(0).getOrient(), 0.2F);
+            coolJourney = new Journey(
+                    swingList.get(swingList.size() - 1).getOrient(),
+                    defaultOrient, 0.25F);
         }
 
         private float totalSec = 0;

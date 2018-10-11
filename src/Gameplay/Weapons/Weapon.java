@@ -137,11 +137,11 @@ public class Weapon extends Item
     }
     Style getStyle() { return style; }
 
-    void setRelativePos(Vec2 p)
-    {
-        orient.setX(p.x);
-        orient.setY(p.y);
-    }
+//    void setRelativePos(Vec2 p)
+//    {
+//        orient.setX(p.x);
+//        orient.setY(p.y);
+//    }
 
     interface Operation
     {
@@ -220,8 +220,6 @@ public class Weapon extends Item
         void setStart(Orient start)
         {
             start._reduceTheta();
-            Print.blue("start.theta: " + start.getTheta());
-            Print.blue("end.theta: " + end.getTheta());
             this.start = start.copy();
 
             /* All this mess here is just for making sure it rotates in the
