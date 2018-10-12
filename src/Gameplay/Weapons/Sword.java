@@ -111,6 +111,16 @@ public class Sword extends Weapon
                 {
                     if (tick.check(totalSec, dir)) return false;
                 }
+                totalSec = 0;
+                state = State.COOLDOWN;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                if (!coolJourney.check(totalSec, dir))
+                {
+                    return false;
+                }
             }
 
             totalSec = 0;

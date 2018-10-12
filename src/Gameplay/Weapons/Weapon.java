@@ -76,8 +76,10 @@ public class Weapon extends Item
         }
 
         if (dirFace != dir && currentOp == null)
+        {
             setTheta(orient.getTheta(), dir);
-        dirFace = dir;
+            dirFace = dir;
+        }
     }
 
     /**
