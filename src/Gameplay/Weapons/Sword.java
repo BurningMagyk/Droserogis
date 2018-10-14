@@ -5,6 +5,7 @@ import Util.Print;
 import Util.Vec2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Sword extends Weapon
 {
@@ -18,7 +19,7 @@ public class Sword extends Weapon
         orient.set(defaultOrient.copy());
 
         new Thrust();
-        new Swing();
+        new Swing(true);
     }
 
     private class Thrust implements Operation
@@ -55,13 +56,25 @@ public class Sword extends Weapon
     {
         private Journey warmJourney, coolJourney;
 
-        Swing()
+        Swing(boolean unterhau)
         {
             ArrayList<Tick> swingList = new ArrayList<>();
-            swingList.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-            swingList.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-            swingList.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-            swingList.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+
+            if (unterhau)
+            {
+                swingList.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+                swingList.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+                swingList.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+                swingList.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+            }
+            else
+            {
+                swingList.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
+                swingList.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+                swingList.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+                swingList.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+            }
+
             ticks.put(this, swingList);
             setOperation(this, 1);
 
