@@ -28,7 +28,6 @@ public class Weapon extends Item
 
     private boolean ballistic = true;
     private Map<Integer, Operation> keyCombos = new HashMap<>();
-    Map<Operation, ArrayList<Tick>> ticks = new HashMap<>();
     private Style style = Style.DEFAULT;
     private Operation currentOp;
 

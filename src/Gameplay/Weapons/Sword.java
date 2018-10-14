@@ -19,7 +19,7 @@ public class Sword extends Weapon
         orient.set(defaultOrient.copy());
 
         new Thrust();
-        new Swing(true);
+        new Swing();
     }
 
     private class Thrust implements Operation
@@ -54,34 +54,36 @@ public class Sword extends Weapon
 
     private class Swing implements Operation
     {
-        private Journey warmJourney, coolJourney;
+        private Journey[] warmJourney, coolJourney;
+        ArrayList<Tick> downward, unterhau;
 
-        Swing(boolean unterhau)
+        Swing()
         {
-            ArrayList<Tick> swingList = new ArrayList<>();
-
-            if (unterhau)
-            {
-                swingList.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-                swingList.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-                swingList.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-                swingList.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-            }
-            else
-            {
-                swingList.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-                swingList.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-                swingList.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-                swingList.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-            }
-
-            ticks.put(this, swingList);
             setOperation(this, 1);
 
-            warmJourney = new Journey(
-                    defaultOrient, swingList.get(0).getOrient(), 0.2F);
-            coolJourney = new Journey(
-                    swingList.get(swingList.size() - 1).getOrient(),
+            downward = new ArrayList<>(); unterhau = new ArrayList<>();
+
+            downward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
+            downward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+            downward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+            downward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+
+            unterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+            unterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+            unterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+            unterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+
+            warmJourney = new Journey[2];
+            warmJourney[0] = new Journey(
+                    defaultOrient, downward.get(0).getOrient(), 0.2F);
+            warmJourney[1] = new Journey(
+                    defaultOrient, unterhau.get(0).getOrient(), 0.2F);
+            coolJourney = new Journey[2];
+            coolJourney[0] = new Journey(
+                    downward.get(downward.size() - 1).getOrient(),
+                    defaultOrient, 0.25F);
+            coolJourney[1] = new Journey(
+                    unterhau.get(unterhau.size() - 1).getOrient(),
                     defaultOrient, 0.25F);
         }
 
@@ -101,7 +103,8 @@ public class Sword extends Weapon
                     + direction + " direction");
             dir = direction;
 
-            warmJourney.setStart(orient);
+            warmJourney[0].setStart(orient);
+            warmJourney[1].setStart(orient);
         }
 
         @Override
@@ -111,7 +114,7 @@ public class Sword extends Weapon
 
             if (state == State.WARMUP)
             {
-                if (warmJourney.check(totalSec, dir))
+                if (warmJourney[1].check(totalSec, dir))
                 {
                     totalSec = 0;
                     state = State.EXECUTION;
@@ -120,7 +123,7 @@ public class Sword extends Weapon
             }
             else if (state == State.EXECUTION)
             {
-                for (Tick tick : ticks.get(this))
+                for (Tick tick : unterhau)
                 {
                     if (tick.check(totalSec, dir)) return false;
                 }
@@ -130,7 +133,7 @@ public class Sword extends Weapon
             }
             else if (state == State.COOLDOWN)
             {
-                if (!coolJourney.check(totalSec, dir))
+                if (!coolJourney[1].check(totalSec, dir))
                 {
                     return false;
                 }
