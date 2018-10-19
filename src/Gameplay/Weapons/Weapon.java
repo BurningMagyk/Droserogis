@@ -192,13 +192,13 @@ public class Weapon extends Item
     class Journey
     {
         private Orient start, end, distance;
-        private float totalTime;
+        private float timeMod, totalTime;
 
-        Journey(Orient start, Orient end, float totalTime)
+        Journey(Orient start, Orient end, float timeMod)
         {
             end._reduceTheta();
             this.end = end;
-            this.totalTime = totalTime;
+            this.timeMod = timeMod;
             setStart(start);
         }
 
@@ -218,7 +218,7 @@ public class Weapon extends Item
 
         /** Called every time an Operation starts so that the weapon moves
           * directly from the position its Operation was called at. */
-        void setStart(Orient start)
+        float setStart(Orient start)
         {
             start._reduceTheta();
             this.start = start.copy();
@@ -236,6 +236,10 @@ public class Weapon extends Item
                     new Vec2(end.getX() - start.getX(),
                             end.getY() - start.getY()),
                     (float) thetaDistance);
+
+            float distanceMagnitude = distance.getMagnitude();
+            totalTime = timeMod * distanceMagnitude;
+            return distance.getMagnitude();
         }
     }
 
@@ -270,6 +274,11 @@ public class Weapon extends Item
         Orient copy()
         {
             return new Orient(new Vec2(pos.x, pos.y), theta);
+        }
+
+        float getMagnitude()
+        {
+            return (float) Math.sqrt(pos.x * pos.x + pos.y * pos.y);
         }
     }
 

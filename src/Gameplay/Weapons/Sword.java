@@ -55,6 +55,7 @@ public class Sword extends Weapon
     private class Swing implements Operation
     {
         private Journey[] warmJourney, coolJourney;
+        private int hau = 0;
         ArrayList<Tick> downward, unterhau;
 
         Swing()
@@ -75,16 +76,16 @@ public class Sword extends Weapon
 
             warmJourney = new Journey[2];
             warmJourney[0] = new Journey(
-                    defaultOrient, downward.get(0).getOrient(), 0.2F);
+                    defaultOrient, downward.get(0).getOrient(), 0.4F);
             warmJourney[1] = new Journey(
-                    defaultOrient, unterhau.get(0).getOrient(), 0.2F);
+                    defaultOrient, unterhau.get(0).getOrient(), 0.4F);
             coolJourney = new Journey[2];
             coolJourney[0] = new Journey(
                     downward.get(downward.size() - 1).getOrient(),
-                    defaultOrient, 0.25F);
+                    defaultOrient, 0.5F);
             coolJourney[1] = new Journey(
                     unterhau.get(unterhau.size() - 1).getOrient(),
-                    defaultOrient, 0.25F);
+                    defaultOrient, 0.5F);
         }
 
         private float totalSec = 0;
@@ -99,12 +100,17 @@ public class Sword extends Weapon
 
         @Override
         public void start(DirEnum direction) {
-            Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
-                    + direction + " direction");
             dir = direction;
+            totalSec = 0;
+            state = State.WARMUP;
 
-            warmJourney[0].setStart(orient);
-            warmJourney[1].setStart(orient);
+            float distDownward = warmJourney[0].setStart(orient);
+            float distUnterhau = warmJourney[1].setStart(orient);
+            if (distDownward < distUnterhau) hau = 0;
+            else hau = 1;
+
+            Print.blue("Operating " + getName() + " using " + getStyle()
+                    + " as " + hau);
         }
 
         @Override
@@ -114,7 +120,7 @@ public class Sword extends Weapon
 
             if (state == State.WARMUP)
             {
-                if (warmJourney[1].check(totalSec, dir))
+                if (warmJourney[hau].check(totalSec, dir))
                 {
                     totalSec = 0;
                     state = State.EXECUTION;
@@ -123,7 +129,7 @@ public class Sword extends Weapon
             }
             else if (state == State.EXECUTION)
             {
-                for (Tick tick : unterhau)
+                for (Tick tick : hau == 0 ? downward : unterhau)
                 {
                     if (tick.check(totalSec, dir)) return false;
                 }
@@ -133,7 +139,7 @@ public class Sword extends Weapon
             }
             else if (state == State.COOLDOWN)
             {
-                if (!coolJourney[1].check(totalSec, dir))
+                if (!coolJourney[hau].check(totalSec, dir))
                 {
                     return false;
                 }
