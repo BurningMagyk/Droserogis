@@ -1,6 +1,7 @@
 package Util;
 
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
 
 //======================================================================================================================
 //This class tests intersections of convex polygons.
@@ -115,17 +116,36 @@ public class PolygonIntersection
     //==================================================================================================================
     public static Vec2[] convexHull(Vec2[] poly1, Vec2[] poly2)
     {
-        /*
-        int totalPoints = poly1
-        Vec2[] pointList = new Vec2
-        for (int i=0; i<poly.length; i++)
-        {
-            int ii = (i+1) % poly.length;
-            if (isIntersect(poly[i], poly[ii], rect)) return true;
-        }
-        */
+        //sort points by y-coordinate
+        int totalPoints = poly1.length + poly2.length;
+        ArrayList<Vec2> pointList = new ArrayList<>(totalPoints);
 
-        return null;
+        //Add all points to arrayList
+        for (int i=0; i<poly1.length; i++)
+        {
+            pointList.add(poly1[i]);
+        }
+        for (int i=0; i<poly2.length; i++)
+        {
+            pointList.add(poly2[i]);
+        }
+
+        //Bubble sort
+        boolean didSwap = true;
+        for (int i=0; i<totalPoints; i++)
+        {
+            for (int k=0; k<(totalPoints-i)-1; k++)
+            {
+               Vec2 p1 = pointList.get(k);
+               Vec2 p2 = pointList.get(k+1);
+               if ((p2.y < p1.y) || (p2.y == p1.y && p2.x < p1.x))
+               {
+
+               }
+            }
+        }
+
+        return poly1;
     }
 
 
