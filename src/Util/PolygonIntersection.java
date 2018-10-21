@@ -98,6 +98,40 @@ public class PolygonIntersection
 
 
 
+
+    //==================================================================================================================
+    // Given two sets of points, this method returns the convex hull of the points.
+    // The convex hull of a set X of points in the Euclidean plane is the smallest convex set that contains X.
+    //   For instance, when X is a bounded subset of the plane, the convex hull may be visualized as the shape
+    //   enclosed by a rubber band stretched around X.
+    //
+    // A Graham's scan is a method of finding the convex hull of a finite set of points in the plane with time
+    // complexity O(n log n). It is named after Ronald Graham, who published the original algorithm in 1972.
+    // The algorithm finds all vertices of the convex hull ordered along its boundary.
+    // It uses a stack to detect and remove concavities in the boundary efficiently.
+    // The algorithm sorts the points by y (and or equal y, sorts by x). This sorting is the slowest part of the
+    //   algorithm, but since in this case there are a small number of points, I just use bubble sort, O(n*n).
+    // https://en.wikipedia.org/wiki/Graham_scan
+    //==================================================================================================================
+    public static Vec2[] convexHull(Vec2[] poly1, Vec2[] poly2)
+    {
+        /*
+        int totalPoints = poly1
+        Vec2[] pointList = new Vec2
+        for (int i=0; i<poly.length; i++)
+        {
+            int ii = (i+1) % poly.length;
+            if (isIntersect(poly[i], poly[ii], rect)) return true;
+        }
+        */
+
+        return null;
+    }
+
+
+
+
+
     //==================================================================================================================
     // Test cases. To run, add vm option: -enableassertions
     //==================================================================================================================
