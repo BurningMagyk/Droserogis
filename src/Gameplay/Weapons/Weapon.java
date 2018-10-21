@@ -7,9 +7,7 @@ import Gameplay.Item;
 import Util.Print;
 import Util.Vec2;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Weapon extends Item
 {
@@ -26,7 +24,9 @@ public class Weapon extends Item
     Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
     Orient orient = defaultOrient.copy();
 
+    private Actor actor;
     private boolean ballistic = true;
+    private LinkedList<Operation> operationQueue = new LinkedList<>();
     private Map<Integer, Operation> keyCombos = new HashMap<>();
     private Style style = Style.DEFAULT;
     private Operation currentOp;
@@ -46,6 +46,17 @@ public class Weapon extends Item
         else if (currentOp != null && currentOp.run(deltaSec))
         {
             currentOp = null;
+
+            if (!operationQueue.isEmpty())
+            {
+                currentOp = operationQueue.remove();
+                currentOp.start(actor.getWeaponFace());
+            }
+        }
+        else if (currentOp == null && !operationQueue.isEmpty())
+        {
+            currentOp = operationQueue.remove();
+            currentOp.start(actor.getWeaponFace());
         }
     }
 
@@ -85,14 +96,13 @@ public class Weapon extends Item
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
      */
-    public void operate(boolean pressed, int keyCombo, int dirHoriz, int dirVert)
+    public void operate(boolean pressed, int keyCombo)
     {
         if (!pressed) return; /* Temporary */
         Operation op = keyCombos.get(keyCombo);
         if (op != null)
         {
-            op.start(DirEnum.get(dirHoriz, dirVert));
-            currentOp = op;
+            operationQueue.addLast(op);
         }
     }
 
@@ -121,6 +131,7 @@ public class Weapon extends Item
 
     public Weapon equip(Actor actor)
     {
+        this.actor = actor;
         ballistic = false;
         return this;
     }
