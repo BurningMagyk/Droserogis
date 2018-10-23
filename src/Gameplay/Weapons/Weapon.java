@@ -43,17 +43,18 @@ public class Weapon extends Item
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         if (ballistic) super.update(entities, deltaSec);
-        else if (currentOp != null && currentOp.run(deltaSec))
+        else if (currentOp != null)
         {
-            currentOp = null;
+            boolean operationDone = currentOp.run(deltaSec);
+            if (operationDone) currentOp = null;
 
-            if (!operationQueue.isEmpty())
+            if (!operationQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
                 currentOp = operationQueue.remove();
                 currentOp.start(actor.getWeaponFace());
             }
         }
-        else if (currentOp == null && !operationQueue.isEmpty())
+        else if (!operationQueue.isEmpty())
         {
             currentOp = operationQueue.remove();
             currentOp.start(actor.getWeaponFace());
@@ -166,6 +167,8 @@ public class Weapon extends Item
         /** Returns true if the operation finished */
         boolean run(float deltaSec);
 
+        boolean mayInterrupt();
+
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
@@ -198,6 +201,12 @@ public class Weapon extends Item
         }
 
         Orient getOrient() { return tickOrient; }
+
+        Tick getRotatedCopy(boolean up)
+        {
+            return new Tick(totalSec, tickOrient.getX(), tickOrient.getY(),
+                    tickOrient.getTheta() + (float) (Math.PI / 2.0));
+        }
     }
 
     class Journey

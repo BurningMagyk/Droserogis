@@ -20,13 +20,14 @@ public class Sword extends Weapon
 
         new Thrust();
         new Swing();
+        new SwingUp();
     }
 
     private class Thrust implements Operation
     {
         Thrust()
         {
-            setOperation(this, 0);
+            //setOperation(this, 0);
         }
 
         private DirEnum dir;
@@ -48,6 +49,115 @@ public class Sword extends Weapon
         public boolean run(float deltaSec)
         {
             setTheta(80, dirFace);
+            return true;
+        }
+
+        @Override
+        public boolean mayInterrupt() { return false; }
+    }
+
+    private class SwingUp implements Operation
+    {
+        private Journey[] warmJourney, coolJourney;
+        private int hau = 0;
+        ArrayList<Tick> forehand, backhand;
+
+        SwingUp()
+        {
+            setOperation(this, 0);
+
+            forehand = new ArrayList<>(); backhand = new ArrayList<>();
+
+            forehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
+            forehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
+            forehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
+            forehand.add(new Tick(0.16F,  0.7F,-0.6F, -0.5F));
+
+            backhand.add(new Tick(0.04F,  0.7F,-0.6F, -0.5F));
+            backhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
+            backhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
+            backhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
+
+            warmJourney = new Journey[2];
+            warmJourney[0] = new Journey(
+                    defaultOrient, forehand.get(0).getOrient(), 0.4F);
+            warmJourney[1] = new Journey(
+                    defaultOrient, backhand.get(0).getOrient(), 0.4F);
+            coolJourney = new Journey[2];
+            coolJourney[0] = new Journey(
+                    forehand.get(forehand.size() - 1).getOrient(),
+                    defaultOrient, 0.5F);
+            coolJourney[1] = new Journey(
+                    backhand.get(backhand.size() - 1).getOrient(),
+                    defaultOrient, 0.5F);
+        }
+
+        private float totalSec = 0;
+        private DirEnum dir;
+        private State state = State.WARMUP;
+
+        @Override
+        public String getName() { return "swing_up"; }
+
+        @Override
+        public DirEnum getDir() { return dir; }
+
+        @Override
+        public void start(DirEnum direction) {
+            dir = direction;
+            totalSec = 0;
+            state = State.WARMUP;
+
+            float distDownward = warmJourney[0].setStart(orient);
+            float distUnterhau = warmJourney[1].setStart(orient);
+            if (distDownward < distUnterhau) hau = 0;
+            else hau = 1;
+
+            Print.blue("Operating " + getName() + " using " + getStyle()
+                    + " as " + hau);
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            totalSec += deltaSec;
+
+            if (state == State.WARMUP)
+            {
+                if (warmJourney[hau].check(totalSec, dir))
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                for (Tick tick : hau == 0 ? forehand : backhand)
+                {
+                    if (tick.check(totalSec, dir)) return false;
+                }
+                totalSec = 0;
+                state = State.COOLDOWN;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                if (!coolJourney[hau].check(totalSec, dir))
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+            return true;
+        }
+
+        @Override
+        public boolean mayInterrupt()
+        {
+            if (state == State.EXECUTION) return false;
             return true;
         }
     }
@@ -147,6 +257,13 @@ public class Sword extends Weapon
 
             totalSec = 0;
             state = State.WARMUP;
+            return true;
+        }
+
+        @Override
+        public boolean mayInterrupt()
+        {
+            if (state == State.EXECUTION) return false;
             return true;
         }
     }
