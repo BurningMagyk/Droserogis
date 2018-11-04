@@ -365,8 +365,7 @@ public class Actor extends Item
 
     public void setPosition(Vec2 p)
     {
-        weapon.updatePosition(p, getDims(),
-                DirEnum.get(dirFace < 0 ? dirHoriz : dirFace, dirVert));
+        weapon.updatePosition(p, getDims(), getWeaponFace());
         super.setPosition(p);
     }
 
@@ -452,6 +451,8 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
+    public void debug() { Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace); }
+
     void pressAttack(boolean pressed, int keyCombo)
     {
         weapon.operate(pressed, keyCombo);
@@ -459,8 +460,16 @@ public class Actor extends Item
 
     public DirEnum getWeaponFace()
     {
-        return DirEnum.get(dirHoriz < 0
-                ? dirFace : dirHoriz, dirVert);
+        return DirEnum.get(dirFace < 0
+                ? dirHoriz : dirFace, dirVert);
+    }
+
+    public void changeDirFace()
+    {
+        dirHoriz = opp(dirHoriz);
+        dirFace = opp(dirFace);
+        Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace);
+        weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
     }
 
     private State determineState()

@@ -137,6 +137,8 @@ public class Weapon extends Item
         return this;
     }
 
+    void changeActorDirFace() { actor.changeDirFace(); }
+
     boolean isBallistic() { return ballistic; }
     public Vec2[] getShapeCorners()
     {
@@ -258,7 +260,9 @@ public class Weapon extends Item
                     (float) thetaDistance);
 
             float distanceMagnitude = distance.getMagnitude();
+            //totalTime = (float) Math.log(100 * timeMod * distanceMagnitude) / (float) Math.log(1.5) / 40;
             totalTime = timeMod * distanceMagnitude;
+            Print.red(totalTime);
             return distance.getMagnitude();
         }
     }
@@ -295,6 +299,8 @@ public class Weapon extends Item
         {
             return new Orient(new Vec2(pos.x, pos.y), theta);
         }
+
+        Orient copyOppHoriz() { return new Orient(new Vec2(-pos.x,  pos.y), theta - (float) Math.PI / 2); }
 
         float getMagnitude()
         {

@@ -15,8 +15,8 @@ abstract public class Entity
     {
         if (dir == UP) return DOWN;
         if (dir == DOWN) return UP;
-        if (dir == LEFT) return LEFT;
-        if (dir == RIGHT) return RIGHT;
+        if (dir == LEFT) return RIGHT;
+        if (dir == RIGHT) return LEFT;
         return -1;
     }
 

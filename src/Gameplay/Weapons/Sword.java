@@ -19,8 +19,32 @@ public class Sword extends Weapon
         orient.set(defaultOrient.copy());
 
         new Thrust();
-        new Swing();
-        new SwingUp();
+
+        ArrayList<Tick> swingDownward = new ArrayList<>(), swingUnterhau = new ArrayList<>();
+        swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
+        swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+        swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+        swingDownward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+
+        swingUnterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+        swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+        swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+        swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+
+        ArrayList<Tick> swingForehand = new ArrayList<>(), swingBackhand = new ArrayList<>();
+        swingForehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
+        swingForehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
+        swingForehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
+        swingForehand.add(new Tick(0.16F,  0.7F,-0.6F, -0.5F));
+
+        swingBackhand.add(new Tick(0.04F,  0.7F,-0.6F, -0.5F));
+        swingBackhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
+        swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
+        swingBackhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
+
+        new SwingUp(swingForehand, swingBackhand);
+
+        setOperation(new Swing(swingDownward, swingUnterhau), 1);
     }
 
     private class Thrust implements Operation
@@ -56,133 +80,59 @@ public class Sword extends Weapon
         public boolean mayInterrupt() { return false; }
     }
 
-    private class SwingUp implements Operation
+    private class SwingUp extends Swing
     {
-        private Journey[] warmJourney, coolJourney;
-        private int hau = 0;
-        ArrayList<Tick> forehand, backhand;
-
-        SwingUp()
+        SwingUp(ArrayList<Tick> forehand, ArrayList<Tick> backhand)
         {
+            super(forehand, backhand);
             setOperation(this, 0);
 
-            forehand = new ArrayList<>(); backhand = new ArrayList<>();
-
-            forehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
-            forehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
-            forehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
-            forehand.add(new Tick(0.16F,  0.7F,-0.6F, -0.5F));
-
-            backhand.add(new Tick(0.04F,  0.7F,-0.6F, -0.5F));
-            backhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
-            backhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
-            backhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
-
-            warmJourney = new Journey[2];
-            warmJourney[0] = new Journey(
-                    defaultOrient, forehand.get(0).getOrient(), 0.4F);
-            warmJourney[1] = new Journey(
-                    defaultOrient, backhand.get(0).getOrient(), 0.4F);
-            coolJourney = new Journey[2];
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
-                    defaultOrient, 0.5F);
+                    defaultOrient.copyOppHoriz(), 0.5F);
             coolJourney[1] = new Journey(
                     backhand.get(backhand.size() - 1).getOrient(),
-                    defaultOrient, 0.5F);
+                    defaultOrient.copyOppHoriz(), 0.5F);
         }
-
-        private float totalSec = 0;
-        private DirEnum dir;
-        private State state = State.WARMUP;
 
         @Override
         public String getName() { return "swing_up"; }
 
         @Override
-        public DirEnum getDir() { return dir; }
-
-        @Override
         public void start(DirEnum direction) {
             dir = direction;
-            totalSec = 0;
-            state = State.WARMUP;
+            changeActorDirFace();
 
-            float distDownward = warmJourney[0].setStart(orient);
-            float distUnterhau = warmJourney[1].setStart(orient);
-            if (distDownward < distUnterhau) hau = 0;
-            else hau = 1;
-
-            Print.blue("Operating " + getName() + " using " + getStyle()
-                    + " as " + hau);
+            super.start(direction);
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            totalSec += deltaSec;
+            boolean finished = super.run(deltaSec);
+            if (!finished) return false;
 
-            if (state == State.WARMUP)
-            {
-                if (warmJourney[hau].check(totalSec, dir))
-                {
-                    totalSec = 0;
-                    state = State.EXECUTION;
-                }
-                return false;
-            }
-            else if (state == State.EXECUTION)
-            {
-                for (Tick tick : hau == 0 ? forehand : backhand)
-                {
-                    if (tick.check(totalSec, dir)) return false;
-                }
-                totalSec = 0;
-                state = State.COOLDOWN;
-                return false;
-            }
-            else if (state == State.COOLDOWN)
-            {
-                if (!coolJourney[hau].check(totalSec, dir))
-                {
-                    return false;
-                }
-            }
+            orient.set(defaultOrient);
 
-            totalSec = 0;
-            state = State.WARMUP;
             return true;
         }
 
         @Override
         public boolean mayInterrupt()
         {
-            if (state == State.EXECUTION) return false;
-            return true;
+            return false;
         }
     }
 
     private class Swing implements Operation
     {
-        private Journey[] warmJourney, coolJourney;
+        Journey[] warmJourney, coolJourney;
         private int hau = 0;
         ArrayList<Tick> downward, unterhau;
 
-        Swing()
+        Swing(ArrayList<Tick> downward, ArrayList<Tick> unterhau)
         {
-            setOperation(this, 1);
-
-            downward = new ArrayList<>(); unterhau = new ArrayList<>();
-
-            downward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-            downward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-            downward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-            downward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-
-            unterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-            unterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-            unterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-            unterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+            this.downward = downward; this.unterhau = unterhau;
 
             warmJourney = new Journey[2];
             warmJourney[0] = new Journey(
@@ -199,8 +149,8 @@ public class Sword extends Weapon
         }
 
         private float totalSec = 0;
-        private DirEnum dir;
-        private State state = State.WARMUP;
+        DirEnum dir;
+        State state = State.WARMUP;
 
         @Override
         public String getName() { return "swing"; }
