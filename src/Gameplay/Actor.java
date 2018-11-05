@@ -455,7 +455,7 @@ public class Actor extends Item
 
     void pressAttack(boolean pressed, int keyCombo)
     {
-        weapon.operate(pressed, keyCombo);
+        weapon.operate(pressed, keyCombo, 0);
     }
 
     public DirEnum getWeaponFace()

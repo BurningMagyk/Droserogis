@@ -25,26 +25,23 @@ public class Sword extends Weapon
         swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
         swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
         swingDownward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-
         swingUnterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
         swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+        setOperation(new Swing(swingDownward, swingUnterhau), 1, 0);
 
         ArrayList<Tick> swingForehand = new ArrayList<>(), swingBackhand = new ArrayList<>();
         swingForehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
         swingForehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
         swingForehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
         swingForehand.add(new Tick(0.16F,  0.7F,-0.6F, -0.5F));
-
         swingBackhand.add(new Tick(0.04F,  0.7F,-0.6F, -0.5F));
         swingBackhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
         swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
         swingBackhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
+        setOperation(new SwingUp(swingForehand, swingBackhand), 0, 0);
 
-        new SwingUp(swingForehand, swingBackhand);
-
-        setOperation(new Swing(swingDownward, swingUnterhau), 1);
     }
 
     private class Thrust implements Operation
@@ -85,7 +82,6 @@ public class Sword extends Weapon
         SwingUp(ArrayList<Tick> forehand, ArrayList<Tick> backhand)
         {
             super(forehand, backhand);
-            setOperation(this, 0);
 
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
@@ -120,7 +116,10 @@ public class Sword extends Weapon
         @Override
         public boolean mayInterrupt()
         {
-            return false;
+            if (state != State.COOLDOWN) return false;
+
+            orient.set(defaultOrient);
+            return true;
         }
     }
 

@@ -27,13 +27,17 @@ public class Weapon extends Item
     private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Operation> operationQueue = new LinkedList<>();
-    private Map<Integer, Operation> keyCombos = new HashMap<>();
+    //private Map<Integer, Operation> keyCombos = new HashMap<>();
+    private Map<Integer, Operation>[] keyCombos = new Map[2];
     private Style style = Style.DEFAULT;
     private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
+
+        for (int i = 0; i < keyCombos.length; i++)
+        { keyCombos[i] = new HashMap<>(); }
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
@@ -97,10 +101,10 @@ public class Weapon extends Item
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
      */
-    public void operate(boolean pressed, int keyCombo)
+    public void operate(boolean pressed, int keyCombo, int status)
     {
         if (!pressed) return; /* Temporary */
-        Operation op = keyCombos.get(keyCombo);
+        Operation op = keyCombos[0].get(keyCombo);
         if (op != null)
         {
             operationQueue.addLast(op);
@@ -174,9 +178,9 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
-    void setOperation(Operation op, int keyCombo)
+    void setOperation(Operation op, int keyCombo, int status)
     {
-        keyCombos.put(keyCombo, op);
+        keyCombos[status].put(keyCombo, op);
     }
 
     class Tick
