@@ -30,7 +30,7 @@ public class Weapon extends Item
     //private Map<Integer, Operation> keyCombos = new HashMap<>();
     private Map<Integer, Operation>[] keyCombos = new Map[2];
     private Style style = Style.DEFAULT;
-    private Operation currentOp;
+    private Operation currentOp, prevOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
@@ -50,18 +50,22 @@ public class Weapon extends Item
         else if (currentOp != null)
         {
             boolean operationDone = currentOp.run(deltaSec);
-            if (operationDone) currentOp = null;
+            if (operationDone)
+            {
+                prevOp = currentOp;
+                currentOp = null;
+            }
 
             if (!operationQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
                 currentOp = operationQueue.remove();
-                currentOp.start(actor.getWeaponFace());
+                currentOp.start(actor.getWeaponFace(), prevOp);
             }
         }
         else if (!operationQueue.isEmpty())
         {
             currentOp = operationQueue.remove();
-            currentOp.start(actor.getWeaponFace());
+            currentOp.start(actor.getWeaponFace(), prevOp);
         }
     }
 
@@ -104,7 +108,7 @@ public class Weapon extends Item
     public void operate(boolean pressed, int keyCombo, int status)
     {
         if (!pressed) return; /* Temporary */
-        Operation op = keyCombos[0].get(keyCombo);
+        Operation op = keyCombos[status].get(keyCombo);
         if (op != null)
         {
             operationQueue.addLast(op);
@@ -168,7 +172,7 @@ public class Weapon extends Item
 
         DirEnum getDir();
 
-        void start(DirEnum direction);
+        void start(DirEnum direction, Operation prev);
 
         /** Returns true if the operation finished */
         boolean run(float deltaSec);

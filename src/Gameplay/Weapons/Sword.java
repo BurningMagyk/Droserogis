@@ -18,7 +18,7 @@ public class Sword extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
-        new Thrust();
+        //new Thrust();
 
         ArrayList<Tick> swingDownward = new ArrayList<>(), swingUnterhau = new ArrayList<>();
         swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
@@ -29,7 +29,7 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-        setOperation(new Swing(swingDownward, swingUnterhau), 1, 0);
+        setOperation(new Swing(0.4F, 0.5F, swingDownward, swingUnterhau), 0, 0);
 
         ArrayList<Tick> swingForehand = new ArrayList<>(), swingBackhand = new ArrayList<>();
         swingForehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
@@ -40,48 +40,56 @@ public class Sword extends Weapon
         swingBackhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
         swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
         swingBackhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
-        setOperation(new SwingUp(swingForehand, swingBackhand), 0, 0);
+        setOperation(new SwingUp(0.4F, 0.5F, swingForehand, swingBackhand), 0, 1);
 
     }
 
-    private class Thrust implements Operation
+    private class Thrust extends BasicMelee
     {
-        Thrust()
+        Thrust(float warmupTime, float cooldownTime,
+               ArrayList<Tick> reachJourney,
+               ArrayList<Tick> stabJourney, ArrayList<Tick> impaleJourney,
+               ArrayList<Tick> behindJourney)
         {
-            //setOperation(this, 0);
+            super(warmupTime, cooldownTime, stabJourney, impaleJourney,
+                    behindJourney, reachJourney);
         }
-
-        private DirEnum dir;
 
         @Override
         public String getName() { return "thrust"; }
 
         @Override
-        public DirEnum getDir() { return dir; }
+        public void start(DirEnum direction, Operation prev) {
+            dir = direction;
+            totalSec = 0;
+            state = State.WARMUP;
 
-        @Override
-        public void start(DirEnum direction) {
-            Print.blue("Operating " + getName() + " using " + getStyle() + " in the "
-                    + direction + " direction");
-            dirFace = direction;
+            if (prev instanceof SwingUp) hau = 2;
+            else if (prev instanceof Swing)
+            {
+                float hauDist = Float.MAX_VALUE;
+                for (int i = 0; i < 2; i++)
+                {
+                    float currDist = warmJourney[i].setStart(orient);
+                    if (currDist < hauDist)
+                    {
+                        hauDist = currDist;
+                        hau = i;
+                    }
+                }
+            }
+            else hau = 3;
+
+            Print.blue("Operating " + getName() + " using " + getStyle()
+                    + " as " + hau);
         }
-
-        @Override
-        public boolean run(float deltaSec)
-        {
-            setTheta(80, dirFace);
-            return true;
-        }
-
-        @Override
-        public boolean mayInterrupt() { return false; }
     }
 
     private class SwingUp extends Swing
     {
-        SwingUp(ArrayList<Tick> forehand, ArrayList<Tick> backhand)
+        SwingUp(float warmupTime, float cooldownTime, ArrayList<Tick> forehand, ArrayList<Tick> backhand)
         {
-            super(forehand, backhand);
+            super(warmupTime, cooldownTime, forehand, backhand);
 
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
@@ -95,11 +103,11 @@ public class Sword extends Weapon
         public String getName() { return "swing_up"; }
 
         @Override
-        public void start(DirEnum direction) {
+        public void start(DirEnum direction, Operation prev) {
             dir = direction;
             changeActorDirFace();
 
-            super.start(direction);
+            super.start(direction, prev);
         }
 
         @Override
@@ -116,57 +124,61 @@ public class Sword extends Weapon
         @Override
         public boolean mayInterrupt()
         {
-            if (state != State.COOLDOWN) return false;
+            if (state == State.EXECUTION) return false;
 
             orient.set(defaultOrient);
             return true;
         }
     }
 
-    private class Swing implements Operation
+    private class BasicMelee implements Operation
     {
         Journey[] warmJourney, coolJourney;
-        private int hau = 0;
-        ArrayList<Tick> downward, unterhau;
+        int hau = 0;
+        ArrayList<Tick>[] execJourney;
 
-        Swing(ArrayList<Tick> downward, ArrayList<Tick> unterhau)
+        BasicMelee(float warmupTime, float cooldownTime, ArrayList<Tick>... execJourney)
         {
-            this.downward = downward; this.unterhau = unterhau;
+            this.execJourney = execJourney;
 
-            warmJourney = new Journey[2];
-            warmJourney[0] = new Journey(
-                    defaultOrient, downward.get(0).getOrient(), 0.4F);
-            warmJourney[1] = new Journey(
-                    defaultOrient, unterhau.get(0).getOrient(), 0.4F);
-            coolJourney = new Journey[2];
-            coolJourney[0] = new Journey(
-                    downward.get(downward.size() - 1).getOrient(),
-                    defaultOrient, 0.5F);
-            coolJourney[1] = new Journey(
-                    unterhau.get(unterhau.size() - 1).getOrient(),
-                    defaultOrient, 0.5F);
+            warmJourney = new Journey[execJourney.length];
+            coolJourney = new Journey[execJourney.length];
+            for (int i = 0; i < execJourney.length; i++)
+            {
+                warmJourney[i] = new Journey(defaultOrient,
+                        execJourney[i].get(0).getOrient(), warmupTime);
+                coolJourney[i] = new Journey(
+                        execJourney[i].get(execJourney[i].size() - 1).getOrient(),
+                        defaultOrient,cooldownTime);
+            }
         }
 
-        private float totalSec = 0;
+        float totalSec = 0;
         DirEnum dir;
         State state = State.WARMUP;
 
         @Override
-        public String getName() { return "swing"; }
+        public String getName() { return "basic_melee"; }
 
         @Override
         public DirEnum getDir() { return dir; }
 
         @Override
-        public void start(DirEnum direction) {
+        public void start(DirEnum direction, Operation prev) {
             dir = direction;
             totalSec = 0;
             state = State.WARMUP;
 
-            float distDownward = warmJourney[0].setStart(orient);
-            float distUnterhau = warmJourney[1].setStart(orient);
-            if (distDownward < distUnterhau) hau = 0;
-            else hau = 1;
+            float hauDist = Float.MAX_VALUE;
+            for (int i = 0; i < warmJourney.length; i++)
+            {
+                float currDist = warmJourney[i].setStart(orient);
+                if (currDist < hauDist)
+                {
+                    hauDist = currDist;
+                    hau = i;
+                }
+            }
 
             Print.blue("Operating " + getName() + " using " + getStyle()
                     + " as " + hau);
@@ -188,7 +200,7 @@ public class Sword extends Weapon
             }
             else if (state == State.EXECUTION)
             {
-                for (Tick tick : hau == 0 ? downward : unterhau)
+                for (Tick tick : execJourney[hau])
                 {
                     if (tick.check(totalSec, dir)) return false;
                 }
@@ -215,5 +227,16 @@ public class Sword extends Weapon
             if (state == State.EXECUTION) return false;
             return true;
         }
+    }
+
+    private class Swing extends BasicMelee
+    {
+        Swing(float warmupTime, float cooldownTime, ArrayList<Tick> downward, ArrayList<Tick> unterhau)
+        {
+            super(warmupTime, cooldownTime, downward, unterhau);
+        }
+
+        @Override
+        public String getName() { return "swing"; }
     }
 }
