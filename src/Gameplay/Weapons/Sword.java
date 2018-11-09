@@ -18,9 +18,28 @@ public class Sword extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
-        //new Thrust();
+        ArrayList<Tick> thrustReach = new ArrayList<>(),
+                thrustDownward = new ArrayList<>(),
+                thrustUnterhau = new ArrayList<>(),
+                thrustBehind = new ArrayList<>();
+        thrustReach.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
+        thrustReach.add(new Tick(0.10F, 1.3F, -0.2F, 0F));
+        thrustReach.add(new Tick(0.16F, 1.8F, -0.2F, 0F));
+        thrustDownward.add(new Tick(0.04F, 1F, -0.3F, 0F));
+        thrustDownward.add(new Tick(0.08F, 1F, 0, 0F));
+        thrustDownward.add(new Tick(0.12F, 1F, 0.3F, 0F));
+        thrustUnterhau.add(new Tick(0.04F, 1F, 0.3F, 0F));
+        thrustUnterhau.add(new Tick(0.08F, 1F, 0, 0F));
+        thrustUnterhau.add(new Tick(0.12F, 1F, -0.3F, 0F));
+        thrustBehind.add(new Tick(0.06F, 1.2F, -0.2F, 0F));
+        thrustBehind.add(new Tick(0.10F, 0.7F, -0.2F, 0F));
+        thrustBehind.add(new Tick(0.16F, 0.2F, -0.2F, 0F));
 
-        ArrayList<Tick> swingDownward = new ArrayList<>(), swingUnterhau = new ArrayList<>();
+        setOperation(new Thrust(0.6F, 0.3F, thrustReach, thrustDownward,
+                thrustUnterhau, thrustBehind), 1, 0);
+
+        ArrayList<Tick> swingDownward = new ArrayList<>(),
+                swingUnterhau = new ArrayList<>();
         swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
         swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
         swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
@@ -31,7 +50,8 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
         setOperation(new Swing(0.4F, 0.5F, swingDownward, swingUnterhau), 0, 0);
 
-        ArrayList<Tick> swingForehand = new ArrayList<>(), swingBackhand = new ArrayList<>();
+        ArrayList<Tick> swingForehand = new ArrayList<>(),
+                swingBackhand = new ArrayList<>();
         swingForehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
         swingForehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
         swingForehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
@@ -48,10 +68,10 @@ public class Sword extends Weapon
     {
         Thrust(float warmupTime, float cooldownTime,
                ArrayList<Tick> reachJourney,
-               ArrayList<Tick> stabJourney, ArrayList<Tick> impaleJourney,
+               ArrayList<Tick> stabJourney, ArrayList<Tick> unterJourney,
                ArrayList<Tick> behindJourney)
         {
-            super(warmupTime, cooldownTime, stabJourney, impaleJourney,
+            super(warmupTime, cooldownTime, stabJourney, unterJourney,
                     behindJourney, reachJourney);
         }
 

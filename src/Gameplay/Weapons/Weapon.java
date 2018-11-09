@@ -52,12 +52,14 @@ public class Weapon extends Item
             boolean operationDone = currentOp.run(deltaSec);
             if (operationDone)
             {
-                prevOp = currentOp;
+                //prevOp = currentOp;
+                prevOp = null;
                 currentOp = null;
             }
 
             if (!operationQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
+                if (currentOp != null) prevOp = currentOp;
                 currentOp = operationQueue.remove();
                 currentOp.start(actor.getWeaponFace(), prevOp);
             }
