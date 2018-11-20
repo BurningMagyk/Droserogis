@@ -52,14 +52,14 @@ public class Sword extends Weapon
 
         ArrayList<Tick> swingForehand = new ArrayList<>(),
                 swingBackhand = new ArrayList<>();
-        swingForehand.add(new Tick(0.04F,  -0.7F,-0.6F, -2F));
+        swingForehand.add(new Tick(0.04F,  -0.8F,-0.6F, -2F));
         swingForehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
-        swingForehand.add(new Tick(0.12F,  0.2F,-0.85F, -1F));
-        swingForehand.add(new Tick(0.16F,  0.7F,-0.6F, -0.5F));
-        swingBackhand.add(new Tick(0.04F,  0.7F,-0.6F, -0.5F));
-        swingBackhand.add(new Tick(0.08F,  0.2F,-0.85F, -1F));
+        swingForehand.add(new Tick(0.12F,  0.4F,-0.85F, -1F));
+        swingForehand.add(new Tick(0.16F,  1.05F,-0.7F, -0.5F));
+        swingBackhand.add(new Tick(0.04F,  1.05F,-0.7F, -0.5F));
+        swingBackhand.add(new Tick(0.08F,  0.4F,-0.85F, -1F));
         swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
-        swingBackhand.add(new Tick(0.16F,  -0.7F,-0.6F, -2F));
+        swingBackhand.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
         setOperation(new SwingUp(0.4F, 0.5F, swingForehand, swingBackhand), 0, 1);
 
     }
@@ -146,7 +146,7 @@ public class Sword extends Weapon
         {
             if (state == State.EXECUTION) return false;
 
-            orient.set(defaultOrient);
+            orient.set(execJourney[hau].get(0).tickOrient);
             return true;
         }
     }
