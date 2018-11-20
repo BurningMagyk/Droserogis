@@ -23,17 +23,17 @@ public class Sword extends Weapon
                 thrustUnterhau = new ArrayList<>(),
                 thrustBehind = new ArrayList<>();
         thrustReach.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
-        thrustReach.add(new Tick(0.10F, 1.3F, -0.2F, 0F));
-        thrustReach.add(new Tick(0.16F, 1.8F, -0.2F, 0F));
-        thrustDownward.add(new Tick(0.04F, 1F, -0.3F, 0F));
-        thrustDownward.add(new Tick(0.08F, 1F, 0, 0F));
-        thrustDownward.add(new Tick(0.12F, 1F, 0.3F, 0F));
-        thrustUnterhau.add(new Tick(0.04F, 1F, 0.3F, 0F));
-        thrustUnterhau.add(new Tick(0.08F, 1F, 0, 0F));
-        thrustUnterhau.add(new Tick(0.12F, 1F, -0.3F, 0F));
-        thrustBehind.add(new Tick(0.06F, 1.2F, -0.2F, 0F));
-        thrustBehind.add(new Tick(0.10F, 0.7F, -0.2F, 0F));
-        thrustBehind.add(new Tick(0.16F, 0.2F, -0.2F, 0F));
+        thrustReach.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
+        thrustReach.add(new Tick(0.16F, 2F, -0.2F, 0F));
+        thrustDownward.add(new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2));
+        thrustDownward.add(new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2));
+        thrustDownward.add(new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2));
+        thrustUnterhau.add(new Tick(0.04F, 1.3F, 0F, (float) -Math.PI/2));
+        thrustUnterhau.add(new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2));
+        thrustUnterhau.add(new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2));
+        thrustBehind.add(new Tick(0.06F, 1.2F, 0F, 0F));
+        thrustBehind.add(new Tick(0.10F, 0.3F, 0F, 0F));
+        thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
         setOperation(new Thrust(0.6F, 0.3F, thrustReach, thrustDownward,
                 thrustUnterhau, thrustBehind), 1, 0);
@@ -169,7 +169,7 @@ public class Sword extends Weapon
                         execJourney[i].get(0).getOrient(), warmupTime);
                 coolJourney[i] = new Journey(
                         execJourney[i].get(execJourney[i].size() - 1).getOrient(),
-                        defaultOrient,cooldownTime);
+                        defaultOrient, cooldownTime);
             }
         }
 

@@ -24,6 +24,8 @@ public class Weapon extends Item
     Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
     Orient orient = defaultOrient.copy();
 
+    public void test(){Print.yellow("orient: " + orient.theta);}
+
     private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Operation> operationQueue = new LinkedList<>();
@@ -240,6 +242,7 @@ public class Weapon extends Item
             if (ratio >= 1.0)
             {
                 orient.set(end);
+                setTheta(orient.getTheta(), dir);
                 return true;
             }
             orient.setX(start.getX() + (distance.getX() * ratio));
@@ -272,7 +275,6 @@ public class Weapon extends Item
             float distanceMagnitude = distance.getMagnitude();
             //totalTime = (float) Math.log(100 * timeMod * distanceMagnitude) / (float) Math.log(1.5) / 40;
             totalTime = timeMod * distanceMagnitude;
-            Print.red(totalTime);
             return distance.getMagnitude();
         }
     }

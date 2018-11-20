@@ -451,7 +451,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace); }
+    public void debug() { weapon.test(); }
 
     void pressAttack(boolean pressed, int keyCombo)
     {
