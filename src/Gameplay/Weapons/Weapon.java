@@ -30,7 +30,7 @@ public class Weapon extends Item
     private boolean ballistic = true;
     private LinkedList<Operation> operationQueue = new LinkedList<>();
     //private Map<Integer, Operation> keyCombos = new HashMap<>();
-    private Map<Integer, Operation>[] keyCombos = new Map[2];
+    private HashMap<Integer, Operation>[] keyCombos = new HashMap[3];
     private Style style = Style.DEFAULT;
     private Operation currentOp, prevOp;
 
@@ -215,6 +215,15 @@ public class Weapon extends Item
         }
 
         Orient getOrient() { return tickOrient; }
+
+        Tick getMirrorCopy(boolean horiz, boolean vert)
+        {
+            return new Tick(totalSec,
+                    (horiz ? -1 : 1) * tickOrient.getX(),
+                    (vert ? -1 : 1) * tickOrient.getY(),
+                    tickOrient.getTheta()
+                            - (horiz ^ vert ? (float) Math.PI / 2 : 0));
+        }
 
         Tick getRotatedCopy(boolean up)
         {

@@ -60,7 +60,22 @@ public class Sword extends Weapon
         swingBackhand.add(new Tick(0.08F,  0.4F,-0.85F, -1F));
         swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
         swingBackhand.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
-        setOperation(new SwingUp(0.4F, 0.5F, swingForehand, swingBackhand), 0, 1);
+        ArrayList<Tick> swingForehandDown = new ArrayList<>(),
+                swingBackhandDown = new ArrayList<>();
+        for (Tick tick : swingForehand)
+        {
+            swingForehandDown.add(tick.getMirrorCopy(false, true));
+        }
+        for (Tick tick : swingBackhand)
+        {
+            swingBackhandDown.add(tick.getMirrorCopy(false, true));
+        }
+        setOperation(new SwingUp(0.4F, 0.5F,
+                swingForehand, swingForehandDown, swingBackhand, swingBackhandDown),
+                0, 1);
+        setOperation(new SwingUp(0.4F, 0.5F,
+                        swingForehand, swingForehandDown, swingBackhand, swingBackhandDown),
+                0, 2);
 
     }
 
@@ -105,17 +120,27 @@ public class Sword extends Weapon
         }
     }
 
-    private class SwingUp extends Swing
+    private class SwingUp extends BasicMelee
     {
-        SwingUp(float warmupTime, float cooldownTime, ArrayList<Tick> forehand, ArrayList<Tick> backhand)
+
+        SwingUp(float warmupTime,
+                float cooldownTime, ArrayList<Tick> forehand,
+                ArrayList<Tick> forehandDown,
+                ArrayList<Tick> backhand, ArrayList<Tick> backhandDown)
         {
-            super(warmupTime, cooldownTime, forehand, backhand);
+            super(warmupTime, cooldownTime, forehand, forehandDown, backhand, backhandDown);
 
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
                     defaultOrient.copyOppHoriz(), 0.5F);
             coolJourney[1] = new Journey(
+                    forehandDown.get(forehand.size() - 1).getOrient(),
+                    defaultOrient.copyOppHoriz(), 0.5F);
+            coolJourney[2] = new Journey(
                     backhand.get(backhand.size() - 1).getOrient(),
+                    defaultOrient.copyOppHoriz(), 0.5F);
+            coolJourney[3] = new Journey(
+                    backhandDown.get(backhand.size() - 1).getOrient(),
                     defaultOrient.copyOppHoriz(), 0.5F);
         }
 
@@ -127,7 +152,24 @@ public class Sword extends Weapon
             dir = direction;
             changeActorDirFace();
 
-            super.start(direction, prev);
+            totalSec = 0;
+            state = State.WARMUP;
+
+            float hauDist = Float.MAX_VALUE;
+            int i = 0;
+            if (direction.getVert() == DirEnum.DOWN) i = 1;
+            for (; i < warmJourney.length; i += 2)
+            {
+                float currDist = warmJourney[i].setStart(orient);
+                if (currDist < hauDist)
+                {
+                    hauDist = currDist;
+                    hau = i;
+                }
+            }
+
+            Print.blue("Operating " + getName() + " using " + getStyle()
+                    + " as " + hau);
         }
 
         @Override
