@@ -36,7 +36,14 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
         setOperation(new Thrust(0.6F, 0.3F, thrustReach, thrustDownward,
-                thrustUnterhau, thrustBehind), 1, 0);
+                thrustUnterhau, thrustBehind), 1, 0, 1, 2); // standing, crouching, airborne
+
+        ArrayList<Tick> thrustUpwards = new ArrayList<>();
+        thrustUpwards.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
+        thrustUpwards.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
+        thrustUpwards.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
+
+        setOperation(new DirectionalThrust(0.25F, 0.25F, thrustUpwards), 11, 0, 1, 2);
 
         ArrayList<Tick> swingDownward = new ArrayList<>(),
                 swingUnterhau = new ArrayList<>();
@@ -70,12 +77,12 @@ public class Sword extends Weapon
         {
             swingBackhandDown.add(tick.getMirrorCopy(false, true));
         }
-        setOperation(new SwingUp(0.4F, 0.5F,
-                swingForehand, swingForehandDown, swingBackhand, swingBackhandDown),
-                0, 1);
-        setOperation(new SwingUp(0.4F, 0.5F,
-                        swingForehand, swingForehandDown, swingBackhand, swingBackhandDown),
-                0, 2);
+        setOperation(new TurningSwing(0.3F, 0.5F,
+                swingForehand, swingBackhand),
+                10, 0, 1, 2);
+        setOperation(new TurningSwing(0.1F, 0.5F,
+                        swingForehandDown, swingBackhandDown),
+                20, 2);
 
     }
 
@@ -99,7 +106,7 @@ public class Sword extends Weapon
             totalSec = 0;
             state = State.WARMUP;
 
-            if (prev instanceof SwingUp) hau = 2;
+            if (prev instanceof TurningSwing) hau = 2;
             else if (prev instanceof Swing)
             {
                 float hauDist = Float.MAX_VALUE;
@@ -120,56 +127,32 @@ public class Sword extends Weapon
         }
     }
 
-    private class SwingUp extends BasicMelee
+    private class TurningSwing extends BasicMelee
     {
 
-        SwingUp(float warmupTime,
-                float cooldownTime, ArrayList<Tick> forehand,
-                ArrayList<Tick> forehandDown,
-                ArrayList<Tick> backhand, ArrayList<Tick> backhandDown)
+        TurningSwing(float warmupTime,
+                float cooldownTime,
+                ArrayList<Tick> forehand, ArrayList<Tick> backhand)
         {
-            super(warmupTime, cooldownTime, forehand, forehandDown, backhand, backhandDown);
+            super(warmupTime, cooldownTime, forehand, backhand);
 
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
                     defaultOrient.copyOppHoriz(), 0.5F);
             coolJourney[1] = new Journey(
-                    forehandDown.get(forehand.size() - 1).getOrient(),
-                    defaultOrient.copyOppHoriz(), 0.5F);
-            coolJourney[2] = new Journey(
                     backhand.get(backhand.size() - 1).getOrient(),
-                    defaultOrient.copyOppHoriz(), 0.5F);
-            coolJourney[3] = new Journey(
-                    backhandDown.get(backhand.size() - 1).getOrient(),
                     defaultOrient.copyOppHoriz(), 0.5F);
         }
 
         @Override
-        public String getName() { return "swing_up"; }
+        public String getName() { return "turning_swing"; }
 
         @Override
         public void start(DirEnum direction, Operation prev) {
             dir = direction;
             changeActorDirFace();
 
-            totalSec = 0;
-            state = State.WARMUP;
-
-            float hauDist = Float.MAX_VALUE;
-            int i = 0;
-            if (direction.getVert() == DirEnum.DOWN) i = 1;
-            for (; i < warmJourney.length; i += 2)
-            {
-                float currDist = warmJourney[i].setStart(orient);
-                if (currDist < hauDist)
-                {
-                    hauDist = currDist;
-                    hau = i;
-                }
-            }
-
-            Print.blue("Operating " + getName() + " using " + getStyle()
-                    + " as " + hau);
+            super.start(direction, prev);
         }
 
         @Override
@@ -289,6 +272,17 @@ public class Sword extends Weapon
             if (state == State.EXECUTION) return false;
             return true;
         }
+    }
+
+    private class DirectionalThrust extends BasicMelee
+    {
+        DirectionalThrust(float warmupTime, float cooldownTime, ArrayList<Tick> reachJourney)
+        {
+            super(warmupTime, cooldownTime, reachJourney);
+        }
+
+        @Override
+        public String getName() { return "directional_thrust"; }
     }
 
     private class Swing extends BasicMelee

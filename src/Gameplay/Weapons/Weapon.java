@@ -186,9 +186,12 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
-    void setOperation(Operation op, int keyCombo, int status)
+    void setOperation(Operation op, int keyCombo, int... status)
     {
-        keyCombos[status].put(keyCombo, op);
+        for (int s : status)
+        {
+            keyCombos[s].put(keyCombo, op);
+        }
     }
 
     class Tick
