@@ -306,6 +306,7 @@ public class Weapon extends Item
         float getY() { return pos.y; } void setY(float y) { pos.y = y; }
         float getTheta() { return theta; }
         void setTheta(float theta) { this.theta = theta; }
+        void addTheta(float theta) { this.theta += theta; }
 
         void set(Orient orient)
         {

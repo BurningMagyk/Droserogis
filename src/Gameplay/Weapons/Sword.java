@@ -45,6 +45,29 @@ public class Sword extends Weapon
 
         setOperation(new DirectionalThrust(0.25F, 0.25F, thrustUpwards), 11, 0, 1, 2);
 
+        ArrayList<Tick> thrustDiagonal = new ArrayList<>();
+        thrustDiagonal.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
+        thrustDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
+        thrustDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
+
+        setOperation(new DirectionalThrust(0.35F, 0.35F, thrustDiagonal), 31, 0, 1, 2);
+
+        // Do not confuse with "thrustDownward" used in the Thrust object
+        ArrayList<Tick> thrustDownwards = new ArrayList<>(),
+                thrustDiagonalDown = new ArrayList<>();
+        for (Tick tick : thrustUpwards)
+        {
+            Tick copy = tick.getMirrorCopy(false, true);
+            copy.getOrient().addTheta((float) Math.PI / 2);
+            thrustDownwards.add(copy);
+        }
+        for (Tick tick : thrustDiagonal)
+        {
+            thrustDiagonalDown.add(tick.getMirrorCopy(false, true));
+        }
+        setOperation(new DirectionalThrust(0.2F, 0.2F, thrustDownwards), 21, 2);
+        setOperation(new DirectionalThrust(0.2F, 0.2F, thrustDiagonalDown), 41, 2);
+
         ArrayList<Tick> swingDownward = new ArrayList<>(),
                 swingUnterhau = new ArrayList<>();
         swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
