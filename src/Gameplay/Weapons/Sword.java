@@ -57,9 +57,9 @@ public class Sword extends Weapon
                 thrustDiagonalDown = new ArrayList<>();
         for (Tick tick : thrustUpwards)
         {
-            Tick copy = tick.getMirrorCopy(false, true);
-            copy.getOrient().addTheta((float) Math.PI / 2);
-            thrustDownwards.add(copy);
+            Tick tickCopy = tick.getMirrorCopy(false, true);
+            tickCopy.getOrient().addTheta((float) Math.PI / 2);
+            thrustDownwards.add(tickCopy);
         }
         for (Tick tick : thrustDiagonal)
         {
