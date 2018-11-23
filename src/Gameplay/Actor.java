@@ -455,9 +455,32 @@ public class Actor extends Item
 
     void pressAttack(boolean pressed, int keyCombo)
     {
-        int status = 0;
+        /*int status = 0;
+        if (state.isAirborne()) status += 3;
         if (dirVert == UP) status = 1;
-        else if (dirVert == DOWN) status = 2;
+        else if (dirVert == DOWN)
+        {
+            if (state.isAirborne()) status = 3;
+            else status = 2;
+        }*/
+
+        int status = 0;
+        if (state == State.CROUCH || state == State.CRAWL) status = 1;
+        else if (state.isAirborne()) status = 2;
+
+        if (dirVert == UP)
+        {
+            // If dirHoriz is left or right
+            if (dirHoriz >= 0) keyCombo += 30;
+            else keyCombo += 10;
+        }
+        else if (dirVert == DOWN)
+        {
+            // If dirHoriz is left or right
+            if (dirHoriz >= 0) keyCombo += 40;
+            else keyCombo += 20;
+        }
+
         weapon.operate(pressed, keyCombo, status);
     }
 
@@ -471,7 +494,6 @@ public class Actor extends Item
     {
         dirHoriz = opp(dirHoriz);
         dirFace = opp(dirFace);
-        Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace);
         weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
     }
 
