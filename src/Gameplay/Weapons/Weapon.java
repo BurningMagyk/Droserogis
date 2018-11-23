@@ -225,7 +225,7 @@ public class Weapon extends Item
                     (horiz ? -1 : 1) * tickOrient.getX(),
                     (vert ? -1 : 1) * tickOrient.getY(),
                     tickOrient.getTheta()
-                            + (horiz ^ vert ? (float) Math.PI / 2 : 0));
+                            - (horiz ^ vert ? (float) Math.PI / 2 : 0));
         }
 
         Tick getRotatedCopy(boolean up)

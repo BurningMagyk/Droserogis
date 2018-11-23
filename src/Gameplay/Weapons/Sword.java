@@ -36,21 +36,21 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
         setOperation(new Thrust(0.6F, 0.3F, thrustReach, thrustDownward,
-                thrustUnterhau, thrustBehind), 1, 0, 1, 2); // standing, crouching, airborne
+                thrustUnterhau, thrustBehind), 1, 0, 2); // standing, crouching, airborne
 
         ArrayList<Tick> thrustUpwards = new ArrayList<>();
         thrustUpwards.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        setOperation(new DirectionalThrust(0.25F, 0.25F, thrustUpwards), 11, 0, 1, 2);
+        setOperation(new DirectionalThrust(0.25F, 0.25F, thrustUpwards), 11, 0, 2);
 
         ArrayList<Tick> thrustDiagonal = new ArrayList<>();
         thrustDiagonal.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        setOperation(new DirectionalThrust(0.35F, 0.35F, thrustDiagonal), 31, 0, 1, 2);
+        setOperation(new DirectionalThrust(0.35F, 0.35F, thrustDiagonal), 31, 0, 2);
 
         // Do not confuse with "thrustDownward" used in the Thrust object
         ArrayList<Tick> thrustDownwards = new ArrayList<>(),
@@ -78,7 +78,7 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-        setOperation(new Swing(0.4F, 0.5F, swingDownward, swingUnterhau), 0, 0);
+        setOperation(new Swing(0.4F, 0.5F, swingDownward, swingUnterhau), 0, 0, 2);
 
         ArrayList<Tick> swingForehand = new ArrayList<>(),
                 swingBackhand = new ArrayList<>();

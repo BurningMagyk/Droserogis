@@ -5,6 +5,7 @@ import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
+import javax.print.attribute.standard.OrientationRequested;
 import java.util.ArrayList;
 
 /**
@@ -25,6 +26,8 @@ public class Actor extends Item
     private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
+
+    private final float ORIGINAL_HEIGHT;
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -55,6 +58,8 @@ public class Actor extends Item
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
+
+        ORIGINAL_HEIGHT = height;
     }
 
     protected void update(ArrayList<Entity> entities, float deltaSec)
@@ -455,15 +460,6 @@ public class Actor extends Item
 
     void pressAttack(boolean pressed, int keyCombo)
     {
-        /*int status = 0;
-        if (state.isAirborne()) status += 3;
-        if (dirVert == UP) status = 1;
-        else if (dirVert == DOWN)
-        {
-            if (state.isAirborne()) status = 3;
-            else status = 2;
-        }*/
-
         int status = 0;
         if (state == State.CROUCH || state == State.CRAWL) status = 1;
         else if (state.isAirborne()) status = 2;
@@ -505,11 +501,15 @@ public class Actor extends Item
         {
             if (dirVert == DOWN)
             {
+                setHeight(ORIGINAL_HEIGHT / 2);
+
                 if (Math.abs(getVelocityX()) > maxCrawlSpeed)
                     return State.SLIDE;
                 if (dirHoriz != -1) return State.CRAWL;
                 return State.CROUCH;
             }
+            else setHeight(ORIGINAL_HEIGHT);
+
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
                 if ((dirVert == UP || dirHoriz == RIGHT)
