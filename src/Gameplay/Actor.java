@@ -44,6 +44,8 @@ public class Actor extends Item
     private boolean
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false;
+    // change to more when other attack buttons get implemented
+    private boolean[] pressingAttack = new boolean[2];
 
     private Weapon weapon;
 
@@ -458,12 +460,13 @@ public class Actor extends Item
 
     public void debug() { weapon.test(); }
 
-    void pressAttack(boolean pressed, int keyCombo)
+    void pressAttack(boolean pressed, int attackKey)
     {
         int status = 0;
         if (state == State.CROUCH || state == State.CRAWL) status = 1;
         else if (state.isAirborne()) status = 2;
 
+        int keyCombo = attackKey;
         if (dirVert == UP)
         {
             // If dirHoriz is left or right
@@ -477,7 +480,9 @@ public class Actor extends Item
             else keyCombo += 20;
         }
 
-        weapon.operate(pressed, keyCombo, status);
+        if (pressingAttack[attackKey] != pressed)
+            weapon.operate(pressed, keyCombo, status);
+        pressingAttack[attackKey] = pressed;
     }
 
     public DirEnum getWeaponFace()
