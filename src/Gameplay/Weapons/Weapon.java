@@ -30,7 +30,8 @@ public class Weapon extends Item
     private boolean ballistic = true;
     private LinkedList<Operation> operationQueue = new LinkedList<>();
     //private Map<Integer, Operation> keyCombos = new HashMap<>();
-    private HashMap<Integer, Operation>[] keyCombos = new HashMap[3];
+    private HashMap<Integer, Operation>[] keyCombos
+            = new HashMap[OpContext.values().length];
     private Style style = Style.DEFAULT;
     private Operation currentOp, prevOp;
 
@@ -109,10 +110,10 @@ public class Weapon extends Item
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
      */
-    public void operate(boolean pressed, int keyCombo, int status)
+    public void operate(boolean pressed, int keyCombo, OpContext status)
     {
         if (!pressed) return; /* Temporary */
-        Operation op = keyCombos[status].get(keyCombo);
+        Operation op = keyCombos[status.ID()].get(keyCombo);
         if (op != null)
         {
             operationQueue.addLast(op);
@@ -140,6 +141,15 @@ public class Weapon extends Item
         DEFAULT;
 
         boolean isValid(Weapon weapon) { return true; }
+    }
+
+    public enum OpContext
+    {
+        STANDARD { int ID() { return 0; } },
+        LUNGE { int ID() { return 1; } },
+        LOW { int ID() { return 2; } },
+        FREE { int ID() { return 3; } };
+        int ID() { return -1; }
     }
 
     public Weapon equip(Actor actor)
@@ -186,11 +196,11 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
-    void setOperation(Operation op, int keyCombo, int... status)
+    void setOperation(Operation op, int keyCombo, OpContext... status)
     {
-        for (int s : status)
+        for (OpContext s : status)
         {
-            keyCombos[s].put(keyCombo, op);
+            keyCombos[s.ID()].put(keyCombo, op);
         }
     }
 

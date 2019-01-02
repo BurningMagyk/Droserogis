@@ -48,6 +48,7 @@ public class Actor extends Item
     private boolean[] pressingAttack = new boolean[2];
 
     private Weapon weapon;
+    private float[] status = new float[Status.values().length];
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -69,6 +70,7 @@ public class Actor extends Item
         resetAcceleration();
         act(deltaSec);
         applyPhysics(entities, deltaSec);
+        countdownStatus(deltaSec);
     }
 
     /**
@@ -78,7 +80,8 @@ public class Actor extends Item
     {
         float vx = getVelocityX(), vy = getVelocityY();
 
-        if (pressedJumpTime > 0)
+        /* Late surfaces acts wacky when not airborne. */
+        if (pressedJumpTime > 0 && state.isAirborne())
         {
             if (touchLateSurface[DOWN] != null)
             {
@@ -376,6 +379,15 @@ public class Actor extends Item
         super.setPosition(p);
     }
 
+    private void countdownStatus(float deltaSec)
+    {
+        for (int i = 0; i < status.length; i++)
+        {
+            status[i] -= deltaSec;
+            if (status[i] < 0) status[i] = 0;
+        }
+    }
+
     void pressLeft(boolean pressed)
     {
         if (pressed)
@@ -463,9 +475,12 @@ public class Actor extends Item
 
     void pressAttack(boolean pressed, int attackKey)
     {
-        int status = 0;
-        if (state == State.CROUCH || state == State.CRAWL) status = 1;
-        else if (state.isAirborne()) status = 2;
+        Weapon.OpContext status = Weapon.OpContext.STANDARD;
+        if (state == State.SPRINT || state == State.LOWER_SPRINT)
+            status = Weapon.OpContext.LUNGE;
+        if (state == State.CROUCH || state == State.CRAWL)
+            status = Weapon.OpContext.LOW;
+        else if (state.isAirborne()) status = Weapon.OpContext.FREE;
 
         int keyCombo = attackKey;
         if (dirVert == UP)
@@ -605,18 +620,14 @@ public class Actor extends Item
     //===============================================================================================================
     private Vec2 triggerContacts(float deltaSec, Vec2 goal, ArrayList<Entity> entityList)
     {
-        if (touchLateSurface[UP] != null
-                && touchLateSurface[UP].countdown(deltaSec))
-            touchLateSurface[UP] = null;
-        if (touchLateSurface[DOWN] != null
-                && touchLateSurface[DOWN].countdown(deltaSec))
-            touchLateSurface[DOWN] = null;
-        if (touchLateSurface[LEFT] != null
-                && touchLateSurface[LEFT].countdown(deltaSec))
-            touchLateSurface[LEFT] = null;
-        if (touchLateSurface[RIGHT] != null
-                && touchLateSurface[RIGHT].countdown(deltaSec))
-            touchLateSurface[RIGHT] = null;
+        for (int i = 0; i < touchLateSurface.length; i++)
+        {
+            if (touchLateSurface[i] != null
+                    && touchLateSurface[i].countdown(deltaSec))
+                touchLateSurface[i] = null;
+            else if (touchLateSurface[i] == null && touchEntity[i] != null)
+                touchLateSurface[i] = new LateSurface(touchEntity[i], getVelocity());
+        }
 
         return super.triggerContacts(goal, entityList);
     }
@@ -795,6 +806,15 @@ public class Actor extends Item
         Color getColor() { return Color.BLACK; }
     }
 
+    private enum Status
+    {
+        PLODDED { int ID() { return 0; } },
+        STAGNANT { int ID() { return 1; } };
+        int ID() { return -1; }
+    }
+
+
+
     boolean setTriggered(boolean triggered)
     {
         super.setTriggered(triggered);
@@ -805,7 +825,7 @@ public class Actor extends Item
     {
         private Entity entity;
         private Vec2 lateVel;
-        private float duration = 0.1F;
+        private float duration = 0.2F;
 
         LateSurface(Entity entity, Vec2 lateVel)
         {

@@ -35,22 +35,27 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.10F, 0.3F, 0F, 0F));
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
-        setOperation(new Thrust(0.6F, 0.3F, thrustReach, thrustDownward,
-                thrustUnterhau, thrustBehind), 1, 0, 2); // standing, crouching, airborne
+        setOperation(new Thrust(0.6F, 0.3F,
+                        thrustReach, thrustDownward, thrustUnterhau, thrustBehind),
+                1, OpContext.STANDARD, OpContext.FREE); // standing, crouching, airborne
 
         ArrayList<Tick> thrustUpwards = new ArrayList<>();
         thrustUpwards.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        setOperation(new DirectionalThrust(0.25F, 0.25F, thrustUpwards), 11, 0, 2);
+        setOperation(new DirectionalThrust(0.25F, 0.25F,
+                        thrustUpwards),
+                11, OpContext.STANDARD, OpContext.FREE);
 
         ArrayList<Tick> thrustDiagonal = new ArrayList<>();
         thrustDiagonal.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        setOperation(new DirectionalThrust(0.35F, 0.35F, thrustDiagonal), 31, 0, 2);
+        setOperation(new DirectionalThrust(0.35F, 0.35F,
+                        thrustDiagonal),
+                31, OpContext.STANDARD, OpContext.FREE);
 
         // Do not confuse with "thrustDownward" used in the Thrust object
         ArrayList<Tick> thrustDownwards = new ArrayList<>(),
@@ -65,8 +70,12 @@ public class Sword extends Weapon
         {
             thrustDiagonalDown.add(tick.getMirrorCopy(false, true));
         }
-        setOperation(new DirectionalThrust(0.2F, 0.2F, thrustDownwards), 21, 2);
-        setOperation(new DirectionalThrust(0.2F, 0.2F, thrustDiagonalDown), 41, 2);
+        setOperation(new DirectionalThrust(0.2F, 0.2F,
+                        thrustDownwards),
+                21, OpContext.FREE);
+        setOperation(new DirectionalThrust(0.2F, 0.2F,
+                        thrustDiagonalDown),
+                41, OpContext.FREE);
 
         ArrayList<Tick> swingDownward = new ArrayList<>(),
                 swingUnterhau = new ArrayList<>();
@@ -78,7 +87,9 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-        setOperation(new Swing(0.4F, 0.5F, swingDownward, swingUnterhau), 0, 0, 2);
+        setOperation(new Swing(0.4F, 0.5F,
+                        swingDownward, swingUnterhau),
+                0, OpContext.STANDARD, OpContext.FREE);
 
         ArrayList<Tick> swingForehand = new ArrayList<>(),
                 swingBackhand = new ArrayList<>();
@@ -102,10 +113,10 @@ public class Sword extends Weapon
         }
         setOperation(new TurningSwing(0.3F, 0.5F,
                 swingForehand, swingBackhand),
-                10, 0, 1, 2);
+                10, OpContext.STANDARD, OpContext.LOW, OpContext.FREE);
         setOperation(new TurningSwing(0.1F, 0.5F,
                         swingForehandDown, swingBackhandDown),
-                20, 2);
+                20, OpContext.FREE);
 
     }
 
