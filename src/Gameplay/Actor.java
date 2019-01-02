@@ -43,7 +43,7 @@ public class Actor extends Item
 
     private boolean
             pressingLeft = false, pressingRight = false,
-            pressingUp = false, pressingDown = false;
+            pressingUp = false, pressingDown = false, pressingShift = false;
     // change to more when other attack buttons get implemented
     private boolean[] pressingAttack = new boolean[2];
 
@@ -142,12 +142,12 @@ public class Actor extends Item
                     || state == State.SLIDE)
             {
                 accel = crawlAccel;
-                topSpeed = topCrawlSpeed;
+                topSpeed = pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
             }
             else
             {
                 accel = runAccel;
-                topSpeed = topRunSpeed;
+                topSpeed = pressingShift ? topSprintSpeed : topRunSpeed;
             }
 
             if (dirHoriz == LEFT)
@@ -448,6 +448,7 @@ public class Actor extends Item
         }
         pressingDown = pressed;
     }
+    void pressShift(boolean pressed) { pressingShift = pressed; }
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
@@ -510,7 +511,12 @@ public class Actor extends Item
 
                 if (Math.abs(getVelocityX()) > maxCrawlSpeed)
                     return State.SLIDE;
-                if (dirHoriz != -1) return State.CRAWL;
+                if (dirHoriz != -1)
+                {
+                    if (Math.abs(getVelocityX()) > topCrawlSpeed
+                            && pressingShift) return State.LOWER_SPRINT;
+                    return State.CRAWL;
+                }
                 return State.CROUCH;
             }
             else setHeight(ORIGINAL_HEIGHT);
@@ -530,7 +536,12 @@ public class Actor extends Item
                 else return State.STAND;
             }
 
-            if (dirHoriz != -1) return State.RUN;
+            if (dirHoriz != -1)
+            {
+                if (Math.abs(getVelocityX()) > topRunSpeed
+                        && pressingShift) return State.SPRINT;
+                return State.RUN;
+            }
             return State.STAND;
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
@@ -614,22 +625,33 @@ public class Actor extends Item
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
 
-    /* This is the highest speed the player can be running before changing
-     * their state to TUMBLE. */
+    /* This is the highest speed the player can be running or sprinting before
+     * changing their state to TUMBLE. */
     private float maxRunSpeed = 0.2F;
+
+    /* This is the highest speed the player can get from sprinting alone.
+     * They can go faster while sprinting with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topSprintSpeed = 0.13F;
 
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 0.15F;
+    private float topRunSpeed = 0.08F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is running on the ground. */
-    private float runAccel = 0.2F;
+     * is not null and the player is running or sprinting on the ground. */
+    private float runAccel = 0.4F;
 
     /* This is the highest speed the player can be crawling or crouching before
      * changing their state to TUMBLE or SLIDE. */
-    private float maxCrawlSpeed = 0.06F;
+    private float maxCrawlSpeed = 0.15F;
+
+    /* This is the highest speed the player can get from sprinting on their
+     * hands alone. They can go faster while sprinting on their hands with the
+     * help of external influences, such as going down a slope or being pushed
+     * by a faster object. */
+    private float topLowerSprintSpeed = 0.10F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
@@ -726,6 +748,11 @@ public class Actor extends Item
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.BROWN; }
                 },
+        SPRINT
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.DARKGRAY; }
+                },
         WALL_STICK
                 {
                     boolean isOnWall() { return true; }
@@ -745,6 +772,11 @@ public class Actor extends Item
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.HOTPINK; }
+                },
+        LOWER_SPRINT
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.DEEPPINK; }
                 },
         SLIDE
                 {

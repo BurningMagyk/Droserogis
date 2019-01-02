@@ -11,15 +11,15 @@ import java.util.*;
 
 public class Weapon extends Item
 {
-    DirEnum dirFace = DirEnum.RIGHT;
+    private DirEnum dirFace = DirEnum.RIGHT;
 
     private Vec2 shapeCornersOffset = getPosition();
-    private Vec2 shapeCorners_notRotated[] = {
+    private Vec2[] shapeCorners_notRotated = {
             new Vec2(-getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, -getHeight() / 2),
             new Vec2(+getWidth() / 2, +getHeight() / 2),
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
-    private Vec2 shapeCorners_Rotated[] = new Vec2[4];
+    private Vec2[] shapeCorners_Rotated = new Vec2[4];
 
     Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
     Orient orient = defaultOrient.copy();
