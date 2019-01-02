@@ -145,12 +145,12 @@ public class Actor extends Item
                     || state == State.SLIDE)
             {
                 accel = crawlAccel;
-                topSpeed = pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
+                topSpeed = getTopSpeed(true);//pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
             }
             else
             {
                 accel = runAccel;
-                topSpeed = pressingShift ? topSprintSpeed : topRunSpeed;
+                topSpeed = getTopSpeed(false);//pressingShift ? topSprintSpeed : topRunSpeed;
             }
 
             if (dirHoriz == LEFT)
@@ -288,6 +288,15 @@ public class Actor extends Item
                 else gravity = 0;
             } else gravity = NORMAL_GRAVITY;
         }
+    }
+
+    private float getTopSpeed(boolean low)
+    {
+        if (status[Status.STAGNANT.ID()] > 0) return 0;
+        if (low) return pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
+        if (status[Status.PLODDED.ID()] > 0) return plodSpeed;
+        if (pressingShift) return topSprintSpeed;
+        return topRunSpeed;
     }
 
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
@@ -640,6 +649,11 @@ public class Actor extends Item
      * changing their state to TUMBLE. */
     private float maxRunSpeed = 0.2F;
 
+    /* This is the highest speed the player can get from plodding alone.
+     * They can go faster while plodding with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float plodSpeed = 0.04F;
+
     /* This is the highest speed the player can get from sprinting alone.
      * They can go faster while sprinting with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
@@ -806,14 +820,21 @@ public class Actor extends Item
         Color getColor() { return Color.BLACK; }
     }
 
-    private enum Status
+    //================================================================================================================
+    // Status
+    //================================================================================================================
+    public enum Status
     {
         PLODDED { int ID() { return 0; } },
         STAGNANT { int ID() { return 1; } };
         int ID() { return -1; }
     }
-
-
+    public void addStatus(float time, Status status)
+    {
+        if (this.status[status.ID()] < time) this.status[status.ID()] = time;
+    }
+    //public void stagnate(float time) { addStatus(time, Status.STAGNANT); }
+    //public void plod(float time) { addStatus(time, Status.PLODDED); }
 
     boolean setTriggered(boolean triggered)
     {

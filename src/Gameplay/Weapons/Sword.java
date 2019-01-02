@@ -122,12 +122,12 @@ public class Sword extends Weapon
 
     private class Thrust extends BasicMelee
     {
-        Thrust(float warmupTime, float cooldownTime,
+        Thrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
                ArrayList<Tick> reachJourney,
                ArrayList<Tick> stabJourney, ArrayList<Tick> unterJourney,
                ArrayList<Tick> behindJourney)
         {
-            super(warmupTime, cooldownTime, stabJourney, unterJourney,
+            super(warmupTime, cooldownTime, statusAppCycle, stabJourney, unterJourney,
                     behindJourney, reachJourney);
         }
 
@@ -164,11 +164,11 @@ public class Sword extends Weapon
     private class TurningSwing extends BasicMelee
     {
 
-        TurningSwing(float warmupTime,
-                float cooldownTime,
+        TurningSwing(float warmupTime, float cooldownTime,
+                StatusAppCycle statusAppCycle,
                 ArrayList<Tick> forehand, ArrayList<Tick> backhand)
         {
-            super(warmupTime, cooldownTime, forehand, backhand);
+            super(warmupTime, cooldownTime, statusAppCycle, forehand, backhand);
 
             coolJourney[0] = new Journey(
                     forehand.get(forehand.size() - 1).getOrient(),
@@ -216,7 +216,9 @@ public class Sword extends Weapon
         int hau = 0;
         ArrayList<Tick>[] execJourney;
 
-        BasicMelee(float warmupTime, float cooldownTime, ArrayList<Tick>... execJourney)
+        BasicMelee(float warmupTime, float cooldownTime,
+                   StatusAppCycle statusAppCycle,
+                   ArrayList<Tick>... execJourney)
         {
             this.execJourney = execJourney;
 
@@ -310,9 +312,11 @@ public class Sword extends Weapon
 
     private class DirectionalThrust extends BasicMelee
     {
-        DirectionalThrust(float warmupTime, float cooldownTime, ArrayList<Tick> reachJourney)
+        DirectionalThrust(float warmupTime, float cooldownTime,
+                          StatusAppCycle statusAppCycle,
+                          ArrayList<Tick> reachJourney)
         {
-            super(warmupTime, cooldownTime, reachJourney);
+            super(warmupTime, cooldownTime, statusAppCycle, reachJourney);
         }
 
         @Override
@@ -321,9 +325,12 @@ public class Sword extends Weapon
 
     private class Swing extends BasicMelee
     {
-        Swing(float warmupTime, float cooldownTime, ArrayList<Tick> downward, ArrayList<Tick> unterhau)
+        Swing(float warmupTime, float cooldownTime,
+              StatusAppCycle statusAppCycle,
+              ArrayList<Tick> downward, ArrayList<Tick> unterhau)
         {
-            super(warmupTime, cooldownTime, downward, unterhau);
+            super(warmupTime, cooldownTime, statusAppCycle,
+                    downward, unterhau);
         }
 
         @Override

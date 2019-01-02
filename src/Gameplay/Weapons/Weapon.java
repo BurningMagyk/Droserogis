@@ -343,6 +343,38 @@ public class Weapon extends Item
         }
     }
 
+    class StatusAppCycle
+    {
+        StatusApp[] statusApps = new StatusApp[3];
+        StatusAppCycle(StatusApp start, StatusApp run, StatusApp finish)
+        {
+            statusApps[0] = start;
+            statusApps[1] = run;
+            statusApps[2] = finish;
+        }
+
+        void applyStart(Actor actor) { apply(actor, 0); }
+        void applyRun(Actor actor) { apply(actor, 1); }
+        void applyFinish(Actor actor) { apply(actor, 2); }
+        private void apply(Actor actor, int step)
+        {
+            actor.addStatus(statusApps[step].time, statusApps[step].status);
+        }
+    }
+    class StatusApp
+    {
+        Actor.Status status;
+        float time;
+
+        StatusApp(Actor.Status status, float time)
+        {
+            this.status = status;
+            this.time = time;
+        }
+    }
+
+
+
     private float reduceTheta(float theta)
     {
         while (theta < 0) { theta += Math.PI * 2; }
