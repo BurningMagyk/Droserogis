@@ -144,13 +144,13 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = crawlAccel;
-                topSpeed = getTopSpeed(true);//pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
+                accel = status[Status.STAGNANT.ID()] > 0 ? 0 : crawlAccel;
+                topSpeed = getTopSpeed(true);
             }
             else
             {
-                accel = runAccel;
-                topSpeed = getTopSpeed(false);//pressingShift ? topSprintSpeed : topRunSpeed;
+                accel = status[Status.STAGNANT.ID()] > 0 ? 0 : runAccel;
+                topSpeed = getTopSpeed(false);
             }
 
             if (dirHoriz == LEFT)
@@ -162,6 +162,7 @@ public class Actor extends Item
                     addVelocityX((float) -minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
+                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() > -rushSpeed) setVelocityX(-rushSpeed);
             }
             else if (dirHoriz == RIGHT)
             {
@@ -172,6 +173,7 @@ public class Actor extends Item
                     addVelocityX((float) minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(accel));
+                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() < rushSpeed) setVelocityX(rushSpeed);
             }
 
             if (pressedJumpTime > 0)
@@ -293,10 +295,16 @@ public class Actor extends Item
     private float getTopSpeed(boolean low)
     {
         if (status[Status.STAGNANT.ID()] > 0) return 0;
-        if (low) return pressingShift ? topLowerSprintSpeed : topCrawlSpeed;
+        if (low) return shouldSprint() ? topLowerSprintSpeed : topCrawlSpeed;
         if (status[Status.PLODDED.ID()] > 0) return plodSpeed;
-        if (pressingShift) return topSprintSpeed;
+        if (shouldSprint()) return topSprintSpeed;
         return topRunSpeed;
+    }
+
+    private boolean shouldSprint()
+    {
+        return pressingShift
+                && dirFace != -1 && dirHoriz != -1 && dirFace == dirHoriz;
     }
 
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
@@ -331,7 +339,9 @@ public class Actor extends Item
             if (dirHoriz == -1
                     || (getVelocityX() < 0 && dirHoriz == RIGHT)
                     || (getVelocityX() > 0 && dirHoriz == LEFT)
-                    || state == State.SLIDE)
+                    || state == State.SLIDE
+                    || (Math.abs(getVelocityX()) > plodSpeed && status[Status.PLODDED.ID()] > 0)
+                    || status[Status.STAGNANT.ID()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -538,7 +548,7 @@ public class Actor extends Item
                 if (dirHoriz != -1)
                 {
                     if (Math.abs(getVelocityX()) > topCrawlSpeed
-                            && pressingShift) return State.LOWER_SPRINT;
+                            && shouldSprint()) return State.LOWER_SPRINT;
                     return State.CRAWL;
                 }
                 return State.CROUCH;
@@ -563,7 +573,7 @@ public class Actor extends Item
             if (dirHoriz != -1)
             {
                 if (Math.abs(getVelocityX()) > topRunSpeed
-                        && pressingShift) return State.SPRINT;
+                        && shouldSprint()) return State.SPRINT;
                 return State.RUN;
             }
             return State.STAND;
@@ -653,6 +663,8 @@ public class Actor extends Item
      * They can go faster while plodding with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
     private float plodSpeed = 0.04F;
+
+    private float rushSpeed = 0.3F;
 
     /* This is the highest speed the player can get from sprinting alone.
      * They can go faster while sprinting with the help of external influences,
@@ -826,7 +838,8 @@ public class Actor extends Item
     public enum Status
     {
         PLODDED { int ID() { return 0; } },
-        STAGNANT { int ID() { return 1; } };
+        STAGNANT { int ID() { return 1; } },
+        RUSHED { int ID() { return 2; } };
         int ID() { return -1; }
     }
     public void addStatus(float time, Status status)

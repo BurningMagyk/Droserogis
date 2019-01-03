@@ -1,5 +1,6 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Util.Print;
 import Util.Vec2;
@@ -18,6 +19,16 @@ public class Sword extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
+        StatusAppCycle plodRunCycle = new StatusAppCycle(
+                null, new StatusApp(Actor.Status.PLODDED, 0.05F), null);
+        StatusAppCycle rushStagnateCycle = new StatusAppCycle(
+                new StatusApp(Actor.Status.RUSHED, 0.05F),
+                null, new StatusApp(Actor.Status.STAGNANT, 0.1F));
+
+        //================================================================================================================
+        // Thrusting straight forward, stabbing downward, stabbing upward, and stabbing behind
+        //================================================================================================================
+
         ArrayList<Tick> thrustReach = new ArrayList<>(),
                 thrustDownward = new ArrayList<>(),
                 thrustUnterhau = new ArrayList<>(),
@@ -35,27 +46,39 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.10F, 0.3F, 0F, 0F));
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
-        setOperation(new Thrust(0.6F, 0.3F,
+        setOperation(new Thrust(0.6F, 0.3F, plodRunCycle,
                         thrustReach, thrustDownward, thrustUnterhau, thrustBehind),
                 1, OpContext.STANDARD, OpContext.FREE); // standing, crouching, airborne
+
+        //================================================================================================================
+        // Thrusting straight upward
+        //================================================================================================================
 
         ArrayList<Tick> thrustUpwards = new ArrayList<>();
         thrustUpwards.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        setOperation(new DirectionalThrust(0.25F, 0.25F,
+        setOperation(new DirectionalThrust(0.25F, 0.25F, plodRunCycle,
                         thrustUpwards),
                 11, OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Thrusting diagonally forward-up
+        //================================================================================================================
 
         ArrayList<Tick> thrustDiagonal = new ArrayList<>();
         thrustDiagonal.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        setOperation(new DirectionalThrust(0.35F, 0.35F,
+        setOperation(new DirectionalThrust(0.35F, 0.35F, plodRunCycle,
                         thrustDiagonal),
                 31, OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Thrusting straight down and diagonally forward-down and
+        //================================================================================================================
 
         // Do not confuse with "thrustDownward" used in the Thrust object
         ArrayList<Tick> thrustDownwards = new ArrayList<>(),
@@ -70,12 +93,16 @@ public class Sword extends Weapon
         {
             thrustDiagonalDown.add(tick.getMirrorCopy(false, true));
         }
-        setOperation(new DirectionalThrust(0.2F, 0.2F,
+        setOperation(new DirectionalThrust(0.2F, 0.2F, plodRunCycle,
                         thrustDownwards),
                 21, OpContext.FREE);
-        setOperation(new DirectionalThrust(0.2F, 0.2F,
+        setOperation(new DirectionalThrust(0.2F, 0.2F, plodRunCycle,
                         thrustDiagonalDown),
                 41, OpContext.FREE);
+
+        //================================================================================================================
+        // Swinging in front
+        //================================================================================================================
 
         ArrayList<Tick> swingDownward = new ArrayList<>(),
                 swingUnterhau = new ArrayList<>();
@@ -87,9 +114,13 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-        setOperation(new Swing(0.4F, 0.5F,
+        setOperation(new Swing(0.4F, 0.5F, plodRunCycle,
                         swingDownward, swingUnterhau),
                 0, OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Swinging upwards
+        //================================================================================================================
 
         ArrayList<Tick> swingForehand = new ArrayList<>(),
                 swingBackhand = new ArrayList<>();
@@ -111,10 +142,10 @@ public class Sword extends Weapon
         {
             swingBackhandDown.add(tick.getMirrorCopy(false, true));
         }
-        setOperation(new TurningSwing(0.3F, 0.5F,
+        setOperation(new TurningSwing(0.3F, 0.5F, plodRunCycle,
                 swingForehand, swingBackhand),
                 10, OpContext.STANDARD, OpContext.LOW, OpContext.FREE);
-        setOperation(new TurningSwing(0.1F, 0.5F,
+        setOperation(new TurningSwing(0.1F, 0.5F, plodRunCycle,
                         swingForehandDown, swingBackhandDown),
                 20, OpContext.FREE);
 
@@ -135,7 +166,8 @@ public class Sword extends Weapon
         public String getName() { return "thrust"; }
 
         @Override
-        public void start(DirEnum direction, Operation prev) {
+        public void start(DirEnum direction, Operation prev)
+        {
             dir = direction;
             totalSec = 0;
             state = State.WARMUP;
@@ -155,6 +187,8 @@ public class Sword extends Weapon
                 }
             }
             else hau = 3;
+
+            statusAppCycle.applyStart();
 
             Print.blue("Operating " + getName() + " using " + getStyle()
                     + " as " + hau);
@@ -206,6 +240,7 @@ public class Sword extends Weapon
             if (state == State.EXECUTION) return false;
 
             orient.set(execJourney[hau].get(0).tickOrient);
+            statusAppCycle.applyFinish();
             return true;
         }
     }
@@ -215,6 +250,8 @@ public class Sword extends Weapon
         Journey[] warmJourney, coolJourney;
         int hau = 0;
         ArrayList<Tick>[] execJourney;
+
+        StatusAppCycle statusAppCycle;
 
         BasicMelee(float warmupTime, float cooldownTime,
                    StatusAppCycle statusAppCycle,
@@ -232,6 +269,7 @@ public class Sword extends Weapon
                         execJourney[i].get(execJourney[i].size() - 1).getOrient(),
                         defaultOrient, cooldownTime);
             }
+            this.statusAppCycle = statusAppCycle;
         }
 
         float totalSec = 0;
@@ -245,7 +283,8 @@ public class Sword extends Weapon
         public DirEnum getDir() { return dir; }
 
         @Override
-        public void start(DirEnum direction, Operation prev) {
+        public void start(DirEnum direction, Operation prev)
+        {
             dir = direction;
             totalSec = 0;
             state = State.WARMUP;
@@ -261,6 +300,8 @@ public class Sword extends Weapon
                 }
             }
 
+            statusAppCycle.applyStart();
+
             Print.blue("Operating " + getName() + " using " + getStyle()
                     + " as " + hau);
         }
@@ -268,6 +309,8 @@ public class Sword extends Weapon
         @Override
         public boolean run(float deltaSec)
         {
+            statusAppCycle.applyRun();
+
             totalSec += deltaSec;
 
             if (state == State.WARMUP)
@@ -299,6 +342,8 @@ public class Sword extends Weapon
 
             totalSec = 0;
             state = State.WARMUP;
+
+            statusAppCycle.applyFinish();
             return true;
         }
 
@@ -306,6 +351,8 @@ public class Sword extends Weapon
         public boolean mayInterrupt()
         {
             if (state == State.EXECUTION) return false;
+
+            statusAppCycle.applyFinish();
             return true;
         }
     }

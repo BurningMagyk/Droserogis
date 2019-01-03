@@ -353,12 +353,13 @@ public class Weapon extends Item
             statusApps[2] = finish;
         }
 
-        void applyStart(Actor actor) { apply(actor, 0); }
-        void applyRun(Actor actor) { apply(actor, 1); }
-        void applyFinish(Actor actor) { apply(actor, 2); }
-        private void apply(Actor actor, int step)
+        void applyStart() { apply(0); }
+        void applyRun() { apply(1); }
+        void applyFinish() { apply(2); }
+        private void apply(int step)
         {
-            actor.addStatus(statusApps[step].time, statusApps[step].status);
+            if (statusApps[step] != null)
+                actor.addStatus(statusApps[step].time, statusApps[step].status);
         }
     }
     class StatusApp
