@@ -517,6 +517,7 @@ public class Actor extends Item
 
         if (pressingAttack[attackKey] != pressed)
             weapon.operate(pressed, keyCombo, status);
+        else if (!pressed) weapon.operate(false, keyCombo, status);
         pressingAttack[attackKey] = pressed;
     }
 
@@ -539,7 +540,9 @@ public class Actor extends Item
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if (dirVert == DOWN)
+            if (dirVert == DOWN
+                    && status[Status.STAGNANT.ID()] == 0
+                    && status[Status.RUSHED.ID()] == 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
 

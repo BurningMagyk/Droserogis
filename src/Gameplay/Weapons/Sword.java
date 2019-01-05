@@ -20,10 +20,13 @@ public class Sword extends Weapon
         orient.set(defaultOrient.copy());
 
         StatusAppCycle plodRunCycle = new StatusAppCycle(
-                null, new StatusApp(Actor.Status.PLODDED, 0.05F), null);
+                null,
+                new StatusApp(0.05F, Actor.Status.PLODDED),
+                null);
         StatusAppCycle rushStagnateCycle = new StatusAppCycle(
-                new StatusApp(Actor.Status.RUSHED, 0.05F),
-                null, new StatusApp(Actor.Status.STAGNANT, 0.1F));
+                new StatusApp(0.05F, Actor.Status.RUSHED),
+                new StatusApp(0.01F, Actor.Status.STAGNANT),
+                new StatusApp(0.01F, Actor.Status.STAGNANT));
 
         //================================================================================================================
         // Thrusting straight forward, stabbing downward, stabbing upward, and stabbing behind
@@ -46,7 +49,7 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.10F, 0.3F, 0F, 0F));
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
-        setOperation(new Thrust(0.6F, 0.3F, plodRunCycle,
+        setOperation(new GroundThrust(0.6F, 0.3F, plodRunCycle,
                         thrustReach, thrustDownward, thrustUnterhau, thrustBehind),
                 1, OpContext.STANDARD, OpContext.FREE); // standing, crouching, airborne
 
@@ -151,9 +154,9 @@ public class Sword extends Weapon
 
     }
 
-    private class Thrust extends BasicMelee
+    private class GroundThrust extends Thrust
     {
-        Thrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
+        GroundThrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
                ArrayList<Tick> reachJourney,
                ArrayList<Tick> stabJourney, ArrayList<Tick> unterJourney,
                ArrayList<Tick> behindJourney)
@@ -168,6 +171,7 @@ public class Sword extends Weapon
         @Override
         public void start(DirEnum direction, Operation prev)
         {
+            erected = false;
             dir = direction;
             totalSec = 0;
             state = State.WARMUP;
@@ -355,9 +359,88 @@ public class Sword extends Weapon
             statusAppCycle.applyFinish();
             return true;
         }
+
+        @Override
+        public void letGo() {}
     }
 
-    private class DirectionalThrust extends BasicMelee
+    private class Thrust extends BasicMelee
+    {
+        Thrust(float warmupTime, float cooldownTime,
+               StatusAppCycle statusAppCycle, ArrayList<Tick>... execJourney)
+        {
+            super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+        }
+
+        boolean erected = false;
+        private boolean isLetGo = false;
+
+        @Override
+        public void start(DirEnum direction, Operation prev)
+        {
+            super.start(direction, prev);
+            erected = false;
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            if (!erected)
+            {
+                statusAppCycle.applyRun();
+                totalSec += deltaSec;
+            }
+
+            if (state == State.WARMUP)
+            {
+                erected = false;
+                if (warmJourney[hau].check(totalSec, dir))
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                for (Tick tick : execJourney[hau])
+                {
+                    if (tick.check(totalSec, dir)) return false;
+                }
+                if (isLetGo)
+                {
+                    totalSec = 0;
+                    state = State.COOLDOWN;
+                    isLetGo = false;
+                }
+                erected = true;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                erected = false;
+                if (!coolJourney[hau].check(totalSec, dir))
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+
+            statusAppCycle.applyFinish();
+            return true;
+        }
+
+        @Override
+        public void letGo()
+        {
+            isLetGo = true;
+            erected = false;
+        }
+    }
+
+    private class DirectionalThrust extends Thrust
     {
         DirectionalThrust(float warmupTime, float cooldownTime,
                           StatusAppCycle statusAppCycle,

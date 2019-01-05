@@ -112,12 +112,15 @@ public class Weapon extends Item
      */
     public void operate(boolean pressed, int keyCombo, OpContext status)
     {
-        if (!pressed) return; /* Temporary */
-        Operation op = keyCombos[status.ID()].get(keyCombo);
-        if (op != null)
+        if (pressed)
         {
-            operationQueue.addLast(op);
+            Operation op = keyCombos[status.ID()].get(keyCombo);
+            if (op != null)
+            {
+                operationQueue.addLast(op);
+            }
         }
+        else if (/* !pressed && */currentOp != null) currentOp.letGo();
     }
 
     enum Style
@@ -192,6 +195,8 @@ public class Weapon extends Item
         boolean run(float deltaSec);
 
         boolean mayInterrupt();
+
+        void letGo();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
@@ -358,23 +363,26 @@ public class Weapon extends Item
         void applyFinish() { apply(2); }
         private void apply(int step)
         {
-            if (statusApps[step] != null)
-                actor.addStatus(statusApps[step].time, statusApps[step].status);
+            if (statusApps[step] != null) statusApps[step].apply(actor);
         }
     }
     class StatusApp
     {
-        Actor.Status status;
+        Actor.Status[] status;
         float time;
 
-        StatusApp(Actor.Status status, float time)
+        StatusApp(float time, Actor.Status... status)
         {
             this.status = status;
             this.time = time;
         }
+
+        void apply(Actor actor)
+        {
+            for (Actor.Status status : this.status)
+                actor.addStatus(time, status);
+        }
     }
-
-
 
     private float reduceTheta(float theta)
     {
