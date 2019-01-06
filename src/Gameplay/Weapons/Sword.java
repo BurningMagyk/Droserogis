@@ -19,6 +19,10 @@ public class Sword extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
+        StatusAppCycle clumpCycle = new StatusAppCycle(
+                new StatusApp(0.01F, Actor.Status.CLUMPED),
+                new StatusApp(0.01F, Actor.Status.CLUMPED),
+                new StatusApp(0.01F, Actor.Status.CLUMPED));
         StatusAppCycle plodRunCycle = new StatusAppCycle(
                 null,
                 new StatusApp(0.05F, Actor.Status.PLODDED),
@@ -49,9 +53,29 @@ public class Sword extends Weapon
         thrustBehind.add(new Tick(0.10F, 0.3F, 0F, 0F));
         thrustBehind.add(new Tick(0.16F, -0.6F, 0F, 0F));
 
-        setOperation(new GroundThrust(0.6F, 0.3F, plodRunCycle,
-                        thrustReach, thrustDownward, thrustUnterhau, thrustBehind),
-                1, OpContext.STANDARD, OpContext.FREE); // standing, crouching, airborne
+        setOperation(new StandingThrust(0.6F, 0.3F, plodRunCycle,
+                thrustReach, thrustDownward, thrustUnterhau, thrustBehind),
+                new int[] {Actor.ATTACK_KEY_2}, // standing, airborne
+                OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Thrusting straight forward while crouching
+        //================================================================================================================
+
+        setOperation(new Thrust(0.6F, 0.3F, clumpCycle,
+                thrustReach),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN,
+                        Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ}, // crouching
+                OpContext.LOW);
+
+        //================================================================================================================
+        // Thrusting straight forward while sprinting
+        //================================================================================================================
+
+        setOperation(new Thrust(0.6F, 0.3F, rushStagnateCycle,
+                        thrustReach),
+                new int[] {Actor.ATTACK_KEY_2}, // sprinting
+                OpContext.LUNGE);
 
         //================================================================================================================
         // Thrusting straight upward
@@ -62,9 +86,10 @@ public class Sword extends Weapon
         thrustUpwards.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpwards.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        setOperation(new DirectionalThrust(0.25F, 0.25F, plodRunCycle,
-                        thrustUpwards),
-                11, OpContext.STANDARD, OpContext.FREE);
+        setOperation(new Thrust(0.25F, 0.25F, plodRunCycle,
+                thrustUpwards),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_UP},
+                OpContext.STANDARD, OpContext.FREE);
 
         //================================================================================================================
         // Thrusting diagonally forward-up
@@ -75,9 +100,10 @@ public class Sword extends Weapon
         thrustDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        setOperation(new DirectionalThrust(0.35F, 0.35F, plodRunCycle,
-                        thrustDiagonal),
-                31, OpContext.STANDARD, OpContext.FREE);
+        setOperation(new Thrust(0.35F, 0.35F, plodRunCycle,
+                thrustDiagonal),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
+                OpContext.STANDARD, OpContext.FREE);
 
         //================================================================================================================
         // Thrusting straight down and diagonally forward-down and
@@ -96,12 +122,14 @@ public class Sword extends Weapon
         {
             thrustDiagonalDown.add(tick.getMirrorCopy(false, true));
         }
-        setOperation(new DirectionalThrust(0.2F, 0.2F, plodRunCycle,
-                        thrustDownwards),
-                21, OpContext.FREE);
-        setOperation(new DirectionalThrust(0.2F, 0.2F, plodRunCycle,
-                        thrustDiagonalDown),
-                41, OpContext.FREE);
+        setOperation(new Thrust(0.2F, 0.2F, plodRunCycle,
+                thrustDownwards),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN},
+                OpContext.FREE);
+        setOperation(new Thrust(0.2F, 0.2F, plodRunCycle,
+                thrustDiagonalDown),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ},
+                OpContext.FREE);
 
         //================================================================================================================
         // Swinging in front
@@ -118,8 +146,9 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
         setOperation(new Swing(0.4F, 0.5F, plodRunCycle,
-                        swingDownward, swingUnterhau),
-                0, OpContext.STANDARD, OpContext.FREE);
+                swingDownward, swingUnterhau),
+                new int[] {Actor.ATTACK_KEY_1},
+                OpContext.STANDARD, OpContext.FREE);
 
         //================================================================================================================
         // Swinging upwards
@@ -147,16 +176,19 @@ public class Sword extends Weapon
         }
         setOperation(new TurningSwing(0.3F, 0.5F, plodRunCycle,
                 swingForehand, swingBackhand),
-                10, OpContext.STANDARD, OpContext.LOW, OpContext.FREE);
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_UP,
+                        Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_DOWN},
+                OpContext.STANDARD, OpContext.LOW, OpContext.FREE);
         setOperation(new TurningSwing(0.1F, 0.5F, plodRunCycle,
-                        swingForehandDown, swingBackhandDown),
-                20, OpContext.FREE);
+                swingForehandDown, swingBackhandDown),
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN},
+                OpContext.FREE);
 
     }
 
-    private class GroundThrust extends Thrust
+    private class StandingThrust extends Thrust
     {
-        GroundThrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
+        StandingThrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
                ArrayList<Tick> reachJourney,
                ArrayList<Tick> stabJourney, ArrayList<Tick> unterJourney,
                ArrayList<Tick> behindJourney)
@@ -372,6 +404,9 @@ public class Sword extends Weapon
             super(warmupTime, cooldownTime, statusAppCycle, execJourney);
         }
 
+        @Override
+        public String getName() { return "thrust"; }
+
         boolean erected = false;
         private boolean isLetGo = false;
 
@@ -438,19 +473,6 @@ public class Sword extends Weapon
             isLetGo = true;
             erected = false;
         }
-    }
-
-    private class DirectionalThrust extends Thrust
-    {
-        DirectionalThrust(float warmupTime, float cooldownTime,
-                          StatusAppCycle statusAppCycle,
-                          ArrayList<Tick> reachJourney)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, reachJourney);
-        }
-
-        @Override
-        public String getName() { return "directional_thrust"; }
     }
 
     private class Swing extends BasicMelee

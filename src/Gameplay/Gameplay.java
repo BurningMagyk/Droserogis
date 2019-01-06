@@ -178,11 +178,15 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.K)
         {
-            player.pressAttack(pressed, 0);
+            player.pressAttack(pressed, Actor.ATTACK_KEY_1);
         }
         else if (code == KeyCode.L)
         {
-            player.pressAttack(pressed, 1);
+            player.pressAttack(pressed, Actor.ATTACK_KEY_2);
+        }
+        else if (code == KeyCode.COLON)
+        {
+            player.pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
     }
 

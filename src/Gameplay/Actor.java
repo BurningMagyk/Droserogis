@@ -144,7 +144,8 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = status[Status.STAGNANT.ID()] > 0 ? 0 : crawlAccel;
+                accel = status[Status.STAGNANT.ID()] > 0
+                        || status[Status.CLUMPED.ID()] > 0 ? 0 : crawlAccel;
                 topSpeed = getTopSpeed(true);
             }
             else
@@ -294,7 +295,8 @@ public class Actor extends Item
 
     private float getTopSpeed(boolean low)
     {
-        if (status[Status.STAGNANT.ID()] > 0) return 0;
+        if (status[Status.STAGNANT.ID()] > 0
+                || status[Status.CLUMPED.ID()] > 0) return 0;
         if (low) return shouldSprint() ? topLowerSprintSpeed : topCrawlSpeed;
         if (status[Status.PLODDED.ID()] > 0) return plodSpeed;
         if (shouldSprint()) return topSprintSpeed;
@@ -341,7 +343,8 @@ public class Actor extends Item
                     || (getVelocityX() > 0 && dirHoriz == LEFT)
                     || state == State.SLIDE
                     || (Math.abs(getVelocityX()) > plodSpeed && status[Status.PLODDED.ID()] > 0)
-                    || status[Status.STAGNANT.ID()] > 0)
+                    || status[Status.STAGNANT.ID()] > 0
+                    || status[Status.CLUMPED.ID()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -492,6 +495,8 @@ public class Actor extends Item
 
     public void debug() { weapon.test(); }
 
+    public static int COMBO_UP = 10, COMBO_DOWN = 20, COMBO_HORIZ = 40,
+            ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2;
     void pressAttack(boolean pressed, int attackKey)
     {
         Weapon.OpContext status = Weapon.OpContext.STANDARD;
@@ -502,18 +507,12 @@ public class Actor extends Item
         else if (state.isAirborne()) status = Weapon.OpContext.FREE;
 
         int keyCombo = attackKey;
-        if (dirVert == UP)
-        {
-            // If dirHoriz is left or right
-            if (dirHoriz >= 0) keyCombo += 30;
-            else keyCombo += 10;
-        }
-        else if (dirVert == DOWN)
-        {
-            // If dirHoriz is left or right
-            if (dirHoriz >= 0) keyCombo += 40;
-            else keyCombo += 20;
-        }
+        if ((dirVert == UP || dirVert == DOWN) && dirHoriz >= 0)
+            keyCombo += COMBO_HORIZ;
+        if (dirVert == UP) keyCombo += COMBO_UP;
+        else if (dirVert == DOWN) keyCombo += COMBO_DOWN
+                // When the player is crouching while also pressing up
+                + (pressingUp ? COMBO_UP : 0);
 
         if (pressingAttack[attackKey] != pressed)
             weapon.operate(pressed, keyCombo, status);
@@ -842,7 +841,8 @@ public class Actor extends Item
     {
         PLODDED { int ID() { return 0; } },
         STAGNANT { int ID() { return 1; } },
-        RUSHED { int ID() { return 2; } };
+        CLUMPED { int ID() { return 2; } },
+        RUSHED { int ID() { return 3; } };
         int ID() { return -1; }
     }
     public void addStatus(float time, Status status)

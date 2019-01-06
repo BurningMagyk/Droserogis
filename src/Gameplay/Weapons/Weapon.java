@@ -115,10 +115,8 @@ public class Weapon extends Item
         if (pressed)
         {
             Operation op = keyCombos[status.ID()].get(keyCombo);
-            if (op != null)
-            {
-                operationQueue.addLast(op);
-            }
+
+            if (op != null) operationQueue.addLast(op);
         }
         else if (/* !pressed && */currentOp != null) currentOp.letGo();
     }
@@ -201,11 +199,14 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
-    void setOperation(Operation op, int keyCombo, OpContext... status)
+    void setOperation(Operation op, int[] keyCombo, OpContext... status)
     {
         for (OpContext s : status)
         {
-            keyCombos[s.ID()].put(keyCombo, op);
+            for (int k : keyCombo)
+            {
+                keyCombos[s.ID()].put(k, op);
+            }
         }
     }
 
