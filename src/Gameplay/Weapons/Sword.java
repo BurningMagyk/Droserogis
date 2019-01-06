@@ -73,7 +73,7 @@ public class Sword extends Weapon
         //================================================================================================================
 
         setOperation(new Thrust(0.6F, 0.3F, rushStagnateCycle,
-                        thrustReach),
+                thrustReach),
                 new int[] {Actor.ATTACK_KEY_2}, // sprinting
                 OpContext.LUNGE);
 
@@ -149,6 +149,25 @@ public class Sword extends Weapon
                 swingDownward, swingUnterhau),
                 new int[] {Actor.ATTACK_KEY_1},
                 OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Swinging in front while sprinting // TODO: Use different positioning
+        //================================================================================================================
+
+        swingDownward = new ArrayList<>();
+        swingUnterhau = new ArrayList<>();
+        swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
+        swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+        swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+        swingDownward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+        swingUnterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+        swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+        swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+        swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+        setOperation(new Swing(0.6F, 0.3F, rushStagnateCycle,
+                swingDownward, swingUnterhau),
+                new int[] {Actor.ATTACK_KEY_1}, // sprinting
+                OpContext.LUNGE);
 
         //================================================================================================================
         // Swinging upwards
