@@ -412,7 +412,7 @@ public class Sword extends Weapon
         }
 
         @Override
-        public void letGo() {}
+        public boolean letGo() { return true; }
     }
 
     private class Thrust extends BasicMelee
@@ -457,6 +457,7 @@ public class Sword extends Weapon
             }
             else if (state == State.EXECUTION)
             {
+                //Print.blue("erected: " + erected + ", isLetGo: " + isLetGo);
                 for (Tick tick : execJourney[hau])
                 {
                     if (tick.check(totalSec, dir)) return false;
@@ -487,10 +488,12 @@ public class Sword extends Weapon
         }
 
         @Override
-        public void letGo()
+        public boolean letGo()
         {
+            boolean returnValue = isLetGo;
             isLetGo = true;
             erected = false;
+            return returnValue;
         }
     }
 

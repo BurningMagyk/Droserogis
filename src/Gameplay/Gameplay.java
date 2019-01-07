@@ -184,9 +184,9 @@ public class Gameplay implements Reactor
         {
             player.pressAttack(pressed, Actor.ATTACK_KEY_2);
         }
-        else if (code == KeyCode.COLON)
+        else if (code == KeyCode.SEMICOLON)
         {
-            player.pressAttack(pressed, Actor.ATTACK_KEY_3);
+            //player.pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
     }
 

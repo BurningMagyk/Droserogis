@@ -118,7 +118,15 @@ public class Weapon extends Item
 
             if (op != null) operationQueue.addLast(op);
         }
-        else if (/* !pressed && */currentOp != null) currentOp.letGo();
+        else if (/* !pressed && */currentOp != null)
+        {
+            int i = 0;
+            Operation op = currentOp;
+            while (op.letGo() && i < operationQueue.size())
+            {
+                op = operationQueue.get(i); i++;
+            }
+        }
     }
 
     enum Style
@@ -194,7 +202,7 @@ public class Weapon extends Item
 
         boolean mayInterrupt();
 
-        void letGo();
+        boolean letGo();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
