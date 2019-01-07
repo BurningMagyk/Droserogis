@@ -504,7 +504,8 @@ public class Actor extends Item
             status = Weapon.OpContext.LUNGE;
         if (state == State.CROUCH || state == State.CRAWL)
             status = Weapon.OpContext.LOW;
-        else if (state.isAirborne()) status = Weapon.OpContext.FREE;
+        else if (state.isAirborne() || state == State.SWIM)
+            status = Weapon.OpContext.FREE;
 
         int keyCombo = attackKey;
         if ((dirVert == UP || dirVert == DOWN) && dirHoriz >= 0)

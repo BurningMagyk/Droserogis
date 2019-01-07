@@ -151,7 +151,7 @@ public class Sword extends Weapon
                 OpContext.STANDARD, OpContext.FREE);
 
         //================================================================================================================
-        // Swinging in front while sprinting // TODO: Use different positioning
+        // Swinging in front while sprinting
         //================================================================================================================
 
         swingDownward = new ArrayList<>();
@@ -491,8 +491,11 @@ public class Sword extends Weapon
         public boolean letGo()
         {
             boolean returnValue = isLetGo;
+
             isLetGo = true;
             erected = false;
+
+            /* Usually always returns true */
             return returnValue;
         }
     }
