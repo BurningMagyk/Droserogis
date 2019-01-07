@@ -149,6 +149,11 @@ public class Sword extends Weapon
                 swingDownward, swingUnterhau),
                 new int[] {Actor.ATTACK_KEY_1},
                 OpContext.STANDARD, OpContext.FREE);
+        setOperation(new SimpleSwing(0.3F, 0.5F, plodRunCycle,
+                swingUnterhau),
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN,
+                        Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ},
+                OpContext.LOW);
 
         //================================================================================================================
         // Swinging in front while sprinting
@@ -156,17 +161,34 @@ public class Sword extends Weapon
 
         swingDownward = new ArrayList<>();
         swingUnterhau = new ArrayList<>();
-        swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-        swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-        swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-        swingDownward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-        swingUnterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-        swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-        swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-        swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-        setOperation(new Swing(0.6F, 0.3F, rushStagnateCycle,
-                swingDownward, swingUnterhau),
+
+        swingDownward.add(new Tick(0.03F,  -0.8F,-0.6F, -2F));
+        swingDownward.add(new Tick(0.06F,  -0.2F,-0.85F, -1.5F));
+        swingDownward.add(new Tick(0.09F,  0.4F,-0.85F, -1F));
+        swingDownward.add(new Tick(0.12F,  1.05F,-0.7F, -0.5F));
+
+        swingDownward.add(new Tick(0.15F, 1.05F, -0.7F, -0.8F));
+        swingDownward.add(new Tick(0.18F, 1.4F, -0.4F, -0.4F));
+        swingDownward.add(new Tick(0.21F, 1.5F, -0.1F, -0.1F));
+        swingDownward.add(new Tick(0.24F, 1.4F, 0.2F, 0.2F));
+
+        swingUnterhau.add(new Tick(0.03F,  -0.8F,0.6F, -2F));
+        swingUnterhau.add(new Tick(0.06F,  -0.2F,0.85F, -1.5F));
+        swingUnterhau.add(new Tick(0.09F,  0.4F,0.85F, -1F));
+        swingUnterhau.add(new Tick(0.12F,  1.05F,0.7F, -0.5F));
+
+        swingUnterhau.add(new Tick(0.15F, 1.4F, 0.2F, 0.2F));
+        swingUnterhau.add(new Tick(0.18F, 1.5F, -0.1F, -0.1F));
+        swingUnterhau.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
+        swingUnterhau.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
+
+        setOperation(new SimpleSwing(0.15F, 0.3F, rushStagnateCycle,
+                swingDownward),
                 new int[] {Actor.ATTACK_KEY_1}, // sprinting
+                OpContext.LUNGE);
+        setOperation(new SimpleSwing(0.15F, 0.3F, rushStagnateCycle,
+                swingUnterhau),
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ}, // crouch + sprinting
                 OpContext.LUNGE);
 
         //================================================================================================================
@@ -512,5 +534,18 @@ public class Sword extends Weapon
 
         @Override
         public String getName() { return "swing"; }
+    }
+
+    private class SimpleSwing extends BasicMelee
+    {
+        SimpleSwing(float warmupTime, float cooldownTime,
+              StatusAppCycle statusAppCycle,
+              ArrayList<Tick> swing)
+        {
+            super(warmupTime, cooldownTime, statusAppCycle, swing);
+        }
+
+        @Override
+        public String getName() { return "lunging_swing"; }
     }
 }

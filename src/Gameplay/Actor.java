@@ -542,7 +542,8 @@ public class Actor extends Item
         {
             if (dirVert == DOWN
                     && status[Status.STAGNANT.ID()] == 0
-                    && status[Status.RUSHED.ID()] == 0)
+                    && status[Status.RUSHED.ID()] == 0
+                    && status[Status.PLODDED.ID()] == 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
 
@@ -850,8 +851,6 @@ public class Actor extends Item
     {
         if (this.status[status.ID()] < time) this.status[status.ID()] = time;
     }
-    //public void stagnate(float time) { addStatus(time, Status.STAGNANT); }
-    //public void plod(float time) { addStatus(time, Status.PLODDED); }
 
     boolean setTriggered(boolean triggered)
     {
