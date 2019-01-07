@@ -45,7 +45,7 @@ public class Actor extends Item
             pressingLeft = false, pressingRight = false,
             pressingUp = false, pressingDown = false, pressingShift = false;
     // change to more when other attack buttons get implemented
-    private boolean[] pressingAttack = new boolean[2];
+    private boolean[] pressingAttack = new boolean[4];
 
     private Weapon weapon;
     private float[] status = new float[Status.values().length];
@@ -496,7 +496,8 @@ public class Actor extends Item
     public void debug() { weapon.test(); }
 
     public static int COMBO_UP = 10, COMBO_DOWN = 20, COMBO_HORIZ = 40,
-            ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2;
+            ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2,
+            ATTACK_KEY_4 = 3;
     void pressAttack(boolean pressed, int attackKey)
     {
         Weapon.OpContext status = Weapon.OpContext.STANDARD;
