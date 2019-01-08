@@ -24,7 +24,7 @@ public class Weapon extends Item
     Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
     Orient orient = defaultOrient.copy();
 
-    public void test(){Print.yellow("orient: " + orient.theta);}
+    public void test() { Print.yellow("orient: " + orient.theta); }
 
     private Actor actor;
     private boolean ballistic = true;
@@ -182,12 +182,6 @@ public class Weapon extends Item
         return corners;
     }
     Style getStyle() { return style; }
-
-//    void setRelativePos(Vec2 p)
-//    {
-//        orient.setX(p.x);
-//        orient.setY(p.y);
-//    }
 
     interface Operation
     {
@@ -398,5 +392,120 @@ public class Weapon extends Item
         while (theta < 0) { theta += Math.PI * 2; }
         while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
         return theta;
+    }
+
+    class BasicMelee implements Operation
+    {
+        Journey[] warmJourney, coolJourney;
+        int hau = 0;
+        ArrayList<Tick>[] execJourney;
+
+        StatusAppCycle statusAppCycle;
+
+        BasicMelee(float warmupTime, float cooldownTime,
+                   StatusAppCycle statusAppCycle,
+                   ArrayList<Tick>... execJourney)
+        {
+            this.execJourney = execJourney;
+
+            warmJourney = new Journey[execJourney.length];
+            coolJourney = new Journey[execJourney.length];
+            for (int i = 0; i < execJourney.length; i++)
+            {
+                warmJourney[i] = new Journey(defaultOrient,
+                        execJourney[i].get(0).getOrient(), warmupTime);
+                coolJourney[i] = new Journey(
+                        execJourney[i].get(execJourney[i].size() - 1).getOrient(),
+                        defaultOrient, cooldownTime);
+            }
+            this.statusAppCycle = statusAppCycle;
+        }
+
+        float totalSec = 0;
+        DirEnum dir;
+        State state = State.WARMUP;
+
+        @Override
+        public String getName() { return "basic_melee"; }
+
+        @Override
+        public DirEnum getDir() { return dir; }
+
+        @Override
+        public void start(DirEnum direction, Operation prev)
+        {
+            dir = direction;
+            totalSec = 0;
+            state = State.WARMUP;
+
+            float hauDist = Float.MAX_VALUE;
+            for (int i = 0; i < warmJourney.length; i++)
+            {
+                float currDist = warmJourney[i].setStart(orient);
+                if (currDist < hauDist)
+                {
+                    hauDist = currDist;
+                    hau = i;
+                }
+            }
+
+            statusAppCycle.applyStart();
+
+            Print.blue("Operating " + getName() + " using " + getStyle()
+                    + " as " + hau);
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            statusAppCycle.applyRun();
+
+            totalSec += deltaSec;
+
+            if (state == State.WARMUP)
+            {
+                if (warmJourney[hau].check(totalSec, dir))
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                for (Tick tick : execJourney[hau])
+                {
+                    if (tick.check(totalSec, dir)) return false;
+                }
+                totalSec = 0;
+                state = State.COOLDOWN;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                if (!coolJourney[hau].check(totalSec, dir))
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+
+            statusAppCycle.applyFinish();
+            return true;
+        }
+
+        @Override
+        public boolean mayInterrupt()
+        {
+            if (state == State.EXECUTION) return false;
+
+            statusAppCycle.applyFinish();
+            return true;
+        }
+
+        @Override
+        public boolean letGo() { return true; }
     }
 }
