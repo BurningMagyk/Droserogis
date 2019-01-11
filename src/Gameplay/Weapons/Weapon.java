@@ -109,14 +109,19 @@ public class Weapon extends Item
     /**
      * Depending on keyCombo and currentSytle, will cause the weapon to do
      * something.
+     * @return - true if the params generate an op, false otherwise
      */
-    public void operate(boolean pressed, int keyCombo, OpContext status)
+    public boolean operate(boolean pressed, int keyCombo, OpContext status)
     {
         if (pressed)
         {
             Operation op = keyCombos[status.ID()].get(keyCombo);
 
-            if (op != null) operationQueue.addLast(op);
+            if (op != null)
+            {
+                operationQueue.addLast(op);
+                return true;
+            }
         }
         else if (/* !pressed && */currentOp != null)
         {
@@ -127,6 +132,7 @@ public class Weapon extends Item
                 op = operationQueue.get(i); i++;
             }
         }
+        return false;
     }
 
     enum Style

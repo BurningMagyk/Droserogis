@@ -5,7 +5,6 @@ import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
-import javax.print.attribute.standard.OrientationRequested;
 import java.util.ArrayList;
 
 /**
@@ -47,7 +46,7 @@ public class Actor extends Item
     // change to more when other attack buttons get implemented
     private boolean[] pressingAttack = new boolean[4];
 
-    private Weapon weapon;
+    private Weapon[] weapons = new Weapon[2];
     private float[] status = new float[Status.values().length];
 
     @Override
@@ -397,7 +396,11 @@ public class Actor extends Item
 
     public void setPosition(Vec2 p)
     {
-        weapon.updatePosition(p, getDims(), getWeaponFace());
+        for (Weapon weapon : weapons)
+        {
+            if (weapon != null)
+                weapon.updatePosition(p, getDims(), getWeaponFace());
+        }
         super.setPosition(p);
     }
 
@@ -493,7 +496,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { weapon.test(); }
+    public void debug() { weapons[1].test(); }
 
     public static int COMBO_UP = 10, COMBO_DOWN = 20, COMBO_HORIZ = 40,
             ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2,
@@ -516,9 +519,17 @@ public class Actor extends Item
                 // When the player is crouching while also pressing up
                 + (pressingUp ? COMBO_UP : 0);
 
-        if (pressingAttack[attackKey] != pressed)
-            weapon.operate(pressed, keyCombo, status);
-        else if (!pressed) weapon.operate(false, keyCombo, status);
+        boolean operated = false;
+        for (int i = weapons.length - 1; i >= 0; i--)
+        {
+            if (weapons[i] == null) continue;
+            if (pressingAttack[attackKey] != pressed && !operated)
+            {
+                if (weapons[i].operate(pressed, keyCombo, status)) operated = true;
+            }
+            else if (!pressed) weapons[i].operate(false, keyCombo, status);
+        }
+
         pressingAttack[attackKey] = pressed;
     }
 
@@ -532,7 +543,11 @@ public class Actor extends Item
     {
         dirHoriz = opp(dirHoriz);
         dirFace = opp(dirFace);
-        weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
+        for (Weapon weapon : weapons)
+        {
+            if (weapon != null)
+                weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
+        }
     }
 
     private State determineState()
@@ -624,7 +639,7 @@ public class Actor extends Item
 
     void equip(Weapon weapon)
     {
-        this.weapon = weapon.equip(this);
+        weapons[1] = weapon.equip(this);
     }
 
     //===============================================================================================================

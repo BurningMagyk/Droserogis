@@ -43,5 +43,7 @@ public class Natural extends Weapon
             super(warmupTime, cooldownTime, statusAppCycle,
                     horizJourney, upJourney, diagJourney);
         }
+
+
     }
 }
