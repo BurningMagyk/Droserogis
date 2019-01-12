@@ -31,8 +31,6 @@ public class Natural extends Weapon
                 new StatusApp(0.05F, Actor.Status.RUSHED),
                 new StatusApp(0.01F, Actor.Status.STAGNANT),
                 new StatusApp(0.01F, Actor.Status.CLUMPED));
-
-
     }
 
     private class Punch extends BasicMelee
