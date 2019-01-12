@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Weapon;
 import Util.Print;
 import Util.Vec2;
@@ -62,6 +63,15 @@ public class Actor extends Item
         setFriction(NORMAL_FRICTION);
 
         ORIGINAL_HEIGHT = height;
+
+        weapons[0] = new Natural(0, -4, 0.1F, 0.1F, this);
+    }
+
+    Item[] getItems()
+    {
+        Item[] items = new Item[1];
+        items[0] = weapons[0];
+        return items;
     }
 
     protected void update(ArrayList<Entity> entities, float deltaSec)

@@ -9,12 +9,13 @@ import java.util.ArrayList;
 
 public class Natural extends Weapon
 {
-    Natural(float xPos, float yPos, float width, float height)
+    public Natural(float xPos, float yPos, float width, float height, Actor actor)
     {
         super(xPos, yPos, width, height);
+        equip(actor);
 
         defaultOrient = new Orient(
-                new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
+                new Vec2(0.5F, 0), 0);
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
