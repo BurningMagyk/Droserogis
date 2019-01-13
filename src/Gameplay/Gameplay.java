@@ -270,12 +270,12 @@ public class Gameplay implements Reactor
         addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
 
 
-        player = new Actor(1F, -3F, .4f, .7f);
+        player = new Actor(1F, -3F, .35f, .7f);
         Sword sword = new Sword(0, -4, 0.45F, 0.075F);
         //player.equip(sword);
         addEntity(player);
         addEntity(sword);
-        player2 = new Actor(1F, -5F, .4f, .7f);
+        player2 = new Actor(1F, -5F, .35f, .7f);
         player2.equip(new Sword(0, -4, 0.5F, 0.1F));
         addEntity(player2);
 

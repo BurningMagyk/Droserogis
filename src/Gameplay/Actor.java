@@ -507,7 +507,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { weapons[1].test(); }
+    public void debug() { if (weapons[1] != null) weapons[1].test(); }
 
     public static int COMBO_UP = 10, COMBO_DOWN = 20, COMBO_HORIZ = 40,
             ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2,

@@ -429,8 +429,5 @@ public class Sword extends Weapon
         {
             super(warmupTime, cooldownTime, statusAppCycle, swing);
         }
-
-        @Override
-        public String getName() { return "lunging_swing"; }
     }
 }

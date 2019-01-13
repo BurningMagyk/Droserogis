@@ -23,6 +23,10 @@ public class Natural extends Weapon
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED));
+        StatusAppCycle poundCycle = new StatusAppCycle(
+                new StatusApp(0.01F, Actor.Status.CLUMPED),
+                new StatusApp(0.01F, Actor.Status.STAGNANT),
+                new StatusApp(0.01F, Actor.Status.CLUMPED));
         StatusAppCycle plodRunCycle = new StatusAppCycle(
                 null,
                 new StatusApp(0.05F, Actor.Status.PLODDED),
@@ -31,18 +35,175 @@ public class Natural extends Weapon
                 new StatusApp(0.05F, Actor.Status.RUSHED),
                 new StatusApp(0.01F, Actor.Status.STAGNANT),
                 new StatusApp(0.01F, Actor.Status.CLUMPED));
+        StatusAppCycle rushStagnateCycle = new StatusAppCycle(
+                new StatusApp(0.05F, Actor.Status.RUSHED),
+                new StatusApp(0.01F, Actor.Status.STAGNANT),
+                new StatusApp(0.01F, Actor.Status.STAGNANT));
+
+        //================================================================================================================
+        // Grabbing forward
+        //================================================================================================================
+
+        ArrayList<Tick> grabForward = new ArrayList<>();
+        grabForward.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        grabForward.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        grabForward.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+        setOperation(
+                new Grab(0.4F, 0.3F, plodRunCycle,
+                        grabForward),
+                new int[] { Actor.ATTACK_KEY_1 },
+                OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Grabbing upwards
+        //================================================================================================================
+
+        ArrayList<Tick> grabUp = new ArrayList<>();
+        grabUp.add(new Tick(0.05F, 0.4F, -0.3F, (float) -Math.PI/2));
+        grabUp.add(new Tick(0.08F, 0.4F, -0.5F, (float) -Math.PI/2));
+        grabUp.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI/2));
+        setOperation(
+                new Grab(0.4F, 0.3F, plodRunCycle,
+                        grabUp),
+                new int[] { Actor.ATTACK_KEY_1 + Actor.COMBO_UP },
+                OpContext.STANDARD, OpContext.FREE, OpContext.LOW);
+
+        //================================================================================================================
+        // Grabbing while crouching
+        //================================================================================================================
+
+        ArrayList<Tick> grabCrouch = new ArrayList<>();
+        grabCrouch.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        grabCrouch.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        grabCrouch.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+        setOperation(
+                new Grab(0.4F, 0.3F, clumpCycle,
+                        grabCrouch),
+                new int[] { Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN,
+                        Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ },
+                OpContext.LOW);
+
+        //================================================================================================================
+        // Tackling (grabbing while sprinting)
+        //================================================================================================================
+
+        ArrayList<Tick> grabSprint = new ArrayList<>();
+        grabSprint.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        grabSprint.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        grabSprint.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+        setOperation(
+                new Grab(0.4F, 0.3F, rushStagnateCycle,
+                        grabSprint),
+                new int[] { Actor.ATTACK_KEY_1 },
+                OpContext.LUNGE);
+
+        //================================================================================================================
+        // Punching forward
+        //================================================================================================================
+
+        ArrayList<Tick> punchForward = new ArrayList<>();
+        punchForward.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        punchForward.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        punchForward.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+        setOperation(
+                new Punch(0.4F, 0.3F, plodRunCycle,
+                        punchForward),
+                new int[] { Actor.ATTACK_KEY_2 },
+                OpContext.STANDARD, OpContext.FREE);
+
+        //================================================================================================================
+        // Punching upwards
+        //================================================================================================================
+
+        ArrayList<Tick> punchUp = new ArrayList<>();
+        punchUp.add(new Tick(0.05F, 0.4F, -0.3F, (float) -Math.PI/2));
+        punchUp.add(new Tick(0.08F, 0.4F, -0.5F, (float) -Math.PI/2));
+        punchUp.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI/2));
+        setOperation(
+                new Punch(0.4F, 0.3F, plodRunCycle,
+                        punchUp),
+                new int[] { Actor.ATTACK_KEY_2 + Actor.COMBO_UP },
+                OpContext.STANDARD, OpContext.FREE, OpContext.LOW);
+
+        //================================================================================================================
+        // Punching while sprinting
+        //================================================================================================================
+
+        ArrayList<Tick> punchSprint = new ArrayList<>();
+        punchSprint.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        punchSprint.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        punchSprint.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+        setOperation(
+                new Punch(0.4F, 0.3F, rushStagnateCycle,
+                        punchSprint),
+                new int[] { Actor.ATTACK_KEY_2 },
+                OpContext.LUNGE);
+
+        //================================================================================================================
+        // Pound and uppercut
+        //================================================================================================================
+
+        ArrayList<Tick> pound = new ArrayList<>(),
+                uppercut = new ArrayList<>();
+        pound.add(new Tick(0.04F, 1.05F, -0.5F, -0.8F));
+        pound.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
+        pound.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
+        pound.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
+        uppercut.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+        uppercut.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+        uppercut.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+        uppercut.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+        setOperation(new Punch(0.4F, 0.5F, plodRunCycle,
+                        pound, uppercut),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
+                OpContext.STANDARD, OpContext.FREE);
+        setOperation(new Punch(0.3F, 0.5F, plodRunCycle,
+                        uppercut),
+                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN,
+                        Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ},
+                OpContext.LOW);
     }
 
     private class Punch extends BasicMelee
     {
         Punch(float warmupTime, float cooldownTime,
-              StatusAppCycle statusAppCycle, ArrayList<Tick> horizJourney,
-              ArrayList<Tick> upJourney, ArrayList<Tick> diagJourney)
+              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
+        {
+            super(warmupTime, cooldownTime, statusAppCycle, journey);
+        }
+        Punch(float warmupTime, float cooldownTime,
+              StatusAppCycle statusAppCycle,
+              ArrayList<Tick> poundJourney, ArrayList<Tick> uppercutJourney)
         {
             super(warmupTime, cooldownTime, statusAppCycle,
-                    horizJourney, upJourney, diagJourney);
+                    poundJourney, uppercutJourney);
         }
 
+        @Override
+        public String getName() { return "punch"; }
+    }
 
+    private class Grab extends Punch
+    {
+        Grab(float warmupTime, float cooldownTime,
+             StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
+        {
+            super(warmupTime, cooldownTime, statusAppCycle, journey);
+        }
+
+        @Override
+        public String getName() { return "grab"; }
+    }
+
+    private class Kick extends BasicMelee
+    {
+        Kick(float warmupTime, float cooldownTime,
+              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
+        {
+            super(warmupTime, cooldownTime, statusAppCycle, journey);
+        }
+
+        @Override
+        public String getName() { return "kick"; }
     }
 }
