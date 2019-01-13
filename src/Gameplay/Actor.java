@@ -64,7 +64,7 @@ public class Actor extends Item
 
         ORIGINAL_HEIGHT = height;
 
-        weapons[0] = new Natural(0, -4, 0.1F, 0.1F, this);
+        weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
     }
 
     Item[] getItems()
@@ -404,6 +404,7 @@ public class Actor extends Item
         return contactVel;
     }
 
+    @Override
     public void setPosition(Vec2 p)
     {
         for (Weapon weapon : weapons)

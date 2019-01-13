@@ -65,7 +65,7 @@ public class Item extends Entity
         neutralizeVelocity(beforeDrag);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
         neutralizeVelocity(beforeFriction);
-        Vec2 contactVelocity = applyVelocity(deltaSec, entities);
+        /* Vec2 contactVelocity = */ applyVelocity(deltaSec, entities);
     }
 
     /**

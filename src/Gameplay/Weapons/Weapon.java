@@ -49,7 +49,11 @@ public class Weapon extends Item
     @Override
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
-        if (ballistic) super.update(entities, deltaSec);
+        if (ballistic)
+        {
+            super.update(entities, deltaSec);
+            updateCorners();
+        }
         else if (currentOp != null)
         {
             boolean operationDone = currentOp.run(deltaSec);
@@ -88,15 +92,19 @@ public class Weapon extends Item
         orient.setTheta(reduceTheta(theta));
     }
 
-    public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
+    private void updateCorners()
     {
-        setPosition(p);
+        shapeCornersOffset = getPosition().clone();
+    }
+    private void updateCorners(Vec2 dims, DirEnum dir)
+    {
         if (dir != DirEnum.UP && dir != DirEnum.DOWN)
         {
-            shapeCornersOffset = new Vec2(p.x + dims.x * orient.getX()
+            shapeCornersOffset = new Vec2(
+                    getPosition().x + dims.x * orient.getX()
                     * (currentOp == null ? dir.getHoriz().getSign()
                     : currentOp.getDir().getHoriz().getSign()),
-                    p.y + dims.y * orient.getY());
+                    getPosition().y + dims.y * orient.getY());
         }
 
         if (dirFace != dir && currentOp == null)
@@ -104,6 +112,11 @@ public class Weapon extends Item
             setTheta(orient.getTheta(), dir);
             dirFace = dir;
         }
+    }
+    public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
+    {
+        setPosition(p);
+        updateCorners(dims, dir);
     }
 
     /**
@@ -171,6 +184,15 @@ public class Weapon extends Item
     {
         this.actor = actor;
         ballistic = false;
+        return this;
+    }
+    public Weapon unequip(float theta, Vec2 posOffset)
+    {
+        actor = null;
+        ballistic = true;
+        setTheta(0, DirEnum.NONE);
+        setPosition(getPosition().add(shapeCornersOffset));
+        updateCorners(new Vec2(0, 0), DirEnum.NONE);
         return this;
     }
 

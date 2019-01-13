@@ -15,7 +15,7 @@ public class Natural extends Weapon
         equip(actor);
 
         defaultOrient = new Orient(
-                new Vec2(0.5F, 0), 0);
+                new Vec2(0.8F, 0), 0);
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
