@@ -250,7 +250,7 @@ public class Sword extends Weapon
             state = State.WARMUP;
 
             if (prev instanceof TurningSwing) hau = 2;
-            else if (prev instanceof Swing)
+            else if (prev instanceof Swing || prev instanceof SimpleSwing)
             {
                 float hauDist = Float.MAX_VALUE;
                 for (int i = 0; i < 2; i++)
