@@ -871,7 +871,8 @@ public class Actor extends Item
         PLODDED { int ID() { return 0; } },
         STAGNANT { int ID() { return 1; } },
         CLUMPED { int ID() { return 2; } },
-        RUSHED { int ID() { return 3; } };
+        RUSHED { int ID() { return 3; } },
+        INERT { int ID() { return 4; } };
         int ID() { return -1; }
     }
     public void addStatus(float time, Status status)

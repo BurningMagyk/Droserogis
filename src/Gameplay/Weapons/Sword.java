@@ -149,6 +149,10 @@ public class Sword extends Weapon
                 swingDownward, swingUnterhau),
                 new int[] {Actor.ATTACK_KEY_1},
                 OpContext.STANDARD, OpContext.FREE);
+        setOperation(new SimpleSwing(0.4F, 0.5F, plodRunCycle,
+                swingDownward),
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
+                OpContext.STANDARD, OpContext.FREE);
         setOperation(new SimpleSwing(0.3F, 0.5F, plodRunCycle,
                 swingUnterhau),
                 new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN,
@@ -182,9 +186,13 @@ public class Sword extends Weapon
         swingUnterhau.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
         swingUnterhau.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
 
-        setOperation(new SimpleSwing(0.15F, 0.3F, rushStagnateCycle,
-                swingDownward),
+        setOperation(new Swing(0.15F, 0.3F, rushStagnateCycle,
+                swingDownward, swingUnterhau),
                 new int[] {Actor.ATTACK_KEY_1}, // sprinting
+                OpContext.LUNGE);
+        setOperation(new SimpleSwing(0.15F, 0.3F, rushStagnateCycle,
+                        swingDownward),
+                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_HORIZ}, // sprinting
                 OpContext.LUNGE);
         setOperation(new SimpleSwing(0.15F, 0.3F, rushStagnateCycle,
                 swingUnterhau),
