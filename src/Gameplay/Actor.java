@@ -776,7 +776,7 @@ public class Actor extends Item
     //================================================================================================================
     // State
     //================================================================================================================
-    private enum State
+    public enum State
     {
         PRONE
                 {
@@ -792,18 +792,18 @@ public class Actor extends Item
                 },
         BALLISTIC
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
                 },
         RISE
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     Color getColor() { return Color.CORNFLOWERBLUE; }
                 },
         FALL
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     Color getColor() { return Color.CYAN; }
                 },
         STAND
@@ -820,6 +820,7 @@ public class Actor extends Item
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.DARKGRAY; }
+                    public boolean isSprint() { return true; }
                 },
         WALL_STICK
                 {
@@ -834,21 +835,26 @@ public class Actor extends Item
         CROUCH
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.RED; }
                 },
         CRAWL
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.HOTPINK; }
                 },
         LOWER_SPRINT
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    public boolean isSprint() { return true; }
                     Color getColor() { return Color.DEEPPINK; }
                 },
         SLIDE
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.PINK; }
                 },
         SWIM
@@ -857,8 +863,10 @@ public class Actor extends Item
                 };
 
         boolean isOnWall() { return false; }
-        boolean isAirborne() { return false; }
+        public boolean isAirborne() { return false; }
         boolean isGrounded() { return false; }
+        public boolean isLow() { return false; }
+        public boolean isSprint() { return false; }
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
     }
