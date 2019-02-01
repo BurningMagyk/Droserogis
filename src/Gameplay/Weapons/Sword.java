@@ -250,7 +250,7 @@ public class Sword extends Weapon
         public String getName() { return "thrust"; }
 
         @Override
-        public void start(DirEnum direction, Operation prev)
+        public void start(DirEnum direction)
         {
             erected = false;
             dir = direction;
@@ -301,11 +301,11 @@ public class Sword extends Weapon
         public String getName() { return "turning_swing"; }
 
         @Override
-        public void start(DirEnum direction, Operation prev) {
+        public void start(DirEnum direction) {
             dir = direction;
             changeActorDirFace();
 
-            super.start(direction, prev);
+            super.start(direction);
         }
 
         @Override
@@ -345,9 +345,9 @@ public class Sword extends Weapon
         private boolean isLetGo = false;
 
         @Override
-        public void start(DirEnum direction, Operation prev)
+        public void start(DirEnum direction)
         {
-            super.start(direction, prev);
+            super.start(direction);
             erected = false;
         }
 

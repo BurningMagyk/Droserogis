@@ -9,7 +9,7 @@ import Util.Vec2;
 
 import java.util.*;
 
-public class Weapon extends Item
+public abstract class Weapon extends Item
 {
     private DirEnum dirFace = DirEnum.RIGHT;
 
@@ -28,12 +28,11 @@ public class Weapon extends Item
 
     private Actor actor;
     private boolean ballistic = true;
-    private LinkedList<Operation> operationQueue = new LinkedList<>();
-    //private Map<Integer, Operation> keyCombos = new HashMap<>();
+    private LinkedList<Command> commandQueue = new LinkedList<>();
     private HashMap<Integer, Operation>[] keyCombos
             = new HashMap[OpContext.values().length];
     private Style style = Style.DEFAULT;
-    private Operation currentOp, prevOp;
+    private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
@@ -59,22 +58,19 @@ public class Weapon extends Item
             boolean operationDone = currentOp.run(deltaSec);
             if (operationDone)
             {
-                //prevOp = currentOp;
-                prevOp = null;
                 currentOp = null;
             }
 
-            if (!operationQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
+            if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
-                if (currentOp != null) prevOp = currentOp;
-                currentOp = operationQueue.remove();
-                currentOp.start(actor.getWeaponFace(), prevOp);
+                currentOp = getOperation(commandQueue.remove(), currentOp);
+                currentOp.start(actor.getWeaponFace());
             }
         }
-        else if (!operationQueue.isEmpty())
+        else if (!commandQueue.isEmpty())
         {
-            currentOp = operationQueue.remove();
-            currentOp.start(actor.getWeaponFace(), prevOp);
+            currentOp = getOperation(commandQueue.remove(), null);
+            currentOp.start(actor.getWeaponFace());
         }
     }
 
@@ -119,33 +115,23 @@ public class Weapon extends Item
         updateCorners(dims, dir);
     }
 
-    /**
-     * Depending on keyCombo and currentSytle, will cause the weapon to do
-     * something.
-     * @return - true if the params generate an op, false otherwise
-     */
-    public boolean operate(boolean pressed, int keyCombo, OpContext status)
-    {
-        if (pressed)
-        {
-            Operation op = keyCombos[status.ID()].get(keyCombo);
+    abstract Operation getOperation(Command command, Operation currentOp);
 
-            if (op != null)
-            {
-                operationQueue.addLast(op);
-                return true;
-            }
-        }
-        else if (/* !pressed && */currentOp != null)
+    public void addCommand(Command command)
+    {
+        if (commandQueue.size() < actor.getMaxCommandChain())
         {
-            int i = 0;
-            Operation op = currentOp;
-            while (op.letGo() && i < operationQueue.size())
-            {
-                op = operationQueue.get(i); i++;
-            }
+            commandQueue.addLast(command);
         }
-        return false;
+    }
+
+    public void releaseCommand (int attackKey)
+    {
+        if (currentOp != null)
+        {
+            currentOp.letGo(attackKey);
+        }
+        for (Command cm : commandQueue) { cm.letGo(attackKey); }
     }
 
     enum Style
@@ -217,14 +203,14 @@ public class Weapon extends Item
 
         DirEnum getDir();
 
-        void start(DirEnum direction, Operation prev);
+        void start(DirEnum direction);
 
         /** Returns true if the operation finished */
         boolean run(float deltaSec);
 
         boolean mayInterrupt();
 
-        boolean letGo();
+        void letGo(int attackKey);
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
@@ -460,7 +446,7 @@ public class Weapon extends Item
         public DirEnum getDir() { return dir; }
 
         @Override
-        public void start(DirEnum direction, Operation prev)
+        public void start(DirEnum direction)
         {
             dir = direction;
             totalSec = 0;
@@ -534,6 +520,6 @@ public class Weapon extends Item
         }
 
         @Override
-        public boolean letGo() { return true; }
+        public void letGo(int attackKey) { }
     }
 }

@@ -550,6 +550,8 @@ public class Actor extends Item
                 ? dirHoriz : dirFace, dirVert);
     }
 
+    public int getMaxCommandChain() { return 1; /* TODO: Make abstract */ }
+
     public void changeDirFace()
     {
         dirHoriz = opp(dirHoriz);
