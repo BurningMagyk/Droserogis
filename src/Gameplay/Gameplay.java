@@ -276,7 +276,6 @@ public class Gameplay implements Reactor
         addEntity(player);
         addEntity(sword);
         player2 = new Actor(1F, -5F, .35f, .7f);
-        player2.equip(new Sword(0, -4, 0.5F, 0.1F));
         addEntity(player2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);

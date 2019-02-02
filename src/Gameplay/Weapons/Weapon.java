@@ -29,17 +29,12 @@ public abstract class Weapon extends Item
     private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
-    private HashMap<Integer, Operation>[] keyCombos
-            = new HashMap[OpContext.values().length];
     private Style style = Style.DEFAULT;
     private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
-
-        for (int i = 0; i < keyCombos.length; i++)
-        { keyCombos[i] = new HashMap<>(); }
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
@@ -63,14 +58,18 @@ public abstract class Weapon extends Item
 
             if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
-                currentOp = getOperation(commandQueue.remove(), currentOp);
-                currentOp.start();
+                Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
+                currentOp = getOperation(nextCommand, currentOp);
+                if (currentOp != null)
+                    currentOp.start();
             }
         }
         else if (!commandQueue.isEmpty())
         {
-            currentOp = getOperation(commandQueue.remove(), null);
-            if (currentOp != null) currentOp.start();
+            Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
+            currentOp = getOperation(nextCommand, null);
+            if (currentOp != null)
+                currentOp.start();
         }
     }
 
@@ -222,17 +221,6 @@ public abstract class Weapon extends Item
         void letGo(int attackKey);
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
-    }
-
-    void setOperation(Operation op, int[] keyCombo, OpContext... status)
-    {
-        for (OpContext s : status)
-        {
-            for (int k : keyCombo)
-            {
-                keyCombos[s.ID()].put(k, op);
-            }
-        }
     }
 
     class Tick

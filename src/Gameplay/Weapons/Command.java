@@ -29,7 +29,7 @@ public class Command
         FACE = face;
     }
 
-    void setStats(Actor.State state, Vec2 vel)
+    Command setStats(Actor.State state, Vec2 vel)
     {
         if (state.isAirborne())
         {
@@ -80,6 +80,8 @@ public class Command
         }
 
         SPRINT = state.isSprint();
+
+        return this;
     }
 
     void letGo(int attackKey) { if (attackKey == ATTACK_KEY) hold = false; }

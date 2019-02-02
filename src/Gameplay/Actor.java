@@ -860,6 +860,7 @@ public class Actor extends Item
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
     }
+    public State getState() { return state; }
 
     //================================================================================================================
     // Status
