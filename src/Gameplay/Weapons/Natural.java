@@ -9,6 +9,9 @@ import java.util.ArrayList;
 
 public class Natural extends Weapon
 {
+    Operation getOperation(Command command, Operation currentOp){return null;}
+    boolean isApplicable(Command command){return false;}
+
     public Natural(float xPos, float yPos, float width, float height, Actor actor)
     {
         super(xPos, yPos, width, height);
@@ -19,7 +22,7 @@ public class Natural extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
-        StatusAppCycle clumpCycle = new StatusAppCycle(
+        /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED));
@@ -154,7 +157,7 @@ public class Natural extends Weapon
                 OpContext.LUNGE);*/
     }
 
-    private class Punch extends BasicMelee
+    /*private class Punch extends BasicMelee
     {
         Punch(float warmupTime, float cooldownTime,
               StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
@@ -171,9 +174,9 @@ public class Natural extends Weapon
 
         @Override
         public String getName() { return "punch"; }
-    }
+    }*/
 
-    private class OpenHands extends BasicMelee
+    /*private class OpenHands extends BasicMelee
     {
         OpenHands(float warmupTime, float cooldownTime,
              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
@@ -183,9 +186,9 @@ public class Natural extends Weapon
 
         @Override
         public String getName() { return "push"; }
-    }
+    }*/
 
-    private class Push extends OpenHands
+    /*private class Push extends OpenHands
     {
         Push(float warmupTime, float cooldownTime,
              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
@@ -195,9 +198,9 @@ public class Natural extends Weapon
 
         @Override
         public String getName() { return "push"; }
-    }
+    }*/
 
-    private class Grab extends BasicMelee
+    /*private class Grab extends BasicMelee
     {
         Grab(float warmupTime, float cooldownTime,
              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
@@ -207,7 +210,7 @@ public class Natural extends Weapon
 
         @Override
         public String getName() { return "grab"; }
-    }
+    }*/
 
     private class Slam implements Operation
     {
@@ -223,9 +226,7 @@ public class Natural extends Weapon
         }
 
         @Override
-        public void start(DirEnum direction, Operation prev) {
-
-        }
+        public void start(){ }
 
         @Override
         public boolean run(float deltaSec) {
@@ -238,9 +239,7 @@ public class Natural extends Weapon
         }
 
         @Override
-        public boolean letGo() {
-            return false;
-        }
+        public void letGo(int attackKey) { }
     }
 
     private class Shove extends Slam
@@ -253,7 +252,7 @@ public class Natural extends Weapon
         Tackle(StatusAppCycle statusAppCycle){}
     }
 
-    private class Kick extends BasicMelee
+    /*private class Kick extends BasicMelee
     {
         Kick(float warmupTime, float cooldownTime,
               StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
@@ -263,5 +262,5 @@ public class Natural extends Weapon
 
         @Override
         public String getName() { return "kick"; }
-    }
+    }*/
 }

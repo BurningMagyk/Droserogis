@@ -191,7 +191,7 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.QUOTE)
         {
-            player.pressAttack(pressed, Actor.ATTACK_KEY_4);
+            player.pressAttackMod(pressed);
         }
     }
 

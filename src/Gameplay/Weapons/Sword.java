@@ -10,6 +10,11 @@ import java.util.Collections;
 
 public class Sword extends Weapon
 {
+    @Override
+    Operation getOperation(Command command, Operation currentOp) { return null; }
+    @Override
+    boolean isApplicable(Command command) { return false; }
+
     public Sword(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
@@ -19,7 +24,7 @@ public class Sword extends Weapon
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
 
-        StatusAppCycle clumpCycle = new StatusAppCycle(
+        /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
                 new StatusApp(0.01F, Actor.Status.CLUMPED));
@@ -231,11 +236,11 @@ public class Sword extends Weapon
         setOperation(new TurningSwing(0.1F, 0.5F, plodRunCycle,
                 swingForehandDown, swingBackhandDown),
                 new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN},
-                OpContext.FREE);
+                OpContext.FREE);*/
 
     }
 
-    private class StandingThrust extends Thrust
+    /*private class StandingThrust extends Thrust
     {
         StandingThrust(float warmupTime, float cooldownTime, StatusAppCycle statusAppCycle,
                ArrayList<Tick> reachJourney,
@@ -411,7 +416,7 @@ public class Sword extends Weapon
             erected = false;
 
             /* Usually always returns true */
-            return returnValue;
+            /*return returnValue;
         }
     }
 
@@ -437,5 +442,5 @@ public class Sword extends Weapon
         {
             super(warmupTime, cooldownTime, statusAppCycle, swing);
         }
-    }
+    }*/
 }

@@ -64,13 +64,13 @@ public abstract class Weapon extends Item
             if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
             {
                 currentOp = getOperation(commandQueue.remove(), currentOp);
-                currentOp.start(actor.getWeaponFace());
+                currentOp.start();
             }
         }
         else if (!commandQueue.isEmpty())
         {
             currentOp = getOperation(commandQueue.remove(), null);
-            currentOp.start(actor.getWeaponFace());
+            if (currentOp != null) currentOp.start();
         }
     }
 
@@ -116,22 +116,31 @@ public abstract class Weapon extends Item
     }
 
     abstract Operation getOperation(Command command, Operation currentOp);
+    abstract boolean isApplicable(Command command);
 
-    public void addCommand(Command command)
+    /** Called from Actor */
+    public boolean addCommand(Command command)
     {
+        if (!isApplicable(command)) return false;
         if (commandQueue.size() < actor.getMaxCommandChain())
         {
             commandQueue.addLast(command);
+            return true;
         }
+        return false;
     }
 
+    /** Called from Actor */
     public void releaseCommand (int attackKey)
     {
         if (currentOp != null)
         {
             currentOp.letGo(attackKey);
         }
-        for (Command cm : commandQueue) { cm.letGo(attackKey); }
+        for (Command cm : commandQueue)
+        {
+            cm.letGo(attackKey);
+        }
     }
 
     enum Style
@@ -203,7 +212,7 @@ public abstract class Weapon extends Item
 
         DirEnum getDir();
 
-        void start(DirEnum direction);
+        void start();
 
         /** Returns true if the operation finished */
         boolean run(float deltaSec);
@@ -416,10 +425,13 @@ public abstract class Weapon extends Item
 
         StatusAppCycle statusAppCycle;
 
-        BasicMelee(float warmupTime, float cooldownTime,
+        BasicMelee(DirEnum direction,
+                   float warmupTime, float cooldownTime,
                    StatusAppCycle statusAppCycle,
                    ArrayList<Tick>... execJourney)
         {
+            dir = direction;
+
             this.execJourney = execJourney;
 
             warmJourney = new Journey[execJourney.length];
@@ -446,9 +458,8 @@ public abstract class Weapon extends Item
         public DirEnum getDir() { return dir; }
 
         @Override
-        public void start(DirEnum direction)
+        public void start()
         {
-            dir = direction;
             totalSec = 0;
             state = State.WARMUP;
 

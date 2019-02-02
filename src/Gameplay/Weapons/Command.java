@@ -8,12 +8,13 @@ public class Command
 {
     private final static float AIRBORNE_RATIO = 1.5F;
 
-    /* DIR is only considered with the MOMENTUM type */
-    final DirEnum DIR;
-    final int HORIZ, VERT;
-    final boolean SPRINT;
-    final StateType TYPE;
     final int ATTACK_KEY;
+    final DirEnum FACE;
+
+    /* DIR is only considered with the MOMENTUM type */
+    DirEnum DIR;
+    StateType TYPE;
+    boolean SPRINT;
 
     boolean hold = true;
 
@@ -22,12 +23,14 @@ public class Command
         LOW, MOMENTUM, FREE, STANDARD
     }
 
-    Command(int attackKey, int horiz, int vert, Actor.State state, Vec2 vel)
+    public Command(int attackKey, DirEnum face)
     {
         ATTACK_KEY = attackKey;
-        HORIZ = horiz;
-        VERT = vert;
+        FACE = face;
+    }
 
+    void setStats(Actor.State state, Vec2 vel)
+    {
         if (state.isAirborne())
         {
             if (vel.x == 0 && vel.y == 0)

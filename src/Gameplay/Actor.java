@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Command;
 import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Weapon;
 import Util.Print;
@@ -509,36 +510,23 @@ public class Actor extends Item
 
     public void debug() { if (weapons[1] != null) weapons[1].test(); }
 
-    public static int COMBO_UP = 10, COMBO_DOWN = 20, COMBO_HORIZ = 40,
-            ATTACK_KEY_1 = 0, ATTACK_KEY_2 = 1, ATTACK_KEY_3 = 2,
-            ATTACK_KEY_4 = 3;
+    static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
+            ATTACK_KEY_MOD = ATTACK_KEY_3;
+    void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     void pressAttack(boolean pressed, int attackKey)
     {
-        Weapon.OpContext status = Weapon.OpContext.STANDARD;
-        if (state == State.SPRINT || state == State.LOWER_SPRINT)
-            status = Weapon.OpContext.LUNGE;
-        if (state == State.CROUCH || state == State.CRAWL)
-            status = Weapon.OpContext.LOW;
-        else if (state.isAirborne() || state == State.SWIM)
-            status = Weapon.OpContext.FREE;
+        int usingAttackMod = pressingAttack[0] ? 3 : 0;
+        Command command = new Command(attackKey + usingAttackMod, getWeaponFace());
 
-        int keyCombo = attackKey;
-        if ((dirVert == UP || dirVert == DOWN) && dirHoriz >= 0)
-            keyCombo += COMBO_HORIZ;
-        if (dirVert == UP) keyCombo += COMBO_UP;
-        else if (dirVert == DOWN) keyCombo += COMBO_DOWN
-                // When the player is crouching while also pressing up
-                + (pressingUp ? COMBO_UP : 0);
-
-        boolean operated = false;
+        boolean commanded = false;
         for (int i = weapons.length - 1; i >= 0; i--)
         {
             if (weapons[i] == null) continue;
-            if (pressingAttack[attackKey] != pressed && !operated)
+            if (pressingAttack[attackKey] != pressed && !commanded)
             {
-                if (weapons[i].operate(pressed, keyCombo, status)) operated = true;
+                if (weapons[i].addCommand(command)) commanded = true;
             }
-            else if (!pressed) weapons[i].operate(false, keyCombo, status);
+            else if (!pressed) weapons[i].releaseCommand(attackKey);
         }
 
         pressingAttack[attackKey] = pressed;
