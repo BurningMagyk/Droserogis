@@ -16,6 +16,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Gameplay implements Reactor
 {
@@ -172,13 +173,25 @@ public class Gameplay implements Reactor
         {
             player.pressDown(pressed);
         }
+        else if (code == KeyCode.SHIFT)
+        {
+            player.pressShift(pressed);
+        }
         else if (code == KeyCode.K)
         {
-            player.pressAttack(pressed, 0);
+            player.pressAttack(pressed, Actor.ATTACK_KEY_1);
         }
         else if (code == KeyCode.L)
         {
-            player.pressAttack(pressed, 1);
+            player.pressAttack(pressed, Actor.ATTACK_KEY_2);
+        }
+        else if (code == KeyCode.SEMICOLON)
+        {
+            player.pressAttack(pressed, Actor.ATTACK_KEY_3);
+        }
+        else if (code == KeyCode.QUOTE)
+        {
+            player.pressAttackMod(pressed);
         }
     }
 
@@ -217,8 +230,8 @@ public class Gameplay implements Reactor
             if (entity instanceof Weapon)
             {
                 Vec2[] c = ((Weapon) entity).getShapeCorners();
-                double xCorners[] = {c[0].x, c[1].x, c[2].x, c[3].x};
-                double yCorners[] = {c[0].y, c[1].y, c[2].y, c[3].y};
+                double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+                double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
                 for (int i = 0; i < xCorners.length; i++)
                 {
                     xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
@@ -257,13 +270,12 @@ public class Gameplay implements Reactor
         addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
 
 
-        player = new Actor(1F, -3F, .4f, .7f);
+        player = new Actor(1F, -3F, .35f, .7f);
         Sword sword = new Sword(0, -4, 0.45F, 0.075F);
-        player.equip(sword);
+        //player.equip(sword);
         addEntity(player);
         addEntity(sword);
-        player2 = new Actor(1F, -5F, .4f, .7f);
-        player2.equip(new Sword(0, -4, 0.5F, 0.1F));
+        player2 = new Actor(1F, -5F, .35f, .7f);
         addEntity(player2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
@@ -300,11 +312,20 @@ public class Gameplay implements Reactor
                 Print.red("Error: Attempted to add duplicate Item");
                 return;
             }
-            else items.add((Item) entity);
+            else
+            {
+                if (entity instanceof Actor)
+                {
+                    items.add((Actor) entity);
+                    for (Entity ent : Arrays.asList(((Actor) entity).getItems()))
+                        addEntity(ent);
+                }
+                else items.add((Item) entity);
+            }
         }
 
         if (entities.contains(entity))
-            Print.red("Error: Attempted to add duplicate Item");
+            Print.red("Error: Attempted to add duplicate Entity");
         else entities.add(entity);
     }
 

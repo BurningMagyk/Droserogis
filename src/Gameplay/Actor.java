@@ -1,5 +1,7 @@
 package Gameplay;
 
+import Gameplay.Weapons.Command;
+import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Weapon;
 import Util.Print;
 import Util.Vec2;
@@ -26,6 +28,8 @@ public class Actor extends Item
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
+    private final float ORIGINAL_HEIGHT;
+
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
     /* The horizontal direction that the player intends to face towards.
@@ -40,9 +44,12 @@ public class Actor extends Item
 
     private boolean
             pressingLeft = false, pressingRight = false,
-            pressingUp = false, pressingDown = false;
+            pressingUp = false, pressingDown = false, pressingShift = false;
+    // change to more when other attack buttons get implemented
+    private boolean[] pressingAttack = new boolean[4];
 
-    private Weapon weapon;
+    private Weapon[] weapons = new Weapon[2];
+    private float[] status = new float[Status.values().length];
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -55,6 +62,17 @@ public class Actor extends Item
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
+
+        ORIGINAL_HEIGHT = height;
+
+        weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
+    }
+
+    Item[] getItems()
+    {
+        Item[] items = new Item[1];
+        items[0] = weapons[0];
+        return items;
     }
 
     protected void update(ArrayList<Entity> entities, float deltaSec)
@@ -62,6 +80,7 @@ public class Actor extends Item
         resetAcceleration();
         act(deltaSec);
         applyPhysics(entities, deltaSec);
+        countdownStatus(deltaSec);
     }
 
     /**
@@ -71,7 +90,8 @@ public class Actor extends Item
     {
         float vx = getVelocityX(), vy = getVelocityY();
 
-        if (pressedJumpTime > 0)
+        /* Late surfaces acts wacky when not airborne. */
+        if (pressedJumpTime > 0 && state.isAirborne())
         {
             if (touchLateSurface[DOWN] != null)
             {
@@ -134,13 +154,14 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = crawlAccel;
-                topSpeed = topCrawlSpeed;
+                accel = status[Status.STAGNANT.ID()] > 0
+                        || status[Status.CLUMPED.ID()] > 0 ? 0 : crawlAccel;
+                topSpeed = getTopSpeed(true);
             }
             else
             {
-                accel = runAccel;
-                topSpeed = topRunSpeed;
+                accel = status[Status.STAGNANT.ID()] > 0 ? 0 : runAccel;
+                topSpeed = getTopSpeed(false);
             }
 
             if (dirHoriz == LEFT)
@@ -152,6 +173,7 @@ public class Actor extends Item
                     addVelocityX((float) -minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
+                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() > -rushSpeed) setVelocityX(-rushSpeed);
             }
             else if (dirHoriz == RIGHT)
             {
@@ -162,6 +184,7 @@ public class Actor extends Item
                     addVelocityX((float) minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(accel));
+                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() < rushSpeed) setVelocityX(rushSpeed);
             }
 
             if (pressedJumpTime > 0)
@@ -280,6 +303,22 @@ public class Actor extends Item
         }
     }
 
+    private float getTopSpeed(boolean low)
+    {
+        if (status[Status.STAGNANT.ID()] > 0
+                || status[Status.CLUMPED.ID()] > 0) return 0;
+        if (low) return shouldSprint() ? topLowerSprintSpeed : topCrawlSpeed;
+        if (status[Status.PLODDED.ID()] > 0) return plodSpeed;
+        if (shouldSprint()) return topSprintSpeed;
+        return topRunSpeed;
+    }
+
+    private boolean shouldSprint()
+    {
+        return pressingShift
+                && dirFace != -1 && dirHoriz != -1 && dirFace == dirHoriz;
+    }
+
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
         applyAcceleration(getAcceleration(), deltaSec);
@@ -312,7 +351,10 @@ public class Actor extends Item
             if (dirHoriz == -1
                     || (getVelocityX() < 0 && dirHoriz == RIGHT)
                     || (getVelocityX() > 0 && dirHoriz == LEFT)
-                    || state == State.SLIDE)
+                    || state == State.SLIDE
+                    || (Math.abs(getVelocityX()) > plodSpeed && status[Status.PLODDED.ID()] > 0)
+                    || status[Status.STAGNANT.ID()] > 0
+                    || status[Status.CLUMPED.ID()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -363,10 +405,24 @@ public class Actor extends Item
         return contactVel;
     }
 
+    @Override
     public void setPosition(Vec2 p)
     {
-        weapon.updatePosition(p, getDims(), getWeaponFace());
+        for (Weapon weapon : weapons)
+        {
+            if (weapon != null)
+                weapon.updatePosition(p, getDims(), getWeaponFace());
+        }
         super.setPosition(p);
+    }
+
+    private void countdownStatus(float deltaSec)
+    {
+        for (int i = 0; i < status.length; i++)
+        {
+            status[i] -= deltaSec;
+            if (status[i] < 0) status[i] = 0;
+        }
     }
 
     void pressLeft(boolean pressed)
@@ -441,6 +497,7 @@ public class Actor extends Item
         }
         pressingDown = pressed;
     }
+    void pressShift(boolean pressed) { pressingShift = pressed; }
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
@@ -451,14 +508,28 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace); }
+    public void debug() { if (weapons[1] != null) weapons[1].test(); }
 
-    void pressAttack(boolean pressed, int keyCombo)
+    static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
+            ATTACK_KEY_MOD = ATTACK_KEY_3;
+    void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
+    void pressAttack(boolean pressed, int attackKey)
     {
-        int status = 0;
-        if (dirVert == UP) status = 1;
-        else if (dirVert == DOWN) status = 2;
-        weapon.operate(pressed, keyCombo, status);
+        int usingAttackMod = pressingAttack[0] ? 3 : 0;
+        Command command = new Command(attackKey + usingAttackMod, getWeaponFace());
+
+        boolean commanded = false;
+        for (int i = weapons.length - 1; i >= 0; i--)
+        {
+            if (weapons[i] == null) continue;
+            if (pressingAttack[attackKey] != pressed && !commanded)
+            {
+                if (weapons[i].addCommand(command)) commanded = true;
+            }
+            else if (!pressed) weapons[i].releaseCommand(attackKey);
+        }
+
+        pressingAttack[attackKey] = pressed;
     }
 
     public DirEnum getWeaponFace()
@@ -467,12 +538,17 @@ public class Actor extends Item
                 ? dirHoriz : dirFace, dirVert);
     }
 
+    public int getMaxCommandChain() { return 1; /* TODO: Make abstract */ }
+
     public void changeDirFace()
     {
         dirHoriz = opp(dirHoriz);
         dirFace = opp(dirFace);
-        Print.blue("dirHoriz: " + dirHoriz + ", dirFace: " + dirFace);
-        weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
+        for (Weapon weapon : weapons)
+        {
+            if (weapon != null)
+                weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
+        }
     }
 
     private State determineState()
@@ -481,13 +557,25 @@ public class Actor extends Item
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if (dirVert == DOWN)
+            if (dirVert == DOWN
+                    && status[Status.STAGNANT.ID()] == 0
+                    && status[Status.RUSHED.ID()] == 0
+                    && status[Status.PLODDED.ID()] == 0)
             {
+                setHeight(ORIGINAL_HEIGHT / 2);
+
                 if (Math.abs(getVelocityX()) > maxCrawlSpeed)
                     return State.SLIDE;
-                if (dirHoriz != -1) return State.CRAWL;
+                if (dirHoriz != -1)
+                {
+                    if (Math.abs(getVelocityX()) > topCrawlSpeed
+                            && shouldSprint()) return State.LOWER_SPRINT;
+                    return State.CRAWL;
+                }
                 return State.CROUCH;
             }
+            else setHeight(ORIGINAL_HEIGHT);
+
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
                 if ((dirVert == UP || dirHoriz == RIGHT)
@@ -503,7 +591,12 @@ public class Actor extends Item
                 else return State.STAND;
             }
 
-            if (dirHoriz != -1) return State.RUN;
+            if (dirHoriz != -1)
+            {
+                if (Math.abs(getVelocityX()) > topRunSpeed
+                        && shouldSprint()) return State.SPRINT;
+                return State.RUN;
+            }
             return State.STAND;
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
@@ -547,7 +640,7 @@ public class Actor extends Item
 
     void equip(Weapon weapon)
     {
-        this.weapon = weapon.equip(this);
+        weapons[1] = weapon.equip(this);
     }
 
     //===============================================================================================================
@@ -567,18 +660,14 @@ public class Actor extends Item
     //===============================================================================================================
     private Vec2 triggerContacts(float deltaSec, Vec2 goal, ArrayList<Entity> entityList)
     {
-        if (touchLateSurface[UP] != null
-                && touchLateSurface[UP].countdown(deltaSec))
-            touchLateSurface[UP] = null;
-        if (touchLateSurface[DOWN] != null
-                && touchLateSurface[DOWN].countdown(deltaSec))
-            touchLateSurface[DOWN] = null;
-        if (touchLateSurface[LEFT] != null
-                && touchLateSurface[LEFT].countdown(deltaSec))
-            touchLateSurface[LEFT] = null;
-        if (touchLateSurface[RIGHT] != null
-                && touchLateSurface[RIGHT].countdown(deltaSec))
-            touchLateSurface[RIGHT] = null;
+        for (int i = 0; i < touchLateSurface.length; i++)
+        {
+            if (touchLateSurface[i] != null
+                    && touchLateSurface[i].countdown(deltaSec))
+                touchLateSurface[i] = null;
+            else if (touchLateSurface[i] == null && touchEntity[i] != null)
+                touchLateSurface[i] = new LateSurface(touchEntity[i], getVelocity());
+        }
 
         return super.triggerContacts(goal, entityList);
     }
@@ -587,22 +676,40 @@ public class Actor extends Item
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
 
-    /* This is the highest speed the player can be running before changing
-     * their state to TUMBLE. */
+    /* This is the highest speed the player can be running or sprinting before
+     * changing their state to TUMBLE. */
     private float maxRunSpeed = 0.2F;
+
+    /* This is the highest speed the player can get from plodding alone.
+     * They can go faster while plodding with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float plodSpeed = 0.04F;
+
+    private float rushSpeed = 0.3F;
+
+    /* This is the highest speed the player can get from sprinting alone.
+     * They can go faster while sprinting with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topSprintSpeed = 0.13F;
 
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 0.15F;
+    private float topRunSpeed = 0.08F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is running on the ground. */
-    private float runAccel = 0.2F;
+     * is not null and the player is running or sprinting on the ground. */
+    private float runAccel = 0.4F;
 
     /* This is the highest speed the player can be crawling or crouching before
      * changing their state to TUMBLE or SLIDE. */
-    private float maxCrawlSpeed = 0.06F;
+    private float maxCrawlSpeed = 0.15F;
+
+    /* This is the highest speed the player can get from sprinting on their
+     * hands alone. They can go faster while sprinting on their hands with the
+     * help of external influences, such as going down a slope or being pushed
+     * by a faster object. */
+    private float topLowerSprintSpeed = 0.10F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
@@ -659,7 +766,7 @@ public class Actor extends Item
     //================================================================================================================
     // State
     //================================================================================================================
-    private enum State
+    public enum State
     {
         PRONE
                 {
@@ -675,18 +782,18 @@ public class Actor extends Item
                 },
         BALLISTIC
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
                 },
         RISE
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     Color getColor() { return Color.CORNFLOWERBLUE; }
                 },
         FALL
                 {
-                    boolean isAirborne() { return true; }
+                    public boolean isAirborne() { return true; }
                     Color getColor() { return Color.CYAN; }
                 },
         STAND
@@ -698,6 +805,12 @@ public class Actor extends Item
                 {
                     boolean isGrounded() { return true; }
                     Color getColor() { return Color.BROWN; }
+                },
+        SPRINT
+                {
+                    boolean isGrounded() { return true; }
+                    Color getColor() { return Color.DARKGRAY; }
+                    public boolean isSprint() { return true; }
                 },
         WALL_STICK
                 {
@@ -712,16 +825,26 @@ public class Actor extends Item
         CROUCH
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.RED; }
                 },
         CRAWL
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.HOTPINK; }
+                },
+        LOWER_SPRINT
+                {
+                    boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    public boolean isSprint() { return true; }
+                    Color getColor() { return Color.DEEPPINK; }
                 },
         SLIDE
                 {
                     boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
                     Color getColor() { return Color.PINK; }
                 },
         SWIM
@@ -730,10 +853,30 @@ public class Actor extends Item
                 };
 
         boolean isOnWall() { return false; }
-        boolean isAirborne() { return false; }
+        public boolean isAirborne() { return false; }
         boolean isGrounded() { return false; }
+        public boolean isLow() { return false; }
+        public boolean isSprint() { return false; }
         boolean isIncapacitated() { return false; }
         Color getColor() { return Color.BLACK; }
+    }
+    public State getState() { return state; }
+
+    //================================================================================================================
+    // Status
+    //================================================================================================================
+    public enum Status
+    {
+        PLODDED { int ID() { return 0; } },
+        STAGNANT { int ID() { return 1; } },
+        CLUMPED { int ID() { return 2; } },
+        RUSHED { int ID() { return 3; } },
+        INERT { int ID() { return 4; } };
+        int ID() { return -1; }
+    }
+    public void addStatus(float time, Status status)
+    {
+        if (this.status[status.ID()] < time) this.status[status.ID()] = time;
     }
 
     boolean setTriggered(boolean triggered)
@@ -746,7 +889,7 @@ public class Actor extends Item
     {
         private Entity entity;
         private Vec2 lateVel;
-        private float duration = 0.1F;
+        private float duration = 0.2F;
 
         LateSurface(Entity entity, Vec2 lateVel)
         {
