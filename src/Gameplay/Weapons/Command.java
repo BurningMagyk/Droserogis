@@ -12,7 +12,7 @@ public class Command
     final DirEnum FACE;
 
     /* DIR is only considered with the MOMENTUM type */
-    DirEnum DIR;
+    DirEnum MOMENTUM_DIR;
     StateType TYPE;
     boolean SPRINT;
 
@@ -36,47 +36,47 @@ public class Command
             if (vel.x == 0 && vel.y == 0)
             {
                 TYPE = StateType.FREE;
-                DIR = DirEnum.NONE;
+                MOMENTUM_DIR = DirEnum.NONE;
             }
             else if (Math.abs(vel.x) >= Math.abs(vel.y) * AIRBORNE_RATIO)
             {
                 TYPE = StateType.MOMENTUM;
-                if (vel.x < 0) DIR = DirEnum.UP;
-                else DIR = DirEnum.DOWN;
+                if (vel.x < 0) MOMENTUM_DIR = DirEnum.UP;
+                else MOMENTUM_DIR = DirEnum.DOWN;
             }
             else if (Math.abs(vel.y) >= Math.abs(vel.x) * AIRBORNE_RATIO)
             {
                 TYPE = StateType.MOMENTUM;
-                if (vel.y < 0) DIR = DirEnum.LEFT;
-                else DIR = DirEnum.RIGHT;
+                if (vel.y < 0) MOMENTUM_DIR = DirEnum.LEFT;
+                else MOMENTUM_DIR = DirEnum.RIGHT;
             }
             else
             {
                 TYPE = StateType.FREE;
-                DIR = DirEnum.NONE;
+                MOMENTUM_DIR = DirEnum.NONE;
             }
         }
         else if (state == Actor.State.SLIDE)
         {
             TYPE = StateType.MOMENTUM;
-            if (vel.x == 0) DIR = DirEnum.NONE;
-            else if (vel.x > 0) DIR = DirEnum.RIGHT;
-            else DIR = DirEnum.LEFT;
+            if (vel.x == 0) MOMENTUM_DIR = DirEnum.NONE;
+            else if (vel.x > 0) MOMENTUM_DIR = DirEnum.RIGHT;
+            else MOMENTUM_DIR = DirEnum.LEFT;
         }
         else if (state == Actor.State.SWIM)
         {
             TYPE = StateType.FREE;
-            DIR = DirEnum.NONE;
+            MOMENTUM_DIR = DirEnum.NONE;
         }
         else if (state.isLow())
         {
             TYPE = StateType.LOW;
-            DIR = DirEnum.NONE;
+            MOMENTUM_DIR = DirEnum.NONE;
         }
         else
         {
             TYPE = StateType.STANDARD;
-            DIR = DirEnum.NONE;
+            MOMENTUM_DIR = DirEnum.NONE;
         }
 
         SPRINT = state.isSprint();

@@ -129,7 +129,7 @@ public abstract class Weapon extends Item
     }
 
     /** Called from Actor */
-    public void releaseCommand (int attackKey)
+    public void releaseCommand(int attackKey)
     {
         if (currentOp != null)
         {
@@ -378,12 +378,12 @@ public abstract class Weapon extends Item
 
         ConditionAppCycle conditionAppCycle;
 
-        Melee(DirEnum direction,
+        Melee(Command command,
                    float warmupTime, float cooldownTime,
                    ConditionAppCycle statusAppCycle,
                    ArrayList<Tick> execJourney)
         {
-            dir = direction;
+            this.command = command;
 
             this.execJourney = execJourney;
 
@@ -396,14 +396,14 @@ public abstract class Weapon extends Item
         }
 
         float totalSec = 0;
-        DirEnum dir;
+        Command command;
         State state = State.WARMUP;
 
         @Override
         public String getName() { return "melee"; }
 
         @Override
-        public DirEnum getDir() { return dir; }
+        public DirEnum getDir() { return command.FACE; }
 
         @Override
         public void start()
@@ -427,7 +427,7 @@ public abstract class Weapon extends Item
 
             if (state == State.WARMUP)
             {
-                if (warmJourney.check(totalSec, dir))
+                if (warmJourney.check(totalSec, command.FACE))
                 {
                     totalSec = 0;
                     state = State.EXECUTION;
@@ -438,7 +438,7 @@ public abstract class Weapon extends Item
             {
                 for (Tick tick : execJourney)
                 {
-                    if (tick.check(totalSec, dir)) return false;
+                    if (tick.check(totalSec, command.FACE)) return false;
                 }
                 totalSec = 0;
                 state = State.COOLDOWN;
@@ -446,7 +446,7 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
-                if (!coolJourney.check(totalSec, dir))
+                if (!coolJourney.check(totalSec, command.FACE))
                 {
                     return false;
                 }
@@ -469,6 +469,81 @@ public abstract class Weapon extends Item
         }
 
         @Override
-        public void letGo(int attackKey) { }
+        public void letGo(int attackKey)
+        {
+            command.letGo(attackKey);
+        }
+    }
+
+    class HoldableMelee extends Melee
+    {
+        HoldableMelee(Command command, float warmupTime, float cooldownTime,
+               ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney)
+        {
+            super(command, warmupTime, cooldownTime, statusAppCycle, execJourney);
+        }
+
+        @Override
+        public String getName() { return "thrust"; }
+
+        boolean erected = false;
+
+        @Override
+        public void start()
+        {
+            super.start();
+            erected = false;
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            if (!erected)
+            {
+                conditionAppCycle.applyRun();
+                totalSec += deltaSec;
+            }
+
+            if (state == State.WARMUP)
+            {
+                erected = false;
+                if (warmJourney.check(totalSec, command.FACE))
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                //Print.blue("erected: " + erected + ", isLetGo: " + isLetGo);
+                for (Tick tick : execJourney)
+                {
+                    if (tick.check(totalSec, command.FACE)) return false;
+                }
+                if (!command.hold)
+                {
+                    totalSec = 0;
+                    state = State.COOLDOWN;
+                    command.hold = true;
+                }
+                erected = true;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                erected = false;
+                if (!coolJourney.check(totalSec, command.FACE))
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+
+            conditionAppCycle.applyFinish();
+            return true;
+        }
     }
 }
