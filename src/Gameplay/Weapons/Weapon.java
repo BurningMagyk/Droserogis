@@ -29,7 +29,6 @@ public abstract class Weapon extends Item
     private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
-    private Style style = Style.DEFAULT;
     private Operation currentOp;
 
     Weapon(float xPos, float yPos, float width, float height)
@@ -142,38 +141,6 @@ public abstract class Weapon extends Item
         }
     }
 
-    enum Style
-    {
-        HALF
-                {
-                    boolean isValid(Weapon weapon)
-                    {
-                        if (weapon instanceof Sword) return true;
-                        return false;
-                    }
-                },
-        MURDER
-                {
-                    boolean isValid(Weapon weapon)
-                    {
-                        if (weapon instanceof Sword) return true;
-                        return false;
-                    }
-                },
-        DEFAULT;
-
-        boolean isValid(Weapon weapon) { return true; }
-    }
-
-    public enum OpContext
-    {
-        STANDARD { int ID() { return 0; } },
-        LUNGE { int ID() { return 1; } },
-        LOW { int ID() { return 2; } },
-        FREE { int ID() { return 3; } };
-        int ID() { return -1; }
-    }
-
     public Weapon equip(Actor actor)
     {
         this.actor = actor;
@@ -203,7 +170,6 @@ public abstract class Weapon extends Item
         }
         return corners;
     }
-    Style getStyle() { return style; }
 
     interface Operation
     {
@@ -362,14 +328,14 @@ public abstract class Weapon extends Item
         }
     }
 
-    class StatusAppCycle
+    class ConditionAppCycle
     {
-        StatusApp[] statusApps = new StatusApp[3];
-        StatusAppCycle(StatusApp start, StatusApp run, StatusApp finish)
+        ConditionApp[] conditionApps = new ConditionApp[3];
+        ConditionAppCycle(ConditionApp start, ConditionApp run, ConditionApp finish)
         {
-            statusApps[0] = start;
-            statusApps[1] = run;
-            statusApps[2] = finish;
+            conditionApps[0] = start;
+            conditionApps[1] = run;
+            conditionApps[2] = finish;
         }
 
         void applyStart() { apply(0); }
@@ -377,24 +343,24 @@ public abstract class Weapon extends Item
         void applyFinish() { apply(2); }
         private void apply(int step)
         {
-            if (statusApps[step] != null) statusApps[step].apply(actor);
+            if (conditionApps[step] != null) conditionApps[step].apply(actor);
         }
     }
-    class StatusApp
+    class ConditionApp
     {
-        Actor.Status[] status;
+        Actor.Condition[] conditions;
         float time;
 
-        StatusApp(float time, Actor.Status... status)
+        ConditionApp(float time, Actor.Condition... conditions)
         {
-            this.status = status;
+            this.conditions = conditions;
             this.time = time;
         }
 
         void apply(Actor actor)
         {
-            for (Actor.Status status : this.status)
-                actor.addStatus(time, status);
+            for (Actor.Condition condition : conditions)
+                actor.addCondition(time, condition);
         }
     }
 
@@ -405,34 +371,28 @@ public abstract class Weapon extends Item
         return theta;
     }
 
-    class BasicMelee implements Operation
+    class Melee implements Operation
     {
-        Journey[] warmJourney, coolJourney;
-        int hau = 0;
-        ArrayList<Tick>[] execJourney;
+        Journey warmJourney, coolJourney;
+        ArrayList<Tick> execJourney;
 
-        StatusAppCycle statusAppCycle;
+        ConditionAppCycle conditionAppCycle;
 
-        BasicMelee(DirEnum direction,
+        Melee(DirEnum direction,
                    float warmupTime, float cooldownTime,
-                   StatusAppCycle statusAppCycle,
-                   ArrayList<Tick>... execJourney)
+                   ConditionAppCycle statusAppCycle,
+                   ArrayList<Tick> execJourney)
         {
             dir = direction;
 
             this.execJourney = execJourney;
 
-            warmJourney = new Journey[execJourney.length];
-            coolJourney = new Journey[execJourney.length];
-            for (int i = 0; i < execJourney.length; i++)
-            {
-                warmJourney[i] = new Journey(defaultOrient,
-                        execJourney[i].get(0).getOrient(), warmupTime);
-                coolJourney[i] = new Journey(
-                        execJourney[i].get(execJourney[i].size() - 1).getOrient(),
-                        defaultOrient, cooldownTime);
-            }
-            this.statusAppCycle = statusAppCycle;
+            warmJourney = new Journey(defaultOrient,
+                    execJourney.get(0).getOrient(), warmupTime);
+            coolJourney = new Journey(
+                    execJourney.get(execJourney.size() - 1).getOrient(),
+                    defaultOrient, cooldownTime);
+            this.conditionAppCycle = statusAppCycle;
         }
 
         float totalSec = 0;
@@ -440,7 +400,7 @@ public abstract class Weapon extends Item
         State state = State.WARMUP;
 
         @Override
-        public String getName() { return "basic_melee"; }
+        public String getName() { return "melee"; }
 
         @Override
         public DirEnum getDir() { return dir; }
@@ -451,33 +411,23 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            float hauDist = Float.MAX_VALUE;
-            for (int i = 0; i < warmJourney.length; i++)
-            {
-                float currDist = warmJourney[i].setStart(orient);
-                if (currDist < hauDist)
-                {
-                    hauDist = currDist;
-                    hau = i;
-                }
-            }
+            warmJourney.setStart(orient);
 
-            statusAppCycle.applyStart();
+            conditionAppCycle.applyStart();
 
-            Print.blue("Operating " + getName() + " using " + getStyle()
-                    + " as " + hau);
+            Print.blue("Operating " + getName());
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            statusAppCycle.applyRun();
+            conditionAppCycle.applyRun();
 
             totalSec += deltaSec;
 
             if (state == State.WARMUP)
             {
-                if (warmJourney[hau].check(totalSec, dir))
+                if (warmJourney.check(totalSec, dir))
                 {
                     totalSec = 0;
                     state = State.EXECUTION;
@@ -486,7 +436,7 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
-                for (Tick tick : execJourney[hau])
+                for (Tick tick : execJourney)
                 {
                     if (tick.check(totalSec, dir)) return false;
                 }
@@ -496,7 +446,7 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
-                if (!coolJourney[hau].check(totalSec, dir))
+                if (!coolJourney.check(totalSec, dir))
                 {
                     return false;
                 }
@@ -505,7 +455,7 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            statusAppCycle.applyFinish();
+            conditionAppCycle.applyFinish();
             return true;
         }
 
@@ -514,7 +464,7 @@ public abstract class Weapon extends Item
         {
             if (state == State.EXECUTION) return false;
 
-            statusAppCycle.applyFinish();
+            conditionAppCycle.applyFinish();
             return true;
         }
 

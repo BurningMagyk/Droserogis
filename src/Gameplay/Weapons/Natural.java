@@ -242,7 +242,7 @@ public class Natural extends Weapon
         public void letGo(int attackKey) { }
     }
 
-    private class Shove extends Slam
+    /*private class Shove extends Slam
     {
         Shove(StatusAppCycle statusAppCycle){}
     }
@@ -250,7 +250,7 @@ public class Natural extends Weapon
     private class Tackle extends Slam
     {
         Tackle(StatusAppCycle statusAppCycle){}
-    }
+    }*/
 
     /*private class Kick extends BasicMelee
     {

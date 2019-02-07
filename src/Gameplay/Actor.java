@@ -49,7 +49,7 @@ public class Actor extends Item
     private boolean[] pressingAttack = new boolean[4];
 
     private Weapon[] weapons = new Weapon[2];
-    private float[] status = new float[Status.values().length];
+    private float[] conditions = new float[Condition.values().length];
 
     @Override
     public Color getColor() { return state.getColor(); }
@@ -154,13 +154,12 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = status[Status.STAGNANT.ID()] > 0
-                        || status[Status.CLUMPED.ID()] > 0 ? 0 : crawlAccel;
+                accel = conditions[Condition.CANT_MOVE.ordinal()] > 0 ? 0 : crawlAccel;
                 topSpeed = getTopSpeed(true);
             }
             else
             {
-                accel = status[Status.STAGNANT.ID()] > 0 ? 0 : runAccel;
+                accel = conditions[Condition.CANT_MOVE.ordinal()] > 0 ? 0 : runAccel;
                 topSpeed = getTopSpeed(false);
             }
 
@@ -173,7 +172,7 @@ public class Actor extends Item
                     addVelocityX((float) -minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(-accel));
-                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() > -rushSpeed) setVelocityX(-rushSpeed);
+                if (conditions[Condition.FORCE_DASH.ordinal()] > 0 && getVelocityX() > -rushSpeed) setVelocityX(-rushSpeed);
             }
             else if (dirHoriz == RIGHT)
             {
@@ -184,7 +183,7 @@ public class Actor extends Item
                     addVelocityX((float) minThreshSpeed * 1.5F);
                 }
                 //addAcceleration(touchEntity[DOWN].applySlopeX(accel));
-                if (status[Status.RUSHED.ID()] > 0 && getVelocityX() < rushSpeed) setVelocityX(rushSpeed);
+                if (conditions[Condition.FORCE_DASH.ordinal()] > 0 && getVelocityX() < rushSpeed) setVelocityX(rushSpeed);
             }
 
             if (pressedJumpTime > 0)
@@ -305,10 +304,9 @@ public class Actor extends Item
 
     private float getTopSpeed(boolean low)
     {
-        if (status[Status.STAGNANT.ID()] > 0
-                || status[Status.CLUMPED.ID()] > 0) return 0;
+        if (conditions[Condition.CANT_MOVE.ordinal()] > 0) return 0;
         if (low) return shouldSprint() ? topLowerSprintSpeed : topCrawlSpeed;
-        if (status[Status.PLODDED.ID()] > 0) return plodSpeed;
+        if (conditions[Condition.SLOW_RUN.ordinal()] > 0) return plodSpeed;
         if (shouldSprint()) return topSprintSpeed;
         return topRunSpeed;
     }
@@ -352,9 +350,8 @@ public class Actor extends Item
                     || (getVelocityX() < 0 && dirHoriz == RIGHT)
                     || (getVelocityX() > 0 && dirHoriz == LEFT)
                     || state == State.SLIDE
-                    || (Math.abs(getVelocityX()) > plodSpeed && status[Status.PLODDED.ID()] > 0)
-                    || status[Status.STAGNANT.ID()] > 0
-                    || status[Status.CLUMPED.ID()] > 0)
+                    || (Math.abs(getVelocityX()) > plodSpeed && conditions[Condition.SLOW_RUN.ordinal()] > 0)
+                    || conditions[Condition.CANT_MOVE.ordinal()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -418,10 +415,10 @@ public class Actor extends Item
 
     private void countdownStatus(float deltaSec)
     {
-        for (int i = 0; i < status.length; i++)
+        for (int i = 0; i < conditions.length; i++)
         {
-            status[i] -= deltaSec;
-            if (status[i] < 0) status[i] = 0;
+            conditions[i] -= deltaSec;
+            if (conditions[i] < 0) conditions[i] = 0;
         }
     }
 
@@ -558,9 +555,7 @@ public class Actor extends Item
         else if (touchEntity[DOWN] != null)
         {
             if (dirVert == DOWN
-                    && status[Status.STAGNANT.ID()] == 0
-                    && status[Status.RUSHED.ID()] == 0
-                    && status[Status.PLODDED.ID()] == 0)
+                    && conditions[Condition.CANT_CROUCH.ordinal()] == 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
 
@@ -865,18 +860,18 @@ public class Actor extends Item
     //================================================================================================================
     // Status
     //================================================================================================================
-    public enum Status
+    public enum Condition
     {
-        PLODDED { int ID() { return 0; } },
-        STAGNANT { int ID() { return 1; } },
-        CLUMPED { int ID() { return 2; } },
-        RUSHED { int ID() { return 3; } },
-        INERT { int ID() { return 4; } };
-        int ID() { return -1; }
+        CANT_CROUCH,
+        CANT_MOVE,
+        SLOW_RUN,
+        FORCE_CROUCH,
+        FORCE_DASH;
     }
-    public void addStatus(float time, Status status)
+    public void addCondition(float time, Condition condition)
     {
-        if (this.status[status.ID()] < time) this.status[status.ID()] = time;
+        if (this.conditions[condition.ordinal()] < time)
+            this.conditions[condition.ordinal()] = time;
     }
 
     boolean setTriggered(boolean triggered)
