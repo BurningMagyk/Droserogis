@@ -114,12 +114,10 @@ public abstract class Weapon extends Item
     }
 
     abstract Operation getOperation(Command command, Operation currentOp);
-    abstract boolean isApplicable(Command command);
 
     /** Called from Actor */
     public boolean addCommand(Command command)
     {
-        if (!isApplicable(command)) return false;
         if (commandQueue.size() < actor.getMaxCommandChain())
         {
             commandQueue.addLast(command);
