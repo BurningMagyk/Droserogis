@@ -9,8 +9,15 @@ import java.util.ArrayList;
 
 public class Natural extends Weapon
 {
-    Operation getOperation(Command command, Operation currentOp){return null;}
-    boolean isApplicable(Command command){return false;}
+    private Operation PUNCH;
+
+    Operation getOperation(Command command, Operation currentOp)
+    {
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
+            return setOperation(PUNCH, command);
+        return null;
+    }
+    boolean isApplicable(Command command) { return true; }
 
     public Natural(float xPos, float yPos, float width, float height, Actor actor)
     {
@@ -21,6 +28,37 @@ public class Natural extends Weapon
                 new Vec2(0.8F, 0), 0);
         setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
         orient.set(defaultOrient.copy());
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                          PUNCH                                  ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> punchTicks = new ArrayList<>();
+        punchTicks.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
+        punchTicks.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
+        punchTicks.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
+
+        ConditionApp punchApp = new ConditionApp(
+                0.01F, Actor.Condition.CANT_CROUCH, Actor.Condition.SLOW_RUN);
+        ConditionAppCycle punchAppCycle
+                = new ConditionAppCycle(punchApp, punchApp, punchApp);
+
+        class Punch extends Melee
+        {
+            Punch(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+            }
+
+            public String getName() { return "punch"; }
+            public boolean mayInterrupt(Command check)
+            {
+                if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
+                    return super.mayInterrupt(null);
+                return false;
+            }
+        }
+
+        PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
 
         /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
@@ -212,7 +250,7 @@ public class Natural extends Weapon
         public String getName() { return "grab"; }
     }*/
 
-    private class Slam implements Operation
+    /*private class Slam implements Operation
     {
 
         @Override
@@ -240,7 +278,7 @@ public class Natural extends Weapon
 
         @Override
         public void letGo(int attackKey) { }
-    }
+    }*/
 
     /*private class Shove extends Slam
     {

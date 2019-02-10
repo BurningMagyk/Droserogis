@@ -507,23 +507,22 @@ public class Actor extends Item
 
     public void debug() { if (weapons[1] != null) weapons[1].test(); }
 
-    static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
+    public static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
     void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     void pressAttack(boolean pressed, int attackKey)
     {
-        int usingAttackMod = pressingAttack[0] ? 3 : 0;
+        int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
         Command command = new Command(attackKey + usingAttackMod, getWeaponFace());
 
-        boolean commanded = false;
         for (int i = weapons.length - 1; i >= 0; i--)
         {
             if (weapons[i] == null) continue;
-            if (pressingAttack[attackKey] != pressed && !commanded)
+            if (!pressed) weapons[i].releaseCommand(attackKey);
+            else if (pressingAttack[attackKey] != pressed)
             {
-                if (weapons[i].addCommand(command)) commanded = true;
+                if (weapons[i].addCommand(command)) break;
             }
-            else if (!pressed) weapons[i].releaseCommand(attackKey);
         }
 
         pressingAttack[attackKey] = pressed;
@@ -535,7 +534,7 @@ public class Actor extends Item
                 ? dirHoriz : dirFace, dirVert);
     }
 
-    public int getMaxCommandChain() { return 1; /* TODO: Make abstract */ }
+    public int getMaxCommandChain() { return 3; /* TODO: Make abstract */ }
 
     public void changeDirFace()
     {
@@ -866,7 +865,7 @@ public class Actor extends Item
         CANT_MOVE,
         SLOW_RUN,
         FORCE_CROUCH,
-        FORCE_DASH;
+        FORCE_DASH
     }
     public void addCondition(float time, Condition condition)
     {

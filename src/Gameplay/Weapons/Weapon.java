@@ -55,7 +55,7 @@ public abstract class Weapon extends Item
                 currentOp = null;
             }
 
-            if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt()))
+            if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt(commandQueue.peek())))
             {
                 Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
                 currentOp = getOperation(nextCommand, currentOp);
@@ -113,12 +113,18 @@ public abstract class Weapon extends Item
         updateCorners(dims, dir);
     }
 
+    Operation setOperation(Operation operation, Command command)
+    {
+        operation.setCommand(command);
+        return operation;
+    }
     abstract Operation getOperation(Command command, Operation currentOp);
+    abstract boolean isApplicable(Command command);
 
     /** Called from Actor */
     public boolean addCommand(Command command)
     {
-        if (commandQueue.size() < actor.getMaxCommandChain())
+        if (commandQueue.size() < actor.getMaxCommandChain() && isApplicable(command))
         {
             commandQueue.addLast(command);
             return true;
@@ -175,12 +181,14 @@ public abstract class Weapon extends Item
 
         DirEnum getDir();
 
+        void setCommand(Command command);
+
         void start();
 
         /** Returns true if the operation finished */
         boolean run(float deltaSec);
 
-        boolean mayInterrupt();
+        boolean mayInterrupt(Command next);
 
         void letGo(int attackKey);
 
@@ -376,13 +384,10 @@ public abstract class Weapon extends Item
 
         ConditionAppCycle conditionAppCycle;
 
-        Melee(Command command,
-                   float warmupTime, float cooldownTime,
-                   ConditionAppCycle statusAppCycle,
-                   ArrayList<Tick> execJourney)
+        Melee(float warmupTime, float cooldownTime,
+              ConditionAppCycle statusAppCycle,
+              ArrayList<Tick> execJourney)
         {
-            this.command = command;
-
             this.execJourney = execJourney;
 
             warmJourney = new Journey(defaultOrient,
@@ -402,6 +407,9 @@ public abstract class Weapon extends Item
 
         @Override
         public DirEnum getDir() { return command.FACE; }
+
+        @Override
+        public void setCommand(Command command) { this.command = command; }
 
         @Override
         public void start()
@@ -458,12 +466,9 @@ public abstract class Weapon extends Item
         }
 
         @Override
-        public boolean mayInterrupt()
+        public boolean mayInterrupt(Command check)
         {
-            if (state == State.EXECUTION) return false;
-
-            conditionAppCycle.applyFinish();
-            return true;
+            return state != State.EXECUTION;
         }
 
         @Override
@@ -475,10 +480,10 @@ public abstract class Weapon extends Item
 
     class HoldableMelee extends Melee
     {
-        HoldableMelee(Command command, float warmupTime, float cooldownTime,
+        HoldableMelee(float warmupTime, float cooldownTime,
                ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney)
         {
-            super(command, warmupTime, cooldownTime, statusAppCycle, execJourney);
+            super(warmupTime, cooldownTime, statusAppCycle, execJourney);
         }
 
         @Override
