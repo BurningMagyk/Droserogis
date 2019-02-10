@@ -9,14 +9,28 @@ import java.util.ArrayList;
 
 public class Natural extends Weapon
 {
-    private Operation PUNCH;
+    private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, SWING_UP,
+            UPPERCUT, SLAM, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_LUNGE;
 
     Operation getOperation(Command command, Operation currentOp)
     {
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
+        {
+            if (command.DIR == DirEnum.UP)
+                return setOperation(PUNCH_UP, command);
+            else if (command.DIR.getVert() == DirEnum.UP)
+                return setOperation(PUNCH_DIAG, command);
             return setOperation(PUNCH, command);
+        }
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
+        {
+            if (command.TYPE == Command.StateType.LOW)
+                return setOperation(UPPERCUT, command);
+            return setOperation(HAYMAKER, command);
+        }
         return null;
     }
+
     boolean isApplicable(Command command) { return true; }
 
     public Natural(float xPos, float yPos, float width, float height, Actor actor)
@@ -30,7 +44,7 @@ public class Natural extends Weapon
         orient.set(defaultOrient.copy());
 
         ///////////////////////////////////////////////////////////////////////
-        ///                          PUNCH                                  ///
+        ///                            PUNCH                                ///
         ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> punchTicks = new ArrayList<>();
@@ -43,22 +57,81 @@ public class Natural extends Weapon
         ConditionAppCycle punchAppCycle
                 = new ConditionAppCycle(punchApp, punchApp, punchApp);
 
-        class Punch extends Melee
-        {
+        class Punch extends Melee {
             Punch(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
                 super(warmupTime, cooldownTime, statusAppCycle, execJourney);
             }
-
             public String getName() { return "punch"; }
-            public boolean mayInterrupt(Command check)
-            {
-                if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
-                    return super.mayInterrupt(null);
-                return false;
+            public boolean mayInterrupt(Command check) {
+                return state == State.COOLDOWN;
             }
         }
 
         PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            PUNCH (UP)                           ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> punchUpTicks = new ArrayList<>();
+        punchUpTicks.add(new Tick(0.05F, 0.4F, -0.1F, (float) -Math.PI/2));
+        punchUpTicks.add(new Tick(0.08F, 0.4F, -0.4F, (float) -Math.PI/2));
+        punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI/2));
+
+        ConditionApp punchUpApp = new ConditionApp(
+                0.01F, Actor.Condition.CANT_CROUCH, Actor.Condition.CANT_MOVE);
+        ConditionAppCycle punchUpAppCycle
+                = new ConditionAppCycle(punchUpApp, punchUpApp, punchUpApp);
+
+        PUNCH_UP = new Punch(0.4F, 0.3F, punchUpAppCycle, punchUpTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            PUNCH (UP-FORWARD)                   ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> punchDiagTicks = new ArrayList<>();
+        punchDiagTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
+        punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
+        punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
+
+        PUNCH_DIAG = new Punch(0.4F, 0.3F, punchAppCycle, punchDiagTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            HAYMAKER                             ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> haymakerTicks = new ArrayList<>();
+        haymakerTicks.add(new Tick(0.05F, 1.4F, -0.4F, (float)Math.PI/4F));
+
+        class Haymaker extends Melee {
+            Haymaker(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+            }
+            public String getName() { return "haymaker"; }
+            public boolean mayInterrupt(Command check) {
+                return false;
+            }
+        }
+
+        HAYMAKER = new Haymaker(0.3F, 0.3F, punchAppCycle, haymakerTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING (UP)                           ///
+        ///////////////////////////////////////////////////////////////////////
+
+
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            UPPERCUT                             ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> uppercutTicks = new ArrayList<>();
+        uppercutTicks.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
+        uppercutTicks.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
+        uppercutTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
+        uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
+
+        UPPERCUT = new Punch(0.3F, 0.4F, punchUpAppCycle, uppercutTicks);
 
         /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),

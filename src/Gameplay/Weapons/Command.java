@@ -10,6 +10,7 @@ public class Command
 
     final int ATTACK_KEY;
     final DirEnum FACE;
+    final DirEnum DIR;
 
     /* DIR is only considered with the MOMENTUM type */
     DirEnum MOMENTUM_DIR;
@@ -18,15 +19,16 @@ public class Command
 
     boolean hold = true;
 
-    private enum StateType
+    enum StateType
     {
         LOW, MOMENTUM, FREE, STANDARD
     }
 
-    public Command(int attackKey, DirEnum face)
+    public Command(int attackKey, DirEnum face, DirEnum dir)
     {
         ATTACK_KEY = attackKey;
         FACE = face;
+        DIR = dir;
     }
 
     Command setStats(Actor.State state, Vec2 vel)

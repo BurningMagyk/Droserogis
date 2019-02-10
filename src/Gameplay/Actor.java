@@ -513,7 +513,8 @@ public class Actor extends Item
     void pressAttack(boolean pressed, int attackKey)
     {
         int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
-        Command command = new Command(attackKey + usingAttackMod, getWeaponFace());
+        Command command = new Command(attackKey + usingAttackMod,
+                getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
 
         for (int i = weapons.length - 1; i >= 0; i--)
         {
