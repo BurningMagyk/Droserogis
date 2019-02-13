@@ -189,7 +189,7 @@ public class Gameplay implements Reactor
         {
             player.pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
-        else if (code == KeyCode.QUOTE)
+        else if (code == KeyCode.U)
         {
             player.pressAttackMod(pressed);
         }

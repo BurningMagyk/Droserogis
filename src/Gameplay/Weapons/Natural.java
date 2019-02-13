@@ -9,8 +9,9 @@ import java.util.ArrayList;
 
 public class Natural extends Weapon
 {
-    private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, SWING_UP,
-            UPPERCUT, SLAM, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_LUNGE;
+    private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
+            SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
+            KICK_AERIAL_DIAG, GRAB, TACKLE, THROW;
 
     Operation getOperation(Command command, Operation currentOp)
     {
@@ -27,6 +28,16 @@ public class Natural extends Weapon
             if (command.TYPE == Command.StateType.LOW)
                 return setOperation(UPPERCUT, command);
             return setOperation(HAYMAKER, command);
+        }
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_3)
+        {
+            if (command.DIR.getHoriz() == DirEnum.NONE)
+                return setOperation(STOMP, command);
+            else return setOperation(KICK_ARC, command);
+        }
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_3 + Actor.ATTACK_KEY_MOD)
+        {
+            return setOperation(KICK, command);
         }
         return null;
     }
@@ -97,6 +108,17 @@ public class Natural extends Weapon
         PUNCH_DIAG = new Punch(0.4F, 0.3F, punchAppCycle, punchDiagTicks);
 
         ///////////////////////////////////////////////////////////////////////
+        ///                            PUSH                                 ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp pushApp = new ConditionApp(
+                0.05F, Actor.Condition.CANT_MOVE);
+        ConditionAppCycle pushAppCycle
+                = new ConditionAppCycle(null, null, pushApp);
+
+        /* Will do these when adding collision */
+
+        ///////////////////////////////////////////////////////////////////////
         ///                            HAYMAKER                             ///
         ///////////////////////////////////////////////////////////////////////
 
@@ -116,12 +138,6 @@ public class Natural extends Weapon
         HAYMAKER = new Haymaker(0.3F, 0.3F, punchAppCycle, haymakerTicks);
 
         ///////////////////////////////////////////////////////////////////////
-        ///                            SWING (UP)                           ///
-        ///////////////////////////////////////////////////////////////////////
-
-
-
-        ///////////////////////////////////////////////////////////////////////
         ///                            UPPERCUT                             ///
         ///////////////////////////////////////////////////////////////////////
 
@@ -132,6 +148,136 @@ public class Natural extends Weapon
         uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
         UPPERCUT = new Punch(0.3F, 0.4F, punchUpAppCycle, uppercutTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SHOVE                                ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionAppCycle shoveAppCycle
+                = new ConditionAppCycle(null, null, null);
+
+        /* Will do these when adding collision */
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            STOMP                                ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp stompApp = new ConditionApp(
+                0.3F, Actor.Condition.CANT_MOVE, Actor.Condition.CANT_CROUCH);
+        ConditionAppCycle stompAppCycle
+                = new ConditionAppCycle(stompApp, stompApp, stompApp);
+
+        Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
+
+        class Kick extends Punch {
+            Kick(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+                warmJourney = new Journey(footPosition.getOrient(),
+                        execJourney.get(0).getOrient(), warmupTime);
+            }
+            public String getName() { return "kick"; }
+            public void start()
+            {
+                super.start();
+                footPosition.check(-1, command.FACE);
+                warmJourney.setStart(footPosition.getOrient());
+            }
+        }
+
+        ArrayList<Tick> stompTicks = new ArrayList<>();
+        stompTicks.add(new Tick(0.04F, 0.7F, 0F, 0));
+        stompTicks.add(new Tick(0.08F, 0.7F, 0.2F, 0));
+        stompTicks.add(new Tick(0.12F, 0.7F, 0.4F, 0));
+
+        STOMP = new Kick(0.4F, 0.1F, stompAppCycle, stompTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            STOMP (FALLING)                      ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp stompFallApp = new ConditionApp(
+                0.4F, Actor.Condition.CANT_MOVE, Actor.Condition.FORCE_CROUCH);
+        ConditionAppCycle stompFallAppCycle
+                = new ConditionAppCycle(null, stompFallApp, stompFallApp);
+
+        /* Will do these when adding collision */
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            KICK                                 ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp kickApp = new ConditionApp(
+                0.2F, Actor.Condition.CANT_MOVE, Actor.Condition.CANT_CROUCH);
+        ConditionAppCycle kickAppCycle
+                = new ConditionAppCycle(kickApp, kickApp, kickApp);
+
+        ArrayList<Tick> kickTicks = new ArrayList<>();
+        kickTicks.add(new Tick(0.07F, 0.8F, 0F, 0F));
+        kickTicks.add(new Tick(0.11F, 1.3F, 0F, 0F));
+        kickTicks.add(new Tick(0.17F, 1.9F, 0F, 0F));
+
+        KICK = new Kick(0.3F, 0.4F, kickAppCycle, kickTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            KICK (ARC)                           ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> kickArcTicks = new ArrayList<>();
+        kickArcTicks.add(new Tick(0.05F, 0.5F, 0.4F, 0F));
+        kickArcTicks.add(new Tick(0.09F, 1.1F, 0.2F, (float)Math.PI/4));
+        kickArcTicks.add(new Tick(0.14F, 1.7F, 0F, (float)Math.PI/2));
+
+        KICK_ARC = new Kick(0.3F, 0.4F, kickAppCycle, kickArcTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            KICK (AERIAL-FORWARD)                ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp[] kickAerialApp = {
+                new ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH),
+                new ConditionApp(0.2F, Actor.Condition.FORCE_PRONE)};
+        ConditionAppCycle kickAerialCycle
+                = new ConditionAppCycle(kickAerialApp[0], kickAerialApp[0], kickAerialApp[1]);
+
+        class KickAerial extends HoldableMelee {
+            KickAerial(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+                warmJourney = new Journey(footPosition.getOrient(),
+                        execJourney.get(0).getOrient(), warmupTime);
+            }
+            public String getName() { return "kick"; }
+            public void start()
+            {
+                super.start();
+                footPosition.check(-1, command.FACE);
+                warmJourney.setStart(footPosition.getOrient());
+            }
+            public boolean mayInterrupt(Command check) {
+                return state == State.COOLDOWN;
+            }
+        }
+
+        ArrayList<Tick> kickAerialForwardTicks = new ArrayList<>();
+        kickAerialForwardTicks.add(new Tick(0.05F, 0.8F, 0F, 0F));
+        kickAerialForwardTicks.add(new Tick(0.10F, 1.3F, 0F, 0F));
+        kickAerialForwardTicks.add(new Tick(0.15F, 1.9F, 0F, 0F));
+
+        KICK_AERIAL = new KickAerial(0.2F, 0.2F, kickAerialCycle, kickAerialForwardTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            KICK (AERIAL-DOWN-FORWARD)           ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> kickAerialDiagTicks = new ArrayList<>();
+        kickAerialDiagTicks.add(new Tick(0.05F, 0.5F, 0F, (float)Math.PI/4F));
+        kickAerialDiagTicks.add(new Tick(0.10F, 0.8F, 0.1F, (float)Math.PI/4F));
+        kickAerialDiagTicks.add(new Tick(0.15F, 1.2F, 0.2F, (float)Math.PI/4F));
+
+        KICK_AERIAL_DIAG = new KickAerial(0.2F, 0.2F, kickAerialCycle, kickAerialDiagTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            KICK (AERIAL-DOWN-FORWARD)           ///
+        ///////////////////////////////////////////////////////////////////////
 
         /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),

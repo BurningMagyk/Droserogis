@@ -866,6 +866,7 @@ public class Actor extends Item
         CANT_MOVE,
         SLOW_RUN,
         FORCE_CROUCH,
+        FORCE_PRONE,
         FORCE_DASH
     }
     public void addCondition(float time, Condition condition)
