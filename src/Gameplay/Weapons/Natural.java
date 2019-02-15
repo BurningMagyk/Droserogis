@@ -11,7 +11,7 @@ public class Natural extends Weapon
 {
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
-            KICK_AERIAL_DIAG, GRAB, TACKLE, THROW;
+            KICK_AERIAL_DIAG, GRAB, GRAB_CROUCH, TACKLE;
 
     Operation getOperation(Command command, Operation currentOp)
     {
@@ -21,6 +21,8 @@ public class Natural extends Weapon
                 return setOperation(PUNCH_UP, command);
             else if (command.DIR.getVert() == DirEnum.UP)
                 return setOperation(PUNCH_DIAG, command);
+            else if (command.TYPE == Command.StateType.LOW)
+                return setOperation(UPPERCUT, command);
             return setOperation(PUNCH, command);
         }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
@@ -35,6 +37,14 @@ public class Natural extends Weapon
                 return setOperation(STOMP, command);
             else return setOperation(KICK_ARC, command);
         }
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_1 + Actor.ATTACK_KEY_MOD)
+        {
+            if (command.TYPE == Command.StateType.LOW)
+                return setOperation(GRAB_CROUCH, command);
+            /*if (command.SPRINT)
+                return setOperation(TACKLE, command);*/
+            return setOperation(GRAB, command);
+        }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3 + Actor.ATTACK_KEY_MOD)
         {
             return setOperation(KICK, command);
@@ -44,8 +54,7 @@ public class Natural extends Weapon
 
     boolean isApplicable(Command command) { return true; }
 
-    public Natural(float xPos, float yPos, float width, float height, Actor actor)
-    {
+    public Natural(float xPos, float yPos, float width, float height, Actor actor) {
         super(xPos, yPos, width, height);
         equip(actor);
 
@@ -72,7 +81,11 @@ public class Natural extends Weapon
             Punch(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
                 super(warmupTime, cooldownTime, statusAppCycle, execJourney);
             }
-            public String getName() { return "punch"; }
+
+            public String getName() {
+                return "punch";
+            }
+
             public boolean mayInterrupt(Command check) {
                 return state == State.COOLDOWN;
             }
@@ -85,9 +98,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> punchUpTicks = new ArrayList<>();
-        punchUpTicks.add(new Tick(0.05F, 0.4F, -0.1F, (float) -Math.PI/2));
-        punchUpTicks.add(new Tick(0.08F, 0.4F, -0.4F, (float) -Math.PI/2));
-        punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI/2));
+        punchUpTicks.add(new Tick(0.05F, 0.4F, -0.1F, (float) -Math.PI / 2));
+        punchUpTicks.add(new Tick(0.08F, 0.4F, -0.4F, (float) -Math.PI / 2));
+        punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI / 2));
 
         ConditionApp punchUpApp = new ConditionApp(
                 0.01F, Actor.Condition.CANT_CROUCH, Actor.Condition.CANT_MOVE);
@@ -101,9 +114,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> punchDiagTicks = new ArrayList<>();
-        punchDiagTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
-        punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
-        punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
+        punchDiagTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI / 4));
+        punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI / 4));
+        punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI / 4));
 
         PUNCH_DIAG = new Punch(0.4F, 0.3F, punchAppCycle, punchDiagTicks);
 
@@ -123,13 +136,17 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> haymakerTicks = new ArrayList<>();
-        haymakerTicks.add(new Tick(0.05F, 1.4F, -0.4F, (float)Math.PI/4F));
+        haymakerTicks.add(new Tick(0.05F, 1.4F, -0.4F, (float) Math.PI / 4F));
 
         class Haymaker extends Melee {
             Haymaker(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
                 super(warmupTime, cooldownTime, statusAppCycle, execJourney);
             }
-            public String getName() { return "haymaker"; }
+
+            public String getName() {
+                return "haymaker";
+            }
+
             public boolean mayInterrupt(Command check) {
                 return false;
             }
@@ -147,7 +164,12 @@ public class Natural extends Weapon
         uppercutTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
-        UPPERCUT = new Punch(0.3F, 0.4F, punchUpAppCycle, uppercutTicks);
+        ConditionApp cantStandOrMove = new ConditionApp(
+                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.CANT_MOVE);
+        ConditionAppCycle uppercutAppCycle
+                = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
+
+        UPPERCUT = new Punch(0.3F, 0.4F, uppercutAppCycle, uppercutTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SHOVE                                ///
@@ -175,9 +197,12 @@ public class Natural extends Weapon
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
-            public String getName() { return "kick"; }
-            public void start()
-            {
+
+            public String getName() {
+                return "kick";
+            }
+
+            public void start() {
                 super.start();
                 footPosition.check(-1, command.FACE);
                 warmJourney.setStart(footPosition.getOrient());
@@ -224,8 +249,8 @@ public class Natural extends Weapon
 
         ArrayList<Tick> kickArcTicks = new ArrayList<>();
         kickArcTicks.add(new Tick(0.05F, 0.5F, 0.4F, 0F));
-        kickArcTicks.add(new Tick(0.09F, 1.1F, 0.2F, (float)Math.PI/4));
-        kickArcTicks.add(new Tick(0.14F, 1.7F, 0F, (float)Math.PI/2));
+        kickArcTicks.add(new Tick(0.09F, 1.1F, 0.2F, (float) Math.PI / 4));
+        kickArcTicks.add(new Tick(0.14F, 1.7F, 0F, (float) Math.PI / 2));
 
         KICK_ARC = new Kick(0.3F, 0.4F, kickAppCycle, kickArcTicks);
 
@@ -245,13 +270,17 @@ public class Natural extends Weapon
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
-            public String getName() { return "kick"; }
-            public void start()
-            {
+
+            public String getName() {
+                return "kick";
+            }
+
+            public void start() {
                 super.start();
                 footPosition.check(-1, command.FACE);
                 warmJourney.setStart(footPosition.getOrient());
             }
+
             public boolean mayInterrupt(Command check) {
                 return state == State.COOLDOWN;
             }
@@ -269,255 +298,43 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> kickAerialDiagTicks = new ArrayList<>();
-        kickAerialDiagTicks.add(new Tick(0.05F, 0.5F, 0F, (float)Math.PI/4F));
-        kickAerialDiagTicks.add(new Tick(0.10F, 0.8F, 0.1F, (float)Math.PI/4F));
-        kickAerialDiagTicks.add(new Tick(0.15F, 1.2F, 0.2F, (float)Math.PI/4F));
+        kickAerialDiagTicks.add(new Tick(0.05F, 0.5F, 0F, (float) Math.PI / 4F));
+        kickAerialDiagTicks.add(new Tick(0.10F, 0.8F, 0.1F, (float) Math.PI / 4F));
+        kickAerialDiagTicks.add(new Tick(0.15F, 1.2F, 0.2F, (float) Math.PI / 4F));
 
         KICK_AERIAL_DIAG = new KickAerial(0.2F, 0.2F, kickAerialCycle, kickAerialDiagTicks);
 
         ///////////////////////////////////////////////////////////////////////
-        ///                            KICK (AERIAL-DOWN-FORWARD)           ///
+        ///                            GRAB                                 ///
         ///////////////////////////////////////////////////////////////////////
 
-        /*StatusAppCycle clumpCycle = new StatusAppCycle(
-                new StatusApp(0.01F, Actor.Status.CLUMPED),
-                new StatusApp(0.01F, Actor.Status.CLUMPED),
-                new StatusApp(0.01F, Actor.Status.CLUMPED));
-        StatusAppCycle poundCycle = new StatusAppCycle(
-                new StatusApp(0.01F, Actor.Status.CLUMPED),
-                new StatusApp(0.01F, Actor.Status.STAGNANT),
-                new StatusApp(0.01F, Actor.Status.CLUMPED));
-        StatusAppCycle plodRunCycle = new StatusAppCycle(
-                null,
-                new StatusApp(0.05F, Actor.Status.PLODDED),
-                null);
-        StatusAppCycle selfThrowCycle = new StatusAppCycle(
-                new StatusApp(0.05F, Actor.Status.RUSHED),
-                new StatusApp(0.01F, Actor.Status.STAGNANT),
-                new StatusApp(0.01F, Actor.Status.CLUMPED));
-        StatusAppCycle inertiaCycle = new StatusAppCycle(
-                new StatusApp(0.05F, Actor.Status.INERT),
-                new StatusApp(0.01F, Actor.Status.INERT),
-                new StatusApp(0.01F, Actor.Status.INERT));
-        StatusAppCycle rushStagnateCycle = new StatusAppCycle(
-                new StatusApp(0.05F, Actor.Status.RUSHED),
-                new StatusApp(0.01F, Actor.Status.STAGNANT),
-                new StatusApp(0.01F, Actor.Status.STAGNANT));
+        ArrayList<Tick> grabTicks = new ArrayList<>();
+        grabTicks.add(new Tick(0.05F, 0.7F, -0.2F, (float) Math.PI / 2F));
+        grabTicks.add(new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F));
+        grabTicks.add(new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F));
 
-        //================================================================================================================
-        // Punching forward
-        //================================================================================================================
+        GRAB = new Punch(0.3F, 0.4F, punchAppCycle, grabTicks);
 
-        ArrayList<Tick> punchForward = new ArrayList<>();
-        punchForward.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
-        punchForward.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
-        punchForward.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
-        setOperation(
-                new Punch(0.4F, 0.3F, plodRunCycle,
-                        punchForward),
-                new int[] { Actor.ATTACK_KEY_2 },
-                OpContext.STANDARD, OpContext.FREE);
+        ///////////////////////////////////////////////////////////////////////
+        ///                            GRAB (CROUCHING)                     ///
+        ///////////////////////////////////////////////////////////////////////
 
-        //================================================================================================================
-        // Punching straight forward while crouching
-        //================================================================================================================
+        ConditionApp grabCrouchApp = new ConditionApp(
+                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.CANT_MOVE);
+        ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
+                grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
-        setOperation(new Punch(0.6F, 0.3F, clumpCycle,
-                        punchForward),
-                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN,
-                        Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ}, // crouching
-                OpContext.LOW);
+        GRAB_CROUCH = new Punch(0.4F, 0.4F, grabCrouchCycle, grabTicks);
 
-        //================================================================================================================
-        // Punching upwards
-        //================================================================================================================
+        ///////////////////////////////////////////////////////////////////////
+        ///                            TACKLE                               ///
+        ///////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> punchUp = new ArrayList<>();
-        punchUp.add(new Tick(0.05F, 0.4F, -0.3F, (float) -Math.PI/2));
-        punchUp.add(new Tick(0.08F, 0.4F, -0.5F, (float) -Math.PI/2));
-        punchUp.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI/2));
-        setOperation(
-                new Punch(0.4F, 0.3F, plodRunCycle,
-                        punchUp),
-                new int[] { Actor.ATTACK_KEY_2 + Actor.COMBO_UP },
-                OpContext.STANDARD, OpContext.FREE, OpContext.LOW);
+        ConditionAppCycle tackleCycle = new ConditionAppCycle(
+                stompFallApp,
+                new ConditionApp(0.01F, Actor.Condition.SLOW_RUN),
+                new ConditionApp(0.4F, Actor.Condition.CANT_MOVE, Actor.Condition.FORCE_CROUCH));
 
-        //================================================================================================================
-        // Punching diagonally forward-up
-        //================================================================================================================
-
-        ArrayList<Tick> punchDiagonal = new ArrayList<>();
-        punchDiagonal.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
-        punchDiagonal.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
-        punchDiagonal.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
-
-        setOperation(new Punch(0.35F, 0.35F, plodRunCycle,
-                        punchDiagonal),
-                new int[] {Actor.ATTACK_KEY_2 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
-                OpContext.STANDARD, OpContext.FREE);
-
-        //================================================================================================================
-        // Pushing while sprinting (trying to punch while sprinting)
-        //================================================================================================================
-
-        ArrayList<Tick> pushForward = new ArrayList<>();
-        pushForward.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
-        pushForward.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
-        pushForward.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
-        setOperation(
-                new Push(0.4F, 0.3F, inertiaCycle,
-                        pushForward),
-                new int[] { Actor.ATTACK_KEY_2,
-                        Actor.ATTACK_KEY_2 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ,
-                        Actor.ATTACK_KEY_2 + Actor.COMBO_UP + Actor.COMBO_HORIZ },
-                OpContext.LUNGE);
-
-        //================================================================================================================
-        // Pound and uppercut
-        //================================================================================================================
-
-        ArrayList<Tick> pound = new ArrayList<>(),
-                uppercut = new ArrayList<>();
-        pound.add(new Tick(0.04F, 1.05F, -0.5F, -0.8F));
-        pound.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-        pound.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-        pound.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-        uppercut.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-        uppercut.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-        uppercut.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-        uppercut.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-
-        setOperation(new Punch(0.4F, 0.5F, plodRunCycle,
-                        pound, uppercut),
-                new int[] {Actor.ATTACK_KEY_1,
-                        Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
-                OpContext.STANDARD, OpContext.FREE);
-        setOperation(new Punch(0.4F, 0.5F, plodRunCycle,
-                        pound),
-                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_HORIZ,
-                        Actor.ATTACK_KEY_1 + Actor.COMBO_UP},
-                OpContext.STANDARD, OpContext.FREE);
-        setOperation(new Punch(0.3F, 0.5F, plodRunCycle,
-                        uppercut),
-                new int[] {Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN,
-                        Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ},
-                OpContext.LOW);
-
-        //================================================================================================================
-        // Shoving (trying to pound or uppercut while sprinting)
-        //================================================================================================================
-
-        /*setOperation(new Shove(inertiaCycle),
-                new int[] {Actor.ATTACK_KEY_1,
-                        Actor.ATTACK_KEY_1 + Actor.COMBO_DOWN + Actor.COMBO_HORIZ,
-                        Actor.ATTACK_KEY_1 + Actor.COMBO_UP + Actor.COMBO_HORIZ},
-                OpContext.LUNGE);*/
+        /* Will do these when adding collision */
     }
-
-    /*private class Punch extends BasicMelee
-    {
-        Punch(float warmupTime, float cooldownTime,
-              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, journey);
-        }
-        Punch(float warmupTime, float cooldownTime,
-              StatusAppCycle statusAppCycle,
-              ArrayList<Tick> poundJourney, ArrayList<Tick> uppercutJourney)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle,
-                    poundJourney, uppercutJourney);
-        }
-
-        @Override
-        public String getName() { return "punch"; }
-    }*/
-
-    /*private class OpenHands extends BasicMelee
-    {
-        OpenHands(float warmupTime, float cooldownTime,
-             StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, journey);
-        }
-
-        @Override
-        public String getName() { return "push"; }
-    }*/
-
-    /*private class Push extends OpenHands
-    {
-        Push(float warmupTime, float cooldownTime,
-             StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, journey);
-        }
-
-        @Override
-        public String getName() { return "push"; }
-    }*/
-
-    /*private class Grab extends BasicMelee
-    {
-        Grab(float warmupTime, float cooldownTime,
-             StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, journey);
-        }
-
-        @Override
-        public String getName() { return "grab"; }
-    }*/
-
-    /*private class Slam implements Operation
-    {
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public DirEnum getDir() {
-            return null;
-        }
-
-        @Override
-        public void start(){ }
-
-        @Override
-        public boolean run(float deltaSec) {
-            return false;
-        }
-
-        @Override
-        public boolean mayInterrupt() {
-            return false;
-        }
-
-        @Override
-        public void letGo(int attackKey) { }
-    }*/
-
-    /*private class Shove extends Slam
-    {
-        Shove(StatusAppCycle statusAppCycle){}
-    }
-
-    private class Tackle extends Slam
-    {
-        Tackle(StatusAppCycle statusAppCycle){}
-    }*/
-
-    /*private class Kick extends BasicMelee
-    {
-        Kick(float warmupTime, float cooldownTime,
-              StatusAppCycle statusAppCycle, ArrayList<Tick> journey)
-        {
-            super(warmupTime, cooldownTime, statusAppCycle, journey);
-        }
-
-        @Override
-        public String getName() { return "kick"; }
-    }*/
 }

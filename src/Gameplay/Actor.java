@@ -554,8 +554,9 @@ public class Actor extends Item
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if (dirVert == DOWN
+            if ((dirVert == DOWN
                     && conditions[Condition.CANT_CROUCH.ordinal()] == 0)
+                    || conditions[Condition.FORCE_CROUCH.ordinal()] > 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
 
