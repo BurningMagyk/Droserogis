@@ -10,10 +10,18 @@ import java.util.Collections;
 
 public class Sword extends Weapon
 {
+    private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
+            THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
+            SWING_UNTERHAU, SWING_UP_FORWARD, SWING_UP_BACKWARD,
+            SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE,
+            SWING_LUNGE_UNTERHAU;
+
     @Override
     Operation getOperation(Command command, Operation currentOp) { return null; }
+
     @Override
     boolean isApplicable(Command command) { return false; }
+
     @Override
     Orient getDefaultOrient()
     {
@@ -22,6 +30,114 @@ public class Sword extends Weapon
     public Sword(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST                               ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ConditionApp slowRunApp = new ConditionApp(
+                0.01F, Actor.Condition.SLOW_RUN);
+        ConditionAppCycle slowRunCycle = new ConditionAppCycle(
+                slowRunApp, slowRunApp, slowRunApp);
+
+        ArrayList<Tick> thrustTicks = new ArrayList<>();
+        thrustTicks.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
+        thrustTicks.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
+        thrustTicks.add(new Tick(0.16F, 2F, -0.2F, 0F));
+
+        THRUST = new HoldableMelee(0.6F, 0.3F, slowRunCycle, thrustTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST_UP                            ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> thrustUpTicks = new ArrayList<>();
+        thrustUpTicks.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
+        thrustUpTicks.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
+        thrustUpTicks.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
+
+        THRUST_UP = new HoldableMelee(0.6F, 0.3F, slowRunCycle, thrustUpTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST_DOWN                          ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> thrustDownTicks = new ArrayList<>();
+        for (Tick tick : thrustUpTicks)
+        {
+            Tick tickCopy = tick.getMirrorCopy(false, true);
+            tickCopy.getOrient().addTheta((float) Math.PI / 2);
+            thrustDownTicks.add(tickCopy);
+        }
+
+        THRUST_DOWN = new HoldableMelee(0.6F, 0.3F, slowRunCycle, thrustDownTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST_DIAG_UP                       ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> thrustDiagUpTicks = new ArrayList<>();
+        thrustDiagUpTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
+        thrustDiagUpTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
+        thrustDiagUpTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
+
+        THRUST_DIAG_UP = new HoldableMelee(0.6F, 0.3F, slowRunCycle, thrustDiagUpTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST_DIAG_DOWN                     ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ArrayList<Tick> thrustDiagDownTicks = new ArrayList<>();
+        for (Tick tick : thrustDiagUpTicks)
+        {
+            thrustDiagDownTicks.add(tick.getMirrorCopy(false, true));
+        }
+
+        THRUST_DIAG_DOWN = new HoldableMelee(0.6F, 0.3F, slowRunCycle, thrustDiagDownTicks);
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST_LUNGE                         ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            STAB                                 ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            STAB_UNTERHAU                        ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING                                ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_UNTERHAU                       ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_UP_FORWARD                     ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_UP_BACKWARD                    ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_DOWN_FORWARD                   ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_DOWN_BACKWARD                  ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_LUNGE                          ///
+        ///////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            SWING_LUNGE_UNTERHAU                 ///
+        ///////////////////////////////////////////////////////////////////////
 
         /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),

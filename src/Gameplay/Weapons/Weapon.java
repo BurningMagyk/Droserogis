@@ -21,8 +21,8 @@ public abstract class Weapon extends Item
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
     private Vec2[] shapeCorners_Rotated = new Vec2[4];
 
-    Orient defaultOrient = getDefaultOrient();
-    Orient orient = defaultOrient.copy();
+    private Orient defaultOrient = getDefaultOrient();
+    private Orient orient = defaultOrient.copy();
 
     public void test() { Print.yellow("orient: " + orient.theta); }
 

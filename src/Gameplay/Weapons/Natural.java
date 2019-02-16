@@ -109,7 +109,7 @@ public class Natural extends Weapon
         punchTicks.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
 
         ConditionApp punchApp = new ConditionApp(
-                0.01F, Actor.Condition.CANT_CROUCH, Actor.Condition.SLOW_RUN);
+                0.01F, Actor.Condition.FORCE_STAND, Actor.Condition.SLOW_RUN);
         ConditionAppCycle punchAppCycle
                 = new ConditionAppCycle(punchApp, punchApp, punchApp);
 
@@ -139,7 +139,7 @@ public class Natural extends Weapon
         punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI / 2));
 
         ConditionApp punchUpApp = new ConditionApp(
-                0.01F, Actor.Condition.CANT_CROUCH, Actor.Condition.CANT_MOVE);
+                0.01F, Actor.Condition.FORCE_STAND, Actor.Condition.IGNORE_MOVE);
         ConditionAppCycle punchUpAppCycle
                 = new ConditionAppCycle(punchUpApp, punchUpApp, punchUpApp);
 
@@ -161,7 +161,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp pushApp = new ConditionApp(
-                0.05F, Actor.Condition.CANT_MOVE);
+                0.05F, Actor.Condition.IGNORE_MOVE);
         ConditionAppCycle pushAppCycle
                 = new ConditionAppCycle(null, null, pushApp);
 
@@ -201,7 +201,7 @@ public class Natural extends Weapon
         uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
         ConditionApp cantStandOrMove = new ConditionApp(
-                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.CANT_MOVE);
+                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
         ConditionAppCycle uppercutAppCycle
                 = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
 
@@ -221,7 +221,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp stompApp = new ConditionApp(
-                0.3F, Actor.Condition.CANT_MOVE, Actor.Condition.CANT_CROUCH);
+                0.3F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND);
         ConditionAppCycle stompAppCycle
                 = new ConditionAppCycle(stompApp, stompApp, stompApp);
 
@@ -257,7 +257,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp stompFallApp = new ConditionApp(
-                0.4F, Actor.Condition.CANT_MOVE, Actor.Condition.FORCE_CROUCH);
+                0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH);
         ConditionAppCycle stompFallAppCycle
                 = new ConditionAppCycle(null, stompFallApp, stompFallApp);
 
@@ -268,7 +268,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp kickApp = new ConditionApp(
-                0.2F, Actor.Condition.CANT_MOVE, Actor.Condition.CANT_CROUCH);
+                0.2F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND);
         ConditionAppCycle kickAppCycle
                 = new ConditionAppCycle(kickApp, kickApp, kickApp);
 
@@ -356,7 +356,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp grabCrouchApp = new ConditionApp(
-                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.CANT_MOVE);
+                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
         ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
                 grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
@@ -369,7 +369,13 @@ public class Natural extends Weapon
         ConditionAppCycle tackleCycle = new ConditionAppCycle(
                 stompFallApp,
                 new ConditionApp(0.01F, Actor.Condition.SLOW_RUN),
-                new ConditionApp(0.4F, Actor.Condition.CANT_MOVE, Actor.Condition.FORCE_CROUCH));
+                new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
+
+        /* Will do these when adding collision */
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            TACKLE (LOW)                         ///
+        ///////////////////////////////////////////////////////////////////////
 
         /* Will do these when adding collision */
     }

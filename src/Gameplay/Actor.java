@@ -154,12 +154,12 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = conditions[Condition.CANT_MOVE.ordinal()] > 0 ? 0 : crawlAccel;
+                accel = conditions[Condition.IGNORE_MOVE.ordinal()] > 0 ? 0 : crawlAccel;
                 topSpeed = getTopSpeed(true);
             }
             else
             {
-                accel = conditions[Condition.CANT_MOVE.ordinal()] > 0 ? 0 : runAccel;
+                accel = conditions[Condition.IGNORE_MOVE.ordinal()] > 0 ? 0 : runAccel;
                 topSpeed = getTopSpeed(false);
             }
 
@@ -304,7 +304,7 @@ public class Actor extends Item
 
     private float getTopSpeed(boolean low)
     {
-        if (conditions[Condition.CANT_MOVE.ordinal()] > 0) return 0;
+        if (conditions[Condition.IGNORE_MOVE.ordinal()] > 0) return 0;
         if (low) return shouldSprint() ? topLowerSprintSpeed : topCrawlSpeed;
         if (conditions[Condition.SLOW_RUN.ordinal()] > 0) return plodSpeed;
         if (shouldSprint()) return topSprintSpeed;
@@ -351,7 +351,7 @@ public class Actor extends Item
                     || (getVelocityX() > 0 && dirHoriz == LEFT)
                     || state == State.SLIDE
                     || (Math.abs(getVelocityX()) > plodSpeed && conditions[Condition.SLOW_RUN.ordinal()] > 0)
-                    || conditions[Condition.CANT_MOVE.ordinal()] > 0)
+                    || conditions[Condition.IGNORE_MOVE.ordinal()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -555,7 +555,7 @@ public class Actor extends Item
         else if (touchEntity[DOWN] != null)
         {
             if ((dirVert == DOWN
-                    && conditions[Condition.CANT_CROUCH.ordinal()] == 0)
+                    && conditions[Condition.FORCE_STAND.ordinal()] == 0)
                     || conditions[Condition.FORCE_CROUCH.ordinal()] > 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
@@ -863,8 +863,8 @@ public class Actor extends Item
     //================================================================================================================
     public enum Condition
     {
-        CANT_CROUCH,
-        CANT_MOVE,
+        FORCE_STAND,
+        IGNORE_MOVE,
         SLOW_RUN,
         FORCE_CROUCH,
         FORCE_PRONE,
