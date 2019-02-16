@@ -18,12 +18,14 @@ public class Natural extends Weapon
     {
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
         {
+            if (command.TYPE == Command.StateType.LOW)
+                return setOperation(UPPERCUT, command);
+            /* if (command.TYPE != Command.StateType.LOW) */
             if (command.DIR == DirEnum.UP)
                 return setOperation(PUNCH_UP, command);
-            else if (command.DIR.getVert() == DirEnum.UP)
+            if (command.DIR.getVert() == DirEnum.UP
+                    && command.DIR.getHoriz().getSign() != 0)
                 return setOperation(PUNCH_DIAG, command);
-            else if (command.TYPE == Command.StateType.LOW)
-                return setOperation(UPPERCUT, command);
             return setOperation(PUNCH, command);
         }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
