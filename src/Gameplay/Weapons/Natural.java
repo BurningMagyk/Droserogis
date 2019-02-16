@@ -11,8 +11,9 @@ public class Natural extends Weapon
 {
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
-            KICK_AERIAL_DIAG, GRAB, GRAB_CROUCH, TACKLE;
+            KICK_AERIAL_DIAG, GRAB, GRAB_CROUCH, TACKLE, TACKLE_LOW;
 
+    @Override
     Operation getOperation(Command command, Operation currentOp)
     {
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
@@ -33,16 +34,48 @@ public class Natural extends Weapon
         }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3)
         {
-            if (command.DIR.getHoriz() == DirEnum.NONE)
-                return setOperation(STOMP, command);
-            else return setOperation(KICK_ARC, command);
+            if (command.TYPE == Command.StateType.STANDARD)
+            {
+                if (command.DIR.getHoriz() == DirEnum.NONE)
+                    return setOperation(STOMP, command);
+                else return setOperation(KICK_ARC, command);
+            }
+            if (command.TYPE == Command.StateType.MOMENTUM)
+            {
+                if (command.MOMENTUM_DIR.getVert() == DirEnum.DOWN)
+                {
+                    if (command.DIR.getHoriz().getSign() != 0)
+                        return setOperation(KICK_AERIAL, command);
+                    return setOperation(STOMP, command);
+                }
+                if (command.DIR.getVert() == DirEnum.DOWN)
+                    return setOperation(KICK_AERIAL_DIAG, command);
+                return setOperation(KICK_AERIAL, command);
+            }
+            if (command.TYPE == Command.StateType.FREE)
+            {
+                if (command.DIR.getVert() == DirEnum.DOWN)
+                    return setOperation(KICK_AERIAL_DIAG, command);
+                return setOperation(KICK_AERIAL, command);
+            }
         }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1 + Actor.ATTACK_KEY_MOD)
         {
             if (command.TYPE == Command.StateType.LOW)
+            {
+                if (command.SPRINT)
+                    return setOperation(TACKLE_LOW, command);
                 return setOperation(GRAB_CROUCH, command);
-            /*if (command.SPRINT)
-                return setOperation(TACKLE, command);*/
+            }
+            if (command.TYPE == Command.StateType.STANDARD)
+            {
+                if (command.SPRINT)
+                    return setOperation(TACKLE, command);
+                return setOperation(GRAB, command);
+            }
+            if (command.TYPE == Command.StateType.MOMENTUM
+                    && command.MOMENTUM_DIR.getHoriz() != DirEnum.NONE)
+                return setOperation(TACKLE, command);
             return setOperation(GRAB, command);
         }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3 + Actor.ATTACK_KEY_MOD)
@@ -52,16 +85,17 @@ public class Natural extends Weapon
         return null;
     }
 
+    @Override
     boolean isApplicable(Command command) { return true; }
 
+    @Override
+    Orient getDefaultOrient()
+    {
+        return new Orient(new Vec2(0.8F, 0), 0);
+    }
     public Natural(float xPos, float yPos, float width, float height, Actor actor) {
         super(xPos, yPos, width, height);
         equip(actor);
-
-        defaultOrient = new Orient(
-                new Vec2(0.8F, 0), 0);
-        setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
-        orient.set(defaultOrient.copy());
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH                                ///

@@ -505,7 +505,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { if (weapons[1] != null) weapons[1].test(); }
+    public void debug() { Print.yellow(state); }
 
     public static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;

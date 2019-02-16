@@ -12,7 +12,6 @@ public class Command
     final DirEnum FACE;
     final DirEnum DIR;
 
-    /* DIR is only considered with the MOMENTUM type */
     DirEnum MOMENTUM_DIR;
     StateType TYPE;
     boolean SPRINT;

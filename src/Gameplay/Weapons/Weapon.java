@@ -21,7 +21,7 @@ public abstract class Weapon extends Item
             new Vec2(-getWidth() / 2, +getHeight() / 2)};
     private Vec2[] shapeCorners_Rotated = new Vec2[4];
 
-    Orient defaultOrient = new Orient(new Vec2(1F, 0F), 0);
+    Orient defaultOrient = getDefaultOrient();
     Orient orient = defaultOrient.copy();
 
     public void test() { Print.yellow("orient: " + orient.theta); }
@@ -31,9 +31,14 @@ public abstract class Weapon extends Item
     private LinkedList<Command> commandQueue = new LinkedList<>();
     private Operation currentOp;
 
+    abstract Orient getDefaultOrient();
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
+
+        //defaultOrient = getDefaultOrient();// = new Orient(new Vec2(1F, 0F), 0);
+        //Print.yellow(getDefaultOrient() == null);
+        //orient = defaultOrient.copy();
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
@@ -147,6 +152,9 @@ public abstract class Weapon extends Item
 
     public Weapon equip(Actor actor)
     {
+        setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
+        orient.set(defaultOrient.copy());
+
         this.actor = actor;
         ballistic = false;
         return this;
@@ -501,11 +509,8 @@ public abstract class Weapon extends Item
         @Override
         public boolean run(float deltaSec)
         {
-            if (!erected)
-            {
-                conditionAppCycle.applyRun();
-                totalSec += deltaSec;
-            }
+            if (!erected) totalSec += deltaSec;
+            conditionAppCycle.applyRun();
 
             if (state == State.WARMUP)
             {

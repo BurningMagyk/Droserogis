@@ -14,15 +14,14 @@ public class Sword extends Weapon
     Operation getOperation(Command command, Operation currentOp) { return null; }
     @Override
     boolean isApplicable(Command command) { return false; }
-
+    @Override
+    Orient getDefaultOrient()
+    {
+        return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
+    }
     public Sword(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
-
-        defaultOrient = new Orient(
-                new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
-        setTheta(defaultOrient.getTheta(), DirEnum.RIGHT);
-        orient.set(defaultOrient.copy());
 
         /*StatusAppCycle clumpCycle = new StatusAppCycle(
                 new StatusApp(0.01F, Actor.Status.CLUMPED),
