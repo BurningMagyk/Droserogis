@@ -34,22 +34,11 @@ public class Command
     {
         if (state.isAirborne())
         {
-            if (vel.x == 0 && vel.y == 0)
-            {
-                TYPE = StateType.FREE;
-                MOMENTUM_DIR = DirEnum.NONE;
-            }
-            else if (Math.abs(vel.x) >= Math.abs(vel.y) * AIRBORNE_RATIO)
+            if (Math.abs(vel.y) >= Math.abs(vel.x) * AIRBORNE_RATIO)
             {
                 TYPE = StateType.MOMENTUM;
                 if (vel.x < 0) MOMENTUM_DIR = DirEnum.UP;
                 else MOMENTUM_DIR = DirEnum.DOWN;
-            }
-            else if (Math.abs(vel.y) >= Math.abs(vel.x) * AIRBORNE_RATIO)
-            {
-                TYPE = StateType.MOMENTUM;
-                if (vel.y < 0) MOMENTUM_DIR = DirEnum.LEFT;
-                else MOMENTUM_DIR = DirEnum.RIGHT;
             }
             else
             {
@@ -85,5 +74,10 @@ public class Command
         return this;
     }
 
-    void letGo(int attackKey) { if (attackKey == ATTACK_KEY) hold = false; }
+    void letGo(int attackKey)
+    {
+        if (attackKey == ATTACK_KEY
+                || attackKey == ATTACK_KEY - Actor.ATTACK_KEY_MOD)
+            hold = false;
+    }
 }

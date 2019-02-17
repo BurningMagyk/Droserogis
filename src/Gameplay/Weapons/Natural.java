@@ -40,7 +40,7 @@ public class Natural extends Weapon
             {
                 if (command.DIR.getHoriz() == DirEnum.NONE)
                     return setOperation(STOMP, command);
-                else return setOperation(KICK_ARC, command);
+                return setOperation(KICK_ARC, command);
             }
             if (command.TYPE == Command.StateType.MOMENTUM)
             {
@@ -48,7 +48,7 @@ public class Natural extends Weapon
                 {
                     if (command.DIR.getHoriz().getSign() != 0)
                         return setOperation(KICK_AERIAL, command);
-                    return setOperation(STOMP, command);
+                    return setOperation(STOMP_FALL, command);
                 }
                 if (command.DIR.getVert() == DirEnum.DOWN)
                     return setOperation(KICK_AERIAL_DIAG, command);
@@ -76,7 +76,7 @@ public class Natural extends Weapon
                 return setOperation(GRAB, command);
             }
             if (command.TYPE == Command.StateType.MOMENTUM
-                    && command.MOMENTUM_DIR.getHoriz() != DirEnum.NONE)
+                    && command.MOMENTUM_DIR.getVert() == DirEnum.DOWN)
                 return setOperation(TACKLE, command);
             return setOperation(GRAB, command);
         }
@@ -118,13 +118,9 @@ public class Natural extends Weapon
                 super(warmupTime, cooldownTime, statusAppCycle, execJourney);
             }
 
-            public String getName() {
-                return "punch";
-            }
+            public String getName() { return "punch"; }
 
-            public boolean mayInterrupt(Command check) {
-                return state == State.COOLDOWN;
-            }
+            public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
         }
 
         PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
