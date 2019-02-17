@@ -367,7 +367,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionAppCycle tackleCycle = new ConditionAppCycle(
-                stompFallApp,
+                new ConditionApp(0.01F, Actor.Condition.FORCE_DASH),
                 new ConditionApp(0.01F, Actor.Condition.SLOW_RUN),
                 new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
 
