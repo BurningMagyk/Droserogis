@@ -12,21 +12,59 @@ public class Sword extends Weapon
 {
     private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
             THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
-            SWING_UNTERHAU, SWING_UP_FORWARD, SWING_UP_BACKWARD,
+            SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD, SWING_UP_BACKWARD,
             SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE,
-            SWING_LUNGE_UNTERHAU;
+            SWING_LUNGE_UNTERHAU, THROW;
 
     @Override
     Operation getOperation(Command command, Operation currentOp)
     {
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
         {
-
+            if (command.TYPE == Command.StateType.MOMENTUM
+                    && command.MOMENTUM_DIR.getHoriz().getSign() != 0)
+                return setOperation(STAB, command); // with normal warm-up time
+            if (command.TYPE == Command.StateType.FREE)
+            {
+                if (command.DIR.getHoriz().getSign() != 0)
+                {
+                    if (command.DIR == DirEnum.UP)
+                        return setOperation(THRUST_DIAG_UP, command);
+                    if (command.DIR == DirEnum.DOWN)
+                        return setOperation(THRUST_DIAG_DOWN, command);
+                }
+                if (command.DIR == DirEnum.DOWN)
+                    return setOperation(THRUST_DOWN, command);
+            }
+            if ((currentOp == SWING && ((Melee) currentOp).state == Operation.State.WARMUP)
+                    || (currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+                    || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+                    || (currentOp == SWING_UP_FORWARD && ((Melee) currentOp).state == Operation.State.COOLDOWN))
+                return setOperation(STAB, command); // with reduced warm-up time
+            if ((currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.WARMUP)
+                    || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.WARMUP)
+                    || (currentOp == SWING && ((Melee) currentOp).state == Operation.State.COOLDOWN))
+                return setOperation(STAB_UNTERHAU, command); // with reduced warm-up time
+            if (command.DIR.getVert() == DirEnum.UP)
+            {
+                if (command.DIR.getHoriz().getSign() != 0)
+                    return setOperation(THRUST_DIAG_UP, command);
+                return setOperation(THRUST_UP, command);
+            }
+            if (currentOp == SWING_UP_BACKWARD
+                    && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
+                return setOperation(STAB, command); // with no warm-up time
+            if (command.SPRINT) return setOperation(THRUST_LUNGE, command);
+            return setOperation(THRUST, command);
         }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
         {
             if (command.TYPE == Command.StateType.LOW)
-                return setOperation(SWING_UNTERHAU, command); // with normal warm-up time
+            {
+                if (command.SPRINT) return setOperation(SWING_LUNGE_UNTERHAU, command);
+                return setOperation(SWING_UNTERHAU_CROUCH, command);
+            }
             if (command.TYPE == Command.StateType.MOMENTUM
                     && command.MOMENTUM_DIR.getHoriz().getSign() != 0)
             {
@@ -40,12 +78,13 @@ public class Sword extends Weapon
             }
             if (command.DIR == DirEnum.UP)
             {
-                if (currentOp == SWING_UNTERHAU
+                if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH
+                        || currentOp == STAB_UNTERHAU || currentOp == SWING_UP_FORWARD)
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation(SWING_UP_BACKWARD, command); // with no warm-up time
-                if (currentOp == STAB_UNTERHAU
+                if (currentOp == SWING_UP_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_UP_BACKWARD, command); // with reduced warm-up time
+                    return setOperation(SWING_UP_FORWARD, command); // with reduced warm-up time
                 return setOperation(SWING_UP_FORWARD, command); // with normal warm-up time
             }
             if (command.DIR == DirEnum.DOWN)
@@ -61,7 +100,7 @@ public class Sword extends Weapon
             if (currentOp == SWING
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation(SWING_UNTERHAU, command); // with reduced warm-up time
-            if (currentOp == SWING_UNTERHAU
+            if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH)
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation(SWING, command); // with reduced warm-up time
             if (currentOp == SWING_UP_FORWARD
@@ -70,16 +109,18 @@ public class Sword extends Weapon
             if (currentOp == SWING_DOWN_FORWARD
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation(SWING_UNTERHAU, command); // with no warm-up time
+            if (currentOp == SWING_UP_BACKWARD
+                    && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
+                return setOperation(SWING, command); // with no warm-up time
+            if (command.SPRINT) return setOperation(SWING_LUNGE, command);
             return setOperation(SWING, command); // with normal warm-up time
         }
-        if (command.ATTACK_KEY == Actor.ATTACK_KEY_3)
-        {
 
-        }
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2 + Actor.ATTACK_KEY_MOD)
         {
-
+            return setOperation(THROW, command);
         }
+
         return null;
     }
 
@@ -117,7 +158,7 @@ public class Sword extends Weapon
         }
 
         ConditionApp slowRunApp = new ConditionApp(
-                0.01F, Actor.Condition.SLOW_RUN);
+                0.01F, Actor.Condition.SLOW_RUN, Actor.Condition.FORCE_STAND);
         ConditionAppCycle slowRunCycle = new ConditionAppCycle(
                 slowRunApp, slowRunApp, slowRunApp);
 
@@ -236,7 +277,8 @@ public class Sword extends Weapon
             public String getName() { return "swing"; }
 
             public boolean mayInterrupt(Command check) {
-                if (check.ATTACK_KEY == Actor.ATTACK_KEY_1) return true;
+                if (check.ATTACK_KEY == Actor.ATTACK_KEY_1
+                        && state == State.WARMUP) return true;
                 return state == State.COOLDOWN;
             }
         }
@@ -259,7 +301,13 @@ public class Sword extends Weapon
         swingUnterhauTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhauTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
+        ConditionApp cantStandOrMove = new ConditionApp(
+                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
+        ConditionAppCycle crouchUnterhauCycle
+                = new ConditionAppCycle(cantStandOrMove, slowRunApp, slowRunApp);
+
         SWING_UNTERHAU = new Swing(0.6F, 0.3F, slowRunCycle, swingUnterhauTicks);
+        SWING_UNTERHAU_CROUCH = new Swing(0.6F, 0.3F, crouchUnterhauCycle, swingUnterhauTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UP_FORWARD                     ///

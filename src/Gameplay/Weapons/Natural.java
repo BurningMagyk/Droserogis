@@ -28,12 +28,14 @@ public class Natural extends Weapon
                 return setOperation(PUNCH_DIAG, command);
             return setOperation(PUNCH, command);
         }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
         {
             if (command.TYPE == Command.StateType.LOW)
                 return setOperation(UPPERCUT, command);
             return setOperation(HAYMAKER, command);
         }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3)
         {
             if (command.TYPE == Command.StateType.STANDARD)
@@ -61,6 +63,7 @@ public class Natural extends Weapon
                 return setOperation(KICK_AERIAL, command);
             }
         }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1 + Actor.ATTACK_KEY_MOD)
         {
             if (command.TYPE == Command.StateType.LOW)
@@ -80,10 +83,12 @@ public class Natural extends Weapon
                 return setOperation(TACKLE, command);
             return setOperation(GRAB, command);
         }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3 + Actor.ATTACK_KEY_MOD)
         {
             return setOperation(KICK, command);
         }
+
         return null;
     }
 

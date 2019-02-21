@@ -531,6 +531,13 @@ public class Actor extends Item
 
     public DirEnum getWeaponFace()
     {
+        if (state.isOnWall())
+        {
+            if (touchEntity[LEFT] != null)
+                return DirEnum.get(RIGHT, dirVert);
+            if (touchEntity[RIGHT] != null)
+                return DirEnum.get(LEFT, dirVert);
+        }
         return DirEnum.get(dirFace < 0
                 ? dirHoriz : dirFace, dirVert);
     }
