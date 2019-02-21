@@ -341,7 +341,7 @@ abstract public class Entity
         if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  directions;
         if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  directions;
 
-        boolean shapeDirs[] = shape.getDirs();
+        boolean[] shapeDirs = shape.getDirs();
 
         /* The Actor is within the x-bounds */
         if (withinBoundsX(other))

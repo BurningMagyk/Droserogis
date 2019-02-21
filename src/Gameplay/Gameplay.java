@@ -94,6 +94,11 @@ public class Gameplay implements Reactor
 
       for (Item item : items) item.update(entities, deltaSec);
 
+      for (Item item : items)
+      {
+          if (item instanceof Weapon) ((Weapon) item).update(items);
+      }
+
       //for (Actor actor : actors) actor.move(entities, deltaSec);
 
       /* Center the camera on the player

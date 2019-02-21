@@ -77,6 +77,12 @@ public abstract class Weapon extends Item
         }
     }
 
+    public void update(ArrayList<Item> items)
+    {
+        if (currentOp == null || !currentOp.mayApply()) return;
+        for (Item other : items) { currentOp.apply(other); }
+    }
+
     public void setTheta(float theta, DirEnum opDir)
     {
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
@@ -198,7 +204,11 @@ public abstract class Weapon extends Item
 
         boolean mayInterrupt(Command next);
 
+        boolean mayApply();
+
         void letGo(int attackKey);
+
+        void apply(Item other);
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
@@ -480,9 +490,18 @@ public abstract class Weapon extends Item
         }
 
         @Override
+        public boolean mayApply() { return state == State.EXECUTION; }
+
+        @Override
         public void letGo(int attackKey)
         {
             command.letGo(attackKey);
+        }
+
+        @Override
+        public void apply(Item other)
+        {
+            Print.yellow(getName() + ".apply(" + other + ")");
         }
     }
 
