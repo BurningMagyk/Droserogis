@@ -107,8 +107,9 @@ public abstract class Weapon extends Item
         {
             shapeCornersOffset = new Vec2(
                     getPosition().x + dims.x * orient.getX()
-                    * (currentOp == null ? dir.getHoriz().getSign()
-                    : currentOp.getDir().getHoriz().getSign()),
+                    * (currentOp == null || currentOp.getDir() == null
+                            ? dir.getHoriz().getSign()
+                            : currentOp.getDir().getHoriz().getSign()),
                     getPosition().y + dims.y * orient.getY());
         }
 
@@ -302,11 +303,6 @@ public abstract class Weapon extends Item
                     new Vec2(end.getX() - start.getX(),
                             end.getY() - start.getY()),
                     (float) thetaDistance);
-
-            /*float distanceMagnitude = distance.getMagnitude();
-            //totalTime = (float) Math.log(100 * timeMod * distanceMagnitude) / (float) Math.log(1.5) / 40;
-            totalTime = timeMod * distanceMagnitude;
-            return distance.getMagnitude();*/
         }
     }
 
@@ -403,7 +399,7 @@ public abstract class Weapon extends Item
         ConditionAppCycle conditionAppCycle;
 
         Melee(float warmupTime, float cooldownTime,
-              ConditionAppCycle statusAppCycle,
+              ConditionAppCycle conditionAppCycle,
               ArrayList<Tick> execJourney)
         {
             this.execJourney = execJourney;
@@ -413,7 +409,7 @@ public abstract class Weapon extends Item
             coolJourney = new Journey(
                     execJourney.get(execJourney.size() - 1).getOrient(),
                     defaultOrient, cooldownTime);
-            this.conditionAppCycle = statusAppCycle;
+            this.conditionAppCycle = conditionAppCycle;
         }
 
         float totalSec = 0;
@@ -484,37 +480,25 @@ public abstract class Weapon extends Item
         }
 
         @Override
-        public boolean mayInterrupt(Command check)
-        {
-            return state != State.EXECUTION;
-        }
+        public boolean mayInterrupt(Command check) { return state != State.EXECUTION; }
 
         @Override
         public boolean mayApply() { return state == State.EXECUTION; }
 
         @Override
-        public void letGo(int attackKey)
-        {
-            command.letGo(attackKey);
-        }
+        public void letGo(int attackKey) { command.letGo(attackKey); }
 
         @Override
-        public void apply(Item other)
-        {
-            Print.yellow(getName() + ".apply(" + other + ")");
-        }
+        public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
     }
 
     class HoldableMelee extends Melee
     {
         HoldableMelee(float warmupTime, float cooldownTime,
-               ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney)
+               ConditionAppCycle conditionAppCycle, ArrayList<Tick> execJourney)
         {
-            super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+            super(warmupTime, cooldownTime, conditionAppCycle, execJourney);
         }
-
-        @Override
-        public String getName() { return "thrust"; }
 
         boolean erected = false;
 
@@ -543,7 +527,6 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
-                //Print.blue("erected: " + erected + ", isLetGo: " + isLetGo);
                 for (Tick tick : execJourney)
                 {
                     if (tick.check(totalSec, command.FACE)) return false;
@@ -561,6 +544,163 @@ public abstract class Weapon extends Item
             {
                 erected = false;
                 if (!coolJourney.check(totalSec, command.FACE))
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+
+            conditionAppCycle.applyFinish();
+            return true;
+        }
+    }
+
+    class NonMelee implements Operation
+    {
+        ConditionAppCycle conditionAppCycle;
+        float warmupTime, cooldownTime, execTime;
+
+        NonMelee(float warmupTime, float cooldownTime, float execTime,
+                        ConditionAppCycle conditionAppCycle)
+        {
+            this.warmupTime = warmupTime;
+            this.cooldownTime = cooldownTime;
+            this.execTime = execTime;
+            this.conditionAppCycle = conditionAppCycle;
+        }
+
+        float totalSec = 0;
+        Command command;
+        State state = State.WARMUP;
+
+        @Override
+        public String getName() { return "personal contact"; }
+
+        @Override
+        public DirEnum getDir() { return null; }
+
+        @Override
+        public void setCommand(Command command) { this.command = command; }
+
+        @Override
+        public void start()
+        {
+            totalSec = 0;
+            state = State.WARMUP;
+
+            conditionAppCycle.applyStart();
+
+            Print.blue("Operating " + getName());
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            conditionAppCycle.applyRun();
+
+            totalSec += deltaSec;
+
+            if (state == State.WARMUP)
+            {
+                if (totalSec >= warmupTime)
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                if (totalSec >= execTime)
+                {
+                    totalSec = 0;
+                    state = State.COOLDOWN;
+                }
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                if (totalSec < cooldownTime)
+                {
+                    return false;
+                }
+            }
+
+            totalSec = 0;
+            state = State.WARMUP;
+
+            conditionAppCycle.applyFinish();
+            return true;
+        }
+
+        @Override
+        public boolean mayInterrupt(Command next) { return state != State.EXECUTION; }
+
+        @Override
+        public boolean mayApply() { return state == State.EXECUTION; }
+
+        @Override
+        public void letGo(int attackKey) { command.letGo(attackKey); }
+
+        @Override
+        public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+    }
+
+    class HoldableNonMelee extends NonMelee
+    {
+        HoldableNonMelee(float warmupTime, float cooldownTime,
+                         float minExecTime, float maxExecTime,
+                         ConditionAppCycle conditionAppCycle)
+        {
+            super(warmupTime, cooldownTime, minExecTime, conditionAppCycle);
+            this.minExecTime = minExecTime;
+            this.maxExecTime = maxExecTime;
+        }
+
+        boolean minDone = false;
+        float minExecTime, maxExecTime;
+
+        @Override
+        public void start()
+        {
+            super.start();
+            minDone = false;
+        }
+
+        @Override
+        public boolean run(float deltaSec)
+        {
+            if (!minDone) totalSec += deltaSec;
+            conditionAppCycle.applyRun();
+
+            if (state == State.WARMUP)
+            {
+                minDone = false;
+                if (totalSec >= warmupTime)
+                {
+                    totalSec = 0;
+                    state = State.EXECUTION;
+                }
+                return false;
+            }
+            else if (state == State.EXECUTION)
+            {
+                if (totalSec < minExecTime) { return false; }
+                if (!command.hold || (maxExecTime > 0 && totalSec >= maxExecTime))
+                {
+                    totalSec = 0;
+                    state = State.COOLDOWN;
+                    command.hold = true;
+                }
+                minDone = true;
+                return false;
+            }
+            else if (state == State.COOLDOWN)
+            {
+                minDone = false;
+                if (totalSec < cooldownTime)
                 {
                     return false;
                 }
