@@ -48,7 +48,7 @@ public class Actor extends Item
     // change to more when other attack buttons get implemented
     private boolean[] pressingAttack = new boolean[4];
 
-    private Weapon[] weapons = new Weapon[2];
+    public Weapon[] weapons = new Weapon[2];
     private float[] conditions = new float[Condition.values().length];
 
     @Override

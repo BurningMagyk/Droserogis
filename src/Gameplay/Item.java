@@ -42,11 +42,6 @@ public class Item extends Entity
         applyPhysics(entities, deltaSec);
     }
 
-    void resetFlags()
-    {
-        super.resetFlags();
-    }
-
     /**
      * Location and velocity carry over from frame to frame.
      * Acceleration, however exists only when there is a force.

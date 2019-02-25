@@ -459,6 +459,5 @@ public class Sword extends Weapon
         {
             swingBackhandDown.add(tick.getMirrorCopy(false, true));
         }
-
     }
 }

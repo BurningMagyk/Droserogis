@@ -92,7 +92,11 @@ public class Gameplay implements Reactor
       // triggerContacts() sets every entity's flags correctly only if they've all been reset
       for (Entity entity : entities) entity.resetFlags();
 
-      for (Item item : items) item.update(entities, deltaSec);
+      for (Item item : items)
+      {
+          item.update(entities, deltaSec);
+          //if (item instanceof Weapon) ((Weapon) item).resetFlags();
+      }
 
       for (Item item : items)
       {
@@ -277,7 +281,7 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .35f, .7f);
         Sword sword = new Sword(0, -4, 0.45F, 0.075F);
-        player.equip(sword);
+        //player.equip(sword);
         addEntity(player);
         addEntity(sword);
         player2 = new Actor(1F, -5F, .35f, .7f);

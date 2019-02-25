@@ -2,6 +2,7 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Gameplay.Item;
 import Util.Print;
 import Util.Vec2;
 
@@ -26,6 +27,7 @@ public class Natural extends Weapon
             if (command.DIR.getVert() == DirEnum.UP
                     && command.DIR.getHoriz().getSign() != 0)
                 return setOperation(PUNCH_DIAG, command);
+            if (command.SPRINT) return setOperation(PUSH, command);
             return setOperation(PUNCH, command);
         }
 
@@ -166,7 +168,37 @@ public class Natural extends Weapon
         ConditionAppCycle pushAppCycle
                 = new ConditionAppCycle(null, null, pushApp);
 
-        /* Will do these when adding collision */
+        class PersonalContact extends HoldableNonMelee {
+            PersonalContact(float warmupTime, float cooldownTime,
+                            float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+            }
+
+            @Override
+            public void apply(Item other)
+            {
+                if (other == actor) return;
+                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+                if (appliedItems.contains(other) || !withinBounds(other))  return;
+                DirEnum dir = getDir().getHoriz();
+                if (dir == DirEnum.LEFT && other.getX() < actor.getX()
+                        && other.getVelocityX() > actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    // TODO: Push other to the left
+                    Print.blue("test left");
+                }
+                else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
+                        && other.getVelocityX() < actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    // TODO: Push other to the right
+                    Print.blue("test right");
+                }
+            }
+        }
+
+        PUSH = new PersonalContact(0.1F, 0.1F, 0.2F, 0.5F, pushAppCycle);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            HAYMAKER                             ///

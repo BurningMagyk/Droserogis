@@ -476,6 +476,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
+            appliedItems.clear();
             return true;
         }
 
@@ -488,6 +489,7 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
+        ArrayList<Item> appliedItems = new ArrayList<>();
         @Override
         public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
     }
@@ -553,6 +555,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
+            appliedItems.clear();
             return true;
         }
     }
@@ -579,7 +582,7 @@ public abstract class Weapon extends Item
         public String getName() { return "personal contact"; }
 
         @Override
-        public DirEnum getDir() { return null; }
+        public DirEnum getDir() { return command.FACE; }
 
         @Override
         public void setCommand(Command command) { this.command = command; }
@@ -632,6 +635,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
+            appliedItems.clear();
             return true;
         }
 
@@ -644,6 +648,7 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
+        ArrayList<Item> appliedItems = new ArrayList<>();
         @Override
         public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
     }
@@ -672,12 +677,11 @@ public abstract class Weapon extends Item
         @Override
         public boolean run(float deltaSec)
         {
-            if (!minDone) totalSec += deltaSec;
+            totalSec += deltaSec;
             conditionAppCycle.applyRun();
 
             if (state == State.WARMUP)
             {
-                minDone = false;
                 if (totalSec >= warmupTime)
                 {
                     totalSec = 0;
@@ -694,12 +698,10 @@ public abstract class Weapon extends Item
                     state = State.COOLDOWN;
                     command.hold = true;
                 }
-                minDone = true;
                 return false;
             }
             else if (state == State.COOLDOWN)
             {
-                minDone = false;
                 if (totalSec < cooldownTime)
                 {
                     return false;
@@ -710,7 +712,15 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
+            appliedItems.clear();
             return true;
         }
     }
+
+    public void resetFlags()
+    {
+        //for (Operation op : operations) { op.resetFlags();}
+        // TODO: May not need this method at all
+    }
+    //ArrayList<Operation> operations = new ArrayList<>();
 }

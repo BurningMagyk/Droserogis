@@ -310,7 +310,7 @@ abstract public class Entity
                 && other.getY() + other.width / 2 >= pos.y - height / 1.999;
     }
 
-    boolean withinBounds(Entity other)
+    protected boolean withinBounds(Entity other)
     {
         return withinBoundsX(other) && withinBoundsY(other);
     }
