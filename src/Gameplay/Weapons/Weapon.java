@@ -81,6 +81,7 @@ public abstract class Weapon extends Item
     {
         if (currentOp == null || !currentOp.mayApply()) return;
         for (Item other : items) { currentOp.apply(other); }
+        currentOp.apply(null);
     }
 
     public void setTheta(float theta, DirEnum opDir)
@@ -616,7 +617,7 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
-                if (totalSec >= execTime)
+                if (execTime > 0 && totalSec >= execTime)
                 {
                     totalSec = 0;
                     state = State.COOLDOWN;

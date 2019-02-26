@@ -773,13 +773,13 @@ public class Actor extends Item
     {
         PRONE
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.BLACK; }
                 },
         TUMBLE
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     boolean isIncapacitated() { return true; }
                     Color getColor() { return Color.GREY; }
                 },
@@ -801,52 +801,52 @@ public class Actor extends Item
                 },
         STAND
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     Color getColor() { return Color.MAROON; }
                 },
         RUN
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     Color getColor() { return Color.BROWN; }
                 },
         SPRINT
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     Color getColor() { return Color.DARKGRAY; }
                     public boolean isSprint() { return true; }
                 },
         WALL_STICK
                 {
-                    boolean isOnWall() { return true; }
+                    public boolean isOnWall() { return true; }
                     Color getColor() { return Color.GREENYELLOW; }
                 },
         WALL_CLIMB
                 {
-                    boolean isOnWall() { return true; }
+                    public boolean isOnWall() { return true; }
                     Color getColor() { return Color.LIGHTGREEN; }
                 },
         CROUCH
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     public boolean isLow() { return true; }
                     Color getColor() { return Color.RED; }
                 },
         CRAWL
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     public boolean isLow() { return true; }
                     Color getColor() { return Color.HOTPINK; }
                 },
         LOWER_SPRINT
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     public boolean isLow() { return true; }
                     public boolean isSprint() { return true; }
                     Color getColor() { return Color.DEEPPINK; }
                 },
         SLIDE
                 {
-                    boolean isGrounded() { return true; }
+                    public boolean isGrounded() { return true; }
                     public boolean isLow() { return true; }
                     Color getColor() { return Color.PINK; }
                 },
@@ -855,9 +855,9 @@ public class Actor extends Item
                     Color getColor() { return Color.BLUE; }
                 };
 
-        boolean isOnWall() { return false; }
+        public boolean isOnWall() { return false; }
         public boolean isAirborne() { return false; }
-        boolean isGrounded() { return false; }
+        public boolean isGrounded() { return false; }
         public boolean isLow() { return false; }
         public boolean isSprint() { return false; }
         boolean isIncapacitated() { return false; }

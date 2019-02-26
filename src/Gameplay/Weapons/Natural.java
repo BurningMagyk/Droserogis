@@ -35,6 +35,7 @@ public class Natural extends Weapon
         {
             if (command.TYPE == Command.StateType.LOW)
                 return setOperation(UPPERCUT, command);
+            if (command.SPRINT) return setOperation(SHOVE, command);
             return setOperation(HAYMAKER, command);
         }
 
@@ -50,7 +51,8 @@ public class Natural extends Weapon
             {
                 if (command.MOMENTUM_DIR.getVert() == DirEnum.DOWN)
                 {
-                    if (command.DIR.getHoriz().getSign() != 0)
+                    if (command.DIR.getHoriz().getSign() != 0
+                            && command.DIR.getVert() != DirEnum.DOWN)
                         return setOperation(KICK_AERIAL, command);
                     return setOperation(STOMP_FALL, command);
                 }
@@ -128,6 +130,24 @@ public class Natural extends Weapon
             public String getName() { return "punch"; }
 
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
+
+            public void apply(Item other)
+            {
+                if (other == null || other == actor) return;
+                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+                // TODO: check for collision then apply effect
+                DirEnum dir = getDir().getHoriz();
+                if (dir == DirEnum.LEFT && other.getX() < actor.getX())
+                {
+                    appliedItems.add(other);
+                    Print.green(other.testingAttacks("left punch"));
+                }
+                else if (dir == DirEnum.RIGHT && other.getX() > actor.getX())
+                {
+                    appliedItems.add(other);
+                    Print.blue(other.testingAttacks("right punch"));
+                }
+            }
         }
 
         PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
@@ -168,8 +188,8 @@ public class Natural extends Weapon
         ConditionAppCycle pushAppCycle
                 = new ConditionAppCycle(null, null, pushApp);
 
-        class PersonalContact extends HoldableNonMelee {
-            PersonalContact(float warmupTime, float cooldownTime,
+        class Push extends HoldableNonMelee {
+            Push(float warmupTime, float cooldownTime,
                             float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
                 super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
             }
@@ -177,28 +197,26 @@ public class Natural extends Weapon
             @Override
             public void apply(Item other)
             {
-                if (other == actor) return;
+                if (other == null || other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                if (appliedItems.contains(other) || !withinBounds(other))  return;
+                if (appliedItems.contains(other) || !withinBounds(other)) return;
                 DirEnum dir = getDir().getHoriz();
                 if (dir == DirEnum.LEFT && other.getX() < actor.getX()
                         && other.getVelocityX() > actor.getVelocityX())
                 {
                     appliedItems.add(other);
-                    // TODO: Push other to the left
-                    Print.blue("test left");
+                    Print.green(other.testingAttacks("left push"));
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
                     appliedItems.add(other);
-                    // TODO: Push other to the right
-                    Print.blue("test right");
+                    Print.blue(other.testingAttacks("right push"));
                 }
             }
         }
 
-        PUSH = new PersonalContact(0.1F, 0.1F, 0.2F, 0.5F, pushAppCycle);
+        PUSH = new Push(0.1F, 0.1F, 0.2F, 0, pushAppCycle);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            HAYMAKER                             ///
@@ -247,6 +265,36 @@ public class Natural extends Weapon
         ConditionAppCycle shoveAppCycle
                 = new ConditionAppCycle(null, null, null);
 
+        class Shove extends HoldableNonMelee {
+            Shove(float warmupTime, float cooldownTime,
+                 float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+            }
+
+            @Override
+            public void apply(Item other)
+            {
+                if (other == null || other == actor) return;
+                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                DirEnum dir = getDir().getHoriz();
+                if (dir == DirEnum.LEFT && other.getX() < actor.getX()
+                        && other.getVelocityX() > actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    Print.green(other.testingAttacks("left shove"));
+                }
+                else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
+                        && other.getVelocityX() < actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    Print.blue(other.testingAttacks("right shove"));
+                }
+            }
+        }
+
+        SHOVE = new Shove(0.1F, 0.1F, 0.2F, 0, shoveAppCycle);
+
         /* Will do these when adding collision */
 
         ///////////////////////////////////////////////////////////////////////
@@ -294,7 +342,35 @@ public class Natural extends Weapon
         ConditionAppCycle stompFallAppCycle
                 = new ConditionAppCycle(null, stompFallApp, stompFallApp);
 
-        /* Will do these when adding collision */
+        class FallingStomp extends HoldableNonMelee {
+            FallingStomp(float warmupTime, float cooldownTime,
+                  float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+            }
+
+            @Override
+            public void apply(Item other)
+            {
+                if (other == null)
+                {
+                    if (actor.getState() == Actor.State.SWIM
+                            || actor.getState().isGrounded()
+                            || actor.getState().isOnWall())
+                        state = State.COOLDOWN;
+                }
+                if (other == actor) return;
+                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                if (other.getY() > actor.getY()
+                        && other.getVelocityY() < actor.getVelocityY())
+                {
+                    appliedItems.add(other);
+                    Print.green(other.testingAttacks("falling stomp"));
+                }
+            }
+        }
+
+        STOMP_FALL = new FallingStomp(0.1F, 0.1F, 0.5F, 0, stompFallAppCycle);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK                                 ///
@@ -404,12 +480,51 @@ public class Natural extends Weapon
                 new ConditionApp(0.01F, Actor.Condition.SLOW_RUN),
                 new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
 
-        /* Will do these when adding collision */
+        class Tackle extends NonMelee {
+            Tackle(float warmupTime, float cooldownTime, float execTime, ConditionAppCycle conditionAppCycle) {
+                super(warmupTime, cooldownTime, execTime, conditionAppCycle);
+            }
+
+            @Override
+            public void apply(Item other)
+            {
+                if (other == null)
+                {
+                    if (totalSec < execTime) return;
+                    if (actor.getState() == Actor.State.SWIM
+                            || actor.getState().isGrounded())
+                        state = State.COOLDOWN;
+                }
+                if (other == actor) return;
+                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                DirEnum dir = getDir().getHoriz();
+                if (dir == DirEnum.LEFT && other.getX() < actor.getX()
+                        && other.getVelocityX() > actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    Print.green(other.testingAttacks("left tackle"));
+                }
+                else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
+                        && other.getVelocityX() < actor.getVelocityX())
+                {
+                    appliedItems.add(other);
+                    Print.blue(other.testingAttacks("right tackle"));
+                }
+            }
+        }
+
+        TACKLE = new Tackle(0.1F, 0.1F, 0.1F, tackleCycle);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            TACKLE (LOW)                         ///
         ///////////////////////////////////////////////////////////////////////
 
-        /* Will do these when adding collision */
+        ConditionAppCycle tackleLowCycle = new ConditionAppCycle(
+                new ConditionApp(0.01F, Actor.Condition.FORCE_DASH, Actor.Condition.FORCE_CROUCH),
+                new ConditionApp(0.01F, Actor.Condition.SLOW_RUN, Actor.Condition.FORCE_CROUCH),
+                new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
+
+        TACKLE_LOW = new Tackle(0.1F, 0.1F, 0.1F, tackleLowCycle);
     }
 }

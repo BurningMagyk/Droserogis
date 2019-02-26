@@ -300,6 +300,12 @@ public class Item extends Entity
         hitPoints -= amount;
     }
 
+    public String testingAttacks(String description)
+    {
+        Print.yellow(this + " was " + description);
+        return this + " was " + description + "ed";
+    }
+
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.
      * Fixes the glitch of not being able to run up a slope after stopping. */
