@@ -36,15 +36,17 @@ public class Sword extends Weapon
                 if (command.DIR == DirEnum.DOWN)
                     return setOperation(THRUST_DOWN, command);
             }
-            if ((currentOp == SWING && ((Melee) currentOp).state == Operation.State.WARMUP)
-                    || (currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+            if ((currentOp == SWING && ((Melee) currentOp).state == Operation.State.WARMUP))
+                return setOperation((Melee) STAB, command, (((Melee) currentOp).totalSec)); // with reduced warm-up time
+            if ((currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     || (currentOp == SWING_UP_FORWARD && ((Melee) currentOp).state == Operation.State.COOLDOWN))
-                return setOperation(STAB, command); // with reduced warm-up time
+                return setOperation((Melee) STAB, command, false); // with half warm-up time
             if ((currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.WARMUP)
-                    || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.WARMUP)
-                    || (currentOp == SWING && ((Melee) currentOp).state == Operation.State.COOLDOWN))
-                return setOperation(STAB_UNTERHAU, command); // with reduced warm-up time
+                    || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.WARMUP))
+                return setOperation((Melee) STAB_UNTERHAU, command, ((Melee) currentOp).totalSec); // with reduced warm-up time
+            if (currentOp == SWING && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+                return setOperation((Melee) STAB_UNTERHAU, command, false); // with half warm-up time
             if (command.DIR.getVert() == DirEnum.UP)
             {
                 if (command.DIR.getHoriz().getSign() != 0)
@@ -53,7 +55,12 @@ public class Sword extends Weapon
             }
             if (currentOp == SWING_UP_BACKWARD
                     && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
-                return setOperation(STAB, command); // with no warm-up time
+            {
+                if (((Melee) currentOp).state == Operation.State.WARMUP)
+                    return setOperation((Melee) STAB, command, ((Melee) currentOp).totalSec); // with reduced warm-up time
+                if (((Melee) currentOp).state == Operation.State.COOLDOWN)
+                    return setOperation((Melee) STAB, command, false); // with half warm-up time
+            }
             if (command.SPRINT) return setOperation(THRUST_LUNGE, command);
             return setOperation(THRUST, command);
         }
@@ -70,48 +77,57 @@ public class Sword extends Weapon
             {
                 if (currentOp == SWING_UP_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_UP_BACKWARD, command); // with reduced warm-up time
+                    return setOperation((Melee) SWING_UP_BACKWARD, command, false); // with half warm-up time
                 if (currentOp == SWING_UP_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_UP_FORWARD, command); // with reduced warm-up time
+                    return setOperation((Melee) SWING_UP_FORWARD, command, false); // with half warm-up time
                 return setOperation(SWING_UP_FORWARD, command); // with normal warm-up time
             }
             if (command.DIR == DirEnum.UP)
             {
                 if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH
-                        || currentOp == STAB_UNTERHAU || currentOp == SWING_UP_FORWARD)
+                        || currentOp == STAB_UNTERHAU)
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_UP_BACKWARD, command); // with no warm-up time
+                    return setOperation((Melee) SWING_UP_BACKWARD, command, true); // with no warm-up time
+                if (currentOp == SWING_UP_FORWARD
+                        && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+                    return setOperation((Melee) SWING_UP_BACKWARD, command, false); // with half warm-up time
                 if (currentOp == SWING_UP_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_UP_FORWARD, command); // with reduced warm-up time
+                    return setOperation((Melee) SWING_UP_FORWARD, command, false); // with half warm-up time
                 return setOperation(SWING_UP_FORWARD, command); // with normal warm-up time
             }
             if (command.DIR == DirEnum.DOWN)
             {
-                if (currentOp == SWING
+                if ((currentOp == SWING || currentOp == STAB)
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_DOWN_BACKWARD, command); // with no warm-up time
-                if (currentOp == STAB
+                    return setOperation((Melee) SWING_DOWN_BACKWARD, command, true); // with no warm-up time
+                if (currentOp == SWING_DOWN_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                    return setOperation(SWING_DOWN_BACKWARD, command); // with reduced warm-up time
+                    return setOperation((Melee) SWING_DOWN_FORWARD, command, false); // with half warm-up time
+                if (currentOp == SWING_DOWN_BACKWARD
+                        && ((Melee) currentOp).state == Operation.State.COOLDOWN)
+                    return setOperation((Melee) SWING_DOWN_FORWARD, command, false); // with half warm-up time
                 return setOperation(SWING_DOWN_FORWARD, command); // with normal warm-up time
             }
             if (currentOp == SWING
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                return setOperation(SWING_UNTERHAU, command); // with reduced warm-up time
+                return setOperation((Melee) SWING_UNTERHAU, command, false); // with half warm-up time
             if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH)
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                return setOperation(SWING, command); // with reduced warm-up time
+                return setOperation((Melee) SWING, command, false); // with half warm-up time
             if (currentOp == SWING_UP_FORWARD
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                return setOperation(SWING, command); // with no warm-up time
+                return setOperation((Melee) SWING, command, true); // with no warm-up time
             if (currentOp == SWING_DOWN_FORWARD
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
-                return setOperation(SWING_UNTERHAU, command); // with no warm-up time
+                return setOperation((Melee) SWING_UNTERHAU, command, true); // with no warm-up time
             if (currentOp == SWING_UP_BACKWARD
                     && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
-                return setOperation(SWING, command); // with no warm-up time
+                return setOperation((Melee) SWING, command, true); // with no warm-up time
+            if (currentOp == SWING_DOWN_BACKWARD
+                    && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
+                return setOperation((Melee) SWING_UNTERHAU, command, true); // with no warm-up time
             if (command.SPRINT) return setOperation(SWING_LUNGE, command);
             return setOperation(SWING, command); // with normal warm-up time
         }
@@ -392,72 +408,5 @@ public class Sword extends Weapon
         swingLungeUnterhauTicks.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
 
         SWING_LUNGE_UNTERHAU = new Swing(0.6F, 0.3F, lungeCycle, swingLungeUnterhauTicks);
-
-        //================================================================================================================
-        // Swinging in front
-        //================================================================================================================
-
-        ArrayList<Tick> swingDownward = new ArrayList<>(),
-                swingUnterhau = new ArrayList<>();
-        swingDownward.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-        swingDownward.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-        swingDownward.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-        swingDownward.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-        swingUnterhau.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-        swingUnterhau.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-        swingUnterhau.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-        swingUnterhau.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-
-        //================================================================================================================
-        // Swinging in front while sprinting
-        //================================================================================================================
-
-        swingDownward = new ArrayList<>();
-        swingUnterhau = new ArrayList<>();
-
-        swingDownward.add(new Tick(0.03F,  -0.8F,-0.6F, -2F));
-        swingDownward.add(new Tick(0.06F,  -0.2F,-0.85F, -1.5F));
-        swingDownward.add(new Tick(0.09F,  0.4F,-0.85F, -1F));
-        swingDownward.add(new Tick(0.12F,  1.05F,-0.7F, -0.5F));
-
-        swingDownward.add(new Tick(0.15F, 1.05F, -0.7F, -0.8F));
-        swingDownward.add(new Tick(0.18F, 1.4F, -0.4F, -0.4F));
-        swingDownward.add(new Tick(0.21F, 1.5F, -0.1F, -0.1F));
-        swingDownward.add(new Tick(0.24F, 1.4F, 0.2F, 0.2F));
-
-        swingUnterhau.add(new Tick(0.03F,  -0.8F,0.6F, -2F));
-        swingUnterhau.add(new Tick(0.06F,  -0.2F,0.85F, -1.5F));
-        swingUnterhau.add(new Tick(0.09F,  0.4F,0.85F, -1F));
-        swingUnterhau.add(new Tick(0.12F,  1.05F,0.7F, -0.5F));
-
-        swingUnterhau.add(new Tick(0.15F, 1.4F, 0.2F, 0.2F));
-        swingUnterhau.add(new Tick(0.18F, 1.5F, -0.1F, -0.1F));
-        swingUnterhau.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
-        swingUnterhau.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
-
-        //================================================================================================================
-        // Swinging upwards
-        //================================================================================================================
-
-        ArrayList<Tick> swingForehand = new ArrayList<>(),
-                swingBackhand = new ArrayList<>();
-        swingForehand.add(new Tick(0.04F,  -0.8F,-0.6F, -2F));
-        swingForehand.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
-        swingForehand.add(new Tick(0.12F,  0.4F,-0.85F, -1F));
-        swingForehand.add(new Tick(0.16F,  1.05F,-0.7F, -0.5F));
-        swingBackhand.add(new Tick(0.04F,  1.05F,-0.7F, -0.5F));
-        swingBackhand.add(new Tick(0.08F,  0.4F,-0.85F, -1F));
-        swingBackhand.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
-        swingBackhand.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
-        ArrayList<Tick> swingForehandDown = new ArrayList<>(),
-                swingBackhandDown = new ArrayList<>();
-        for (Tick tick : swingForehand)
-        {
-            swingForehandDown.add(tick.getMirrorCopy(false, true));
-        }
-        for (Tick tick : swingBackhand)
-        {
-            swingBackhandDown.add(tick.getMirrorCopy(false, true));
-        }
     }
 }

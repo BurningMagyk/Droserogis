@@ -131,6 +131,18 @@ public abstract class Weapon extends Item
         operation.setCommand(command);
         return operation;
     }
+    Operation setOperation(Melee operation, Command command, boolean skipWarmup)
+    {
+        operation.setCommand(command);
+        operation.boostWarmup(skipWarmup);
+        return operation;
+    }
+    Operation setOperation(Melee operation, Command command, float boostSec)
+    {
+        operation.setCommand(command);
+        operation.boostWarmup(boostSec);
+        return operation;
+    }
     abstract Operation getOperation(Command command, Operation currentOp);
     abstract boolean isApplicable(Command command);
 
@@ -413,7 +425,8 @@ public abstract class Weapon extends Item
             this.conditionAppCycle = conditionAppCycle;
         }
 
-        float totalSec = 0;
+        boolean useWarmBoost = false, warmBoost = false, warmSkip = false;
+        float totalSec = 0, warmBoostSec = 0;
         Command command;
         State state = State.WARMUP;
 
@@ -429,8 +442,14 @@ public abstract class Weapon extends Item
         @Override
         public void start()
         {
-            totalSec = 0;
-            state = State.WARMUP;
+            state = warmSkip ? State.EXECUTION : State.WARMUP;
+
+            totalSec = warmBoostSec;
+            warmBoostSec = 0;
+
+            if (useWarmBoost) warmBoost = true;
+            else warmBoost = false;
+            useWarmBoost = false;
 
             warmJourney.setStart(orient);
 
@@ -448,6 +467,7 @@ public abstract class Weapon extends Item
 
             if (state == State.WARMUP)
             {
+                if (warmBoost) totalSec += deltaSec;
                 if (warmJourney.check(totalSec, command.FACE))
                 {
                     totalSec = 0;
@@ -493,6 +513,13 @@ public abstract class Weapon extends Item
         ArrayList<Item> appliedItems = new ArrayList<>();
         @Override
         public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+
+        void boostWarmup(boolean skip)
+        {
+            if (skip) warmSkip = true;
+            useWarmBoost = true;
+        }
+        void boostWarmup(float boostSec) { warmBoostSec = boostSec; }
     }
 
     class HoldableMelee extends Melee
@@ -520,6 +547,7 @@ public abstract class Weapon extends Item
 
             if (state == State.WARMUP)
             {
+                if (warmBoost) totalSec += deltaSec;
                 erected = false;
                 if (warmJourney.check(totalSec, command.FACE))
                 {

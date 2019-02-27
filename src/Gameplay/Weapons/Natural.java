@@ -135,17 +135,19 @@ public class Natural extends Weapon
             {
                 if (other == null || other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                // TODO: check for collision then apply effect
+                // TODO: check for collision
                 DirEnum dir = getDir().getHoriz();
                 if (dir == DirEnum.LEFT && other.getX() < actor.getX())
                 {
                     appliedItems.add(other);
                     Print.green(other.testingAttacks("left punch"));
+                    // TODO: apply effect
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX())
                 {
                     appliedItems.add(other);
                     Print.blue(other.testingAttacks("right punch"));
+                    // TODO: apply effect
                 }
             }
         }
