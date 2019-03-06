@@ -5,7 +5,7 @@ import Util.Vec2;
 
 import java.util.ArrayList;
 
-public class Item extends Entity
+public abstract class Item extends Entity
 {
     private int hitPoints;
 
@@ -305,6 +305,9 @@ public class Item extends Entity
         Print.yellow(this + " was " + description);
         return this + " was " + description + "ed";
     }
+
+    // TODO: collide() needs parameters
+    public abstract void collide();
 
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.

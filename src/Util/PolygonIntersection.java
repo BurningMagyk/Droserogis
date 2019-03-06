@@ -1,5 +1,7 @@
 package Util;
 
+import Gameplay.Entity;
+
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
@@ -56,6 +58,16 @@ public class PolygonIntersection
 
         return false;
     }
+    public static boolean isIntersect(Vec2[] poly, Entity entity)
+    {
+        for (int i=0; i<poly.length; i++)
+        {
+            int ii = (i+1) % poly.length;
+            if (isIntersect(poly[i], poly[ii], entity)) return true;
+        }
+
+        return false;
+    }
 
 
 
@@ -75,6 +87,15 @@ public class PolygonIntersection
 
         if (p1.x > rect.getRight()  && p2.x > rect.getRight())  return false;
         if (p1.y > rect.getBottom() && p2.y > rect.getBottom()) return false;
+        return true;
+    }
+    public static boolean isIntersect(Vec2 p1, Vec2 p2, Entity entity)
+    {
+        if (p1.x < entity.getLeftEdge() && p2.x < entity.getLeftEdge()) return false;
+        if (p1.y < entity.getTopEdge()  && p2.y < entity.getTopEdge())  return false;
+
+        if (p1.x > entity.getRightEdge()  && p2.x > entity.getRightEdge())  return false;
+        if (p1.y > entity.getBottomEdge() && p2.y > entity.getBottomEdge()) return false;
         return true;
     }
 

@@ -8,6 +8,8 @@ import Util.Vec2;
 
 import java.util.ArrayList;
 
+import static Util.PolygonIntersection.isIntersect;
+
 public class Natural extends Weapon
 {
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
@@ -100,6 +102,9 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
+    public void collide(){}
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(0.8F, 0), 0);
@@ -131,25 +136,37 @@ public class Natural extends Weapon
 
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
 
-            public void apply(Item other)
+            public void apply(Weapon _this, Item other)
             {
-                if (other == null || other == actor) return;
-                for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                // TODO: check for collision
+                if (other == null || other == _this || other == actor) return;
+                if (collidedItems.contains(other)) return;
+
                 DirEnum dir = getDir().getHoriz();
-                if (dir == DirEnum.LEFT && other.getX() < actor.getX())
+                Item target = null;
+
+                if (other instanceof Weapon && ((Weapon) other).isBallistic())
                 {
-                    appliedItems.add(other);
-                    Print.green(other.testingAttacks("left punch"));
-                    // TODO: apply effect
+                    if (!isIntersect(getShapeCorners(),
+                            ((Weapon) other).getShapeCorners())) return;
+                    target = ((Weapon) other).actor;
+                    {/* TODO: HERE!!! */}
                 }
-                else if (dir == DirEnum.RIGHT && other.getX() > actor.getX())
+
+                else
                 {
-                    appliedItems.add(other);
-                    Print.blue(other.testingAttacks("right punch"));
-                    // TODO: apply effect
+                    if (!isIntersect(getShapeCorners(), other)) return;
+                    target = other;
+                }
+
+                if ((dir == DirEnum.LEFT && other.getX() < target.getX())
+                        || (dir == DirEnum.RIGHT && other.getX() > target.getX()))
+                {
+                    collidedItems.add(other);
+                    Print.green(other.testingAttacks(dir + " punch"));
                 }
             }
+
+
         }
 
         PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
@@ -197,22 +214,22 @@ public class Natural extends Weapon
             }
 
             @Override
-            public void apply(Item other)
+            public void apply(Weapon _this, Item other)
             {
                 if (other == null || other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                if (collidedItems.contains(other) || !withinBounds(other)) return;
                 DirEnum dir = getDir().getHoriz();
                 if (dir == DirEnum.LEFT && other.getX() < actor.getX()
                         && other.getVelocityX() > actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.green(other.testingAttacks("left push"));
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.blue(other.testingAttacks("right push"));
                 }
             }
@@ -274,22 +291,22 @@ public class Natural extends Weapon
             }
 
             @Override
-            public void apply(Item other)
+            public void apply(Weapon _this, Item other)
             {
                 if (other == null || other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                if (collidedItems.contains(other) || !withinBounds(other)) return;
                 DirEnum dir = getDir().getHoriz();
                 if (dir == DirEnum.LEFT && other.getX() < actor.getX()
                         && other.getVelocityX() > actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.green(other.testingAttacks("left shove"));
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.blue(other.testingAttacks("right shove"));
                 }
             }
@@ -351,7 +368,7 @@ public class Natural extends Weapon
             }
 
             @Override
-            public void apply(Item other)
+            public void apply(Weapon _this, Item other)
             {
                 if (other == null)
                 {
@@ -362,11 +379,11 @@ public class Natural extends Weapon
                 }
                 if (other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                if (collidedItems.contains(other) || !withinBounds(other)) return;
                 if (other.getY() > actor.getY()
                         && other.getVelocityY() < actor.getVelocityY())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.green(other.testingAttacks("falling stomp"));
                 }
             }
@@ -488,7 +505,7 @@ public class Natural extends Weapon
             }
 
             @Override
-            public void apply(Item other)
+            public void apply(Weapon _this, Item other)
             {
                 if (other == null)
                 {
@@ -499,18 +516,18 @@ public class Natural extends Weapon
                 }
                 if (other == actor) return;
                 for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
-                if (appliedItems.contains(other) || !withinBounds(other)) return;
+                if (collidedItems.contains(other) || !withinBounds(other)) return;
                 DirEnum dir = getDir().getHoriz();
                 if (dir == DirEnum.LEFT && other.getX() < actor.getX()
                         && other.getVelocityX() > actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.green(other.testingAttacks("left tackle"));
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
-                    appliedItems.add(other);
+                    collidedItems.add(other);
                     Print.blue(other.testingAttacks("right tackle"));
                 }
             }

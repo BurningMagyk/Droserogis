@@ -151,6 +151,9 @@ public class Sword extends Weapon
     }
 
     @Override
+    public void collide(){}
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));

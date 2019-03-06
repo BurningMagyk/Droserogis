@@ -26,7 +26,7 @@ public abstract class Weapon extends Item
 
     public void test() { Print.yellow("orient: " + orient.theta); }
 
-    private Actor actor;
+    Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
     private Operation currentOp;
@@ -80,8 +80,10 @@ public abstract class Weapon extends Item
     public void update(ArrayList<Item> items)
     {
         if (currentOp == null || !currentOp.mayApply()) return;
-        for (Item other : items) { currentOp.apply(other); }
-        currentOp.apply(null);
+        for (Item other : items) { currentOp.apply(this, other); }
+        currentOp.apply(this,null);
+        /* The null parameter is if an operation wants to modify its
+         * collidedItems list every frame. */
     }
 
     public void setTheta(float theta, DirEnum opDir)
@@ -170,6 +172,8 @@ public abstract class Weapon extends Item
         }
     }
 
+    ArrayList<Item> collidedItems = new ArrayList<>();
+
     public Weapon equip(Actor actor)
     {
         setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
@@ -222,7 +226,7 @@ public abstract class Weapon extends Item
 
         void letGo(int attackKey);
 
-        void apply(Item other);
+        void apply(Weapon _this, Item other);
 
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
@@ -497,7 +501,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
-            appliedItems.clear();
+            collidedItems.clear();
             return true;
         }
 
@@ -510,9 +514,8 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
-        ArrayList<Item> appliedItems = new ArrayList<>();
         @Override
-        public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+        public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
 
         void boostWarmup(boolean skip)
         {
@@ -584,7 +587,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
-            appliedItems.clear();
+            collidedItems.clear();
             return true;
         }
     }
@@ -664,7 +667,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
-            appliedItems.clear();
+            collidedItems.clear();
             return true;
         }
 
@@ -677,9 +680,8 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
-        ArrayList<Item> appliedItems = new ArrayList<>();
         @Override
-        public void apply(Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+        public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
     }
 
     class HoldableNonMelee extends NonMelee
@@ -741,7 +743,7 @@ public abstract class Weapon extends Item
             state = State.WARMUP;
 
             conditionAppCycle.applyFinish();
-            appliedItems.clear();
+            collidedItems.clear();
             return true;
         }
     }

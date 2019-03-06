@@ -291,7 +291,7 @@ public class Gameplay implements Reactor
         water.setLiquid(true);
         addEntity(water);
 
-        addEntity(new Item(1F, -5F, .5f, .5f));
+        //addEntity(new Item(1F, -5F, .5f, .5f));
     }
 
     /**

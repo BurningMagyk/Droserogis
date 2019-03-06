@@ -883,6 +883,9 @@ public class Actor extends Item
             this.conditions[condition.ordinal()] = time;
     }
 
+    @Override
+    public void collide(){}
+
     boolean setTriggered(boolean triggered)
     {
         super.setTriggered(triggered);
