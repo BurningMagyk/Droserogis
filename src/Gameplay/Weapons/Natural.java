@@ -135,38 +135,6 @@ public class Natural extends Weapon
             public String getName() { return "punch"; }
 
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
-
-            public void apply(Weapon _this, Item other)
-            {
-                if (other == null || other == _this || other == actor) return;
-                if (collidedItems.contains(other)) return;
-
-                DirEnum dir = getDir().getHoriz();
-                Item target = null;
-
-                if (other instanceof Weapon && ((Weapon) other).isBallistic())
-                {
-                    if (!isIntersect(getShapeCorners(),
-                            ((Weapon) other).getShapeCorners())) return;
-                    target = ((Weapon) other).actor;
-                    {/* TODO: HERE!!! */}
-                }
-
-                else
-                {
-                    if (!isIntersect(getShapeCorners(), other)) return;
-                    target = other;
-                }
-
-                if ((dir == DirEnum.LEFT && other.getX() < target.getX())
-                        || (dir == DirEnum.RIGHT && other.getX() > target.getX()))
-                {
-                    collidedItems.add(other);
-                    Print.green(other.testingAttacks(dir + " punch"));
-                }
-            }
-
-
         }
 
         PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
@@ -505,7 +473,7 @@ public class Natural extends Weapon
             }
 
             @Override
-            public void apply(Weapon _this, Item other)
+            public void apply(Weapon _this, Item other) // TODO: move this to NonMelee class
             {
                 if (other == null)
                 {

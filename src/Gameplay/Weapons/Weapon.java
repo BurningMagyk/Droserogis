@@ -9,6 +9,8 @@ import Util.Vec2;
 
 import java.util.*;
 
+import static Util.PolygonIntersection.isIntersect;
+
 public abstract class Weapon extends Item
 {
     private DirEnum dirFace = DirEnum.RIGHT;
@@ -408,7 +410,7 @@ public abstract class Weapon extends Item
         return theta;
     }
 
-    class Melee implements Operation
+    abstract class Melee implements Operation
     {
         Journey warmJourney, coolJourney;
         ArrayList<Tick> execJourney;
@@ -515,7 +517,36 @@ public abstract class Weapon extends Item
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
         @Override
-        public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+        //public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+        public void apply(Weapon _this, Item other)
+        {
+            if (other == null || other == _this || other == actor) return;
+            if (collidedItems.contains(other)) return;
+
+            DirEnum dir = getDir().getHoriz(); // TODO: also get "applicableDir" to use for collision detection
+            Item target;
+
+            if (other instanceof Weapon && ((Weapon) other).isBallistic())
+            {
+                if (!isIntersect(getShapeCorners(),
+                        ((Weapon) other).getShapeCorners())) return;
+                target = ((Weapon) other).actor;
+                {/* TODO: apply the damage/affects here after figuring out direction/strength/etc. */}
+            }
+
+            else
+            {
+                if (!isIntersect(getShapeCorners(), other)) return;
+                target = other;
+            }
+
+            if ((dir == DirEnum.LEFT && other.getX() < target.getX())
+                    || (dir == DirEnum.RIGHT && other.getX() > target.getX()))
+            {
+                collidedItems.add(other);
+                Print.green(other.testingAttacks(dir + " punch"));
+            }
+        }
 
         void boostWarmup(boolean skip)
         {
