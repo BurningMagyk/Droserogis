@@ -66,16 +66,14 @@ public abstract class Weapon extends Item
             {
                 Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
                 currentOp = getOperation(nextCommand, currentOp);
-                if (currentOp != null)
-                    currentOp.start();
+                if (currentOp != null) currentOp.start();
             }
         }
         else if (!commandQueue.isEmpty())
         {
             Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
             currentOp = getOperation(nextCommand, null);
-            if (currentOp != null)
-                currentOp.start();
+            if (currentOp != null) currentOp.start();
         }
     }
 
