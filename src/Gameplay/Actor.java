@@ -408,7 +408,7 @@ public class Actor extends Item
         for (Weapon weapon : weapons)
         {
             if (weapon != null)
-                weapon.updatePosition(p, getDims(), getWeaponFace());
+                weapon.updatePosition(p, getVelocity(), getDims(), getWeaponFace());
         }
         super.setPosition(p);
     }
@@ -551,7 +551,7 @@ public class Actor extends Item
         for (Weapon weapon : weapons)
         {
             if (weapon != null)
-                weapon.updatePosition(getPosition(), getDims(), getWeaponFace());
+                weapon.updatePosition(getPosition(), getVelocity(), getDims(), getWeaponFace());
         }
     }
 
@@ -626,7 +626,7 @@ public class Actor extends Item
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
-            Print.blue(this.state + " -> " + state);
+            //Print.blue(this.state + " -> " + state);
             this.state = state;
             return true;
         }
@@ -635,7 +635,7 @@ public class Actor extends Item
         else if (state == State.SLIDE) setFriction(REDUCED_FRICTION);
         else setFriction(NORMAL_FRICTION);
 
-        Print.blue(this.state + " -> " + state);
+        //Print.blue(this.state + " -> " + state);
 
         this.state = state;
         return false;

@@ -122,9 +122,10 @@ public abstract class Weapon extends Item
             dirFace = dir;
         }
     }
-    public void updatePosition(Vec2 p, Vec2 dims, DirEnum dir)
+    public void updatePosition(Vec2 p, Vec2 v, Vec2 dims, DirEnum dir)
     {
         setPosition(p);
+        setVelocity(v);
         updateCorners(dims, dir);
     }
 
@@ -416,7 +417,7 @@ public abstract class Weapon extends Item
         ConditionAppCycle conditionAppCycle;
 
         Melee(float warmupTime, float cooldownTime,
-              ConditionAppCycle conditionAppCycle,
+              DirEnum functionalDir, ConditionAppCycle conditionAppCycle,
               ArrayList<Tick> execJourney)
         {
             this.execJourney = execJourney;
@@ -426,6 +427,7 @@ public abstract class Weapon extends Item
             coolJourney = new Journey(
                     execJourney.get(execJourney.size() - 1).getOrient(),
                     defaultOrient, cooldownTime);
+            this.functionalDir = functionalDir;
             this.conditionAppCycle = conditionAppCycle;
         }
 
@@ -514,35 +516,38 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
+        DirEnum functionalDir;
+
         @Override
-        //public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
         public void apply(Weapon _this, Item other)
         {
             if (other == null || other == _this || other == actor) return;
             if (collidedItems.contains(other)) return;
 
-            DirEnum dir = getDir().getHoriz(); // TODO: also get "applicableDir" to use for collision detection
             Item target;
 
-            if (other instanceof Weapon && ((Weapon) other).isBallistic())
+            /* If it's a weapon that's being wielded */
+            if (other instanceof Weapon && !((Weapon) other).isBallistic())
             {
                 if (!isIntersect(getShapeCorners(),
                         ((Weapon) other).getShapeCorners())) return;
                 target = ((Weapon) other).actor;
-                {/* TODO: apply the damage/affects here after figuring out direction/strength/etc. */}
+                /* TODO: apply the damage/affects here after figuring out direction/strength/etc. */
             }
 
+            /* If it's an actor, non-weapon item, or weapon that isn't being wielded */
             else
             {
                 if (!isIntersect(getShapeCorners(), other)) return;
                 target = other;
             }
 
-            if ((dir == DirEnum.LEFT && other.getX() < target.getX())
-                    || (dir == DirEnum.RIGHT && other.getX() > target.getX()))
+            DirEnum dir = getDir().getHoriz().add(functionalDir);
+            if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Print.green(other.testingAttacks(dir + " punch"));
+                other.inflict(dir + " melee");
+                Print.yellow(" by " + this);
             }
         }
 
@@ -556,10 +561,10 @@ public abstract class Weapon extends Item
 
     class HoldableMelee extends Melee
     {
-        HoldableMelee(float warmupTime, float cooldownTime,
+        HoldableMelee(float warmupTime, float cooldownTime, DirEnum functionalDir,
                ConditionAppCycle conditionAppCycle, ArrayList<Tick> execJourney)
         {
-            super(warmupTime, cooldownTime, conditionAppCycle, execJourney);
+            super(warmupTime, cooldownTime, functionalDir, conditionAppCycle, execJourney);
         }
 
         boolean erected = false;
@@ -627,11 +632,12 @@ public abstract class Weapon extends Item
         float warmupTime, cooldownTime, execTime;
 
         NonMelee(float warmupTime, float cooldownTime, float execTime,
-                        ConditionAppCycle conditionAppCycle)
+                 DirEnum functionalDir, ConditionAppCycle conditionAppCycle)
         {
             this.warmupTime = warmupTime;
             this.cooldownTime = cooldownTime;
             this.execTime = execTime;
+            this.functionalDir = functionalDir;
             this.conditionAppCycle = conditionAppCycle;
         }
 
@@ -709,17 +715,35 @@ public abstract class Weapon extends Item
         @Override
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
+        DirEnum functionalDir;
+
         @Override
-        public void apply(Weapon _this, Item other) { Print.yellow(getName() + ".apply(" + other + ")"); }
+        public void apply(Weapon _this, Item other)
+        {
+            if (other == null || other == actor) return;
+            for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+            if (collidedItems.contains(other) || !withinBounds(other)) return;
+
+            DirEnum dir = getDir().getHoriz().add(functionalDir);
+
+            float collisionSpeed = dir.getCollisionSpeed(_this, other);
+            if (collisionSpeed > 0)
+            {
+                collidedItems.add(other);
+                other.inflict(dir + " nonMelee");
+                Print.yellow(" by " + this);
+            }
+        }
     }
 
     class HoldableNonMelee extends NonMelee
     {
         HoldableNonMelee(float warmupTime, float cooldownTime,
                          float minExecTime, float maxExecTime,
+                         DirEnum functionalDir,
                          ConditionAppCycle conditionAppCycle)
         {
-            super(warmupTime, cooldownTime, minExecTime, conditionAppCycle);
+            super(warmupTime, cooldownTime, minExecTime, functionalDir, conditionAppCycle);
             this.minExecTime = minExecTime;
             this.maxExecTime = maxExecTime;
         }

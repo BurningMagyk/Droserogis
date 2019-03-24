@@ -295,15 +295,18 @@ public abstract class Item extends Entity
     void takeDamage(int amount)
     {
         if (amount == 0) return;
-        Print.green("Took " + amount + " point"
-                + (amount == 1 ? "" : "s") + " of damage");
+        /*Print.green("Took " + amount + " point"
+                + (amount == 1 ? "" : "s") + " of damage");*/
         hitPoints -= amount;
     }
 
-    public String testingAttacks(String description)
+    public void inflict(String description)
     {
-        Print.yellow(this + " was " + description);
-        return this + " was " + description + "ed";
+        Print.yellow(this + " was " + description + "ed");
+
+        /* TODO: if this is an actor and his wielded weapon isn't hit but he used it to block,
+           then add the weapon to the inflictor's collidedItems if it's not there already so that
+           the weapon isn't hit twice */
     }
 
     // TODO: collide() needs parameters

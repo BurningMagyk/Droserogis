@@ -16,16 +16,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Gameplay implements Reactor
 {
     private int viewWidth, viewHeight;
     private GraphicsContext context;
     private AnimationTimer timer;
-
-    private float gravity = 9.8f;             //meters per sec per sec
-    private Vec2 scale = new Vec2(1,1); //pixels per meter
 
     private ArrayList<Entity> entities;
     private ArrayList<Item> items;
@@ -59,12 +55,6 @@ public class Gameplay implements Reactor
       };
     }
 
-    //this.setOnMouseEntered(event ->
-    //{
-    //  if (state == STATE.PLACING) return;
-    //  if (!hasData) return;
-    //  this.setCursor(Cursor.CROSSHAIR);
-    //});
     // Gameplay stats would go in here
     public void start()
       {
@@ -92,18 +82,12 @@ public class Gameplay implements Reactor
       // triggerContacts() sets every entity's flags correctly only if they've all been reset
       for (Entity entity : entities) entity.resetFlags();
 
-      for (Item item : items)
-      {
-          item.update(entities, deltaSec);
-          //if (item instanceof Weapon) ((Weapon) item).resetFlags();
-      }
+      for (Item item : items) { item.update(entities, deltaSec); }
 
       for (Item item : items)
       {
           if (item instanceof Weapon) ((Weapon) item).update(items);
       }
-
-      //for (Actor actor : actors) actor.move(entities, deltaSec);
 
       /* Center the camera on the player
        * TODO: Make the camera move ahead of the player's headed direction */
@@ -112,10 +96,6 @@ public class Gameplay implements Reactor
 
       /* Draw all entities after they've been moved and their flags have been set */
       for (Entity entity : entities) drawEntity(entity);
-
-      /* Handle is called 60 times per second, so world-step should be 1/60
-       * Parameters for velocityIterations and positionIterations may need adjusting */
-      //world.step(1 / 60F,10,10);
     }
 
     @Override
@@ -224,8 +204,8 @@ public class Gameplay implements Reactor
 
         if (entity.getShape().isTriangle())
         {
-            double xPos[] = new double[3];
-            double yPos[] = new double[3];
+            double[] xPos = new double[3];
+            double[] yPos = new double[3];
 
             for (int i = 0; i < 3; i++)
             {
@@ -281,7 +261,7 @@ public class Gameplay implements Reactor
 
         player = new Actor(1F, -3F, .35f, .7f);
         Sword sword = new Sword(0, -4, 0.45F, 0.075F);
-        player.equip(sword);
+        //player.equip(sword);
         addEntity(player);
         addEntity(sword);
         player2 = new Actor(1F, -5F, .35f, .7f);
@@ -326,7 +306,7 @@ public class Gameplay implements Reactor
                 if (entity instanceof Actor)
                 {
                     items.add((Actor) entity);
-                    for (Entity ent : Arrays.asList(((Actor) entity).getItems()))
+                    for (Entity ent : ((Actor) entity).getItems())
                         addEntity(ent);
                 }
                 else items.add((Item) entity);
@@ -348,7 +328,7 @@ public class Gameplay implements Reactor
                 context.getCanvas().getHeight());
     }
 
-    public static void main(String args[])
+    public static void main(String[] args)
     {
         Main.debugEnum = DebugEnum.GAMEPLAY;
         Main.main(args);

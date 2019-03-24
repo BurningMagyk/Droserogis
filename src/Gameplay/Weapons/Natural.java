@@ -128,8 +128,8 @@ public class Natural extends Weapon
                 = new ConditionAppCycle(punchApp, punchApp, punchApp);
 
         class Punch extends Melee {
-            Punch(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+            Punch(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
             }
 
             public String getName() { return "punch"; }
@@ -137,7 +137,7 @@ public class Natural extends Weapon
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
         }
 
-        PUNCH = new Punch(0.4F, 0.3F, punchAppCycle, punchTicks);
+        PUNCH = new Punch(0.4F, 0.3F, DirEnum.NONE, punchAppCycle, punchTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP)                           ///
@@ -153,7 +153,7 @@ public class Natural extends Weapon
         ConditionAppCycle punchUpAppCycle
                 = new ConditionAppCycle(punchUpApp, punchUpApp, punchUpApp);
 
-        PUNCH_UP = new Punch(0.4F, 0.3F, punchUpAppCycle, punchUpTicks);
+        PUNCH_UP = new Punch(0.4F, 0.3F, DirEnum.UP, punchUpAppCycle, punchUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP-FORWARD)                   ///
@@ -164,7 +164,7 @@ public class Natural extends Weapon
         punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI / 4));
         punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI / 4));
 
-        PUNCH_DIAG = new Punch(0.4F, 0.3F, punchAppCycle, punchDiagTicks);
+        PUNCH_DIAG = new Punch(0.4F, 0.3F, DirEnum.UP, punchAppCycle, punchDiagTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUSH                                 ///
@@ -178,10 +178,10 @@ public class Natural extends Weapon
         class Push extends HoldableNonMelee {
             Push(float warmupTime, float cooldownTime,
                             float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, DirEnum.NONE, conditionAppCycle);
             }
 
-            @Override
+            /*@Override
             public void apply(Weapon _this, Item other)
             {
                 if (other == null || other == actor) return;
@@ -192,15 +192,15 @@ public class Natural extends Weapon
                         && other.getVelocityX() > actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.green(other.testingAttacks("left push"));
+                    other.inflict("left push");
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.blue(other.testingAttacks("right push"));
+                    other.inflict("right push");
                 }
-            }
+            }*/
         }
 
         PUSH = new Push(0.1F, 0.1F, 0.2F, 0, pushAppCycle);
@@ -214,7 +214,7 @@ public class Natural extends Weapon
 
         class Haymaker extends Melee {
             Haymaker(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, statusAppCycle, execJourney);
             }
 
             public String getName() {
@@ -243,7 +243,7 @@ public class Natural extends Weapon
         ConditionAppCycle uppercutAppCycle
                 = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
 
-        UPPERCUT = new Punch(0.3F, 0.4F, uppercutAppCycle, uppercutTicks);
+        UPPERCUT = new Punch(0.3F, 0.4F, DirEnum.UP, uppercutAppCycle, uppercutTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SHOVE                                ///
@@ -255,10 +255,10 @@ public class Natural extends Weapon
         class Shove extends HoldableNonMelee {
             Shove(float warmupTime, float cooldownTime,
                  float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, DirEnum.NONE, conditionAppCycle);
             }
 
-            @Override
+            /*@Override
             public void apply(Weapon _this, Item other)
             {
                 if (other == null || other == actor) return;
@@ -269,15 +269,15 @@ public class Natural extends Weapon
                         && other.getVelocityX() > actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.green(other.testingAttacks("left shove"));
+                    other.inflict("left shove");
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.blue(other.testingAttacks("right shove"));
+                    other.inflict("right shove");
                 }
-            }
+            }*/
         }
 
         SHOVE = new Shove(0.1F, 0.1F, 0.2F, 0, shoveAppCycle);
@@ -296,8 +296,8 @@ public class Natural extends Weapon
         Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
 
         class Kick extends Punch {
-            Kick(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+            Kick(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
@@ -318,7 +318,7 @@ public class Natural extends Weapon
         stompTicks.add(new Tick(0.08F, 0.7F, 0.2F, 0));
         stompTicks.add(new Tick(0.12F, 0.7F, 0.4F, 0));
 
-        STOMP = new Kick(0.4F, 0.1F, stompAppCycle, stompTicks);
+        STOMP = new Kick(0.4F, 0.1F, DirEnum.DOWN, stompAppCycle, stompTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            STOMP (FALLING)                      ///
@@ -332,7 +332,7 @@ public class Natural extends Weapon
         class FallingStomp extends HoldableNonMelee {
             FallingStomp(float warmupTime, float cooldownTime,
                   float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, minExecTime, maxExecTime, conditionAppCycle);
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, DirEnum.DOWN, conditionAppCycle);
             }
 
             @Override
@@ -352,7 +352,7 @@ public class Natural extends Weapon
                         && other.getVelocityY() < actor.getVelocityY())
                 {
                     collidedItems.add(other);
-                    Print.green(other.testingAttacks("falling stomp"));
+                    other.inflict("falling stomp");
                 }
             }
         }
@@ -373,7 +373,7 @@ public class Natural extends Weapon
         kickTicks.add(new Tick(0.11F, 1.3F, 0F, 0F));
         kickTicks.add(new Tick(0.17F, 1.9F, 0F, 0F));
 
-        KICK = new Kick(0.3F, 0.4F, kickAppCycle, kickTicks);
+        KICK = new Kick(0.3F, 0.4F, DirEnum.NONE, kickAppCycle, kickTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK (ARC)                           ///
@@ -384,7 +384,7 @@ public class Natural extends Weapon
         kickArcTicks.add(new Tick(0.09F, 1.1F, 0.2F, (float) Math.PI / 4));
         kickArcTicks.add(new Tick(0.14F, 1.7F, 0F, (float) Math.PI / 2));
 
-        KICK_ARC = new Kick(0.3F, 0.4F, kickAppCycle, kickArcTicks);
+        KICK_ARC = new Kick(0.3F, 0.4F, DirEnum.UP, kickAppCycle, kickArcTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK (AERIAL-FORWARD)                ///
@@ -398,7 +398,7 @@ public class Natural extends Weapon
 
         class KickAerial extends HoldableMelee {
             KickAerial(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, statusAppCycle, execJourney);
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
@@ -445,7 +445,7 @@ public class Natural extends Weapon
         grabTicks.add(new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F));
         grabTicks.add(new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F));
 
-        GRAB = new Punch(0.3F, 0.4F, punchAppCycle, grabTicks);
+        GRAB = new Punch(0.3F, 0.4F, DirEnum.NONE, punchAppCycle, grabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            GRAB (CROUCHING)                     ///
@@ -456,7 +456,7 @@ public class Natural extends Weapon
         ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
                 grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
-        GRAB_CROUCH = new Punch(0.4F, 0.4F, grabCrouchCycle, grabTicks);
+        GRAB_CROUCH = new Punch(0.4F, 0.4F, DirEnum.NONE, grabCrouchCycle, grabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            TACKLE                               ///
@@ -469,7 +469,7 @@ public class Natural extends Weapon
 
         class Tackle extends NonMelee {
             Tackle(float warmupTime, float cooldownTime, float execTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, execTime, conditionAppCycle);
+                super(warmupTime, cooldownTime, execTime, DirEnum.NONE, conditionAppCycle);
             }
 
             @Override
@@ -490,13 +490,13 @@ public class Natural extends Weapon
                         && other.getVelocityX() > actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.green(other.testingAttacks("left tackle"));
+                    other.inflict("left tackle");
                 }
                 else if (dir == DirEnum.RIGHT && other.getX() > actor.getX()
                         && other.getVelocityX() < actor.getVelocityX())
                 {
                     collidedItems.add(other);
-                    Print.blue(other.testingAttacks("right tackle"));
+                    other.inflict("right tackle");
                 }
             }
         }
