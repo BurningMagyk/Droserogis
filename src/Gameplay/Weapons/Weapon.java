@@ -28,7 +28,7 @@ public abstract class Weapon extends Item
 
     public void test() { Print.yellow("orient: " + orient.theta); }
 
-    Actor actor;
+    private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
     private Operation currentOp;
@@ -37,10 +37,6 @@ public abstract class Weapon extends Item
     Weapon(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
-
-        //defaultOrient = getDefaultOrient();// = new Orient(new Vec2(1F, 0F), 0);
-        //Print.yellow(getDefaultOrient() == null);
-        //orient = defaultOrient.copy();
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
@@ -532,7 +528,6 @@ public abstract class Weapon extends Item
                 if (!isIntersect(getShapeCorners(),
                         ((Weapon) other).getShapeCorners())) return;
                 target = ((Weapon) other).actor;
-                /* TODO: apply the damage/affects here after figuring out direction/strength/etc. */
             }
 
             /* If it's an actor, non-weapon item, or weapon that isn't being wielded */
