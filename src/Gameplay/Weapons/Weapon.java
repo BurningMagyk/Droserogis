@@ -142,6 +142,7 @@ public abstract class Weapon extends Item
         operation.boostWarmup(boostSec);
         return operation;
     }
+    boolean isOperating() { return currentOp != null; }
     abstract Operation getOperation(Command command, Operation currentOp);
     abstract boolean isApplicable(Command command);
 
@@ -544,7 +545,7 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                other.inflict(dir + " melee");
+                other.inflict(new Infliction(dir));
                 Print.yellow(" by " + this);
             }
         }
@@ -722,6 +723,7 @@ public abstract class Weapon extends Item
         {
             if (other == null || other == actor) return;
             for (Weapon weapon : actor.weapons) { if (other == weapon) return; }
+            if (other instanceof Weapon && !((Weapon) other).isOperating()) return;
             if (collidedItems.contains(other) || !withinBounds(other)) return;
 
             DirEnum dir = getDir().getHoriz().add(functionalDir);
@@ -730,7 +732,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                other.inflict(dir + " nonMelee");
+                other.inflict(new Infliction(dir));
                 Print.yellow(" by " + this);
             }
         }
@@ -801,10 +803,21 @@ public abstract class Weapon extends Item
         }
     }
 
-    public void resetFlags()
+    @Override
+    protected void applyInflictions()
     {
-        //for (Operation op : operations) { op.resetFlags();}
-        // TODO: May not need this method at all
+        if (infliction == null) return;
+        if (actor != null && actor.hasSameInfliction(infliction))
+            actor.blockInfliction();
+
+        // TODO: apply the inflictions here
+
+        infliction = null;
     }
-    //ArrayList<Operation> operations = new ArrayList<>();
+
+    @Override
+    public void inflict(Infliction infliction)
+    {
+        this.infliction = infliction;
+    }
 }

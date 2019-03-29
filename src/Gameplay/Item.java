@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Infliction;
 import Util.Print;
 import Util.Vec2;
 
@@ -39,6 +40,7 @@ public abstract class Item extends Entity
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         resetAcceleration();
+        applyInflictions();
         applyPhysics(entities, deltaSec);
     }
 
@@ -52,6 +54,20 @@ public abstract class Item extends Entity
         setAcceleration(0,0);
         if (touchEntity[DOWN] == null) setAccelerationY(gravity);
     }
+
+    /*private void applyInflictions()
+    {
+        if (infliction == null) return;
+        if (this instanceof Weapon && )
+        // TODO: apply the inflictions here
+        infliction = null;
+
+        for (Weapon weapon : weapons)
+        {
+            if (weapon.hasSameInfliction(infliction))
+        }
+    }*/
+    protected abstract void applyInflictions();
 
     private void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
@@ -300,17 +316,9 @@ public abstract class Item extends Entity
         hitPoints -= amount;
     }
 
-    public void inflict(String description)
-    {
-        Print.yellow(this + " was " + description + "ed");
-
-        /* TODO: if this is an actor and his wielded weapon isn't hit but he used it to block,
-           then add the weapon to the inflictor's collidedItems if it's not there already so that
-           the weapon isn't hit twice */
-    }
-
-    // TODO: collide() needs parameters
-    public abstract void collide();
+    protected Infliction infliction;
+    public boolean hasSameInfliction(Infliction other) { return infliction == other; }
+    public abstract void inflict(Infliction infliction);
 
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.

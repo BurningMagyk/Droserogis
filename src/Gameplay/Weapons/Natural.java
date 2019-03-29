@@ -102,9 +102,6 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
-    public void collide(){}
-
-    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(0.8F, 0), 0);

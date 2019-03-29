@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Gameplay.Weapons.Command;
+import Gameplay.Weapons.Infliction;
 import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Weapon;
 import Util.Print;
@@ -884,7 +885,28 @@ public class Actor extends Item
     }
 
     @Override
-    public void collide(){}
+    protected void applyInflictions()
+    {
+        if (infliction == null) return;
+        for (Weapon weapon : weapons)
+        {
+            if (weapon.hasSameInfliction(infliction))
+            {
+                infliction = null;
+                return;
+            }
+        }
+
+        // TODO: apply the inflictions here
+
+        infliction = null;
+    }
+    @Override
+    public void inflict(Infliction infliction)
+    {
+        this.infliction = infliction;
+    }
+    public void blockInfliction() { infliction = null; }
 
     boolean setTriggered(boolean triggered)
     {
