@@ -167,8 +167,9 @@ public class Sword extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         class Thrust extends HoldableMelee {
-            Thrust(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
+            Thrust(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionaly,
+                   ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionaly, statusAppCycle, execJourney);
             }
 
             public String getName() { return "thrust"; }
@@ -186,7 +187,7 @@ public class Sword extends Weapon
         thrustTicks.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
         thrustTicks.add(new Tick(0.16F, 2F, -0.2F, 0F));
 
-        THRUST = new Thrust(0.6F, 0.3F, DirEnum.NONE, slowRunCycle, thrustTicks);
+        THRUST = new Thrust(0.6F, 0.3F, DirEnum.NONE, true, slowRunCycle, thrustTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_UP                            ///
@@ -197,7 +198,7 @@ public class Sword extends Weapon
         thrustUpTicks.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpTicks.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        THRUST_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, slowRunCycle, thrustUpTicks);
+        THRUST_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, false, slowRunCycle, thrustUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DOWN                          ///
@@ -211,7 +212,7 @@ public class Sword extends Weapon
             thrustDownTicks.add(tickCopy);
         }
 
-        THRUST_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, slowRunCycle, thrustDownTicks);
+        THRUST_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, false, slowRunCycle, thrustDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_UP                       ///
@@ -222,7 +223,7 @@ public class Sword extends Weapon
         thrustDiagUpTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagUpTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        THRUST_DIAG_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, slowRunCycle, thrustDiagUpTicks);
+        THRUST_DIAG_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, true, slowRunCycle, thrustDiagUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_DOWN                     ///
@@ -234,7 +235,7 @@ public class Sword extends Weapon
             thrustDiagDownTicks.add(tick.getMirrorCopy(false, true));
         }
 
-        THRUST_DIAG_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, slowRunCycle, thrustDiagDownTicks);
+        THRUST_DIAG_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, true, slowRunCycle, thrustDiagDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_LUNGE                         ///
@@ -242,7 +243,7 @@ public class Sword extends Weapon
 
         class Stab extends Melee {
             Stab(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, execJourney);
             }
 
             public String getName() { return "stab"; }
@@ -290,7 +291,7 @@ public class Sword extends Weapon
 
         class Swing extends Melee {
             Swing(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, execJourney);
             }
 
             public String getName() { return "swing"; }

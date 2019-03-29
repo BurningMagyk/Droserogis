@@ -128,8 +128,9 @@ public class Natural extends Weapon
                 = new ConditionAppCycle(punchApp, punchApp, punchApp);
 
         class Punch extends Melee {
-            Punch(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
+            Punch(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
+                  ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally, statusAppCycle, execJourney);
             }
 
             public String getName() { return "punch"; }
@@ -137,7 +138,7 @@ public class Natural extends Weapon
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
         }
 
-        PUNCH = new Punch(0.4F, 0.3F, DirEnum.NONE, punchAppCycle, punchTicks);
+        PUNCH = new Punch(0.4F, 0.3F, DirEnum.NONE, true, punchAppCycle, punchTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP)                           ///
@@ -153,7 +154,7 @@ public class Natural extends Weapon
         ConditionAppCycle punchUpAppCycle
                 = new ConditionAppCycle(punchUpApp, punchUpApp, punchUpApp);
 
-        PUNCH_UP = new Punch(0.4F, 0.3F, DirEnum.UP, punchUpAppCycle, punchUpTicks);
+        PUNCH_UP = new Punch(0.4F, 0.3F, DirEnum.UP, false, punchUpAppCycle, punchUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP-FORWARD)                   ///
@@ -164,7 +165,7 @@ public class Natural extends Weapon
         punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI / 4));
         punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI / 4));
 
-        PUNCH_DIAG = new Punch(0.4F, 0.3F, DirEnum.UP, punchAppCycle, punchDiagTicks);
+        PUNCH_DIAG = new Punch(0.4F, 0.3F, DirEnum.UP, true, punchAppCycle, punchDiagTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUSH                                 ///
@@ -187,7 +188,7 @@ public class Natural extends Weapon
 
         class Haymaker extends Melee {
             Haymaker(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, DirEnum.NONE, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, execJourney);
             }
 
             public String getName() {
@@ -216,7 +217,7 @@ public class Natural extends Weapon
         ConditionAppCycle uppercutAppCycle
                 = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
 
-        UPPERCUT = new Punch(0.3F, 0.4F, DirEnum.UP, uppercutAppCycle, uppercutTicks);
+        UPPERCUT = new Punch(0.3F, 0.4F, DirEnum.UP, true, uppercutAppCycle, uppercutTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SHOVE                                ///
@@ -243,7 +244,7 @@ public class Natural extends Weapon
 
         class Kick extends Punch {
             Kick(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, execJourney);
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
@@ -336,7 +337,7 @@ public class Natural extends Weapon
 
         class KickAerial extends HoldableMelee {
             KickAerial(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, DirEnum.NONE, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, execJourney);
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
@@ -383,7 +384,7 @@ public class Natural extends Weapon
         grabTicks.add(new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F));
         grabTicks.add(new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F));
 
-        GRAB = new Punch(0.3F, 0.4F, DirEnum.NONE, punchAppCycle, grabTicks);
+        GRAB = new Punch(0.3F, 0.4F, DirEnum.NONE, true, punchAppCycle, grabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            GRAB (CROUCHING)                     ///
@@ -394,7 +395,7 @@ public class Natural extends Weapon
         ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
                 grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
-        GRAB_CROUCH = new Punch(0.4F, 0.4F, DirEnum.NONE, grabCrouchCycle, grabTicks);
+        GRAB_CROUCH = new Punch(0.4F, 0.4F, DirEnum.NONE, true, grabCrouchCycle, grabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            TACKLE                               ///

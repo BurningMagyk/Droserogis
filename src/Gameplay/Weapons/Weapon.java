@@ -413,8 +413,8 @@ public abstract class Weapon extends Item
         ConditionAppCycle conditionAppCycle;
 
         Melee(float warmupTime, float cooldownTime,
-              DirEnum functionalDir, ConditionAppCycle conditionAppCycle,
-              ArrayList<Tick> execJourney)
+              DirEnum functionalDir, boolean useDirHorizFunctionally,
+              ConditionAppCycle conditionAppCycle, ArrayList<Tick> execJourney)
         {
             this.execJourney = execJourney;
 
@@ -424,6 +424,7 @@ public abstract class Weapon extends Item
                     execJourney.get(execJourney.size() - 1).getOrient(),
                     defaultOrient, cooldownTime);
             this.functionalDir = functionalDir;
+            this.useDirHorizFunctionally = useDirHorizFunctionally;
             this.conditionAppCycle = conditionAppCycle;
         }
 
@@ -513,6 +514,7 @@ public abstract class Weapon extends Item
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
         DirEnum functionalDir;
+        boolean useDirHorizFunctionally;
 
         @Override
         public void apply(Weapon _this, Item other)
@@ -537,7 +539,8 @@ public abstract class Weapon extends Item
                 target = other;
             }
 
-            DirEnum dir = getDir().getHoriz().add(functionalDir);
+            DirEnum dir = useDirHorizFunctionally
+                    ? getDir().getHoriz().add(functionalDir) : functionalDir;
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
@@ -557,9 +560,11 @@ public abstract class Weapon extends Item
     class HoldableMelee extends Melee
     {
         HoldableMelee(float warmupTime, float cooldownTime, DirEnum functionalDir,
-               ConditionAppCycle conditionAppCycle, ArrayList<Tick> execJourney)
+                      boolean useDirHorizFunctionally, ConditionAppCycle conditionAppCycle,
+                      ArrayList<Tick> execJourney)
         {
-            super(warmupTime, cooldownTime, functionalDir, conditionAppCycle, execJourney);
+            super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally,
+                    conditionAppCycle, execJourney);
         }
 
         boolean erected = false;
