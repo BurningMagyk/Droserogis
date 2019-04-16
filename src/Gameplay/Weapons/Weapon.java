@@ -806,18 +806,24 @@ public abstract class Weapon extends Item
     @Override
     protected void applyInflictions()
     {
-        if (infliction == null) return;
-        if (actor != null && actor.hasSameInfliction(infliction))
-            actor.blockInfliction();
+        if (inflictions.isEmpty()) return;
+        if (actor != null)
+        {
+            for (Infliction inf : inflictions)
+            {
+                if (actor.hasSameInfliction(inf))
+                    actor.blockInfliction(inf);
+            }
+        }
 
         // TODO: apply the inflictions here
 
-        infliction = null;
+        inflictions.clear();
     }
 
     @Override
     public void inflict(Infliction infliction)
     {
-        this.infliction = infliction;
+        inflictions.add(infliction);
     }
 }

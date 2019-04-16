@@ -316,8 +316,8 @@ public abstract class Item extends Entity
         hitPoints -= amount;
     }
 
-    protected Infliction infliction;
-    public boolean hasSameInfliction(Infliction other) { return infliction == other; }
+    protected ArrayList<Infliction> inflictions = new ArrayList<>();
+    public boolean hasSameInfliction(Infliction other) { return inflictions.contains(other); }
     public abstract void inflict(Infliction infliction);
 
     /* This is the speed the player gets automatically when running or

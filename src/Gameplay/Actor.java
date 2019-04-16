@@ -887,26 +887,26 @@ public class Actor extends Item
     @Override
     protected void applyInflictions()
     {
-        if (infliction == null) return;
+        if (inflictions.isEmpty()) return;
         for (Weapon weapon : weapons)
         {
-            if (weapon.hasSameInfliction(infliction))
+            for (Infliction inf : inflictions)
             {
-                infliction = null;
-                return;
+                if (weapon.hasSameInfliction(inf))
+                    inflictions.remove(inf);
             }
         }
 
         // TODO: apply the inflictions here
 
-        infliction = null;
+        inflictions.clear();
     }
     @Override
     public void inflict(Infliction infliction)
     {
-        this.infliction = infliction;
+        inflictions.add(infliction);
     }
-    public void blockInfliction() { infliction = null; }
+    public void blockInfliction(Infliction infliction) { inflictions.remove(infliction); }
 
     boolean setTriggered(boolean triggered)
     {
