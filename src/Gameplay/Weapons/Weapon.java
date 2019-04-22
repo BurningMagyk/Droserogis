@@ -45,6 +45,7 @@ public abstract class Weapon extends Item
     @Override
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
+        applyInflictions();
         if (ballistic)
         {
             super.update(entities, deltaSec);
@@ -171,6 +172,12 @@ public abstract class Weapon extends Item
     }
 
     ArrayList<Item> collidedItems = new ArrayList<>();
+    ArrayList<Infliction> inflictionsDealt = new ArrayList<>();
+    private void clearInflictionsDealt()
+    {
+        for (Infliction inf : inflictionsDealt) { inf.finish(); }
+        inflictionsDealt.clear();
+    }
 
     public Weapon equip(Actor actor)
     {
@@ -502,6 +509,7 @@ public abstract class Weapon extends Item
 
             conditionAppCycle.applyFinish();
             collidedItems.clear();
+            clearInflictionsDealt();
             return true;
         }
 
@@ -545,7 +553,9 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                other.inflict(new Infliction(dir));
+                Infliction infliction = new Infliction(_this, dir);
+                inflictionsDealt.add(infliction);
+                other.inflict(infliction);
                 Print.yellow(" by " + this);
             }
         }
@@ -623,6 +633,7 @@ public abstract class Weapon extends Item
 
             conditionAppCycle.applyFinish();
             collidedItems.clear();
+            clearInflictionsDealt();
             return true;
         }
     }
@@ -704,6 +715,7 @@ public abstract class Weapon extends Item
 
             conditionAppCycle.applyFinish();
             collidedItems.clear();
+            clearInflictionsDealt();
             return true;
         }
 
@@ -732,7 +744,9 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                other.inflict(new Infliction(dir));
+                Infliction infliction = new Infliction(_this, dir);
+                inflictionsDealt.add(infliction);
+                other.inflict(infliction);
                 Print.yellow(" by " + this);
             }
         }
@@ -799,6 +813,7 @@ public abstract class Weapon extends Item
 
             conditionAppCycle.applyFinish();
             collidedItems.clear();
+            clearInflictionsDealt();
             return true;
         }
     }
@@ -807,18 +822,29 @@ public abstract class Weapon extends Item
     protected void applyInflictions()
     {
         if (inflictions.isEmpty()) return;
+
+        for (int i = 0; i < inflictions.size(); i++)
+        {
+            Infliction inf = inflictions.get(i);
+            Print.yellow("Weapon: " + inf); // TODO: apply the inflictions here
+
+            if (inf.isFinished())
+            {
+                inflictions.remove(inf);
+                i--;
+                Print.yellow("Weapon: " + inf + " removed");
+            }
+        }
+
         if (actor != null)
         {
-            for (Infliction inf : inflictions)
+            for (int i = 0; i < inflictions.size(); i++)
             {
+                Infliction inf = inflictions.get(i);
                 if (actor.hasSameInfliction(inf))
                     actor.blockInfliction(inf);
             }
         }
-
-        // TODO: apply the inflictions here
-
-        inflictions.clear();
     }
 
     @Override

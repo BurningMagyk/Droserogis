@@ -55,18 +55,6 @@ public abstract class Item extends Entity
         if (touchEntity[DOWN] == null) setAccelerationY(gravity);
     }
 
-    /*private void applyInflictions()
-    {
-        if (infliction == null) return;
-        if (this instanceof Weapon && )
-        // TODO: apply the inflictions here
-        infliction = null;
-
-        for (Weapon weapon : weapons)
-        {
-            if (weapon.hasSameInfliction(infliction))
-        }
-    }*/
     protected abstract void applyInflictions();
 
     private void applyPhysics(ArrayList<Entity> entities, float deltaSec)
@@ -317,7 +305,11 @@ public abstract class Item extends Entity
     }
 
     protected ArrayList<Infliction> inflictions = new ArrayList<>();
-    public boolean hasSameInfliction(Infliction other) { return inflictions.contains(other); }
+    public boolean hasSameInfliction(Infliction other)
+    {
+        for (Infliction inf : inflictions) { if (inf.sameSource(other)) return true; }
+        return false;
+    }
     public abstract void inflict(Infliction infliction);
 
     /* This is the speed the player gets automatically when running or

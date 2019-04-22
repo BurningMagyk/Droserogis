@@ -79,6 +79,7 @@ public class Actor extends Item
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
         resetAcceleration();
+        applyInflictions();
         act(deltaSec);
         applyPhysics(entities, deltaSec);
         countdownStatus(deltaSec);
@@ -888,18 +889,31 @@ public class Actor extends Item
     protected void applyInflictions()
     {
         if (inflictions.isEmpty()) return;
+
+        for (int i = 0; i < inflictions.size(); i++)
+        {
+            Infliction inf = inflictions.get(i);
+
+            Print.yellow("Actor: " + inf); // TODO: apply the inflictions here
+
+            if (inf.isFinished())
+            {
+                inflictions.remove(inf);
+                i--;
+                Print.yellow("Actor: " + inf + " removed");
+            }
+        }
+
         for (Weapon weapon : weapons)
         {
-            for (Infliction inf : inflictions)
+            if (weapon == null) continue;
+            for (int i = 0; i < inflictions.size(); i++)
             {
+                Infliction inf = inflictions.get(i);
                 if (weapon.hasSameInfliction(inf))
                     inflictions.remove(inf);
             }
         }
-
-        // TODO: apply the inflictions here
-
-        inflictions.clear();
     }
     @Override
     public void inflict(Infliction infliction)
