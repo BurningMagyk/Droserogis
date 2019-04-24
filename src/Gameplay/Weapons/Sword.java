@@ -174,10 +174,10 @@ public class Sword extends Weapon
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
         }
 
-        ConditionApp slowRunApp = new ConditionApp(
-                0.01F, Actor.Condition.SLOW_RUN, Actor.Condition.FORCE_STAND);
+        ConditionApp forceStandApp = new ConditionApp(-0.16F, Actor.Condition.FORCE_CROUCH);
+        ConditionApp slowRunApp = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
         ConditionAppCycle slowRunCycle = new ConditionAppCycle(
-                slowRunApp, slowRunApp, slowRunApp);
+                forceStandApp, slowRunApp, slowRunApp);
 
         ArrayList<Tick> thrustTicks = new ArrayList<>();
         thrustTicks.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
@@ -249,9 +249,9 @@ public class Sword extends Weapon
         }
 
         ConditionAppCycle lungeCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.FORCE_DASH),
-                new ConditionApp(0.01F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND),
-                new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND));
+                new ConditionApp(0.01F, Actor.Condition.DASH),
+                new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
+                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT));
 
         THRUST_LUNGE = new Stab(0.6F, 0.3F, DirEnum.NONE, lungeCycle, thrustTicks);
 
@@ -260,7 +260,7 @@ public class Sword extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp ignoreMoveApp = new ConditionApp(
-                0.01F, Actor.Condition.IGNORE_MOVE);
+                0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle ignoreMoveCycle = new ConditionAppCycle(
                 ignoreMoveApp, ignoreMoveApp, ignoreMoveApp);
 
@@ -319,7 +319,7 @@ public class Sword extends Weapon
         swingUnterhauTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
         ConditionApp cantStandOrMove = new ConditionApp(
-                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
+                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle crouchUnterhauCycle
                 = new ConditionAppCycle(cantStandOrMove, slowRunApp, slowRunApp);
 

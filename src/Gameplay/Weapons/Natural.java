@@ -119,10 +119,11 @@ public class Natural extends Weapon
         punchTicks.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
         punchTicks.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
 
+        ConditionApp forceStandApp = new ConditionApp(-0.13F, Actor.Condition.FORCE_CROUCH);
         ConditionApp punchApp = new ConditionApp(
-                0.01F, Actor.Condition.FORCE_STAND, Actor.Condition.SLOW_RUN);
+                0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
         ConditionAppCycle punchAppCycle
-                = new ConditionAppCycle(punchApp, punchApp, punchApp);
+                = new ConditionAppCycle(forceStandApp, punchApp, punchApp);
 
         class Punch extends Melee {
             Punch(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
@@ -147,9 +148,9 @@ public class Natural extends Weapon
         punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI / 2));
 
         ConditionApp punchUpApp = new ConditionApp(
-                0.01F, Actor.Condition.FORCE_STAND, Actor.Condition.IGNORE_MOVE);
+                0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
         ConditionAppCycle punchUpAppCycle
-                = new ConditionAppCycle(punchUpApp, punchUpApp, punchUpApp);
+                = new ConditionAppCycle(forceStandApp, punchUpApp, punchUpApp);
 
         PUNCH_UP = new Punch(0.4F, 0.3F, DirEnum.UP, false, punchUpAppCycle, punchUpTicks);
 
@@ -169,7 +170,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp pushApp = new ConditionApp(
-                0.05F, Actor.Condition.IGNORE_MOVE);
+                0.05F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
         ConditionAppCycle pushAppCycle
                 = new ConditionAppCycle(null, null, pushApp);
 
@@ -210,7 +211,7 @@ public class Natural extends Weapon
         uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
         ConditionApp cantStandOrMove = new ConditionApp(
-                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
+                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle uppercutAppCycle
                 = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
 
@@ -233,9 +234,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp stompApp = new ConditionApp(
-                0.3F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND);
+                0.3F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle stompAppCycle
-                = new ConditionAppCycle(stompApp, stompApp, stompApp);
+                = new ConditionAppCycle(forceStandApp, stompApp, stompApp);
 
         Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
 
@@ -269,7 +270,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp stompFallApp = new ConditionApp(
-                0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH);
+                0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH);
         ConditionAppCycle stompFallAppCycle
                 = new ConditionAppCycle(null, stompFallApp, stompFallApp);
 
@@ -300,9 +301,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp kickApp = new ConditionApp(
-                0.2F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_STAND);
+                0.2F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle kickAppCycle
-                = new ConditionAppCycle(kickApp, kickApp, kickApp);
+                = new ConditionAppCycle(forceStandApp, kickApp, kickApp);
 
         ArrayList<Tick> kickTicks = new ArrayList<>();
         kickTicks.add(new Tick(0.07F, 0.8F, 0F, 0F));
@@ -388,7 +389,7 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionApp grabCrouchApp = new ConditionApp(
-                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.IGNORE_MOVE);
+                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
                 grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
@@ -399,9 +400,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionAppCycle tackleCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.FORCE_DASH),
-                new ConditionApp(0.01F, Actor.Condition.SLOW_RUN),
-                new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
+                new ConditionApp(0.01F, Actor.Condition.DASH),
+                new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
+                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
 
         class Tackle extends NonMelee {
             Tackle(float warmupTime, float cooldownTime, float execTime, ConditionAppCycle conditionAppCycle) {
@@ -429,9 +430,9 @@ public class Natural extends Weapon
         ///////////////////////////////////////////////////////////////////////
 
         ConditionAppCycle tackleLowCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.FORCE_DASH, Actor.Condition.FORCE_CROUCH),
-                new ConditionApp(0.01F, Actor.Condition.SLOW_RUN, Actor.Condition.FORCE_CROUCH),
-                new ConditionApp(0.4F, Actor.Condition.IGNORE_MOVE, Actor.Condition.FORCE_CROUCH));
+                new ConditionApp(0.01F, Actor.Condition.DASH, Actor.Condition.FORCE_CROUCH),
+                new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT, Actor.Condition.FORCE_CROUCH),
+                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
 
         TACKLE_LOW = new Tackle(0.1F, 0.1F, 0.1F, tackleLowCycle);
     }
