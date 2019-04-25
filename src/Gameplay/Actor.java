@@ -327,26 +327,26 @@ public class Actor extends Item
     private MoveType getMoveType()
     {
         if (dirHoriz == LEFT
-                && conditions[Condition.NEGATE_WALK_LEFT.ordinal()] <= 0)
+                && conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0)
         {
             if (dirFace == dirHoriz
-                    && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] <= 0)
+                    && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0)
             {
                 if (pressingShift
-                        && conditions[Condition.NEGATE_SPRINT_LEFT.ordinal()] <= 0)
+                        && conditions[Condition.NEGATE_SPRINT_LEFT.ordinal()] == 0)
                     return MoveType.SPRINT;
                 return MoveType.RUN;
             }
             return MoveType.WALK;
         }
         if (dirHoriz == RIGHT
-                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] <= 0)
+                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0)
         {
             if (dirFace == dirHoriz
-                    && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] <= 0)
+                    && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0)
             {
                 if (pressingShift
-                        && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] <= 0)
+                        && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] == 0)
                     return MoveType.SPRINT;
                 return MoveType.RUN;
             }
@@ -463,11 +463,6 @@ public class Actor extends Item
             {
                 conditions[i] -= deltaSec;
                 if (conditions[i] < 0) conditions[i] = 0;
-            }
-            else if (conditions[i] < 0)
-            {
-                conditions[i] += deltaSec;
-                if (conditions[i] > 0) conditions[i] = 0;
             }
         }
     }
@@ -611,7 +606,7 @@ public class Actor extends Item
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if (dirVert == DOWN
+            if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0)
                     || conditions[Condition.FORCE_CROUCH.ordinal()] > 0)
             {
                 setHeight(ORIGINAL_HEIGHT / 2);
@@ -913,23 +908,15 @@ public class Actor extends Item
         NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT,
         NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
         DASH,
-        FORCE_CROUCH, FORCE_PRONE,
+        FORCE_STAND, FORCE_CROUCH, FORCE_PRONE,
         PUSH_HORIZ, PUSH_VERT
     }
     public void addCondition(float time, Condition... conditions)
     {
         for (Condition cond : conditions)
         {
-            if (time > 0)
-            {
-                if (this.conditions[cond.ordinal()] < time)
-                    this.conditions[cond.ordinal()] = time;
-            }
-            else if (this.conditions[cond.ordinal()] <= 0)
-            {
-                if (this.conditions[cond.ordinal()] > time)
-                    this.conditions[cond.ordinal()] = time;
-            }
+            if (this.conditions[cond.ordinal()] < time)
+                this.conditions[cond.ordinal()] = time;
         }
     }
 
@@ -944,7 +931,7 @@ public class Actor extends Item
 
             Print.yellow("Actor: " + inf); // TODO: apply the inflictions here
 
-            if (inf.isFinished())
+            if (inf.isFinished() || inf.isInstant())
             {
                 inflictions.remove(inf);
                 i--;

@@ -448,7 +448,12 @@ public abstract class Weapon extends Item
         public DirEnum getDir() { return command.FACE; }
 
         @Override
-        public void setCommand(Command command) { this.command = command; }
+        public void setCommand(Command command)
+        {
+            this.command = command;
+            boostWarmup(0);
+            boostWarmup(false);
+        }
 
         @Override
         public void start()
@@ -457,10 +462,6 @@ public abstract class Weapon extends Item
 
             totalSec = warmBoostSec;
             warmBoostSec = 0;
-
-            if (useWarmBoost) warmBoost = true;
-            else warmBoost = false;
-            useWarmBoost = false;
 
             warmJourney.setStart(orient);
 
@@ -553,18 +554,14 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir);
+                Infliction infliction = new Infliction(_this, dir, 1, true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
             }
         }
 
-        void boostWarmup(boolean skip)
-        {
-            if (skip) warmSkip = true;
-            useWarmBoost = true;
-        }
+        void boostWarmup(boolean skip) { warmSkip = skip; }
         void boostWarmup(float boostSec) { warmBoostSec = boostSec; }
     }
 
@@ -744,7 +741,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir);
+                Infliction infliction = new Infliction(_this, dir, 1, true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
