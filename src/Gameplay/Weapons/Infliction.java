@@ -1,24 +1,32 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Util.Vec2;
 
 public class Infliction
 {
     private Weapon source;
+    private Actor inflictor;
 
     private DirEnum dir;
     private int damage;
     // TODO: add damage-type
+    private Vec2 weaponMomentum;
     private boolean instant;
 
     private boolean finished = false;
 
-    Infliction(Weapon source, DirEnum dir, int damage, boolean instant)
+    Infliction(Weapon source, DirEnum dir, int damage, Actor inflictor, boolean instant)
     {
         this.source = source;
+        this.inflictor = inflictor;
         this.dir = dir;
         this.damage = damage;
         this.instant = instant;
+
+        float _weaponMomentum = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
+        weaponMomentum = new Vec2(dir.getHoriz().getSign() * _weaponMomentum, dir.getVert().getSign() * _weaponMomentum);
     }
 
     void finish() { finished = true; }
@@ -29,6 +37,17 @@ public class Infliction
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
     public boolean isInstant() { return instant; }
+
+    public void applyMomentum(Actor other)
+    {
+        //v_after = ((m_other * v_other) + (m_this * v_this)) / (m_other + m_this)
+
+        Vec2 finalVelocity = inflictor.getVelocity().mul(inflictor.mass).add(other.getVelocity().mul(other.mass))
+                .mul(1F / inflictor.mass + other.mass);
+        inflictor.setVelocity(finalVelocity);
+        other.setVelocity(finalVelocity.add(weaponMomentum));
+
+    }
 
     @Override
     public String toString() {

@@ -554,7 +554,7 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, true);
+                Infliction infliction = new Infliction(_this, dir, 1, actor, true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -741,7 +741,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, true);
+                Infliction infliction = new Infliction(_this, dir, 1, actor,true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -825,7 +825,7 @@ public abstract class Weapon extends Item
             Infliction inf = inflictions.get(i);
             Print.yellow("Weapon: " + inf); // TODO: apply the inflictions here
 
-            if (inf.isFinished())
+            if (inf.isFinished() || inf.isInstant())
             {
                 inflictions.remove(inf);
                 i--;

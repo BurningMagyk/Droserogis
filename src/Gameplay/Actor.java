@@ -23,6 +23,8 @@ import java.util.ArrayList;
  */
 public class Actor extends Item
 {
+    public float mass = 1; // TODO: make private with getter
+
     private final float NORMAL_GRAVITY = gravity;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
     private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
@@ -929,7 +931,9 @@ public class Actor extends Item
         {
             Infliction inf = inflictions.get(i);
 
-            Print.yellow("Actor: " + inf); // TODO: apply the inflictions here
+            /* Infliction applied here */
+            Print.yellow("Actor: " + inf);
+            inf.applyMomentum(this);
 
             if (inf.isFinished() || inf.isInstant())
             {
