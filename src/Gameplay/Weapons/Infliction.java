@@ -18,8 +18,9 @@ public class Infliction
 
     private boolean finished = false;
 
-    Infliction(Weapon source, DirEnum dir, int damage, Weapon.ConditionApp conditionApp,
-               Actor inflictor, boolean instant)
+    Infliction(Weapon source, Actor inflictor,
+               DirEnum dir, int damage, Weapon.ConditionApp conditionApp,
+               boolean instant)
     {
         this.source = source;
         this.inflictor = inflictor;

@@ -166,7 +166,7 @@ public class Sword extends Weapon
         class Thrust extends HoldableMelee {
             Thrust(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionaly,
                    ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionaly, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionaly, statusAppCycle,null, execJourney);
             }
 
             public String getName() { return "thrust"; }
@@ -240,7 +240,7 @@ public class Sword extends Weapon
 
         class Stab extends Melee {
             Stab(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, null, execJourney);
             }
 
             public String getName() { return "stab"; }
@@ -288,7 +288,7 @@ public class Sword extends Weapon
 
         class Swing extends Melee {
             Swing(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, null, execJourney);
             }
 
             public String getName() { return "swing"; }

@@ -128,7 +128,7 @@ public class Natural extends Weapon
         class Punch extends Melee {
             Punch(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
                   ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally, statusAppCycle, null, execJourney);
             }
 
             public String getName() { return "punch"; }
@@ -175,7 +175,7 @@ public class Natural extends Weapon
                 = new ConditionAppCycle(null, null, pushApp);
 
         PUSH = new HoldableNonMelee(0.1F, 0.1F, 0.2F, 0,
-                DirEnum.NONE, pushAppCycle);
+                DirEnum.NONE, pushAppCycle, null);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            HAYMAKER                             ///
@@ -186,7 +186,7 @@ public class Natural extends Weapon
 
         class Haymaker extends Melee {
             Haymaker(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, null, execJourney);
             }
 
             public String getName() {
@@ -225,7 +225,7 @@ public class Natural extends Weapon
                 = new ConditionAppCycle(null, null, null);
 
         SHOVE = new HoldableNonMelee(0.1F, 0.1F, 0.2F, 0,
-                DirEnum.NONE, shoveAppCycle);
+                DirEnum.NONE, shoveAppCycle, null);
 
         /* Will do these when adding collision */
 
@@ -277,7 +277,7 @@ public class Natural extends Weapon
         class FallingStomp extends HoldableNonMelee {
             FallingStomp(float warmupTime, float cooldownTime,
                   float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, minExecTime, maxExecTime, DirEnum.DOWN, conditionAppCycle);
+                super(warmupTime, cooldownTime, minExecTime, maxExecTime, DirEnum.DOWN, conditionAppCycle, null);
             }
 
             @Override
@@ -335,7 +335,7 @@ public class Natural extends Weapon
 
         class KickAerial extends HoldableMelee {
             KickAerial(float warmupTime, float cooldownTime, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, execJourney);
+                super(warmupTime, cooldownTime, DirEnum.NONE, true, statusAppCycle, null, execJourney);
                 warmJourney = new Journey(footPosition.getOrient(),
                         execJourney.get(0).getOrient(), warmupTime);
             }
@@ -406,7 +406,7 @@ public class Natural extends Weapon
 
         class Tackle extends NonMelee {
             Tackle(float warmupTime, float cooldownTime, float execTime, ConditionAppCycle conditionAppCycle) {
-                super(warmupTime, cooldownTime, execTime, DirEnum.NONE, conditionAppCycle);
+                super(warmupTime, cooldownTime, execTime, DirEnum.NONE, conditionAppCycle, null);
             }
 
             @Override

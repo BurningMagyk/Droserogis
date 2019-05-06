@@ -419,10 +419,12 @@ public abstract class Weapon extends Item
         ArrayList<Tick> execJourney;
 
         ConditionAppCycle conditionAppCycle;
+        ConditionApp conditionAppInfliction;
 
         Melee(float warmupTime, float cooldownTime,
               DirEnum functionalDir, boolean useDirHorizFunctionally,
-              ConditionAppCycle conditionAppCycle, ArrayList<Tick> execJourney)
+              ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
+              ArrayList<Tick> execJourney)
         {
             this.execJourney = execJourney;
 
@@ -434,6 +436,7 @@ public abstract class Weapon extends Item
             this.functionalDir = functionalDir;
             this.useDirHorizFunctionally = useDirHorizFunctionally;
             this.conditionAppCycle = conditionAppCycle;
+            this.conditionAppInfliction = conditionAppInflicion == null ? new ConditionApp(0) : conditionAppInflicion;
         }
 
         boolean useWarmBoost = false, warmBoost = false, warmSkip = false;
@@ -554,7 +557,7 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, null, actor, true); // TODO: conditionApp parameter should not be null, determine using constructor parameter
+                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction, true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -568,11 +571,12 @@ public abstract class Weapon extends Item
     class HoldableMelee extends Melee
     {
         HoldableMelee(float warmupTime, float cooldownTime, DirEnum functionalDir,
-                      boolean useDirHorizFunctionally, ConditionAppCycle conditionAppCycle,
+                      boolean useDirHorizFunctionally,
+                      ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       ArrayList<Tick> execJourney)
         {
             super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally,
-                    conditionAppCycle, execJourney);
+                    conditionAppCycle, conditionAppInfliction, execJourney);
         }
 
         boolean erected = false;
@@ -638,16 +642,19 @@ public abstract class Weapon extends Item
     class NonMelee implements Operation
     {
         ConditionAppCycle conditionAppCycle;
+        ConditionApp conditionAppInfliction;
         float warmupTime, cooldownTime, execTime;
 
         NonMelee(float warmupTime, float cooldownTime, float execTime,
-                 DirEnum functionalDir, ConditionAppCycle conditionAppCycle)
+                 DirEnum functionalDir,
+                 ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
             this.warmupTime = warmupTime;
             this.cooldownTime = cooldownTime;
             this.execTime = execTime;
             this.functionalDir = functionalDir;
             this.conditionAppCycle = conditionAppCycle;
+            this.conditionAppInfliction = conditionAppInfliction;
         }
 
         float totalSec = 0;
@@ -741,7 +748,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, null, actor,true); // TODO: conditionApp parameter should not be null, determine using constructor parameter
+                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction, true);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -754,9 +761,9 @@ public abstract class Weapon extends Item
         HoldableNonMelee(float warmupTime, float cooldownTime,
                          float minExecTime, float maxExecTime,
                          DirEnum functionalDir,
-                         ConditionAppCycle conditionAppCycle)
+                         ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
-            super(warmupTime, cooldownTime, minExecTime, functionalDir, conditionAppCycle);
+            super(warmupTime, cooldownTime, minExecTime, functionalDir, conditionAppCycle, conditionAppInfliction);
             this.minExecTime = minExecTime;
             this.maxExecTime = maxExecTime;
         }
