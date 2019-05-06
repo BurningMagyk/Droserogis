@@ -399,7 +399,7 @@ public abstract class Weapon extends Item
             this.time = time;
         }
 
-        void apply(Actor actor)
+        void apply(Actor actor) // TODO: Actor should determine what percentage of time the condition should be applied
         {
             for (Actor.Condition condition : conditions)
                 actor.addCondition(time, condition);
@@ -554,7 +554,7 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, actor, true);
+                Infliction infliction = new Infliction(_this, dir, 1, null, actor, true); // TODO: conditionApp parameter should not be null, determine using constructor parameter
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -741,7 +741,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, dir, 1, actor,true);
+                Infliction infliction = new Infliction(_this, dir, 1, null, actor,true); // TODO: conditionApp parameter should not be null, determine using constructor parameter
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);

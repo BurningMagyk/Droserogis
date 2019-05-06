@@ -11,18 +11,21 @@ public class Infliction
 
     private DirEnum dir;
     private int damage;
+    private Weapon.ConditionApp conditionApp;
     // TODO: add damage-type
     private Vec2 weaponMomentum;
     private boolean instant;
 
     private boolean finished = false;
 
-    Infliction(Weapon source, DirEnum dir, int damage, Actor inflictor, boolean instant)
+    Infliction(Weapon source, DirEnum dir, int damage, Weapon.ConditionApp conditionApp,
+               Actor inflictor, boolean instant)
     {
         this.source = source;
         this.inflictor = inflictor;
         this.dir = dir;
         this.damage = damage;
+        this.conditionApp = conditionApp;
         this.instant = instant;
 
         float _weaponMomentum = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
@@ -36,6 +39,7 @@ public class Infliction
 
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
+    public void applyCondition(Actor other) { conditionApp.apply(other); }
     public boolean isInstant() { return instant; }
 
     public void applyMomentum(Actor other)

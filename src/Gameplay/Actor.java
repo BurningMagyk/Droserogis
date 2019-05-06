@@ -934,6 +934,7 @@ public class Actor extends Item
             /* Infliction applied here */
             Print.yellow("Actor: " + inf);
             inf.applyMomentum(this);
+            inf.applyCondition(this);
 
             if (inf.isFinished() || inf.isInstant())
             {
