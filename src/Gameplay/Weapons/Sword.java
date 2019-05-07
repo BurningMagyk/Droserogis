@@ -160,7 +160,7 @@ public class Sword extends Weapon
         super(xPos, yPos, width, height);
 
         ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST                               ///
+        ///                            CLASSES                              ///
         ///////////////////////////////////////////////////////////////////////
 
         class Thrust extends HoldableMelee {
@@ -173,6 +173,10 @@ public class Sword extends Weapon
 
             public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
         }
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST                               ///
+        ///////////////////////////////////////////////////////////////////////
 
         ConditionApp forceStandApp = new ConditionApp(-0.16F, Actor.Condition.FORCE_CROUCH);
         ConditionApp slowRunApp = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);

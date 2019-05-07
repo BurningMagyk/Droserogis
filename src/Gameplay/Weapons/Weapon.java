@@ -413,21 +413,32 @@ public abstract class Weapon extends Item
         return theta;
     }
 
+    static final int DURING_WARMUP = -2, DURING_EXECUTION = -1, DURING_COOLDOWN = 0;
     abstract class Melee implements Operation
     {
+        String name;
+
         Journey warmJourney, coolJourney;
         ArrayList<Tick> execJourney;
+
+        ArrayList<Integer> interruptConditions = new ArrayList<>();
 
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
 
-        Melee(float warmupTime, float cooldownTime,
-              DirEnum functionalDir, boolean useDirHorizFunctionally,
+        Melee(String name,
+              Vec2 speeds,
+              DirEnum functionalDir,
+              boolean useDirHorizFunctionally,
+              int[] interruptConditions,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
               ArrayList<Tick> execJourney)
         {
+            this.name = name;
             this.execJourney = execJourney;
+            for (int cond : interruptConditions) { this.interruptConditions.add(cond); }
 
+            float warmupTime = speeds.x, cooldownTime = speeds.y;
             warmJourney = new Journey(defaultOrient,
                     execJourney.get(0).getOrient(), warmupTime);
             coolJourney = new Journey(
@@ -438,14 +449,26 @@ public abstract class Weapon extends Item
             this.conditionAppCycle = conditionAppCycle;
             this.conditionAppInfliction = conditionAppInflicion == null ? new ConditionApp(0) : conditionAppInflicion;
         }
+        Melee(String name,
+              Vec2 speeds,
+              DirEnum functionalDir,
+              boolean useDirHorizFunctionally,
+              int[] interruptConditions,
+              ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
+              ArrayList<Tick> execJourney,
+              Tick customWarmPos)
+        {
+            this(name, speeds, functionalDir, useDirHorizFunctionally, interruptConditions, conditionAppCycle, conditionAppInflicion, execJourney);
+            // TODO: finish this
+        }
 
-        boolean useWarmBoost = false, warmBoost = false, warmSkip = false;
+        boolean warmBoost = false, warmSkip = false;
         float totalSec = 0, warmBoostSec = 0;
         Command command;
         State state = State.WARMUP;
 
         @Override
-        public String getName() { return "melee"; }
+        public String getName() { return name; }
 
         @Override
         public DirEnum getDir() { return command.FACE; }
@@ -518,7 +541,17 @@ public abstract class Weapon extends Item
         }
 
         @Override
-        public boolean mayInterrupt(Command check) { return state != State.EXECUTION; }
+        public boolean mayInterrupt(Command check)
+        {
+            if (interruptConditions.isEmpty()) return false;
+            if (state == State.WARMUP)
+            {
+                if (interruptConditions.contains(DURING_WARMUP)) return true;
+                return interruptConditions.contains(check.ATTACK_KEY);
+            }
+            if (state == State.EXECUTION && interruptConditions.contains(DURING_EXECUTION)) return true;
+            return state == State.COOLDOWN && interruptConditions.contains(DURING_COOLDOWN);
+        }
 
         @Override
         public boolean mayApply() { return state == State.EXECUTION; }
@@ -570,12 +603,12 @@ public abstract class Weapon extends Item
 
     class HoldableMelee extends Melee
     {
-        HoldableMelee(float warmupTime, float cooldownTime, DirEnum functionalDir,
-                      boolean useDirHorizFunctionally,
+        HoldableMelee(String name, Vec2 speeds, DirEnum functionalDir,
+                      boolean useDirHorizFunctionally, int[] interruptConditions,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       ArrayList<Tick> execJourney)
         {
-            super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionally,
+            super(name, speeds, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney);
         }
 

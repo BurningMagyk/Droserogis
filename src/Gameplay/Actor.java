@@ -554,7 +554,7 @@ public class Actor extends Item
 
     public void debug() { Print.yellow(state); }
 
-    public static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
+    public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
     void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     void pressAttack(boolean pressed, int attackKey)

@@ -29,8 +29,8 @@ public class Infliction
         this.conditionApp = conditionApp;
         this.instant = instant;
 
-        float _weaponMomentum = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
-        weaponMomentum = new Vec2(dir.getHoriz().getSign() * _weaponMomentum, dir.getVert().getSign() * _weaponMomentum);
+        float weaponMomentumMod = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
+        weaponMomentum = new Vec2(dir.getHoriz().getSign() * weaponMomentumMod, dir.getVert().getSign() * weaponMomentumMod);
     }
 
     void finish() { finished = true; }
