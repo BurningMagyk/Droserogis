@@ -163,16 +163,30 @@ public class Sword extends Weapon
         ///                            CLASSES                              ///
         ///////////////////////////////////////////////////////////////////////
 
+        /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN */
         class Thrust extends HoldableMelee {
-            Thrust(float warmupTime, float cooldownTime, DirEnum functionalDir, boolean useDirHorizFunctionaly,
+            Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
                    ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, useDirHorizFunctionaly, statusAppCycle,null, execJourney);
-            }
+                super("thrust", waits, functionalDir, useDirHorizFunctionaly, new int[]{DURING_COOLDOWN},
+                        statusAppCycle, null, execJourney); } }
 
-            public String getName() { return "thrust"; }
+        /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
+        class Stab extends Melee {
+            Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
+                        statusAppCycle, null, execJourney); } }
 
-            public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
-        }
+        /* SWING, SWING_UNTERHAU, SWING_UP_FORWARD, SWING_UP_BACKWARD,  SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
+           SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
+        class Swing extends Melee {
+            Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1},
+                        statusAppCycle, null, execJourney); }
+            /*public boolean mayInterrupt(Command check) {
+                if (check.ATTACK_KEY == Actor.ATTACK_KEY_1
+                        && state == State.WARMUP) return true;
+                return state == State.COOLDOWN;
+            }*/}
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST                               ///
@@ -188,7 +202,7 @@ public class Sword extends Weapon
         thrustTicks.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
         thrustTicks.add(new Tick(0.16F, 2F, -0.2F, 0F));
 
-        THRUST = new Thrust(0.6F, 0.3F, DirEnum.NONE, true, slowRunCycle, thrustTicks);
+        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, slowRunCycle, thrustTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_UP                            ///
@@ -199,7 +213,7 @@ public class Sword extends Weapon
         thrustUpTicks.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpTicks.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        THRUST_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, false, slowRunCycle, thrustUpTicks);
+        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, slowRunCycle, thrustUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DOWN                          ///
@@ -213,7 +227,7 @@ public class Sword extends Weapon
             thrustDownTicks.add(tickCopy);
         }
 
-        THRUST_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, false, slowRunCycle, thrustDownTicks);
+        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, slowRunCycle, thrustDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_UP                       ///
@@ -224,7 +238,7 @@ public class Sword extends Weapon
         thrustDiagUpTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagUpTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        THRUST_DIAG_UP = new Thrust(0.6F, 0.3F, DirEnum.UP, true, slowRunCycle, thrustDiagUpTicks);
+        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, slowRunCycle, thrustDiagUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_DOWN                     ///
@@ -236,28 +250,20 @@ public class Sword extends Weapon
             thrustDiagDownTicks.add(tick.getMirrorCopy(false, true));
         }
 
-        THRUST_DIAG_DOWN = new Thrust(0.6F, 0.3F, DirEnum.DOWN, true, slowRunCycle, thrustDiagDownTicks);
+        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, slowRunCycle, thrustDiagDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_LUNGE                         ///
         ///////////////////////////////////////////////////////////////////////
 
-        class Stab extends Melee {
-            Stab(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, null, execJourney);
-            }
 
-            public String getName() { return "stab"; }
-
-            public boolean mayInterrupt(Command check) { return state == State.COOLDOWN; }
-        }
 
         ConditionAppCycle lungeCycle = new ConditionAppCycle(
                 new ConditionApp(0.01F, Actor.Condition.DASH),
                 new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
                 new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT));
 
-        THRUST_LUNGE = new Stab(0.6F, 0.3F, DirEnum.NONE, lungeCycle, thrustTicks);
+        THRUST_LUNGE = new Stab(new Vec2(0.6F, 0.3F), DirEnum.NONE, lungeCycle, thrustTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            STAB                                 ///
@@ -273,7 +279,7 @@ public class Sword extends Weapon
         stabTicks.add(new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2));
         stabTicks.add(new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2));
 
-        STAB = new Stab(0.6F, 0.3F, DirEnum.DOWN, ignoreMoveCycle, stabTicks);
+        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, ignoreMoveCycle, stabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            STAB_UNTERHAU                        ///
@@ -284,25 +290,11 @@ public class Sword extends Weapon
         stabUnterhauTicks.add(new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2));
         stabUnterhauTicks.add(new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2));
 
-        STAB_UNTERHAU = new Stab(0.6F, 0.3F, DirEnum.UP, ignoreMoveCycle, stabUnterhauTicks);
+        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, ignoreMoveCycle, stabUnterhauTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING                                ///
         ///////////////////////////////////////////////////////////////////////
-
-        class Swing extends Melee {
-            Swing(float warmupTime, float cooldownTime, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
-                super(warmupTime, cooldownTime, functionalDir, true, statusAppCycle, null, execJourney);
-            }
-
-            public String getName() { return "swing"; }
-
-            public boolean mayInterrupt(Command check) {
-                if (check.ATTACK_KEY == Actor.ATTACK_KEY_1
-                        && state == State.WARMUP) return true;
-                return state == State.COOLDOWN;
-            }
-        }
 
         ArrayList<Tick> swingTicks = new ArrayList<>();
         swingTicks.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
@@ -310,7 +302,7 @@ public class Sword extends Weapon
         swingTicks.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
         swingTicks.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
 
-        SWING = new Swing(0.6F, 0.3F, DirEnum.DOWN, slowRunCycle, swingTicks);
+        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UNTERHAU                       ///
@@ -327,8 +319,8 @@ public class Sword extends Weapon
         ConditionAppCycle crouchUnterhauCycle
                 = new ConditionAppCycle(cantStandOrMove, slowRunApp, slowRunApp);
 
-        SWING_UNTERHAU = new Swing(0.6F, 0.3F, DirEnum.UP, slowRunCycle, swingUnterhauTicks);
-        SWING_UNTERHAU_CROUCH = new Swing(0.6F, 0.3F, DirEnum.UP, crouchUnterhauCycle, swingUnterhauTicks);
+        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUnterhauTicks);
+        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, crouchUnterhauCycle, swingUnterhauTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UP_FORWARD                     ///
@@ -340,7 +332,7 @@ public class Sword extends Weapon
         swingUpForwardTicks.add(new Tick(0.12F,  0.4F,-0.85F, -1F));
         swingUpForwardTicks.add(new Tick(0.16F,  1.05F,-0.7F, -0.5F));
 
-        SWING_UP_FORWARD = new Swing(0.6F, 0.3F, DirEnum.UP, slowRunCycle, swingUpForwardTicks);
+        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUpForwardTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UP_BACKWARD                    ///
@@ -352,7 +344,7 @@ public class Sword extends Weapon
         swingUpBackwardTicks.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
         swingUpBackwardTicks.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
 
-        SWING_UP_BACKWARD = new Swing(0.6F, 0.3F, DirEnum.UP, slowRunCycle, swingUpBackwardTicks);
+        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUpBackwardTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_DOWN_FORWARD                   ///
@@ -364,7 +356,7 @@ public class Sword extends Weapon
             swingDownForward.add(tick.getMirrorCopy(false, true));
         }
 
-        SWING_DOWN_FORWARD = new Swing(0.6F, 0.3F, DirEnum.DOWN, slowRunCycle, swingDownForward);
+        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingDownForward);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_DOWN_BACKWARD                  ///
@@ -376,7 +368,7 @@ public class Sword extends Weapon
             swingDownBackward.add(tick.getMirrorCopy(false, true));
         }
 
-        SWING_DOWN_BACKWARD = new Swing(0.6F, 0.3F, DirEnum.DOWN, slowRunCycle, swingDownBackward);
+        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingDownBackward);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_LUNGE                          ///
@@ -394,7 +386,7 @@ public class Sword extends Weapon
         swingLungeTicks.add(new Tick(0.21F, 1.5F, -0.1F, -0.1F));
         swingLungeTicks.add(new Tick(0.24F, 1.4F, 0.2F, 0.2F));
 
-        SWING_LUNGE = new Swing(0.6F, 0.3F, DirEnum.DOWN, lungeCycle, swingLungeTicks);
+        SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, lungeCycle, swingLungeTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_LUNGE_UNTERHAU                 ///
@@ -412,6 +404,6 @@ public class Sword extends Weapon
         swingLungeUnterhauTicks.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
         swingLungeUnterhauTicks.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
 
-        SWING_LUNGE_UNTERHAU = new Swing(0.6F, 0.3F, DirEnum.UP, lungeCycle, swingLungeUnterhauTicks);
+        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCycle, swingLungeUnterhauTicks);
     }
 }

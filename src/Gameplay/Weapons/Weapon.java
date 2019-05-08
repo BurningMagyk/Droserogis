@@ -427,7 +427,7 @@ public abstract class Weapon extends Item
         ConditionApp conditionAppInfliction;
 
         Melee(String name,
-              Vec2 speeds,
+              Vec2 waits,
               DirEnum functionalDir,
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
@@ -438,7 +438,7 @@ public abstract class Weapon extends Item
             this.execJourney = execJourney;
             for (int cond : interruptConditions) { this.interruptConditions.add(cond); }
 
-            float warmupTime = speeds.x, cooldownTime = speeds.y;
+            float warmupTime = waits.x, cooldownTime = waits.y;
             warmJourney = new Journey(defaultOrient,
                     execJourney.get(0).getOrient(), warmupTime);
             coolJourney = new Journey(
@@ -450,7 +450,7 @@ public abstract class Weapon extends Item
             this.conditionAppInfliction = conditionAppInflicion == null ? new ConditionApp(0) : conditionAppInflicion;
         }
         Melee(String name,
-              Vec2 speeds,
+              Vec2 waits,
               DirEnum functionalDir,
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
@@ -458,8 +458,10 @@ public abstract class Weapon extends Item
               ArrayList<Tick> execJourney,
               Tick customWarmPos)
         {
-            this(name, speeds, functionalDir, useDirHorizFunctionally, interruptConditions, conditionAppCycle, conditionAppInflicion, execJourney);
-            // TODO: finish this
+            this(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions, conditionAppCycle, conditionAppInflicion, execJourney);
+            /* For kicking, the warm-up needs to start in a different spot */
+            warmJourney = new Journey(customWarmPos.getOrient(),
+                    execJourney.get(0).getOrient(), waits.x);
         }
 
         boolean warmBoost = false, warmSkip = false;
@@ -603,12 +605,12 @@ public abstract class Weapon extends Item
 
     class HoldableMelee extends Melee
     {
-        HoldableMelee(String name, Vec2 speeds, DirEnum functionalDir,
+        HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, int[] interruptConditions,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       ArrayList<Tick> execJourney)
         {
-            super(name, speeds, functionalDir, useDirHorizFunctionally, interruptConditions,
+            super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney);
         }
 
@@ -678,12 +680,11 @@ public abstract class Weapon extends Item
         ConditionApp conditionAppInfliction;
         float warmupTime, cooldownTime, execTime;
 
-        NonMelee(float warmupTime, float cooldownTime, float execTime,
+        NonMelee(Vec2 waits, float execTime,
                  DirEnum functionalDir,
                  ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
-            this.warmupTime = warmupTime;
-            this.cooldownTime = cooldownTime;
+            warmupTime = waits.x; cooldownTime = waits.y;
             this.execTime = execTime;
             this.functionalDir = functionalDir;
             this.conditionAppCycle = conditionAppCycle;
@@ -791,12 +792,12 @@ public abstract class Weapon extends Item
 
     class HoldableNonMelee extends NonMelee
     {
-        HoldableNonMelee(float warmupTime, float cooldownTime,
+        HoldableNonMelee(Vec2 waits,
                          float minExecTime, float maxExecTime,
                          DirEnum functionalDir,
                          ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
-            super(warmupTime, cooldownTime, minExecTime, functionalDir, conditionAppCycle, conditionAppInfliction);
+            super(waits, minExecTime, functionalDir, conditionAppCycle, conditionAppInfliction);
             this.minExecTime = minExecTime;
             this.maxExecTime = maxExecTime;
         }
