@@ -189,20 +189,53 @@ public class Sword extends Weapon
             }*/}
 
         ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST                               ///
+        ///                            CONDITIONS                           ///
         ///////////////////////////////////////////////////////////////////////
 
-        ConditionApp forceStandApp = new ConditionApp(-0.16F, Actor.Condition.FORCE_CROUCH);
-        ConditionApp slowRunApp = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-        ConditionAppCycle slowRunCycle = new ConditionAppCycle(
-                forceStandApp, slowRunApp, slowRunApp);
+        ConditionApp forceStand = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+        ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
+        ConditionApp forceDash = new ConditionApp(0.01F, Actor.Condition.DASH);
+        ConditionApp negateRun = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+        ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
+        ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
+        ConditionApp negateWalk = new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+        ConditionApp negateWalk_long = new ConditionApp(negateWalk, 0.4F);
+        ConditionApp negateWalk_forceStand = new ConditionApp(negateWalk, Actor.Condition.FORCE_STAND);
+        ConditionApp negateWalk_forceStand_long = new ConditionApp(negateWalk_forceStand, 0.4F);
+        ConditionApp negateWalk_forceCrouch = new ConditionApp(negateWalk, Actor.Condition.FORCE_CROUCH);
+
+        /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN, SWING, SWING_UNTERHAU,
+           SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD */
+        ConditionAppCycle basicCycle = new ConditionAppCycle(
+                forceStand, negateRun_forceStand, negateRun_forceStand);
+
+        /* STAB, STAB_UNTERHAU */
+        ConditionAppCycle a_Cycle = new ConditionAppCycle(
+                negateWalk_forceStand, negateWalk_forceStand, negateWalk_forceStand);
+
+        /* SWING_UNTERHAU_CROUCH */
+        ConditionAppCycle b_Cycle = new ConditionAppCycle(
+                negateWalk_forceCrouch, negateRun_forceStand, negateWalk_long);
+
+        /* THRUST_LUNGE, SWING_LUNGE */
+        ConditionAppCycle lungeCycle = new ConditionAppCycle(
+                forceDash, negateRun_forceStand, negateWalk_forceStand_long);
+
+        /* SWING_LUNGE_UNTERHAU */
+        ConditionAppCycle lungeCrouchCycle = new ConditionAppCycle(
+                forceDash, negateRun_forceCrouch, negateWalk_forceStand_long);
+
+
+        ///////////////////////////////////////////////////////////////////////
+        ///                            THRUST                               ///
+        ///////////////////////////////////////////////////////////////////////
 
         ArrayList<Tick> thrustTicks = new ArrayList<>();
         thrustTicks.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
         thrustTicks.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
         thrustTicks.add(new Tick(0.16F, 2F, -0.2F, 0F));
 
-        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, slowRunCycle, thrustTicks);
+        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, basicCycle, thrustTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_UP                            ///
@@ -213,7 +246,7 @@ public class Sword extends Weapon
         thrustUpTicks.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
         thrustUpTicks.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
 
-        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, slowRunCycle, thrustUpTicks);
+        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, thrustUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DOWN                          ///
@@ -227,7 +260,7 @@ public class Sword extends Weapon
             thrustDownTicks.add(tickCopy);
         }
 
-        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, slowRunCycle, thrustDownTicks);
+        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, thrustDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_UP                       ///
@@ -238,7 +271,7 @@ public class Sword extends Weapon
         thrustDiagUpTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
         thrustDiagUpTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
 
-        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, slowRunCycle, thrustDiagUpTicks);
+        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, basicCycle, thrustDiagUpTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_DIAG_DOWN                     ///
@@ -250,18 +283,11 @@ public class Sword extends Weapon
             thrustDiagDownTicks.add(tick.getMirrorCopy(false, true));
         }
 
-        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, slowRunCycle, thrustDiagDownTicks);
+        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, basicCycle, thrustDiagDownTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            THRUST_LUNGE                         ///
         ///////////////////////////////////////////////////////////////////////
-
-
-
-        ConditionAppCycle lungeCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.DASH),
-                new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
-                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT));
 
         THRUST_LUNGE = new Stab(new Vec2(0.6F, 0.3F), DirEnum.NONE, lungeCycle, thrustTicks);
 
@@ -269,17 +295,12 @@ public class Sword extends Weapon
         ///                            STAB                                 ///
         ///////////////////////////////////////////////////////////////////////
 
-        ConditionApp ignoreMoveApp = new ConditionApp(
-                0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle ignoreMoveCycle = new ConditionAppCycle(
-                ignoreMoveApp, ignoreMoveApp, ignoreMoveApp);
-
         ArrayList<Tick> stabTicks = new ArrayList<>();
         stabTicks.add(new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2));
         stabTicks.add(new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2));
         stabTicks.add(new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2));
 
-        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, ignoreMoveCycle, stabTicks);
+        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, a_Cycle, stabTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            STAB_UNTERHAU                        ///
@@ -290,7 +311,7 @@ public class Sword extends Weapon
         stabUnterhauTicks.add(new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2));
         stabUnterhauTicks.add(new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2));
 
-        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, ignoreMoveCycle, stabUnterhauTicks);
+        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, a_Cycle, stabUnterhauTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING                                ///
@@ -302,7 +323,7 @@ public class Sword extends Weapon
         swingTicks.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
         swingTicks.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
 
-        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingTicks);
+        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UNTERHAU                       ///
@@ -314,13 +335,8 @@ public class Sword extends Weapon
         swingUnterhauTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
         swingUnterhauTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
-        ConditionApp cantStandOrMove = new ConditionApp(
-                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle crouchUnterhauCycle
-                = new ConditionAppCycle(cantStandOrMove, slowRunApp, slowRunApp);
-
-        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUnterhauTicks);
-        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, crouchUnterhauCycle, swingUnterhauTicks);
+        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUnterhauTicks);
+        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, b_Cycle, swingUnterhauTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UP_FORWARD                     ///
@@ -332,7 +348,7 @@ public class Sword extends Weapon
         swingUpForwardTicks.add(new Tick(0.12F,  0.4F,-0.85F, -1F));
         swingUpForwardTicks.add(new Tick(0.16F,  1.05F,-0.7F, -0.5F));
 
-        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUpForwardTicks);
+        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUpForwardTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_UP_BACKWARD                    ///
@@ -344,7 +360,7 @@ public class Sword extends Weapon
         swingUpBackwardTicks.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
         swingUpBackwardTicks.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
 
-        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, slowRunCycle, swingUpBackwardTicks);
+        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUpBackwardTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_DOWN_FORWARD                   ///
@@ -356,7 +372,7 @@ public class Sword extends Weapon
             swingDownForward.add(tick.getMirrorCopy(false, true));
         }
 
-        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingDownForward);
+        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingDownForward);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_DOWN_BACKWARD                  ///
@@ -368,7 +384,7 @@ public class Sword extends Weapon
             swingDownBackward.add(tick.getMirrorCopy(false, true));
         }
 
-        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, slowRunCycle, swingDownBackward);
+        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingDownBackward);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SWING_LUNGE                          ///
@@ -404,6 +420,6 @@ public class Sword extends Weapon
         swingLungeUnterhauTicks.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
         swingLungeUnterhauTicks.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
 
-        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCycle, swingLungeUnterhauTicks);
+        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCrouchCycle, swingLungeUnterhauTicks);
     }
 }

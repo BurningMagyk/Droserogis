@@ -390,13 +390,25 @@ public abstract class Weapon extends Item
     }
     class ConditionApp
     {
-        Actor.Condition[] conditions;
+        private Actor.Condition[] conditions;
         float time;
 
         ConditionApp(float time, Actor.Condition... conditions)
         {
             this.conditions = conditions;
             this.time = time;
+        }
+        ConditionApp(ConditionApp app, Actor.Condition... addedConditions)
+        {
+            conditions = new Actor.Condition[addedConditions.length + app.conditions.length];
+            System.arraycopy(app.conditions, 0, conditions, 0, app.conditions.length);
+            System.arraycopy(addedConditions, 0, conditions, app.conditions.length, conditions.length - app.conditions.length);
+            time = app.time;
+        }
+        ConditionApp(ConditionApp app, float newTime)
+        {
+            conditions = app.conditions;
+            time = newTime;
         }
 
         void apply(Actor actor) // TODO: Actor should determine what percentage of time the condition should be applied
