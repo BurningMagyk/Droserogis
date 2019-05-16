@@ -159,27 +159,27 @@ public class Sword extends Weapon
     {
         super(xPos, yPos, width, height);
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            CLASSES                              ///
-        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                CLASSES                                                  ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN */
         class Thrust extends HoldableMelee {
             Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
-                   ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("thrust", waits, functionalDir, useDirHorizFunctionaly, new int[]{DURING_COOLDOWN},
                         statusAppCycle, null, execJourney); } }
 
         /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
         class Stab extends Melee {
-            Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+            Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
                         statusAppCycle, null, execJourney); } }
 
-        /* SWING, SWING_UNTERHAU, SWING_UP_FORWARD, SWING_UP_BACKWARD,  SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
-           SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
+        /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
+           SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
         class Swing extends Melee {
-            Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, ArrayList<Tick> execJourney) {
+            Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1},
                         statusAppCycle, null, execJourney); }
             /*public boolean mayInterrupt(Command check) {
@@ -188,9 +188,9 @@ public class Sword extends Weapon
                 return state == State.COOLDOWN;
             }*/}
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            CONDITIONS                           ///
-        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                CONDITIONS                                               ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         ConditionApp forceStand = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
         ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
@@ -225,201 +225,118 @@ public class Sword extends Weapon
         ConditionAppCycle lungeCrouchCycle = new ConditionAppCycle(
                 forceDash, negateRun_forceCrouch, negateWalk_forceStand_long);
 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                JOURNEYS                                                 ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST                               ///
-        ///////////////////////////////////////////////////////////////////////
+        Tick[][] thrustJourneys = new Tick[][] {
+                new Tick[] { /* THRUST, THRUST_LUNGE */
+                        new Tick(0.06F, 0.8F, -0.2F, 0F),
+                        new Tick(0.10F, 1.4F, -0.2F, 0F),
+                        new Tick(0.16F, 2F, -0.2F, 0F) },
+                new Tick[] { /* THRUST_UP */
+                        new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2),
+                        new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2),
+                        new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2) },
+                null /* THRUST_DOWN */,
+                new Tick[] { /* THRUST_DIAG_UP */
+                        new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4),
+                        new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4),
+                        new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4) },
+                null /* THRUST_DIAG_DOWN */
+        };
 
-        ArrayList<Tick> thrustTicks = new ArrayList<>();
-        thrustTicks.add(new Tick(0.06F, 0.8F, -0.2F, 0F));
-        thrustTicks.add(new Tick(0.10F, 1.4F, -0.2F, 0F));
-        thrustTicks.add(new Tick(0.16F, 2F, -0.2F, 0F));
-
-        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, basicCycle, thrustTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST_UP                            ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> thrustUpTicks = new ArrayList<>();
-        thrustUpTicks.add(new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2));
-        thrustUpTicks.add(new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2));
-        thrustUpTicks.add(new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2));
-
-        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, thrustUpTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST_DOWN                          ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> thrustDownTicks = new ArrayList<>();
-        for (Tick tick : thrustUpTicks)
+        thrustJourneys[2] = new Tick[thrustJourneys[1].length];
+        for (int i = 0; i < thrustJourneys[1].length; i++)
         {
-            Tick tickCopy = tick.getMirrorCopy(false, true);
+            Tick tickCopy = thrustJourneys[1][i].getMirrorCopy(false, true);
             tickCopy.getOrient().addTheta((float) Math.PI / 2);
-            thrustDownTicks.add(tickCopy);
+            thrustJourneys[2][i] = tickCopy;
         }
+        thrustJourneys[4] = new Tick[thrustJourneys[3].length];
+        for (int i = 0; i < thrustJourneys[3].length; i++)
+            thrustJourneys[4][i] = thrustJourneys[3][i].getMirrorCopy(false, true);
 
-        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, thrustDownTicks);
+        Tick[][] stabJourneys = new Tick[][] {
+                new Tick[] { /* STAB */
+                        new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2),
+                        new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2),
+                        new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2) },
+                new Tick[] { /* STAP_UNTERHAU */
+                        new Tick(0.04F, 1.3F, 0F, (float) -Math.PI/2),
+                        new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2),
+                        new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2) }
+        };
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST_DIAG_UP                       ///
-        ///////////////////////////////////////////////////////////////////////
+        Tick[][] swingJourneys = new Tick[][] {
+                new Tick[] { /* SWING */
+                        new Tick(0.04F, 1.05F, -0.7F, -0.8F),
+                        new Tick(0.08F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.12F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.16F, 1.4F, 0.2F, 0.2F) },
+                new Tick[] { /* SWING_UNTERHAU (+ _CROUCH) */
+                        new Tick(0.04F, 1.4F, 0.2F, 0.2F),
+                        new Tick(0.08F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.12F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.16F, 1.05F, -0.7F, -0.8F) },
+                new Tick[] { /* SWING_UP_FORWARD */
+                        new Tick(0.04F,  -0.8F,-0.6F, -2F),
+                        new Tick(0.08F,  -0.2F,-0.85F, -1.5F),
+                        new Tick(0.12F,  0.4F,-0.85F, -1F),
+                        new Tick(0.16F,  1.05F,-0.7F, -0.5F) },
+                new Tick[] { /* SWING_UP_BACKWARD */
+                        new Tick(0.04F,  1.05F,-0.7F, -0.5F),
+                        new Tick(0.08F,  0.4F,-0.85F, -1F),
+                        new Tick(0.12F,  -0.2F,-0.85F, -1.5F),
+                        new Tick(0.16F,  -0.8F,-0.6F, -2F) },
+                null /* SWING_DOWN_FORWARD */,
+                null /* SWING_DOWN_FORWARD */,
+                null /* SWING_LUNGE */ ,
+                null /* SWING_LUNGE_UNTERHAU */
+        };
 
-        ArrayList<Tick> thrustDiagUpTicks = new ArrayList<>();
-        thrustDiagUpTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4));
-        thrustDiagUpTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4));
-        thrustDiagUpTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4));
+        swingJourneys[4] = new Tick[swingJourneys[2].length];
+        for (int i = 0; i < swingJourneys[4].length; i++)
+            swingJourneys[4][i] = swingJourneys[2][i].getMirrorCopy(false, true);
+        swingJourneys[5] = new Tick[swingJourneys[3].length];
+        for (int i = 0; i < swingJourneys[5].length; i++)
+            swingJourneys[5][i] = swingJourneys[3][i].getMirrorCopy(false, true);
 
-        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, basicCycle, thrustDiagUpTicks);
+        swingJourneys[6] = new Tick[swingJourneys[2].length + swingJourneys[0].length];
+        for (int i = 0; i < swingJourneys[2].length; i++)
+            swingJourneys[6][i] = swingJourneys[2][i].getTimeModdedCopy(0, 0.75F);
+        float timeAdd_6 = swingJourneys[2][swingJourneys[2].length - 1].totalSec;
+        for (int i = swingJourneys[2].length; i < swingJourneys[6].length; i++)
+            swingJourneys[6][i] = swingJourneys[0][i].getTimeModdedCopy(timeAdd_6, 0.75F);
+        swingJourneys[7] = new Tick[swingJourneys[4].length + swingJourneys[1].length];
+        for (int i = 0; i < swingJourneys[4].length; i++)
+            swingJourneys[7][i] = swingJourneys[4][i].getTimeModdedCopy(0, 0.75F);
+        float timeAdd_7 = swingJourneys[4][swingJourneys[4].length - 1].totalSec;
+        for (int i = swingJourneys[4].length; i < swingJourneys[7].length; i++)
+            swingJourneys[7][i] = swingJourneys[1][i].getTimeModdedCopy(timeAdd_7, 0.75F);
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST_DIAG_DOWN                     ///
-        ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                ATTACKS                                                  ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> thrustDiagDownTicks = new ArrayList<>();
-        for (Tick tick : thrustDiagUpTicks)
-        {
-            thrustDiagDownTicks.add(tick.getMirrorCopy(false, true));
-        }
+        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, basicCycle, thrustJourneys[0]);
+        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, thrustJourneys[1]);
+        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, thrustJourneys[2]);
+        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, basicCycle, thrustJourneys[3]);
+        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, basicCycle, thrustJourneys[4]);
+        THRUST_LUNGE = new Stab(new Vec2(0.6F, 0.3F), DirEnum.NONE, lungeCycle, thrustJourneys[0]);
 
-        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, basicCycle, thrustDiagDownTicks);
+        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, a_Cycle, stabJourneys[0]);
+        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, a_Cycle, stabJourneys[1]);
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            THRUST_LUNGE                         ///
-        ///////////////////////////////////////////////////////////////////////
-
-        THRUST_LUNGE = new Stab(new Vec2(0.6F, 0.3F), DirEnum.NONE, lungeCycle, thrustTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            STAB                                 ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> stabTicks = new ArrayList<>();
-        stabTicks.add(new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2));
-        stabTicks.add(new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2));
-        stabTicks.add(new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2));
-
-        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, a_Cycle, stabTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            STAB_UNTERHAU                        ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> stabUnterhauTicks = new ArrayList<>();
-        stabUnterhauTicks.add(new Tick(0.04F, 1.3F, 0F, (float) -Math.PI/2));
-        stabUnterhauTicks.add(new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2));
-        stabUnterhauTicks.add(new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2));
-
-        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, a_Cycle, stabUnterhauTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING                                ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingTicks = new ArrayList<>();
-        swingTicks.add(new Tick(0.04F, 1.05F, -0.7F, -0.8F));
-        swingTicks.add(new Tick(0.08F, 1.4F, -0.4F, -0.4F));
-        swingTicks.add(new Tick(0.12F, 1.5F, -0.1F, -0.1F));
-        swingTicks.add(new Tick(0.16F, 1.4F, 0.2F, 0.2F));
-
-        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_UNTERHAU                       ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingUnterhauTicks = new ArrayList<>();
-        swingUnterhauTicks.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-        swingUnterhauTicks.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-        swingUnterhauTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-        swingUnterhauTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
-
-        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUnterhauTicks);
-        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, b_Cycle, swingUnterhauTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_UP_FORWARD                     ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingUpForwardTicks = new ArrayList<>();
-        swingUpForwardTicks.add(new Tick(0.04F,  -0.8F,-0.6F, -2F));
-        swingUpForwardTicks.add(new Tick(0.08F,  -0.2F,-0.85F, -1.5F));
-        swingUpForwardTicks.add(new Tick(0.12F,  0.4F,-0.85F, -1F));
-        swingUpForwardTicks.add(new Tick(0.16F,  1.05F,-0.7F, -0.5F));
-
-        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUpForwardTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_UP_BACKWARD                    ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingUpBackwardTicks = new ArrayList<>();
-        swingUpBackwardTicks.add(new Tick(0.04F,  1.05F,-0.7F, -0.5F));
-        swingUpBackwardTicks.add(new Tick(0.08F,  0.4F,-0.85F, -1F));
-        swingUpBackwardTicks.add(new Tick(0.12F,  -0.2F,-0.85F, -1.5F));
-        swingUpBackwardTicks.add(new Tick(0.16F,  -0.8F,-0.6F, -2F));
-
-        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingUpBackwardTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_DOWN_FORWARD                   ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingDownForward = new ArrayList<>();
-        for (Tick tick : swingUpForwardTicks)
-        {
-            swingDownForward.add(tick.getMirrorCopy(false, true));
-        }
-
-        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingDownForward);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_DOWN_BACKWARD                  ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingDownBackward = new ArrayList<>();
-        for (Tick tick : swingUpBackwardTicks)
-        {
-            swingDownBackward.add(tick.getMirrorCopy(false, true));
-        }
-
-        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingDownBackward);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_LUNGE                          ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingLungeTicks = new ArrayList<>();
-
-        swingLungeTicks.add(new Tick(0.03F,  -0.8F,-0.6F, -2F));
-        swingLungeTicks.add(new Tick(0.06F,  -0.2F,-0.85F, -1.5F));
-        swingLungeTicks.add(new Tick(0.09F,  0.4F,-0.85F, -1F));
-        swingLungeTicks.add(new Tick(0.12F,  1.05F,-0.7F, -0.5F));
-
-        swingLungeTicks.add(new Tick(0.15F, 1.05F, -0.7F, -0.8F));
-        swingLungeTicks.add(new Tick(0.18F, 1.4F, -0.4F, -0.4F));
-        swingLungeTicks.add(new Tick(0.21F, 1.5F, -0.1F, -0.1F));
-        swingLungeTicks.add(new Tick(0.24F, 1.4F, 0.2F, 0.2F));
-
-        SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, lungeCycle, swingLungeTicks);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SWING_LUNGE_UNTERHAU                 ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> swingLungeUnterhauTicks = new ArrayList<>();
-
-        swingLungeUnterhauTicks.add(new Tick(0.03F,  -0.8F,0.6F, -2F));
-        swingLungeUnterhauTicks.add(new Tick(0.06F,  -0.2F,0.85F, -1.5F));
-        swingLungeUnterhauTicks.add(new Tick(0.09F,  0.4F,0.85F, -1F));
-        swingLungeUnterhauTicks.add(new Tick(0.12F,  1.05F,0.7F, -0.5F));
-
-        swingLungeUnterhauTicks.add(new Tick(0.15F, 1.4F, 0.2F, 0.2F));
-        swingLungeUnterhauTicks.add(new Tick(0.18F, 1.5F, -0.1F, -0.1F));
-        swingLungeUnterhauTicks.add(new Tick(0.21F, 1.4F, -0.4F, -0.4F));
-        swingLungeUnterhauTicks.add(new Tick(0.24F, 1.05F, -0.7F, -0.8F));
-
-        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCrouchCycle, swingLungeUnterhauTicks);
+        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingJourneys[0]);
+        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingJourneys[1]);
+        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, b_Cycle, swingJourneys[1]);
+        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingJourneys[2]);
+        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, basicCycle, swingJourneys[3]);
+        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingJourneys[4]);
+        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingJourneys[5]);
+        SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, lungeCycle, swingJourneys[6]);
+        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCrouchCycle, swingJourneys[7]);
     }
 }

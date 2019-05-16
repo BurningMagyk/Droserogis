@@ -275,6 +275,13 @@ public abstract class Weapon extends Item
             return new Tick(totalSec, tickOrient.getX(), tickOrient.getY(),
                     tickOrient.getTheta() + (float) (Math.PI / 2.0));
         }
+
+        Tick getTimeModdedCopy(float add, float mult)
+        {
+            return new Tick((totalSec + add) * mult,
+                    tickOrient.getX(), tickOrient.getY(),
+                    tickOrient.getTheta());
+        }
     }
 
     class Journey
@@ -431,7 +438,7 @@ public abstract class Weapon extends Item
         String name;
 
         Journey warmJourney, coolJourney;
-        ArrayList<Tick> execJourney;
+        Tick[] execJourney;
 
         ArrayList<Integer> interruptConditions = new ArrayList<>();
 
@@ -444,7 +451,7 @@ public abstract class Weapon extends Item
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
-              ArrayList<Tick> execJourney)
+              Tick[] execJourney)
         {
             this.name = name;
             this.execJourney = execJourney;
@@ -452,9 +459,9 @@ public abstract class Weapon extends Item
 
             float warmupTime = waits.x, cooldownTime = waits.y;
             warmJourney = new Journey(defaultOrient,
-                    execJourney.get(0).getOrient(), warmupTime);
+                    execJourney[0].getOrient(), warmupTime);
             coolJourney = new Journey(
-                    execJourney.get(execJourney.size() - 1).getOrient(),
+                    execJourney[execJourney.length - 1].getOrient(),
                     defaultOrient, cooldownTime);
             this.functionalDir = functionalDir;
             this.useDirHorizFunctionally = useDirHorizFunctionally;
@@ -467,13 +474,13 @@ public abstract class Weapon extends Item
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
-              ArrayList<Tick> execJourney,
+              Tick[] execJourney,
               Tick customWarmPos)
         {
             this(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions, conditionAppCycle, conditionAppInflicion, execJourney);
             /* For kicking, the warm-up needs to start in a different spot */
             warmJourney = new Journey(customWarmPos.getOrient(),
-                    execJourney.get(0).getOrient(), waits.x);
+                    execJourney[0].getOrient(), waits.x);
         }
 
         boolean warmBoost = false, warmSkip = false;
@@ -620,7 +627,7 @@ public abstract class Weapon extends Item
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, int[] interruptConditions,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
-                      ArrayList<Tick> execJourney)
+                      Tick[] execJourney)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney);
