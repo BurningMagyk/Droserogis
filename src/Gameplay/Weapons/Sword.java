@@ -155,6 +155,7 @@ public class Sword extends Weapon
     {
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
     }
+
     public Sword(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);

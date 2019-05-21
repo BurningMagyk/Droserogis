@@ -417,6 +417,8 @@ public abstract class Weapon extends Item
             conditions = app.conditions;
             time = newTime;
         }
+        ConditionApp add(ConditionApp app) { return new ConditionApp(app, conditions); }
+        ConditionApp lengthen(float newTime) { return new ConditionApp(this, newTime); }
 
         void apply(Actor actor) // TODO: Actor should determine what percentage of time the condition should be applied
         {
@@ -632,6 +634,14 @@ public abstract class Weapon extends Item
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney);
         }
+        HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
+                      boolean useDirHorizFunctionally, int[] interruptConditions,
+                      ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
+                      Tick[] execJourney, Tick customWarmPos)
+        {
+            super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
+                    conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
+        }
 
         boolean erected = false;
 
@@ -693,13 +703,13 @@ public abstract class Weapon extends Item
         }
     }
 
-    class NonMelee implements Operation
+    class Rush implements Operation
     {
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
         float warmupTime, cooldownTime, execTime;
 
-        NonMelee(Vec2 waits, float execTime,
+        Rush(Vec2 waits, float execTime,
                  DirEnum functionalDir,
                  ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
@@ -809,9 +819,9 @@ public abstract class Weapon extends Item
         }
     }
 
-    class HoldableNonMelee extends NonMelee
+    class HoldableRush extends Rush
     {
-        HoldableNonMelee(Vec2 waits,
+        HoldableRush(Vec2 waits,
                          float minExecTime, float maxExecTime,
                          DirEnum functionalDir,
                          ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
