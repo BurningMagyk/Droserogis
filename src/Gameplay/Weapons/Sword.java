@@ -193,38 +193,48 @@ public class Sword extends Weapon
         ///                                                CONDITIONS                                               ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ConditionApp forceStand = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
-        ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
-        ConditionApp forceDash = new ConditionApp(0.01F, Actor.Condition.DASH);
-        ConditionApp negateRun = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-        ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
-        ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
-        ConditionApp negateWalk = new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionApp negateWalk_long = new ConditionApp(negateWalk, 0.4F);
-        ConditionApp negateWalk_forceStand = new ConditionApp(negateWalk, Actor.Condition.FORCE_STAND);
-        ConditionApp negateWalk_forceStand_long = new ConditionApp(negateWalk_forceStand, 0.4F);
-        ConditionApp negateWalk_forceCrouch = new ConditionApp(negateWalk, Actor.Condition.FORCE_CROUCH);
+//        ConditionApp forceStand = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+//        ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
+//        ConditionApp forceDash = new ConditionApp(0.01F, Actor.Condition.DASH);
+//        ConditionApp negateRun = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+//        ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
+//        ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
+//        ConditionApp negateWalk = new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+//        ConditionApp negateWalk_long = new ConditionApp(negateWalk, 0.4F);
+//        ConditionApp negateWalk_forceStand = new ConditionApp(negateWalk, Actor.Condition.FORCE_STAND);
+//        ConditionApp negateWalk_forceStand_long = new ConditionApp(negateWalk_forceStand, 0.4F);
+//        ConditionApp negateWalk_forceCrouch = new ConditionApp(negateWalk, Actor.Condition.FORCE_CROUCH);
+
+        ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+        ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
+
+        ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+        ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+
+        ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+
+        ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
 
         /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN, SWING, SWING_UNTERHAU,
            SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD */
         ConditionAppCycle basicCycle = new ConditionAppCycle(
-                forceStand, negateRun_forceStand, negateRun_forceStand);
+                FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
 
         /* STAB, STAB_UNTERHAU */
         ConditionAppCycle a_Cycle = new ConditionAppCycle(
-                negateWalk_forceStand, negateWalk_forceStand, negateWalk_forceStand);
+                FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
 
         /* SWING_UNTERHAU_CROUCH */
         ConditionAppCycle b_Cycle = new ConditionAppCycle(
-                negateWalk_forceCrouch, negateRun_forceStand, negateWalk_long);
+                FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_RUN, NEGATE_WALK__LONG);
 
         /* THRUST_LUNGE, SWING_LUNGE */
         ConditionAppCycle lungeCycle = new ConditionAppCycle(
-                forceDash, negateRun_forceStand, negateWalk_forceStand_long);
+                FORCE_DASH, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
 
         /* SWING_LUNGE_UNTERHAU */
         ConditionAppCycle lungeCrouchCycle = new ConditionAppCycle(
-                forceDash, negateRun_forceCrouch, negateWalk_forceStand_long);
+                FORCE_DASH, FORCE_CROUCH__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                JOURNEYS                                                 ///

@@ -427,6 +427,20 @@ public abstract class Weapon extends Item
         }
     }
 
+    ConditionApp FORCE_STAND = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+    //ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
+    ConditionApp FORCE_CROUCH = new ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
+    ConditionApp FORCE_DASH = new ConditionApp(0.01F, Actor.Condition.DASH);
+
+    ConditionApp NEGATE_RUN = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+    //ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
+    //ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
+    ConditionApp NEGATE_WALK = new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+    //ConditionApp negateWalk_long = new ConditionApp(negateWalk, 0.4F);
+    //ConditionApp negateWalk_forceStand = new ConditionApp(negateWalk, Actor.Condition.FORCE_STAND);
+    //ConditionApp negateWalk_forceStand_long = new ConditionApp(negateWalk_forceStand, 0.4F);
+    //ConditionApp negateWalk_forceCrouch = new ConditionApp(negateWalk, Actor.Condition.FORCE_CROUCH);
+
     private float reduceTheta(float theta)
     {
         while (theta < 0) { theta += Math.PI * 2; }
