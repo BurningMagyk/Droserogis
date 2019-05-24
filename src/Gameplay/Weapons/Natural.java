@@ -200,16 +200,86 @@ public class Natural extends Weapon
         ///                                                CONDITIONS                                               ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+        ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
 
+        ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+        ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+
+        ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+
+        ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+
+        ConditionAppCycle basicCycle = new ConditionAppCycle(
+                FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                JOURNEYS                                                 ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        Tick[][] punchJourneys = new Tick[][] {
+                new Tick[] { /* PUNCH */
+                        new Tick(0.05F, 0.7F, -0.2F, 0F),
+                        new Tick(0.08F, 1.2F, -0.2F, 0F),
+                        new Tick(0.13F, 1.7F, -0.2F, 0F) },
+                new Tick[] { /* PUNCH_UP */
+                        new Tick(0.05F, 0.4F, -0.1F, (float) -Math.PI / 2),
+                        new Tick(0.08F, 0.4F, -0.4F, (float) -Math.PI / 2),
+                        new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI / 2) },
+                new Tick[] { /* PUNCH_DIAG */
+                        new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI / 4),
+                        new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI / 4),
+                        new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI / 4) },
+                new Tick[] { /* HAYMAKER */
+                        new Tick(0.05F, 1.4F, -0.4F, (float) Math.PI / 4F) },
+                new Tick[] { /* UPPERCUT */
+                        new Tick(0.04F, 1.4F, 0.2F, 0.2F),
+                        new Tick(0.08F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.12F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.16F, 1.05F, -0.7F, -0.8F) }
+        };
+
+        Tick[][] kickJourneys = new Tick[][] {
+                new Tick[] { /* STOMP */
+                        new Tick(0.04F, 0.7F, 0F, 0),
+                        new Tick(0.08F, 0.7F, 0.2F, 0),
+                        new Tick(0.12F, 0.7F, 0.4F, 0) },
+                new Tick[] { /* KICK */
+                        new Tick(0.07F, 0.8F, 0F, 0F),
+                        new Tick(0.11F, 1.3F, 0F, 0F),
+                        new Tick(0.17F, 1.9F, 0F, 0F) },
+                new Tick[] { /* KICK_ARC */
+                        new Tick(0.05F, 0.5F, 0.4F, 0F),
+                        new Tick(0.09F, 1.1F, 0.2F, (float) Math.PI / 4),
+                        new Tick(0.14F, 1.7F, 0F, (float) Math.PI / 2) },
+                new Tick[] { /* KICK_AERIAL */
+                        new Tick(0.05F, 0.8F, 0F, 0F),
+                        new Tick(0.10F, 1.3F, 0F, 0F),
+                        new Tick(0.15F, 1.9F, 0F, 0F) },
+                new Tick[] { /* KICK_AERIAL_DIAG */
+                        new Tick(0.05F, 0.5F, 0F, (float) Math.PI / 4F),
+                        new Tick(0.10F, 0.8F, 0.1F, (float) Math.PI / 4F),
+                        new Tick(0.15F, 1.2F, 0.2F, (float) Math.PI / 4F) },
+        };
+
+        Tick[][] grabJourneys = new Tick[][] {
+                new Tick[] {
+                        new Tick(0.05F, 0.7F, -0.2F, (float) Math.PI / 2F),
+                        new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F),
+                        new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F) }
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                ATTACKS                                                  ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        PUNCH = new Punch(new Vec2(0.4F, 0.3F), DirEnum.NONE, true, basicCycle, punchJourneys[0]);
+        PUNCH_UP = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, false, basicCycle, punchJourneys[1]);
+        PUNCH_DIAG = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, true, basicCycle, punchJourneys[2]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH                                ///
         ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> punchTicks = new ArrayList<>();
-        punchTicks.add(new Tick(0.05F, 0.7F, -0.2F, 0F));
-        punchTicks.add(new Tick(0.08F, 1.2F, -0.2F, 0F));
-        punchTicks.add(new Tick(0.13F, 1.7F, -0.2F, 0F));
 
         ConditionApp forceStandApp = new ConditionApp(-0.13F, Actor.Condition.FORCE_CROUCH);
         ConditionApp punchApp = new ConditionApp(
@@ -217,34 +287,24 @@ public class Natural extends Weapon
         ConditionAppCycle punchAppCycle
                 = new ConditionAppCycle(forceStandApp, punchApp, punchApp);
 
-        PUNCH = new Punch(new Vec2(0.4F, 0.3F), DirEnum.NONE, true, punchAppCycle, punchTicks);
+
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP)                           ///
         ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> punchUpTicks = new ArrayList<>();
-        punchUpTicks.add(new Tick(0.05F, 0.4F, -0.1F, (float) -Math.PI / 2));
-        punchUpTicks.add(new Tick(0.08F, 0.4F, -0.4F, (float) -Math.PI / 2));
-        punchUpTicks.add(new Tick(0.13F, 0.4F, -0.8F, (float) -Math.PI / 2));
 
         ConditionApp punchUpApp = new ConditionApp(
                 0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
         ConditionAppCycle punchUpAppCycle
                 = new ConditionAppCycle(forceStandApp, punchUpApp, punchUpApp);
 
-        PUNCH_UP = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, false, punchUpAppCycle, punchUpTicks);
+
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUNCH (UP-FORWARD)                   ///
         ///////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> punchDiagTicks = new ArrayList<>();
-        punchDiagTicks.add(new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI / 4));
-        punchDiagTicks.add(new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI / 4));
-        punchDiagTicks.add(new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI / 4));
 
-        PUNCH_DIAG = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, true, punchAppCycle, punchDiagTicks);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            PUSH                                 ///
@@ -255,7 +315,7 @@ public class Natural extends Weapon
         ConditionAppCycle pushAppCycle
                 = new ConditionAppCycle(null, null, pushApp);
 
-        PUSH = new HoldableNonMelee(0.1F, 0.1F, 0.2F, 0,
+        PUSH = new HoldableRush(0.1F, 0.1F, 0.2F, 0,
                 DirEnum.NONE, pushAppCycle, null);
 
         ///////////////////////////////////////////////////////////////////////
@@ -265,24 +325,18 @@ public class Natural extends Weapon
         ArrayList<Tick> haymakerTicks = new ArrayList<>();
         haymakerTicks.add(new Tick(0.05F, 1.4F, -0.4F, (float) Math.PI / 4F));
 
-        HAYMAKER = new Haymaker(0.3F, 0.3F, punchAppCycle, haymakerTicks);
+        HAYMAKER = new Haymaker(new Vec2(0.3F, 0.3F), punchAppCycle, punchJourneys[3]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            UPPERCUT                             ///
         ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> uppercutTicks = new ArrayList<>();
-        uppercutTicks.add(new Tick(0.04F, 1.4F, 0.2F, 0.2F));
-        uppercutTicks.add(new Tick(0.08F, 1.5F, -0.1F, -0.1F));
-        uppercutTicks.add(new Tick(0.12F, 1.4F, -0.4F, -0.4F));
-        uppercutTicks.add(new Tick(0.16F, 1.05F, -0.7F, -0.8F));
 
         ConditionApp cantStandOrMove = new ConditionApp(
                 0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
         ConditionAppCycle uppercutAppCycle
                 = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
 
-        UPPERCUT = new Punch(0.3F, 0.4F, DirEnum.UP, true, uppercutAppCycle, uppercutTicks);
+        UPPERCUT = new Punch(new Vec2(0.3F, 0.4F), DirEnum.UP, true, uppercutAppCycle, punchJourneys[4]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            SHOVE                                ///
@@ -307,12 +361,7 @@ public class Natural extends Weapon
 
         Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
 
-        ArrayList<Tick> stompTicks = new ArrayList<>();
-        stompTicks.add(new Tick(0.04F, 0.7F, 0F, 0));
-        stompTicks.add(new Tick(0.08F, 0.7F, 0.2F, 0));
-        stompTicks.add(new Tick(0.12F, 0.7F, 0.4F, 0));
-
-        STOMP = new Kick(0.4F, 0.1F, DirEnum.DOWN, stompAppCycle, stompTicks);
+        STOMP = new Kick(new Vec2(0.4F, 0.1F), DirEnum.DOWN, stompAppCycle, kickJourneys[0]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            STOMP (FALLING)                      ///
@@ -334,23 +383,13 @@ public class Natural extends Weapon
         ConditionAppCycle kickAppCycle
                 = new ConditionAppCycle(forceStandApp, kickApp, kickApp);
 
-        ArrayList<Tick> kickTicks = new ArrayList<>();
-        kickTicks.add(new Tick(0.07F, 0.8F, 0F, 0F));
-        kickTicks.add(new Tick(0.11F, 1.3F, 0F, 0F));
-        kickTicks.add(new Tick(0.17F, 1.9F, 0F, 0F));
-
-        KICK = new Kick(0.3F, 0.4F, DirEnum.NONE, kickAppCycle, kickTicks);
+        KICK = new Kick(new Vec2(0.3F, 0.4F), DirEnum.NONE, kickAppCycle, kickJourneys[1]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK (ARC)                           ///
         ///////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> kickArcTicks = new ArrayList<>();
-        kickArcTicks.add(new Tick(0.05F, 0.5F, 0.4F, 0F));
-        kickArcTicks.add(new Tick(0.09F, 1.1F, 0.2F, (float) Math.PI / 4));
-        kickArcTicks.add(new Tick(0.14F, 1.7F, 0F, (float) Math.PI / 2));
-
-        KICK_ARC = new Kick(0.3F, 0.4F, DirEnum.UP, kickAppCycle, kickArcTicks);
+        KICK_ARC = new Kick(new Vec2(0.3F, 0.4F), DirEnum.UP, kickAppCycle, kickJourneys[2]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK (AERIAL-FORWARD)                ///
@@ -362,34 +401,19 @@ public class Natural extends Weapon
         ConditionAppCycle kickAerialCycle
                 = new ConditionAppCycle(kickAerialApp[0], kickAerialApp[0], kickAerialApp[1]);
 
-        ArrayList<Tick> kickAerialForwardTicks = new ArrayList<>();
-        kickAerialForwardTicks.add(new Tick(0.05F, 0.8F, 0F, 0F));
-        kickAerialForwardTicks.add(new Tick(0.10F, 1.3F, 0F, 0F));
-        kickAerialForwardTicks.add(new Tick(0.15F, 1.9F, 0F, 0F));
-
-        KICK_AERIAL = new KickAerial(0.2F, 0.2F, kickAerialCycle, kickAerialForwardTicks);
+        KICK_AERIAL = new KickAerial(new Vec2(0.2F, 0.2F), kickAerialCycle, kickJourneys[3]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            KICK (AERIAL-DOWN-FORWARD)           ///
         ///////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> kickAerialDiagTicks = new ArrayList<>();
-        kickAerialDiagTicks.add(new Tick(0.05F, 0.5F, 0F, (float) Math.PI / 4F));
-        kickAerialDiagTicks.add(new Tick(0.10F, 0.8F, 0.1F, (float) Math.PI / 4F));
-        kickAerialDiagTicks.add(new Tick(0.15F, 1.2F, 0.2F, (float) Math.PI / 4F));
-
-        KICK_AERIAL_DIAG = new KickAerial(0.2F, 0.2F, kickAerialCycle, kickAerialDiagTicks);
+        KICK_AERIAL_DIAG = new KickAerial(new Vec2(0.2F, 0.2F), kickAerialCycle, kickJourneys[4]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            GRAB                                 ///
         ///////////////////////////////////////////////////////////////////////
 
-        ArrayList<Tick> grabTicks = new ArrayList<>();
-        grabTicks.add(new Tick(0.05F, 0.7F, -0.2F, (float) Math.PI / 2F));
-        grabTicks.add(new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F));
-        grabTicks.add(new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F));
-
-        GRAB = new Punch(0.3F, 0.4F, DirEnum.NONE, true, punchAppCycle, grabTicks);
+        GRAB = new Punch(new Vec2(0.3F, 0.4F), DirEnum.NONE, true, punchAppCycle, grabJourneys[0]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            GRAB (CROUCHING)                     ///
@@ -400,7 +424,7 @@ public class Natural extends Weapon
         ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
                 grabCrouchApp, grabCrouchApp, grabCrouchApp);
 
-        GRAB_CROUCH = new Punch(0.4F, 0.4F, DirEnum.NONE, true, grabCrouchCycle, grabTicks);
+        GRAB_CROUCH = new Punch(new Vec2(0.4F, 0.4F), DirEnum.NONE, true, grabCrouchCycle, grabJourneys[0]);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            TACKLE                               ///
@@ -411,7 +435,7 @@ public class Natural extends Weapon
                 new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
                 new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
 
-        TACKLE = new Tackle(0.1F, 0.1F, 0.1F, tackleCycle);
+        TACKLE = new Tackle(new Vec2(0.1F, 0.1F), 0.1F, tackleCycle);
 
         ///////////////////////////////////////////////////////////////////////
         ///                            TACKLE (LOW)                         ///
@@ -422,6 +446,6 @@ public class Natural extends Weapon
                 new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT, Actor.Condition.FORCE_CROUCH),
                 new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
 
-        TACKLE_LOW = new Tackle(0.1F, 0.1F, 0.1F, tackleLowCycle);
+        TACKLE_LOW = new Tackle(new Vec2(0.1F, 0.1F), 0.1F, tackleLowCycle);
     }
 }
