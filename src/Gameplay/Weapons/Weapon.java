@@ -61,9 +61,14 @@ public abstract class Weapon extends Item
 
             if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt(commandQueue.peek())))
             {
-                Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
-                currentOp = getOperation(nextCommand, currentOp);
-                if (currentOp != null) currentOp.start();
+                Command nextCommand = commandQueue.peek().setStats(actor.getState(), actor.getVelocity());
+                Operation nextOp = getOperation(nextCommand, currentOp);
+                if (nextOp != currentOp)
+                {
+                    commandQueue.remove();
+                    currentOp = nextOp;
+                    if (currentOp != null) currentOp.start();
+                }
             }
         }
         else if (!commandQueue.isEmpty())
@@ -430,6 +435,7 @@ public abstract class Weapon extends Item
     ConditionApp FORCE_STAND = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
     //ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
     ConditionApp FORCE_CROUCH = new ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
+    ConditionApp FORCE_PRONE = new ConditionApp(0.1F, Actor.Condition.FORCE_PRONE);
     ConditionApp FORCE_DASH = new ConditionApp(0.01F, Actor.Condition.DASH);
 
     ConditionApp NEGATE_RUN = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
@@ -587,7 +593,12 @@ public abstract class Weapon extends Item
                 return interruptConditions.contains(check.ATTACK_KEY);
             }
             if (state == State.EXECUTION && interruptConditions.contains(DURING_EXECUTION)) return true;
-            return state == State.COOLDOWN && interruptConditions.contains(DURING_COOLDOWN);
+            if (state == State.COOLDOWN)
+            {
+                if (interruptConditions.contains(DURING_COOLDOWN)) return true;
+                return interruptConditions.contains(check.ATTACK_KEY);
+            }
+            return false;
         }
 
         @Override
@@ -724,12 +735,13 @@ public abstract class Weapon extends Item
         float warmupTime, cooldownTime, execTime;
 
         Rush(Vec2 waits, float execTime,
-                 DirEnum functionalDir,
+                 DirEnum functionalDir, boolean useDirHorizFunctionally,
                  ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
             warmupTime = waits.x; cooldownTime = waits.y;
             this.execTime = execTime;
             this.functionalDir = functionalDir;
+            this.useDirHorizFunctionally = useDirHorizFunctionally;
             this.conditionAppCycle = conditionAppCycle;
             this.conditionAppInfliction = conditionAppInfliction;
         }
@@ -810,6 +822,7 @@ public abstract class Weapon extends Item
         public void letGo(int attackKey) { command.letGo(attackKey); }
 
         DirEnum functionalDir;
+        boolean useDirHorizFunctionally;
 
         @Override
         public void apply(Weapon _this, Item other)
@@ -819,7 +832,8 @@ public abstract class Weapon extends Item
             if (other instanceof Weapon && !((Weapon) other).isOperating()) return;
             if (collidedItems.contains(other) || !withinBounds(other)) return;
 
-            DirEnum dir = getDir().getHoriz().add(functionalDir);
+            DirEnum dir = useDirHorizFunctionally
+                    ? getDir().getHoriz().add(functionalDir) : functionalDir;
 
             float collisionSpeed = dir.getCollisionSpeed(_this, other);
             if (collisionSpeed > 0)
@@ -837,10 +851,10 @@ public abstract class Weapon extends Item
     {
         HoldableRush(Vec2 waits,
                          float minExecTime, float maxExecTime,
-                         DirEnum functionalDir,
+                         DirEnum functionalDir, boolean useDirHorizFunctionally,
                          ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
-            super(waits, minExecTime, functionalDir, conditionAppCycle, conditionAppInfliction);
+            super(waits, minExecTime, functionalDir, useDirHorizFunctionally, conditionAppCycle, conditionAppInfliction);
             this.minExecTime = minExecTime;
             this.maxExecTime = maxExecTime;
         }

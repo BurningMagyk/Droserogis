@@ -5,9 +5,6 @@ import Gameplay.DirEnum;
 import Util.Print;
 import Util.Vec2;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 public class Sword extends Weapon
 {
     private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
@@ -181,7 +178,7 @@ public class Sword extends Weapon
            SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
         class Swing extends Melee {
             Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1},
+                super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
                         statusAppCycle, null, execJourney); }
             /*public boolean mayInterrupt(Command check) {
                 if (check.ATTACK_KEY == Actor.ATTACK_KEY_1
@@ -231,10 +228,6 @@ public class Sword extends Weapon
         /* THRUST_LUNGE, SWING_LUNGE */
         ConditionAppCycle lungeCycle = new ConditionAppCycle(
                 FORCE_DASH, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
-
-        /* SWING_LUNGE_UNTERHAU */
-        ConditionAppCycle lungeCrouchCycle = new ConditionAppCycle(
-                FORCE_DASH, FORCE_CROUCH__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                JOURNEYS                                                 ///
@@ -318,13 +311,13 @@ public class Sword extends Weapon
             swingJourneys[6][i] = swingJourneys[2][i].getTimeModdedCopy(0, 0.75F);
         float timeAdd_6 = swingJourneys[2][swingJourneys[2].length - 1].totalSec;
         for (int i = swingJourneys[2].length; i < swingJourneys[6].length; i++)
-            swingJourneys[6][i] = swingJourneys[0][i].getTimeModdedCopy(timeAdd_6, 0.75F);
+            swingJourneys[6][i] = swingJourneys[0][i - swingJourneys[2].length].getTimeModdedCopy(timeAdd_6, 0.75F);
         swingJourneys[7] = new Tick[swingJourneys[4].length + swingJourneys[1].length];
         for (int i = 0; i < swingJourneys[4].length; i++)
             swingJourneys[7][i] = swingJourneys[4][i].getTimeModdedCopy(0, 0.75F);
         float timeAdd_7 = swingJourneys[4][swingJourneys[4].length - 1].totalSec;
         for (int i = swingJourneys[4].length; i < swingJourneys[7].length; i++)
-            swingJourneys[7][i] = swingJourneys[1][i].getTimeModdedCopy(timeAdd_7, 0.75F);
+            swingJourneys[7][i] = swingJourneys[1][i - swingJourneys[4].length].getTimeModdedCopy(timeAdd_7, 0.75F);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                ATTACKS                                                  ///
@@ -348,6 +341,6 @@ public class Sword extends Weapon
         SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingJourneys[4]);
         SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, basicCycle, swingJourneys[5]);
         SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, lungeCycle, swingJourneys[6]);
-        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCrouchCycle, swingJourneys[7]);
+        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCycle, swingJourneys[7]);
     }
 }

@@ -6,15 +6,11 @@ import Gameplay.Item;
 import Util.Print;
 import Util.Vec2;
 
-import java.util.ArrayList;
-
-import static Util.PolygonIntersection.isIntersect;
-
 public class Natural extends Weapon
 {
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
-            KICK_AERIAL_DIAG, GRAB, GRAB_CROUCH, TACKLE, TACKLE_LOW;
+            KICK_AERIAL_DIAG, GRAB, GRAB_LOW, TACKLE;
 
     @Override
     Operation getOperation(Command command, Operation currentOp)
@@ -73,11 +69,7 @@ public class Natural extends Weapon
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1 + Actor.ATTACK_KEY_MOD)
         {
             if (command.TYPE == Command.StateType.LOW)
-            {
-                if (command.SPRINT)
-                    return setOperation(TACKLE_LOW, command);
-                return setOperation(GRAB_CROUCH, command);
-            }
+                return setOperation(GRAB_LOW, command);
             if (command.TYPE == Command.StateType.STANDARD)
             {
                 if (command.SPRINT)
@@ -120,25 +112,15 @@ public class Natural extends Weapon
             Punch(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally,
                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("punch", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
+                        statusAppCycle, null, execJourney); }
+            Punch(Vec2 waits, DirEnum functionalDir,
+                  ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+                super("haymaker", waits, functionalDir, true, new int[]{},
                         statusAppCycle, null, execJourney); } }
 
-        /*class Haymaker extends Melee {
-            Haymaker(Vec2 waits, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("haymaker", waits, DirEnum.NONE, true, new int[]{}, statusAppCycle, null, execJourney);
-            }
-
-            public String getName() {
-                return "haymaker";
-            }
-
-            public boolean mayInterrupt(Command check) {
-                return false;
-            }
-        }*/
-
         class Kick extends Melee {
-            Kick(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("kick", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
+            Kick(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+                super("kick", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
                         statusAppCycle, null, execJourney, execJourney[0]); }
             /*public void start() {
                 super.start();
@@ -147,9 +129,29 @@ public class Natural extends Weapon
             }*/
         }
 
-        class StompFall extends HoldableRush {
+        /*class StompFall extends HoldableRush {
             StompFall(Vec2 waits, float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(waits, minExecTime, maxExecTime, DirEnum.DOWN, conditionAppCycle, null); }
+                super(waits, minExecTime, maxExecTime, DirEnum.DOWN, false, conditionAppCycle, null); }
+
+            @Override
+            public void apply(Weapon _this, Item other)
+            {
+                if (other == null)
+                {
+                    if (actor.getState() == Actor.State.SWIM
+                            || actor.getState().isGrounded()
+                            || actor.getState().isOnWall())
+                        state = State.COOLDOWN;
+                }
+                super.apply(_this, other);
+            }
+        }*/
+
+        class KickAerial extends HoldableRush {
+            KickAerial(Vec2 waits, float minExecTime, float maxExecTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
+                       ConditionAppCycle conditionAppCycle) {
+                super(waits, minExecTime, maxExecTime, functionalDir, useDirHorizFunctionally,
+                        conditionAppCycle, null); }
 
             @Override
             public void apply(Weapon _this, Item other)
@@ -165,22 +167,9 @@ public class Natural extends Weapon
             }
         }
 
-        class KickAerial extends HoldableMelee {
-            KickAerial(Vec2 waits, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("aerial kick", waits, DirEnum.NONE, true, new int[]{DURING_COOLDOWN},
-                        statusAppCycle, null, execJourney, execJourney[0]);
-            }
-
-            /*public void start() {
-                super.start();
-                footPosition.check(-1, command.FACE);
-                warmJourney.setStart(footPosition.getOrient());
-            }*/
-        }
-
         class Tackle extends Rush {
             Tackle(Vec2 waits, float execTime, ConditionAppCycle conditionAppCycle) {
-                super(waits, execTime, DirEnum.NONE, conditionAppCycle, null); }
+                super(waits, execTime, DirEnum.NONE, true, conditionAppCycle, null); }
 
             @Override
             public void apply(Weapon _this, Item other)
@@ -212,6 +201,19 @@ public class Natural extends Weapon
 
         ConditionAppCycle basicCycle = new ConditionAppCycle(
                 FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
+        ConditionAppCycle pushCycle = new ConditionAppCycle(
+                null, null, FORCE_STAND__NEGATE_WALK);
+        ConditionAppCycle uppercutCycle = new ConditionAppCycle(
+                FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
+        ConditionAppCycle shoveCycle = new ConditionAppCycle(null, null, null);
+        ConditionAppCycle kickCycle = new ConditionAppCycle(
+                FORCE_STAND, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
+        ConditionAppCycle aerialCycle = new ConditionAppCycle(
+                FORCE_CROUCH, FORCE_CROUCH, FORCE_PRONE);
+        ConditionAppCycle lowCycle = new ConditionAppCycle(
+                FORCE_CROUCH__NEGATE_WALK, FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
+        ConditionAppCycle tackleCycle = new ConditionAppCycle(
+                FORCE_STAND.add(FORCE_DASH), NEGATE_RUN, FORCE_CROUCH__NEGATE_WALK);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                JOURNEYS                                                 ///
@@ -262,12 +264,10 @@ public class Natural extends Weapon
                         new Tick(0.15F, 1.2F, 0.2F, (float) Math.PI / 4F) },
         };
 
-        Tick[][] grabJourneys = new Tick[][] {
-                new Tick[] {
+        Tick[] grabJourney = new Tick[] {
                         new Tick(0.05F, 0.7F, -0.2F, (float) Math.PI / 2F),
                         new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F),
-                        new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F) }
-        };
+                        new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F) };
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                ATTACKS                                                  ///
@@ -276,176 +276,24 @@ public class Natural extends Weapon
         PUNCH = new Punch(new Vec2(0.4F, 0.3F), DirEnum.NONE, true, basicCycle, punchJourneys[0]);
         PUNCH_UP = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, false, basicCycle, punchJourneys[1]);
         PUNCH_DIAG = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, true, basicCycle, punchJourneys[2]);
+        PUSH = new HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0,
+                DirEnum.NONE, true, pushCycle, null);
+        HAYMAKER = new Punch(new Vec2(0.3F, 0.3F), DirEnum.NONE, basicCycle, punchJourneys[3]);
+        UPPERCUT = new Punch(new Vec2(0.3F, 0.4F), DirEnum.UP, true, uppercutCycle, punchJourneys[4]);
+        SHOVE = new HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0,
+                DirEnum.NONE, true, shoveCycle, null);
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            PUNCH                                ///
-        ///////////////////////////////////////////////////////////////////////
+        STOMP = new Kick(new Vec2(0.4F, 0.1F), DirEnum.DOWN, false, kickCycle, kickJourneys[0]);
+        STOMP_FALL = new KickAerial(new Vec2(0.1F, 0.1F), 0.5F, 0, DirEnum.DOWN, false, kickCycle);
+        KICK = new Kick(new Vec2(0.3F, 0.4F), DirEnum.NONE, true, kickCycle, kickJourneys[1]);
+        KICK_ARC = new Kick(new Vec2(0.3F, 0.4F), DirEnum.UP, true, kickCycle, kickJourneys[2]);
+        KICK_AERIAL = new KickAerial(new Vec2(0.2F, 0.2F), 0.5F, 0, DirEnum.NONE, true, aerialCycle);
+        KICK_AERIAL_DIAG = new KickAerial(new Vec2(0.2F, 0.2F), 0.5F, 0, DirEnum.DOWN, true, aerialCycle);
 
-        ConditionApp forceStandApp = new ConditionApp(-0.13F, Actor.Condition.FORCE_CROUCH);
-        ConditionApp punchApp = new ConditionApp(
-                0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-        ConditionAppCycle punchAppCycle
-                = new ConditionAppCycle(forceStandApp, punchApp, punchApp);
-
-
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            PUNCH (UP)                           ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp punchUpApp = new ConditionApp(
-                0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-        ConditionAppCycle punchUpAppCycle
-                = new ConditionAppCycle(forceStandApp, punchUpApp, punchUpApp);
-
-
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            PUNCH (UP-FORWARD)                   ///
-        ///////////////////////////////////////////////////////////////////////
-
-
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            PUSH                                 ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp pushApp = new ConditionApp(
-                0.05F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-        ConditionAppCycle pushAppCycle
-                = new ConditionAppCycle(null, null, pushApp);
-
-        PUSH = new HoldableRush(0.1F, 0.1F, 0.2F, 0,
-                DirEnum.NONE, pushAppCycle, null);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            HAYMAKER                             ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ArrayList<Tick> haymakerTicks = new ArrayList<>();
-        haymakerTicks.add(new Tick(0.05F, 1.4F, -0.4F, (float) Math.PI / 4F));
-
-        HAYMAKER = new Haymaker(new Vec2(0.3F, 0.3F), punchAppCycle, punchJourneys[3]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            UPPERCUT                             ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp cantStandOrMove = new ConditionApp(
-                0.2F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle uppercutAppCycle
-                = new ConditionAppCycle(cantStandOrMove, punchUpApp, punchUpApp);
-
-        UPPERCUT = new Punch(new Vec2(0.3F, 0.4F), DirEnum.UP, true, uppercutAppCycle, punchJourneys[4]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            SHOVE                                ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionAppCycle shoveAppCycle
-                = new ConditionAppCycle(null, null, null);
-
-        SHOVE = new HoldableNonMelee(0.1F, 0.1F, 0.2F, 0,
-                DirEnum.NONE, shoveAppCycle, null);
-
-        /* Will do these when adding collision */
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            STOMP                                ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp stompApp = new ConditionApp(
-                0.3F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle stompAppCycle
-                = new ConditionAppCycle(forceStandApp, stompApp, stompApp);
-
-        Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
-
-        STOMP = new Kick(new Vec2(0.4F, 0.1F), DirEnum.DOWN, stompAppCycle, kickJourneys[0]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            STOMP (FALLING)                      ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp stompFallApp = new ConditionApp(
-                0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH);
-        ConditionAppCycle stompFallAppCycle
-                = new ConditionAppCycle(null, stompFallApp, stompFallApp);
-
-        STOMP_FALL = new FallingStomp(0.1F, 0.1F, 0.5F, 0, stompFallAppCycle);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            KICK                                 ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp kickApp = new ConditionApp(
-                0.2F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle kickAppCycle
-                = new ConditionAppCycle(forceStandApp, kickApp, kickApp);
-
-        KICK = new Kick(new Vec2(0.3F, 0.4F), DirEnum.NONE, kickAppCycle, kickJourneys[1]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            KICK (ARC)                           ///
-        ///////////////////////////////////////////////////////////////////////
-
-        KICK_ARC = new Kick(new Vec2(0.3F, 0.4F), DirEnum.UP, kickAppCycle, kickJourneys[2]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            KICK (AERIAL-FORWARD)                ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp[] kickAerialApp = {
-                new ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH),
-                new ConditionApp(0.2F, Actor.Condition.FORCE_PRONE)};
-        ConditionAppCycle kickAerialCycle
-                = new ConditionAppCycle(kickAerialApp[0], kickAerialApp[0], kickAerialApp[1]);
-
-        KICK_AERIAL = new KickAerial(new Vec2(0.2F, 0.2F), kickAerialCycle, kickJourneys[3]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            KICK (AERIAL-DOWN-FORWARD)           ///
-        ///////////////////////////////////////////////////////////////////////
-
-        KICK_AERIAL_DIAG = new KickAerial(new Vec2(0.2F, 0.2F), kickAerialCycle, kickJourneys[4]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            GRAB                                 ///
-        ///////////////////////////////////////////////////////////////////////
-
-        GRAB = new Punch(new Vec2(0.3F, 0.4F), DirEnum.NONE, true, punchAppCycle, grabJourneys[0]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            GRAB (CROUCHING)                     ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionApp grabCrouchApp = new ConditionApp(
-                0.01F, Actor.Condition.FORCE_CROUCH, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-        ConditionAppCycle grabCrouchCycle = new ConditionAppCycle(
-                grabCrouchApp, grabCrouchApp, grabCrouchApp);
-
-        GRAB_CROUCH = new Punch(new Vec2(0.4F, 0.4F), DirEnum.NONE, true, grabCrouchCycle, grabJourneys[0]);
-
-        ///////////////////////////////////////////////////////////////////////
-        ///                            TACKLE                               ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionAppCycle tackleCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.DASH),
-                new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT),
-                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
-
+        GRAB = new Punch(new Vec2(0.3F, 0.4F), DirEnum.NONE, true, basicCycle, grabJourney);
+        GRAB_LOW = new Punch(new Vec2(0.4F, 0.4F), DirEnum.NONE, true, lowCycle, grabJourney);
         TACKLE = new Tackle(new Vec2(0.1F, 0.1F), 0.1F, tackleCycle);
 
-        ///////////////////////////////////////////////////////////////////////
-        ///                            TACKLE (LOW)                         ///
-        ///////////////////////////////////////////////////////////////////////
-
-        ConditionAppCycle tackleLowCycle = new ConditionAppCycle(
-                new ConditionApp(0.01F, Actor.Condition.DASH, Actor.Condition.FORCE_CROUCH),
-                new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT, Actor.Condition.FORCE_CROUCH),
-                new ConditionApp(0.4F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT, Actor.Condition.FORCE_CROUCH));
-
-        TACKLE_LOW = new Tackle(new Vec2(0.1F, 0.1F), 0.1F, tackleLowCycle);
+        Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
     }
 }
