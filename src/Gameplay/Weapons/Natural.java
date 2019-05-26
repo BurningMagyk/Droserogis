@@ -122,30 +122,13 @@ public class Natural extends Weapon
             Kick(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("kick", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
                         statusAppCycle, null, execJourney, execJourney[0]); }
-            /*public void start() {
+            public void start() {
                 super.start();
+                Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
                 footPosition.check(-1, command.FACE);
                 warmJourney.setStart(footPosition.getOrient());
-            }*/
-        }
-
-        /*class StompFall extends HoldableRush {
-            StompFall(Vec2 waits, float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(waits, minExecTime, maxExecTime, DirEnum.DOWN, false, conditionAppCycle, null); }
-
-            @Override
-            public void apply(Weapon _this, Item other)
-            {
-                if (other == null)
-                {
-                    if (actor.getState() == Actor.State.SWIM
-                            || actor.getState().isGrounded()
-                            || actor.getState().isOnWall())
-                        state = State.COOLDOWN;
-                }
-                super.apply(_this, other);
             }
-        }*/
+        }
 
         class KickAerial extends HoldableRush {
             KickAerial(Vec2 waits, float minExecTime, float maxExecTime, DirEnum functionalDir, boolean useDirHorizFunctionally,

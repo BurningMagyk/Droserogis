@@ -40,7 +40,7 @@ public class Infliction
 
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
-    public void applyCondition(Actor other) { conditionApp.apply(other); }
+    public void applyCondition(Actor other) { if (conditionApp != null) conditionApp.apply(other); }
     public boolean isInstant() { return instant; }
 
     public void applyMomentum(Actor other)
