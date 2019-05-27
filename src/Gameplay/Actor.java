@@ -176,7 +176,8 @@ public class Actor extends Item
                     addAccelerationX(-accel);
                     addVelocityX((float) -minThreshSpeed * 1.5F);
                 }
-                if (conditions[Condition.DASH.ordinal()] > 0 && getVelocityX() > -rushSpeed)
+                if (has(Condition.DASH) && getVelocityX() > -rushSpeed
+                        && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
                 {
                     setVelocityX(-rushSpeed);
                     addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
@@ -190,7 +191,8 @@ public class Actor extends Item
                     addAccelerationX(accel);
                     addVelocityX((float) minThreshSpeed * 1.5F);
                 }
-                if (conditions[Condition.DASH.ordinal()] > 0 && getVelocityX() < rushSpeed)
+                if (has(Condition.DASH) && getVelocityX() < rushSpeed
+                        && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
                 {
                     setVelocityX(rushSpeed);
                     addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
@@ -328,33 +330,37 @@ public class Actor extends Item
     private enum MoveType { STAND, WALK, RUN, SPRINT }
     private MoveType getMoveType()
     {
-        if (dirHoriz == LEFT
-                && conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0)
+        if (dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT))
         {
-            if (dirFace == dirHoriz
-                    && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0)
+            if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_LEFT))
             {
-                if (pressingShift
-                        && conditions[Condition.NEGATE_SPRINT_LEFT.ordinal()] == 0)
+                if (pressingShift && !has(Condition.NEGATE_SPRINT_LEFT))
                     return MoveType.SPRINT;
                 return MoveType.RUN;
             }
             return MoveType.WALK;
         }
-        if (dirHoriz == RIGHT
-                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0)
+        if (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT))
         {
-            if (dirFace == dirHoriz
-                    && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0)
+            if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_RIGHT))
             {
-                if (pressingShift
-                        && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] == 0)
+                if (pressingShift && !has(Condition.NEGATE_SPRINT_RIGHT))
                     return MoveType.SPRINT;
                 return MoveType.RUN;
             }
             return MoveType.WALK;
         }
         return MoveType.STAND;
+    }
+    private boolean canWalk() {
+        return !canRun()
+                && conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
+                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
+    }
+    private boolean canRun()
+    {
+        return conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0
+                && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0;
     }
 
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
@@ -820,11 +826,6 @@ public class Actor extends Item
     //================================================================================================================
     public enum State
     {
-        PRONE
-                {
-                    public boolean isGrounded() { return true; }
-                    Color getColor() { return Color.BLACK; }
-                },
         RISE
                 {
                     public boolean isAirborne() { return true; }
@@ -909,9 +910,9 @@ public class Actor extends Item
         NEGATE_SPRINT_LEFT, NEGATE_SPRINT_RIGHT,
         NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT,
         NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
+        NEGATE_STABILITY, NEGATE_ACTIVITY,
         DASH,
         FORCE_STAND, FORCE_CROUCH, FORCE_PRONE,
-        PUSH_HORIZ, PUSH_VERT
     }
     public void addCondition(float time, Condition... conditions)
     {
@@ -921,6 +922,7 @@ public class Actor extends Item
                 this.conditions[cond.ordinal()] = time;
         }
     }
+    private boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
     @Override
     protected void applyInflictions()

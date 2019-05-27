@@ -534,20 +534,18 @@ public abstract class Weapon extends Item
 
             warmJourney.setStart(orient);
 
-            conditionAppCycle.applyStart();
-
             Print.blue("Operating " + getName());
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            conditionAppCycle.applyRun();
-
             totalSec += deltaSec;
 
             if (state == State.WARMUP)
             {
+                conditionAppCycle.applyStart();
+
                 if (warmBoost) totalSec += deltaSec;
                 if (warmJourney.check(totalSec, command.FACE))
                 {
@@ -558,6 +556,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
+                conditionAppCycle.applyRun();
+
                 for (Tick tick : execJourney)
                 {
                     if (tick.check(totalSec, command.FACE)) return false;
@@ -568,6 +568,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
+                conditionAppCycle.applyFinish();
+
                 if (!coolJourney.check(totalSec, command.FACE))
                 {
                     return false;
@@ -577,7 +579,6 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            conditionAppCycle.applyFinish();
             collidedItems.clear();
             clearInflictionsDealt();
             return true;
@@ -681,10 +682,11 @@ public abstract class Weapon extends Item
         public boolean run(float deltaSec)
         {
             if (!erected) totalSec += deltaSec;
-            conditionAppCycle.applyRun();
 
             if (state == State.WARMUP)
             {
+                conditionAppCycle.applyStart();
+
                 if (warmBoost) totalSec += deltaSec;
                 erected = false;
                 if (warmJourney.check(totalSec, command.FACE))
@@ -696,6 +698,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
+                conditionAppCycle.applyRun();
+
                 for (Tick tick : execJourney)
                 {
                     if (tick.check(totalSec, command.FACE)) return false;
@@ -711,6 +715,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
+                conditionAppCycle.applyFinish();
+
                 erected = false;
                 if (!coolJourney.check(totalSec, command.FACE))
                 {
@@ -721,7 +727,6 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            conditionAppCycle.applyFinish();
             collidedItems.clear();
             clearInflictionsDealt();
             return true;
@@ -743,7 +748,7 @@ public abstract class Weapon extends Item
             this.functionalDir = functionalDir;
             this.useDirHorizFunctionally = useDirHorizFunctionally;
             this.conditionAppCycle = conditionAppCycle;
-            this.conditionAppInfliction = conditionAppInfliction;
+            this.conditionAppInfliction = conditionAppInfliction == null ? new ConditionApp(0) : conditionAppInfliction;
         }
 
         float totalSec = 0;
@@ -765,20 +770,18 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            conditionAppCycle.applyStart();
-
             Print.blue("Operating " + getName());
         }
 
         @Override
         public boolean run(float deltaSec)
         {
-            conditionAppCycle.applyRun();
-
             totalSec += deltaSec;
 
             if (state == State.WARMUP)
             {
+                conditionAppCycle.applyStart();
+
                 if (totalSec >= warmupTime)
                 {
                     totalSec = 0;
@@ -788,6 +791,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
+                conditionAppCycle.applyRun();
+
                 if (execTime > 0 && totalSec >= execTime)
                 {
                     totalSec = 0;
@@ -797,6 +802,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
+                conditionAppCycle.applyFinish();
+
                 if (totalSec < cooldownTime)
                 {
                     return false;
@@ -806,7 +813,6 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            conditionAppCycle.applyFinish();
             collidedItems.clear();
             clearInflictionsDealt();
             return true;
@@ -873,10 +879,11 @@ public abstract class Weapon extends Item
         public boolean run(float deltaSec)
         {
             totalSec += deltaSec;
-            conditionAppCycle.applyRun();
 
             if (state == State.WARMUP)
             {
+                conditionAppCycle.applyStart();
+
                 if (totalSec >= warmupTime)
                 {
                     totalSec = 0;
@@ -886,7 +893,10 @@ public abstract class Weapon extends Item
             }
             else if (state == State.EXECUTION)
             {
+                conditionAppCycle.applyRun();
+
                 if (totalSec < minExecTime) { return false; }
+
                 if (!command.hold || (maxExecTime > 0 && totalSec >= maxExecTime))
                 {
                     totalSec = 0;
@@ -897,6 +907,8 @@ public abstract class Weapon extends Item
             }
             else if (state == State.COOLDOWN)
             {
+                conditionAppCycle.applyFinish();
+
                 if (totalSec < cooldownTime)
                 {
                     return false;
@@ -906,7 +918,6 @@ public abstract class Weapon extends Item
             totalSec = 0;
             state = State.WARMUP;
 
-            conditionAppCycle.applyFinish();
             collidedItems.clear();
             clearInflictionsDealt();
             return true;
