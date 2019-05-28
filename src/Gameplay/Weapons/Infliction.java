@@ -49,9 +49,12 @@ public class Infliction
 
         Vec2 finalVelocity = inflictor.getVelocity().mul(inflictor.mass).add(other.getVelocity().mul(other.mass))
                 .mul(1F / inflictor.mass + other.mass);
-        inflictor.setVelocity(finalVelocity);
-        other.setVelocity(finalVelocity.add(weaponMomentum));
 
+        inflictor.setVelocity(finalVelocity);
+        Vec2 finalVelocityPlusWeapon = finalVelocity.add(weaponMomentum);
+        other.setVelocity(finalVelocity.add(finalVelocityPlusWeapon));
+
+        other.stagger(dir, (float) finalVelocityPlusWeapon.mag());
     }
 
     @Override

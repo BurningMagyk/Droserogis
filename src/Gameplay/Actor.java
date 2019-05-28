@@ -55,7 +55,15 @@ public class Actor extends Item
     private float[] conditions = new float[Condition.values().length];
 
     @Override
-    public Color getColor() { return state.getColor(); }
+    public Color getColor()
+    {
+        //return state.getColor();
+        if (has(Condition.NEGATE_ACTIVITY)) return Color.RED;
+        if (has(Condition.NEGATE_STABILITY)) return Color.ORANGE;
+        if (!canWalk()) return Color.GOLDENROD;
+        if (!canRun()) return Color.GREEN;
+        return Color.CORNFLOWERBLUE;
+    }
 
     Actor(float xPos, float yPos, float width, float height)
     {
@@ -353,13 +361,13 @@ public class Actor extends Item
         return MoveType.STAND;
     }
     private boolean canWalk() {
-        return !canRun()
-                && conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
-                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
+        return conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
+            && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
     }
     private boolean canRun()
     {
-        return conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0
+        return canWalk()
+                && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0
                 && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0;
     }
 
@@ -924,6 +932,31 @@ public class Actor extends Item
     }
     private boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
+    public void stagger(DirEnum dir, float mag)
+    {
+        // TODO: should depend on Actor's stats and value of mag
+        if (has(Condition.NEGATE_ACTIVITY))
+        {
+
+        }
+        else if (has(Condition.NEGATE_STABILITY))
+        {
+
+        }
+        else if (!canWalk())
+        {
+
+        }
+        else if (!canRun())
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
     @Override
     protected void applyInflictions()
     {
@@ -935,6 +968,7 @@ public class Actor extends Item
 
             /* Infliction applied here */
             Print.yellow("Actor: " + inf);
+
             inf.applyMomentum(this);
             inf.applyCondition(this);
 
