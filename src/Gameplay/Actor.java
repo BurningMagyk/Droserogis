@@ -60,7 +60,7 @@ public class Actor extends Item
         //return state.getColor();
         if (has(Condition.NEGATE_ACTIVITY)) return Color.RED;
         if (has(Condition.NEGATE_STABILITY)) return Color.ORANGE;
-        if (!canWalk()) return Color.GOLDENROD;
+        if (!canWalk()) return Color.GOLD;
         if (!canRun()) return Color.GREEN;
         return Color.CORNFLOWERBLUE;
     }
@@ -934,26 +934,56 @@ public class Actor extends Item
 
     public void stagger(DirEnum dir, float mag)
     {
-        // TODO: should depend on Actor's stats and value of mag
+        // TODO: should depend on attack type, Actor's stats, and value of mag
         if (has(Condition.NEGATE_ACTIVITY))
         {
-
+            addCondition(2, Condition.NEGATE_ACTIVITY);
+            Print.green("ouch!");
         }
         else if (has(Condition.NEGATE_STABILITY))
         {
-
+            addCondition(2, Condition.NEGATE_ACTIVITY);
         }
-        else if (!canWalk())
+        else if (state.isGrounded())
         {
-
-        }
-        else if (!canRun())
-        {
-
-        }
-        else
-        {
-
+            if (dir.getVert() == DirEnum.DOWN && state.isLow())
+            {
+                addCondition(2, Condition.NEGATE_STABILITY);
+            }
+            else
+            {
+                DirEnum horiz = dir.getHoriz();
+                if (horiz == DirEnum.LEFT)
+                {
+                    if (has(Condition.NEGATE_WALK_RIGHT))
+                    {
+                        addCondition(2, Condition.NEGATE_STABILITY);
+                    }
+                    else if (has(Condition.NEGATE_RUN_RIGHT))
+                    {
+                        addCondition(2, Condition.NEGATE_WALK_RIGHT);
+                    }
+                    else
+                    {
+                        addCondition(2, Condition.NEGATE_RUN_RIGHT);
+                    }
+                }
+                else if (horiz == DirEnum.RIGHT)
+                {
+                    if (has(Condition.NEGATE_WALK_LEFT))
+                    {
+                        addCondition(2, Condition.NEGATE_STABILITY);
+                    }
+                    else if (has(Condition.NEGATE_RUN_LEFT))
+                    {
+                        addCondition(2, Condition.NEGATE_WALK_LEFT);
+                    }
+                    else
+                    {
+                        addCondition(2, Condition.NEGATE_WALK_RIGHT);
+                    }
+                }
+            }
         }
     }
 
