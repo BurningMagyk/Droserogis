@@ -920,7 +920,7 @@ public class Actor extends Item
         NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
         NEGATE_STABILITY, NEGATE_ACTIVITY,
         DASH,
-        FORCE_STAND, FORCE_CROUCH, FORCE_PRONE,
+        FORCE_STAND, FORCE_CROUCH
     }
     public void addCondition(float time, Condition... conditions)
     {
@@ -946,43 +946,38 @@ public class Actor extends Item
         }
         else if (state.isGrounded())
         {
-            if (dir.getVert() == DirEnum.DOWN && state.isLow())
+            DirEnum horiz = dir.getHoriz(), vert = dir.getVert();
+
+            if (vert == DirEnum.UP)
             {
-                addCondition(2, Condition.NEGATE_STABILITY);
+                if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
+                    addCondition(2, Condition.FORCE_STAND);
             }
-            else
+            else if (vert == DirEnum.DOWN)
             {
-                DirEnum horiz = dir.getHoriz();
-                if (horiz == DirEnum.LEFT)
-                {
-                    if (has(Condition.NEGATE_WALK_RIGHT))
-                    {
-                        addCondition(2, Condition.NEGATE_STABILITY);
-                    }
-                    else if (has(Condition.NEGATE_RUN_RIGHT))
-                    {
-                        addCondition(2, Condition.NEGATE_WALK_RIGHT);
-                    }
-                    else
-                    {
-                        addCondition(2, Condition.NEGATE_RUN_RIGHT);
-                    }
-                }
-                else if (horiz == DirEnum.RIGHT)
-                {
-                    if (has(Condition.NEGATE_WALK_LEFT))
-                    {
-                        addCondition(2, Condition.NEGATE_STABILITY);
-                    }
-                    else if (has(Condition.NEGATE_RUN_LEFT))
-                    {
-                        addCondition(2, Condition.NEGATE_WALK_LEFT);
-                    }
-                    else
-                    {
-                        addCondition(2, Condition.NEGATE_WALK_RIGHT);
-                    }
-                }
+                if (state.isLow()) addCondition(2, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
+                    addCondition(2, Condition.FORCE_CROUCH);
+            }
+
+            if (horiz == DirEnum.LEFT)
+            {
+                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(2, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(2, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(2, Condition.NEGATE_RUN_RIGHT);
+            }
+            else if (horiz == DirEnum.RIGHT)
+            {
+                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(2, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(2, Condition.NEGATE_WALK_LEFT);
+                else addCondition(2, Condition.NEGATE_RUN_LEFT);
+            }
+            else if (vert != DirEnum.NONE)
+            {
+                if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
+                    addCondition(2, Condition.NEGATE_STABILITY);
+                else if (!canRun()) addCondition(2, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(2, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
             }
         }
     }
