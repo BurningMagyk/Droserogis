@@ -435,7 +435,6 @@ public abstract class Weapon extends Item
     ConditionApp FORCE_STAND = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
     //ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
     ConditionApp FORCE_CROUCH = new ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
-    ConditionApp FORCE_PRONE = new ConditionApp(0.1F, Actor.Condition.FORCE_PRONE);
     ConditionApp FORCE_DASH = new ConditionApp(0.01F, Actor.Condition.DASH);
 
     ConditionApp NEGATE_RUN = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);

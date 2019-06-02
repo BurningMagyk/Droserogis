@@ -192,7 +192,7 @@ public class Natural extends Weapon
         ConditionAppCycle kickCycle = new ConditionAppCycle(
                 FORCE_STAND, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
         ConditionAppCycle aerialCycle = new ConditionAppCycle(
-                FORCE_CROUCH, FORCE_CROUCH, FORCE_PRONE);
+                FORCE_CROUCH, FORCE_CROUCH, /*FORCE_PRONE*/FORCE_CROUCH);
         ConditionAppCycle lowCycle = new ConditionAppCycle(
                 FORCE_CROUCH__NEGATE_WALK, FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
         ConditionAppCycle tackleCycle = new ConditionAppCycle(
