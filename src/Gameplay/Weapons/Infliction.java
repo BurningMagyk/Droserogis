@@ -52,6 +52,11 @@ public class Infliction
 
         inflictor.setVelocity(finalVelocity);
         Vec2 finalVelocityPlusWeapon = finalVelocity.add(weaponMomentum);
+        if (dir.getVert() == DirEnum.DOWN && other.getState().isGrounded()
+                && (other.has(Actor.Condition.FORCE_CROUCH)
+                || other.has(Actor.Condition.NEGATE_STABILITY)
+                || other.has(Actor.Condition.NEGATE_ACTIVITY)))
+            finalVelocityPlusWeapon = new Vec2(0, finalVelocityPlusWeapon.y);
         other.setVelocity(finalVelocity.add(finalVelocityPlusWeapon));
 
         other.stagger(dir, (float) finalVelocityPlusWeapon.mag());

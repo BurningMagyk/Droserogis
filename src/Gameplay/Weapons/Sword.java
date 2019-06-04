@@ -179,12 +179,7 @@ public class Sword extends Weapon
         class Swing extends Melee {
             Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
-                        statusAppCycle, null, execJourney); }
-            /*public boolean mayInterrupt(Command check) {
-                if (check.ATTACK_KEY == Actor.ATTACK_KEY_1
-                        && state == State.WARMUP) return true;
-                return state == State.COOLDOWN;
-            }*/}
+                        statusAppCycle, null, execJourney); } }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///

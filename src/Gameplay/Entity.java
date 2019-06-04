@@ -129,6 +129,7 @@ abstract public class Entity
     public float getHeight() { return height; }
     public Vec2 getDims() { return new Vec2(width, height); }
 
+    void setWidth(float width) { this.width = width; }
     void setHeight(float height) { this.height = height; }
 
     public Vec2 getVelocity() { return new Vec2(velocity); }

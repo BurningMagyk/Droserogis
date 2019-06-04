@@ -31,7 +31,7 @@ public class Actor extends Item
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
-    private final float ORIGINAL_HEIGHT;
+    private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -74,6 +74,7 @@ public class Actor extends Item
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
 
+        ORIGINAL_WIDTH = width;
         ORIGINAL_HEIGHT = height;
 
         weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
@@ -167,12 +168,12 @@ public class Actor extends Item
             if (state == State.CROUCH || state == State.CRAWL
                     || state == State.SLIDE)
             {
-                accel = moveType == MoveType.STAND ? 0 : crawlAccel;
+                accel = moveType == MoveType.STILL ? 0 : crawlAccel;
                 topSpeed = getTopSpeed(moveType, true);
             }
             else
             {
-                accel = moveType == MoveType.STAND ? 0 : runAccel;
+                accel = moveType == MoveType.STILL ? 0 : runAccel;
                 topSpeed = getTopSpeed(moveType,false);
             }
 
@@ -321,6 +322,20 @@ public class Actor extends Item
                 else gravity = 0;
             } else gravity = NORMAL_GRAVITY;
         }
+
+        /* FORCE_CRAWL condition must remain longer than NEGATE_STABILITY */
+        if (has(Condition.NEGATE_ACTIVITY))
+        {
+            conditions[Condition.NEGATE_STABILITY.ordinal()] = Math.max(
+                    conditions[Condition.NEGATE_STABILITY.ordinal()],
+                    conditions[Condition.NEGATE_ACTIVITY.ordinal()]);
+        }
+        if (has(Condition.NEGATE_STABILITY))
+        {
+            conditions[Condition.FORCE_CROUCH.ordinal()] = Math.max(
+                    conditions[Condition.FORCE_CROUCH.ordinal()],
+                    conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime);
+        }
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)
@@ -335,30 +350,33 @@ public class Actor extends Item
     }
     private float getTopSpeed(boolean low) { return getTopSpeed(getMoveType(), low); }
 
-    private enum MoveType { STAND, WALK, RUN, SPRINT }
+    private enum MoveType { STILL, WALK, RUN, SPRINT }
     private MoveType getMoveType()
     {
-        if (dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT))
+        if (!has(Condition.NEGATE_STABILITY) && !has(Condition.NEGATE_ACTIVITY))
         {
-            if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_LEFT))
+            if (dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT))
             {
-                if (pressingShift && !has(Condition.NEGATE_SPRINT_LEFT))
-                    return MoveType.SPRINT;
-                return MoveType.RUN;
+                if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_LEFT))
+                {
+                    if (pressingShift && !has(Condition.NEGATE_SPRINT_LEFT))
+                        return MoveType.SPRINT;
+                    return MoveType.RUN;
+                }
+                return MoveType.WALK;
             }
-            return MoveType.WALK;
-        }
-        if (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT))
-        {
-            if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_RIGHT))
+            if (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT))
             {
-                if (pressingShift && !has(Condition.NEGATE_SPRINT_RIGHT))
-                    return MoveType.SPRINT;
-                return MoveType.RUN;
+                if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_RIGHT))
+                {
+                    if (pressingShift && !has(Condition.NEGATE_SPRINT_RIGHT))
+                        return MoveType.SPRINT;
+                    return MoveType.RUN;
+                }
+                return MoveType.WALK;
             }
-            return MoveType.WALK;
         }
-        return MoveType.STAND;
+        return MoveType.STILL;
     }
     private boolean canWalk() {
         return conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
@@ -473,6 +491,8 @@ public class Actor extends Item
 
     private void countdownCondition(float deltaSec)
     {
+        boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
+
         for (int i = 0; i < conditions.length; i++)
         {
             if (conditions[i] > 0)
@@ -480,6 +500,13 @@ public class Actor extends Item
                 conditions[i] -= deltaSec;
                 if (conditions[i] < 0) conditions[i] = 0;
             }
+        }
+
+        if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && state.isGrounded())
+        {
+            Print.blue("test");
+            if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
+            else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
         }
     }
 
@@ -622,9 +649,16 @@ public class Actor extends Item
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
-            if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0)
-                    || conditions[Condition.FORCE_CROUCH.ordinal()] > 0)
+            if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
+                setHeight(ORIGINAL_WIDTH);
+                setWidth(ORIGINAL_HEIGHT);
+                return State.CROUCH;
+            }
+            else if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0) // crouch
+                    || has(Condition.FORCE_CROUCH))
+            {
+                setWidth(ORIGINAL_WIDTH);
                 setHeight(ORIGINAL_HEIGHT / 2);
 
                 if (Math.abs(getVelocityX()) > maxCrawlSpeed)
@@ -637,7 +671,11 @@ public class Actor extends Item
                 }
                 return State.CROUCH;
             }
-            else setHeight(ORIGINAL_HEIGHT);
+            else // stand
+            {
+                setWidth(ORIGINAL_WIDTH);
+                setHeight(ORIGINAL_HEIGHT);
+            }
 
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
@@ -828,6 +866,9 @@ public class Actor extends Item
     /* How long dashing negates walking */
     private float dashRecoverTime = 1;
 
+    /* How long it takes to get up from being prone */
+    private float proneRecoverTime = 1;
+
 
     //================================================================================================================
     // State
@@ -930,7 +971,7 @@ public class Actor extends Item
                 this.conditions[cond.ordinal()] = time;
         }
     }
-    private boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
+    public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
     public void stagger(DirEnum dir, float mag)
     {
