@@ -923,6 +923,8 @@ public abstract class Weapon extends Item
         }
     }
 
+    public abstract boolean isNatural();
+
     @Override
     protected void applyInflictions()
     {
@@ -941,13 +943,13 @@ public abstract class Weapon extends Item
             }
         }
 
-        if (actor != null)
+        if (actor != null && isNatural())
         {
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
                 if (actor.hasSameInfliction(inf))
-                    actor.blockInfliction(inf);
+                    inflictions.remove(inf); // TODO: instead of removing, make it not decrease health here
             }
         }
     }

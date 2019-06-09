@@ -8,6 +8,8 @@ import Util.Vec2;
 
 public class Natural extends Weapon
 {
+    public boolean isNatural() { return true; }
+
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
             KICK_AERIAL_DIAG, GRAB, GRAB_LOW, TACKLE;

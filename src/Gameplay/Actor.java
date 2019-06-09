@@ -1048,12 +1048,12 @@ public class Actor extends Item
 
         for (Weapon weapon : weapons)
         {
-            if (weapon == null) continue;
+            if (weapon == null || !weapon.isNatural()) continue;
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
                 if (weapon.hasSameInfliction(inf))
-                    inflictions.remove(inf);
+                    inflictions.remove(inf); // TODO: instead of removing, make it not decrease health here
             }
         }
     }
@@ -1062,7 +1062,6 @@ public class Actor extends Item
     {
         inflictions.add(infliction);
     }
-    public void blockInfliction(Infliction infliction) { inflictions.remove(infliction); }
 
     boolean setTriggered(boolean triggered)
     {

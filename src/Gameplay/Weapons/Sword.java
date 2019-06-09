@@ -7,6 +7,8 @@ import Util.Vec2;
 
 public class Sword extends Weapon
 {
+    public boolean isNatural() { return false; }
+
     private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
             THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
             SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD, SWING_UP_BACKWARD,
