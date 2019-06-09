@@ -65,6 +65,7 @@ public abstract class Weapon extends Item
                 Operation nextOp = getOperation(nextCommand, currentOp);
                 if (nextOp != currentOp)
                 {
+                    collidedItems.clear();
                     commandQueue.remove();
                     currentOp = nextOp;
                     if (currentOp != null) currentOp.start();
