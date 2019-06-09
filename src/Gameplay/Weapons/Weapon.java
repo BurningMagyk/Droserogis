@@ -65,6 +65,7 @@ public abstract class Weapon extends Item
                 Operation nextOp = getOperation(nextCommand, currentOp);
                 if (nextOp != currentOp)
                 {
+                    collidedItems.clear();
                     commandQueue.remove();
                     currentOp = nextOp;
                     if (currentOp != null) currentOp.start();
@@ -959,4 +960,22 @@ public abstract class Weapon extends Item
     {
         inflictions.add(infliction);
     }
+
+    /*
+     * (If two actors are equally powered)
+     * Attacker is interrupted if hit
+     * Thrust collide with swing -> thrust interrupted + thruster disabled
+     * Thrust collide with thrust -> nothing
+     * Swing collide with swing -> both interrupted + both disabled
+     *
+     * Swing collide with block -> swing interrupted + blocker staggered by 1
+     * Thrust collide with block -> nothing
+     *
+     * (with shield - mode 1)
+     * When swinging, shield only blocks swings
+     * Can't thrust up
+     *
+     * (with shield - mode 2)
+     * When swinging or thrusting, shield only blocks swings
+     */
 }
