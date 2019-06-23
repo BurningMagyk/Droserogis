@@ -16,7 +16,6 @@ public class Infliction
     private Weapon.ConditionApp conditionApp;
     // TODO: add damage-type
     private Vec2 weaponMomentum;
-    private boolean instant;
 
     private boolean finished = false;
 
@@ -28,7 +27,6 @@ public class Infliction
         this.dir = dir;
         this.damage = damage;
         this.conditionApp = conditionApp;
-        this.instant = instant;
 
         float weaponMomentumMod = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
         weaponMomentum = new Vec2(dir.getHoriz().getSign() * weaponMomentumMod, dir.getVert().getSign() * weaponMomentumMod);

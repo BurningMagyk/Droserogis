@@ -934,7 +934,6 @@ public abstract class Weapon extends Item
 
         if (actor != null && isNatural())
         {
-
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
@@ -968,7 +967,8 @@ public abstract class Weapon extends Item
     @Override
     public void damage(int amount)
     {
-        Print.yellow("Actor: Dealt " + amount + " damage");
+        if (isNatural()) Print.yellow("Actor: Dealt " + amount + " damage");
+        else Print.yellow("Weapon: Dealt " + amount + " damage");
     }
 
     @Override
