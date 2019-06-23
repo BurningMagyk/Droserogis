@@ -150,54 +150,75 @@ public class Sword extends Weapon
     }
 
     @Override
+    void clash(Weapon otherWeapon, Operation otherOp)
+    {
+        //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
+
+        if (otherWeapon.getClass() == Sword.class)
+        {
+            if (currentOp != null)
+            {
+                if (currentOp instanceof Thrust || currentOp instanceof Stab)
+                {
+                    if (otherOp != null)
+                    {
+                        if (otherOp instanceof Swing)
+                            Print.green("Sword: Interrupted us");
+                        else Print.green("Sword: Uninterrupted");
+                    }
+                    else Print.green("Sword: Uninterrupted");
+                }
+                else if (currentOp instanceof Swing)
+                {
+                    if (otherOp != null)
+                    {
+                        if (otherOp instanceof Swing)
+                            Print.green("Sword: Interrupted us, interrupted them");
+                        else Print.green("Sword: Interrupted them");
+                    }
+                    else Print.green("Sword: Uninterrupted");
+                }
+            }
+        }
+    }
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
     }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                CLASSES                                                  ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN */
+    private class Thrust extends HoldableMelee {
+        Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
+               ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("thrust", waits, functionalDir, useDirHorizFunctionaly, new int[]{DURING_COOLDOWN},
+                    statusAppCycle, null, execJourney); } }
+
+    /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
+    private class Stab extends Melee {
+        Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
+                    statusAppCycle, null, execJourney); } }
+
+    /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
+       SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
+    private class Swing extends Melee {
+        Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
+                    statusAppCycle, null, execJourney); } }
 
     public Sword(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///                                                CLASSES                                                  ///
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN */
-        class Thrust extends HoldableMelee {
-            Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
-                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("thrust", waits, functionalDir, useDirHorizFunctionaly, new int[]{DURING_COOLDOWN},
-                        statusAppCycle, null, execJourney); } }
-
-        /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
-        class Stab extends Melee {
-            Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
-                        statusAppCycle, null, execJourney); } }
-
-        /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
-           SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
-        class Swing extends Melee {
-            Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
-                        statusAppCycle, null, execJourney); } }
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//        ConditionApp forceStand = new ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
-//        ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
-//        ConditionApp forceDash = new ConditionApp(0.01F, Actor.Condition.DASH);
-//        ConditionApp negateRun = new ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-//        ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
-//        ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
-//        ConditionApp negateWalk = new ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
-//        ConditionApp negateWalk_long = new ConditionApp(negateWalk, 0.4F);
-//        ConditionApp negateWalk_forceStand = new ConditionApp(negateWalk, Actor.Condition.FORCE_STAND);
-//        ConditionApp negateWalk_forceStand_long = new ConditionApp(negateWalk_forceStand, 0.4F);
-//        ConditionApp negateWalk_forceCrouch = new ConditionApp(negateWalk, Actor.Condition.FORCE_CROUCH);
 
         ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
         ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);

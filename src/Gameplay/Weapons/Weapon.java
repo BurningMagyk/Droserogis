@@ -31,7 +31,7 @@ public abstract class Weapon extends Item
     private Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
-    private Operation currentOp;
+    Operation currentOp;
 
     abstract Orient getDefaultOrient();
     Weapon(float xPos, float yPos, float width, float height)
@@ -640,7 +640,7 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction);
+                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.blue(" by " + this);
@@ -651,7 +651,7 @@ public abstract class Weapon extends Item
         void boostWarmup(float boostSec) { warmBoostSec = boostSec; }
     }
 
-    class HoldableMelee extends Melee
+    abstract class HoldableMelee extends Melee
     {
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, int[] interruptConditions,
@@ -734,7 +734,7 @@ public abstract class Weapon extends Item
         }
     }
 
-    class Rush implements Operation
+    abstract class Rush implements Operation
     {
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
@@ -846,7 +846,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction);
+                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -854,7 +854,7 @@ public abstract class Weapon extends Item
         }
     }
 
-    class HoldableRush extends Rush
+    abstract class HoldableRush extends Rush
     {
         HoldableRush(Vec2 waits,
                          float minExecTime, float maxExecTime,
@@ -926,6 +926,7 @@ public abstract class Weapon extends Item
     }
 
     public abstract boolean isNatural();
+    abstract void clash(Weapon otherWeapon, Operation otherOp);
 
     @Override
     protected void applyInflictions()
@@ -951,6 +952,7 @@ public abstract class Weapon extends Item
                 /* Infliction applied here */
                 Print.yellow("Weapon: " + inf);
 
+                inf.applyCondition(this);
                 inf.applyDamage(this);
                 inf.resolve();
             }

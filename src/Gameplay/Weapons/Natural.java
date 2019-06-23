@@ -96,6 +96,13 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
+    void clash(Weapon otherWeapon, Operation otherOp)
+    {
+        Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
+        // TODO: fill this in
+    }
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(0.8F, 0), 0);
@@ -169,6 +176,10 @@ public class Natural extends Weapon
                 super.apply(_this, other);
             }
         }
+
+        class _HoldableRush extends HoldableRush {
+            _HoldableRush(Vec2 waits, float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
+                super(waits, minExecTime, maxExecTime, DirEnum.NONE, true, conditionAppCycle, null); } }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///
@@ -261,12 +272,10 @@ public class Natural extends Weapon
         PUNCH = new Punch(new Vec2(0.4F, 0.3F), DirEnum.NONE, true, basicCycle, punchJourneys[0]);
         PUNCH_UP = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, false, basicCycle, punchJourneys[1]);
         PUNCH_DIAG = new Punch(new Vec2(0.4F, 0.3F), DirEnum.UP, true, basicCycle, punchJourneys[2]);
-        PUSH = new HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0,
-                DirEnum.NONE, true, pushCycle, null);
+        PUSH = new _HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0, pushCycle);
         HAYMAKER = new Punch(new Vec2(0.3F, 0.3F), DirEnum.NONE, basicCycle, punchJourneys[3]);
         UPPERCUT = new Punch(new Vec2(0.3F, 0.4F), DirEnum.UP, true, uppercutCycle, punchJourneys[4]);
-        SHOVE = new HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0,
-                DirEnum.NONE, true, shoveCycle, null);
+        SHOVE = new _HoldableRush(new Vec2(0.1F, 0.1F), 0.2F, 0, shoveCycle);
 
         STOMP = new Kick(new Vec2(0.4F, 0.1F), DirEnum.DOWN, false, kickCycle, kickJourneys[0]);
         STOMP_FALL = new KickAerial(new Vec2(0.1F, 0.1F), 0.5F, 0, DirEnum.DOWN, false, kickCycle);

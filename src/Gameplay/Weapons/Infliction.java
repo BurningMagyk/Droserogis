@@ -9,6 +9,7 @@ import Util.Vec2;
 public class Infliction
 {
     private Weapon source;
+    private Weapon.Operation op;
     private Actor inflictor;
 
     private DirEnum dir;
@@ -19,10 +20,11 @@ public class Infliction
 
     private boolean finished = false;
 
-    Infliction(Weapon source, Actor inflictor,
+    Infliction(Weapon source, Weapon.Operation op, Actor inflictor,
                DirEnum dir, int damage, Weapon.ConditionApp conditionApp)
     {
         this.source = source;
+        this.op = op;
         this.inflictor = inflictor;
         this.dir = dir;
         this.damage = damage;
@@ -40,6 +42,7 @@ public class Infliction
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
     public void applyCondition(Actor other) { conditionApp.apply(other); }
+    public void applyCondition(Weapon other) { other.clash(source, op); }
 
     public void applyMomentum(Actor other)
     {

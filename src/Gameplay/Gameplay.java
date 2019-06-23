@@ -182,6 +182,22 @@ public class Gameplay implements Reactor
         {
             player.pressAttackMod(pressed);
         }
+        else if (code == KeyCode.N)
+        {
+            player2.pressJump(pressed);
+        }
+        else if (code == KeyCode.M)
+        {
+            player2.pressAttack(pressed, Actor.ATTACK_KEY_1);
+        }
+        else if (code == KeyCode.COMMA)
+        {
+            player2.pressAttack(pressed, Actor.ATTACK_KEY_2);
+        }
+        else if (code == KeyCode.PERIOD)
+        {
+            player2.pressAttack(pressed, Actor.ATTACK_KEY_3);
+        }
     }
 
     @Override
