@@ -310,7 +310,12 @@ public abstract class Item extends Entity
         for (Infliction inf : inflictions) { if (inf.sameSource(other)) return true; }
         return false;
     }
+    public void cancelDamage(Infliction other)
+    {
+        for (Infliction inf : inflictions) { if (inf.sameSource(other)) inf.cancelDamage(); }
+    }
     public abstract void inflict(Infliction infliction);
+    public abstract void damage(int amount); // TODO: include damage type and direction
 
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.

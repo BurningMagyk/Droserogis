@@ -1024,27 +1024,15 @@ public class Actor extends Item
     }
 
     @Override
+    public void damage(int amount)
+    {
+        Print.yellow("Actor: Dealt " + amount + " damage");
+    }
+
+    @Override
     protected void applyInflictions()
     {
         if (inflictions.isEmpty()) return;
-
-        for (int i = 0; i < inflictions.size(); i++)
-        {
-            Infliction inf = inflictions.get(i);
-
-            /* Infliction applied here */
-            Print.yellow("Actor: " + inf);
-
-            inf.applyMomentum(this);
-            inf.applyCondition(this);
-
-            if (inf.isFinished() || inf.isInstant())
-            {
-                inflictions.remove(inf);
-                i--;
-                Print.yellow("Actor: " + inf + " removed");
-            }
-        }
 
         for (Weapon weapon : weapons)
         {
@@ -1052,8 +1040,31 @@ public class Actor extends Item
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
-                if (weapon.hasSameInfliction(inf))
-                    inflictions.remove(inf); // TODO: instead of removing, make it not decrease health here
+                if (inf.getDamage() != 0 && weapon.hasSameInfliction(inf))
+                    inf.cancelDamage();
+            }
+        }
+
+        for (int i = 0; i < inflictions.size(); i++)
+        {
+            Infliction inf = inflictions.get(i);
+
+            if (!inf.isResolved())
+            {
+                /* Infliction applied here */
+                Print.yellow("Actor: " + inf);
+
+                inf.applyMomentum(this);
+                inf.applyCondition(this);
+                inf.applyDamage(this);
+                inf.resolve();
+            }
+
+            if (inf.isFinished())
+            {
+                inflictions.remove(inf);
+                i--;
+                //Print.yellow("Actor: " + inf + " removed");
             }
         }
     }

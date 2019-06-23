@@ -2,6 +2,8 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Gameplay.Item;
+import Util.Print;
 import Util.Vec2;
 
 public class Infliction
@@ -19,8 +21,7 @@ public class Infliction
     private boolean finished = false;
 
     Infliction(Weapon source, Actor inflictor,
-               DirEnum dir, int damage, Weapon.ConditionApp conditionApp,
-               boolean instant)
+               DirEnum dir, int damage, Weapon.ConditionApp conditionApp)
     {
         this.source = source;
         this.inflictor = inflictor;
@@ -41,7 +42,6 @@ public class Infliction
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
     public void applyCondition(Actor other) { conditionApp.apply(other); }
-    public boolean isInstant() { return instant; }
 
     public void applyMomentum(Actor other)
     {
@@ -62,8 +62,16 @@ public class Infliction
         other.stagger(dir, (float) finalVelocityPlusWeapon.mag());
     }
 
+    public void cancelDamage() { damage = 0; }
+    public void applyDamage(Item other) { other.damage(damage); }
+
+    private boolean resolved = false;
+    public void resolve() { resolved = true; }
+    public boolean isResolved() { return resolved; }
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Inflicted with dir " + dir;
     }
 }

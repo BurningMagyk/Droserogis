@@ -66,6 +66,7 @@ public abstract class Weapon extends Item
                 if (nextOp != currentOp)
                 {
                     collidedItems.clear();
+                    clearInflictionsDealt();
                     commandQueue.remove();
                     currentOp = nextOp;
                     if (currentOp != null) currentOp.start();
@@ -639,10 +640,10 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction, true);
+                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
-                Print.yellow(" by " + this);
+                Print.blue(" by " + this);
             }
         }
 
@@ -845,7 +846,7 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction, true);
+                Infliction infliction = new Infliction(_this, actor, dir, 1, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -931,28 +932,43 @@ public abstract class Weapon extends Item
     {
         if (inflictions.isEmpty()) return;
 
-        for (int i = 0; i < inflictions.size(); i++)
-        {
-            Infliction inf = inflictions.get(i);
-            Print.yellow("Weapon: " + inf); // TODO: apply the inflictions here
-
-            if (inf.isFinished() || inf.isInstant())
-            {
-                inflictions.remove(inf);
-                i--;
-                Print.yellow("Weapon: " + inf + " removed");
-            }
-        }
-
         if (actor != null && isNatural())
         {
+
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
-                if (actor.hasSameInfliction(inf))
-                    inflictions.remove(inf); // TODO: instead of removing, make it not decrease health here
+                if (inf.getDamage() != 0 && actor.hasSameInfliction(inf))
+                    inf.cancelDamage();
             }
         }
+
+        for (int i = 0; i < inflictions.size(); i++)
+        {
+            Infliction inf = inflictions.get(i);
+
+            if (!inf.isResolved())
+            {
+                /* Infliction applied here */
+                Print.yellow("Weapon: " + inf);
+
+                inf.applyDamage(this);
+                inf.resolve();
+            }
+
+            if (inf.isFinished())
+            {
+                inflictions.remove(inf);
+                i--;
+                //Print.yellow("Weapon: " + inf + " removed");
+            }
+        }
+    }
+
+    @Override
+    public void damage(int amount)
+    {
+        Print.yellow("Actor: Dealt " + amount + " damage");
     }
 
     @Override
