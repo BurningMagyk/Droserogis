@@ -42,7 +42,7 @@ public class Infliction
     public DirEnum getDir() { return dir; }
     public int getDamage() { return damage; }
     public void applyCondition(Actor other) { conditionApp.apply(other); }
-    public void applyCondition(Weapon other) { other.clash(source, op); }
+    public boolean applyCondition(Weapon other) { return other.clash(source, op); }
 
     public void applyMomentum(Actor other)
     {

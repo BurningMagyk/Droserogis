@@ -600,17 +600,20 @@ public class Actor extends Item
     void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     void pressAttack(boolean pressed, int attackKey)
     {
-        int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
-        Command command = new Command(attackKey + usingAttackMod,
-                getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
-
-        for (int i = weapons.length - 1; i >= 0; i--)
+        if (!has(Condition.NEGATE_ATTACK))
         {
-            if (weapons[i] == null) continue;
-            if (!pressed) weapons[i].releaseCommand(attackKey);
-            else if (pressingAttack[attackKey] != pressed)
+            int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
+            Command command = new Command(attackKey + usingAttackMod,
+                    getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
+
+            for (int i = weapons.length - 1; i >= 0; i--)
             {
-                if (weapons[i].addCommand(command)) break;
+                if (weapons[i] == null) continue;
+                if (!pressed) weapons[i].releaseCommand(attackKey);
+                else if (pressingAttack[attackKey] != pressed)
+                {
+                    if (weapons[i].addCommand(command)) break;
+                }
             }
         }
 
@@ -976,6 +979,7 @@ public class Actor extends Item
     public void stagger(DirEnum dir, float mag)
     {
         // TODO: should depend on attack type, Actor's stats, and value of mag
+        // TODO: replace mag with static values
         if (has(Condition.NEGATE_ACTIVITY))
         {
             addCondition(2, Condition.NEGATE_ACTIVITY);
@@ -1021,6 +1025,15 @@ public class Actor extends Item
                 else addCondition(2, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
             }
         }
+
+        for (Weapon weapon : weapons) { weapon.disrupt(); }
+    }
+
+    public void stagger(float mag)
+    {
+        // TODO: should depend on Actor's stats and value of mag
+        // TODO: replace mag with static values
+        addCondition(2, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
     @Override

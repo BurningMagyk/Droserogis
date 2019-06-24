@@ -6,6 +6,7 @@ import Gameplay.Entity;
 import Gameplay.Item;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -33,6 +34,17 @@ public abstract class Weapon extends Item
     private LinkedList<Command> commandQueue = new LinkedList<>();
     Operation currentOp;
 
+    @Override
+    public Color getColor()
+    {
+        if (actor != null)
+        {
+            if (actor.has(Actor.Condition.NEGATE_ATTACK) || actor.has(Actor.Condition.NEGATE_BLOCK))
+                return Color.CYAN;
+        }
+        return Color.BLACK;
+    }
+
     abstract Orient getDefaultOrient();
     Weapon(float xPos, float yPos, float width, float height)
     {
@@ -50,6 +62,14 @@ public abstract class Weapon extends Item
         {
             super.update(entities, deltaSec);
             updateCorners();
+        }
+        else if (disrupted)
+        {
+            collidedItems.clear();
+            clearInflictionsDealt();
+            commandQueue.clear();
+            currentOp = null;
+            disrupted = false;
         }
         else if (currentOp != null)
         {
@@ -184,6 +204,19 @@ public abstract class Weapon extends Item
     {
         for (Infliction inf : inflictionsDealt) { inf.finish(); }
         inflictionsDealt.clear();
+    }
+
+    private boolean disrupted = false;
+    public void disrupt()
+    {
+        disrupted = true;
+        orient.set(defaultOrient.copy());
+    }
+    void disrupt(float mag)
+    {
+        // TODO: replace mag with static values
+        disrupt();
+        if (actor != null) actor.stagger(mag);
     }
 
     public Weapon equip(Actor actor)
@@ -926,7 +959,7 @@ public abstract class Weapon extends Item
     }
 
     public abstract boolean isNatural();
-    abstract void clash(Weapon otherWeapon, Operation otherOp);
+    abstract boolean clash(Weapon otherWeapon, Operation otherOp);
 
     @Override
     protected void applyInflictions()
@@ -952,8 +985,8 @@ public abstract class Weapon extends Item
                 /* Infliction applied here */
                 Print.yellow("Weapon: " + inf);
 
-                inf.applyCondition(this);
-                inf.applyDamage(this);
+                if (inf.applyCondition(this))
+                    inf.applyDamage(this);
                 inf.resolve();
             }
 

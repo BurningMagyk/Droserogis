@@ -150,7 +150,7 @@ public class Sword extends Weapon
     }
 
     @Override
-    void clash(Weapon otherWeapon, Operation otherOp)
+    boolean clash(Weapon otherWeapon, Operation otherOp)
     {
         //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
 
@@ -163,23 +163,31 @@ public class Sword extends Weapon
                     if (otherOp != null)
                     {
                         if (otherOp instanceof Swing)
-                            Print.green("Sword: Interrupted us");
-                        else Print.green("Sword: Uninterrupted");
+                        {
+                            disrupt(0);//Print.green("Sword: Interrupted us");
+                            return true;
+                        }
+                        else return false;//Print.green("Sword: Uninterrupted");
                     }
-                    else Print.green("Sword: Uninterrupted");
+                    else return false;//Print.green("Sword: Uninterrupted");
                 }
                 else if (currentOp instanceof Swing)
                 {
                     if (otherOp != null)
                     {
                         if (otherOp instanceof Swing)
-                            Print.green("Sword: Interrupted us, interrupted them");
-                        else Print.green("Sword: Interrupted them");
+                        {
+                            disrupt(0);//Print.green("Sword: Interrupted us, interrupted them");
+                            return true;
+                        }
+                        else return false;//Print.green("Sword: Interrupted them");
                     }
-                    else Print.green("Sword: Uninterrupted");
+                    else return false;//Print.green("Sword: Uninterrupted");
                 }
             }
         }
+
+        return false;
     }
 
     @Override

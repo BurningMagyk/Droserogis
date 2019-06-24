@@ -96,10 +96,12 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
-    void clash(Weapon otherWeapon, Operation otherOp)
+    boolean clash(Weapon otherWeapon, Operation otherOp)
     {
         Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
         // TODO: fill this in
+
+        return false;
     }
 
     @Override
