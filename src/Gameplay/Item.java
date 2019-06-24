@@ -313,6 +313,7 @@ public abstract class Item extends Entity
 
     public abstract void inflict(Infliction infliction);
     public abstract void damage(int amount); // TODO: include damage type and direction
+    public abstract boolean easyToBlock();
 
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.

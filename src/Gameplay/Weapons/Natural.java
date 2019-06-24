@@ -110,78 +110,78 @@ public class Natural extends Weapon
         return new Orient(new Vec2(0.8F, 0), 0);
     }
 
-    public Natural(float xPos, float yPos, float width, float height, Actor actor)
-    {
-        super(xPos, yPos, width, height);
-        equip(actor);
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CLASSES                                                  ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        class Punch extends Melee {
-            Punch(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally,
-                  ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("punch", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
-                        statusAppCycle, null, execJourney); }
-            Punch(Vec2 waits, DirEnum functionalDir,
-                  ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("haymaker", waits, functionalDir, true, new int[]{},
-                        statusAppCycle, null, execJourney); } }
+    private class Punch extends Melee {
+        Punch(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally,
+              ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("punch", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
+                    statusAppCycle, null, execJourney); }
+        Punch(Vec2 waits, DirEnum functionalDir,
+              ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("haymaker", waits, functionalDir, true, new int[]{},
+                    statusAppCycle, null, execJourney); } }
 
-        class Kick extends Melee {
-            Kick(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("kick", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
-                        statusAppCycle, null, execJourney, execJourney[0]); }
-            public void start() {
-                super.start();
-                Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
-                footPosition.check(-1, command.FACE);
-                warmJourney.setStart(footPosition.getOrient());
-            }
+    private class Kick extends Melee {
+        Kick(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionally, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+            super("kick", waits, functionalDir, useDirHorizFunctionally, new int[]{DURING_COOLDOWN},
+                    statusAppCycle, null, execJourney, execJourney[0]); }
+        public void start() {
+            super.start();
+            Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
+            footPosition.check(-1, command.FACE);
+            warmJourney.setStart(footPosition.getOrient());
         }
+    }
 
-        class KickAerial extends HoldableRush {
-            KickAerial(Vec2 waits, float minExecTime, float maxExecTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
-                       ConditionAppCycle conditionAppCycle) {
-                super(waits, minExecTime, maxExecTime, functionalDir, useDirHorizFunctionally,
-                        conditionAppCycle, null); }
+    private class KickAerial extends HoldableRush {
+        KickAerial(Vec2 waits, float minExecTime, float maxExecTime, DirEnum functionalDir, boolean useDirHorizFunctionally,
+                   ConditionAppCycle conditionAppCycle) {
+            super(waits, minExecTime, maxExecTime, functionalDir, useDirHorizFunctionally,
+                    conditionAppCycle, null); }
 
-            @Override
-            public void apply(Weapon _this, Item other)
+        @Override
+        public void apply(Weapon _this, Item other)
+        {
+            if (other == null)
             {
-                if (other == null)
-                {
-                    if (actor.getState() == Actor.State.SWIM
-                            || actor.getState().isGrounded()
-                            || actor.getState().isOnWall())
-                        state = State.COOLDOWN;
-                }
-                super.apply(_this, other);
+                if (actor.getState() == Actor.State.SWIM
+                        || actor.getState().isGrounded()
+                        || actor.getState().isOnWall())
+                    state = State.COOLDOWN;
             }
+            super.apply(_this, other);
         }
+    }
 
-        class Tackle extends Rush {
-            Tackle(Vec2 waits, float execTime, ConditionAppCycle conditionAppCycle) {
-                super(waits, execTime, DirEnum.NONE, true, conditionAppCycle, null); }
+    private class Tackle extends Rush {
+        Tackle(Vec2 waits, float execTime, ConditionAppCycle conditionAppCycle) {
+            super(waits, execTime, DirEnum.NONE, true, conditionAppCycle, null); }
 
-            @Override
-            public void apply(Weapon _this, Item other)
+        @Override
+        public void apply(Weapon _this, Item other)
+        {
+            if (other == null)
             {
-                if (other == null)
-                {
-                    if (totalSec < execTime) return;
-                    if (actor.getState() == Actor.State.SWIM
-                            || actor.getState().isGrounded())
-                        state = State.COOLDOWN;
-                }
-                super.apply(_this, other);
+                if (totalSec < execTime) return;
+                if (actor.getState() == Actor.State.SWIM
+                        || actor.getState().isGrounded())
+                    state = State.COOLDOWN;
             }
+            super.apply(_this, other);
         }
+    }
 
-        class _HoldableRush extends HoldableRush {
-            _HoldableRush(Vec2 waits, float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
-                super(waits, minExecTime, maxExecTime, DirEnum.NONE, true, conditionAppCycle, null); } }
+    private class _HoldableRush extends HoldableRush {
+        _HoldableRush(Vec2 waits, float minExecTime, float maxExecTime, ConditionAppCycle conditionAppCycle) {
+            super(waits, minExecTime, maxExecTime, DirEnum.NONE, true, conditionAppCycle, null); } }
+
+    public Natural(float xPos, float yPos, float width, float height, Actor actor)
+    {
+        super(xPos, yPos, width, height);
+        equip(actor);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///
@@ -292,4 +292,7 @@ public class Natural extends Weapon
 
         Tick footPosition = new Tick(0, 0.7F, 0.4F, 0);
     }
+
+    @Override
+    public boolean easyToBlock() { return currentOp.getClass() != Punch.class && currentOp.getClass() != Kick.class; }
 }

@@ -64,7 +64,49 @@ public class Infliction
     }
 
     public void cancelDamage() { damage = 0; }
-    public void applyDamage(Item other) { other.damage(damage); }
+    public void applyDamage(Item other)
+    {
+        if (other instanceof Actor)
+        {
+            boolean[] blockRating = ((Actor) other).getBlockRating();
+            /* 0 - Able to block
+             * 1 - Prone
+             * 2 - Pressing up
+             * 3 - Using shield */
+            if (!blockRating[0] || (!blockRating[3] && !source.easyToBlock())) other.damage(damage);
+            else if (blockRating[1])
+            {
+                float weaponPos = source.getPosition().x, actorPos = other.getPosition().x;
+                if (((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT)
+                {
+                    if ((weaponPos >= actorPos && blockRating[2])
+                            || (weaponPos <= actorPos && !blockRating[2])) other.damage(damage);
+                    else {} // Get deflected
+                }
+                else
+                {
+                    if ((weaponPos <= actorPos && blockRating[2])
+                            || (weaponPos >= actorPos && !blockRating[2])) other.damage(damage);
+                    else {} // Get deflected
+                }
+            }
+            else
+            {
+                float weaponPos = source.getPosition().x, actorPos = other.getPosition().x;
+                boolean facingLeft = ((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT;
+                if ((weaponPos <= actorPos && facingLeft) || (weaponPos >= actorPos && !facingLeft))
+                {
+                    float _weaponPos = source.getPosition().y, _actorPos = other.getPosition().y;
+                    if ((_weaponPos < _actorPos && !blockRating[2]) || _weaponPos > _actorPos && blockRating[2])
+                        other.damage(damage);
+                    else {} // Get deflected
+                }
+                else {} // Get deflected
+            }
+
+        }
+        else other.damage(damage);
+    }
 
     private boolean resolved = false;
     public void resolve() { resolved = true; }

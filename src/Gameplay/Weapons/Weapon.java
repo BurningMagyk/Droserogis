@@ -29,7 +29,7 @@ public abstract class Weapon extends Item
 
     public void test() { Print.yellow("orient: " + orient.theta); }
 
-    private Actor actor;
+    Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
     Operation currentOp;

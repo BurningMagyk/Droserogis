@@ -389,6 +389,14 @@ public class Actor extends Item
                 && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0;
     }
 
+    public boolean[] getBlockRating()
+    {
+        boolean able = !has(Condition.NEGATE_ACTIVITY) && !has(Condition.NEGATE_BLOCK);
+        boolean prone = has(Condition.NEGATE_STABILITY);
+        boolean shield = false;
+        return new boolean[] { able, prone, pressingUp, shield };
+    }
+
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
         applyAcceleration(getAcceleration(), deltaSec);
@@ -1041,6 +1049,9 @@ public class Actor extends Item
     {
         Print.yellow("Actor: Dealt " + amount + " damage");
     }
+
+    @Override
+    public boolean easyToBlock() { return false; }
 
     @Override
     protected void applyInflictions()

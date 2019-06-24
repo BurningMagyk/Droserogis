@@ -369,4 +369,10 @@ public class Sword extends Weapon
         SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, lungeCycle, swingJourneys[6]);
         SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, lungeCycle, swingJourneys[7]);
     }
+
+    @Override
+    public boolean easyToBlock()
+    {
+        return currentOp.getClass() != Thrust.class && currentOp.getClass() != Stab.class;
+    }
 }
