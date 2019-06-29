@@ -512,7 +512,6 @@ public class Actor extends Item
 
         if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && state.isGrounded())
         {
-            Print.blue("test");
             if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
             else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
         }
@@ -1052,6 +1051,7 @@ public class Actor extends Item
 
     @Override
     public boolean easyToBlock() { return false; }
+    public boolean tryingToBlock() { return pressingUp; }
 
     @Override
     protected void applyInflictions()
@@ -1078,9 +1078,10 @@ public class Actor extends Item
                 /* Infliction applied here */
                 Print.yellow("Actor: " + inf);
 
+                inf.applyDamage(this);
                 inf.applyMomentum(this);
                 inf.applyCondition(this);
-                inf.applyDamage(this);
+
                 inf.resolve();
             }
 

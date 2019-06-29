@@ -39,8 +39,11 @@ public abstract class Weapon extends Item
     {
         if (actor != null)
         {
-            if (actor.has(Actor.Condition.NEGATE_ATTACK) || actor.has(Actor.Condition.NEGATE_BLOCK))
+            if (actor.has(Actor.Condition.NEGATE_ATTACK)
+                    || actor.has(Actor.Condition.NEGATE_BLOCK)
+                    || actor.has(Actor.Condition.NEGATE_ACTIVITY))
                 return Color.CYAN;
+            else if (actor.tryingToBlock()) return Color.RED;
         }
         return Color.BLACK;
     }
@@ -251,6 +254,7 @@ public abstract class Weapon extends Item
         }
         return corners;
     }
+    Vec2 getOffsetPosition() { return shapeCornersOffset.clone(); }
 
     interface Operation
     {
@@ -983,7 +987,7 @@ public abstract class Weapon extends Item
             if (!inf.isResolved())
             {
                 /* Infliction applied here */
-                Print.yellow("Weapon: " + inf);
+                //Print.yellow("Weapon: " + inf);
 
                 if (inf.applyCondition(this))
                     inf.applyDamage(this);

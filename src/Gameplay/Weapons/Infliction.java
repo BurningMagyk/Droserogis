@@ -76,11 +76,13 @@ public class Infliction
             if (!blockRating[0] || (!blockRating[3] && !source.easyToBlock())) other.damage(damage);
             else if (blockRating[1])
             {
-                float weaponPos = source.getPosition().x, actorPos = other.getPosition().x;
+                float weaponPos = source.getOffsetPosition().x, actorPos = other.getPosition().x;
+
+                // TODO: may need to switch the !'s around
                 if (((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT)
                 {
-                    if ((weaponPos >= actorPos && blockRating[2])
-                            || (weaponPos <= actorPos && !blockRating[2])) other.damage(damage);
+                    if ((weaponPos >= actorPos && !blockRating[2])
+                            || (weaponPos <= actorPos && blockRating[2])) other.damage(damage);
                     else {} // Get deflected
                 }
                 else
@@ -92,15 +94,16 @@ public class Infliction
             }
             else
             {
-                float weaponPos = source.getPosition().x, actorPos = other.getPosition().x;
+                float weaponPos = source.getOffsetPosition().x, actorPos = other.getPosition().x;
                 boolean facingLeft = ((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT;
                 if ((weaponPos <= actorPos && facingLeft) || (weaponPos >= actorPos && !facingLeft))
                 {
-                    float _weaponPos = source.getPosition().y, _actorPos = other.getPosition().y;
+                    float _weaponPos = source.getOffsetPosition().y, _actorPos = other.getPosition().y;
                     if ((_weaponPos < _actorPos && !blockRating[2]) || _weaponPos > _actorPos && blockRating[2])
                         other.damage(damage);
                     else {} // Get deflected
                 }
+                else if (weaponPos <= actorPos || weaponPos >= actorPos) other.damage(damage);
                 else {} // Get deflected
             }
 

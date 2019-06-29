@@ -98,7 +98,7 @@ public class Natural extends Weapon
     @Override
     boolean clash(Weapon otherWeapon, Operation otherOp)
     {
-        Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
+        //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
         // TODO: fill this in
 
         return false;
