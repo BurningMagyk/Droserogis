@@ -105,6 +105,17 @@ public class Natural extends Weapon
     }
 
     @Override
+    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
+    {
+        // TODO: decide formula
+        float mod = 0.1F;
+        return new Vec2(dir.getHoriz().getSign() * mod, dir.getVert().getSign() * mod);
+    }
+
+    @Override
+    public int getBlockRating() { return 1; }
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(0.8F, 0), 0);

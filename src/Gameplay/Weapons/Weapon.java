@@ -964,6 +964,8 @@ public abstract class Weapon extends Item
 
     public abstract boolean isNatural();
     abstract boolean clash(Weapon otherWeapon, Operation otherOp);
+    abstract Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other);
+    public abstract int getBlockRating();
 
     @Override
     protected void applyInflictions()

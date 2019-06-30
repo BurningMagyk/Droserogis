@@ -640,6 +640,22 @@ public class Actor extends Item
                 ? dirHoriz : dirFace, dirVert);
     }
 
+    public Weapon getBlockingWeapon()
+    {
+        int maxRating = 0, maxRatingIndex = 0;
+        for (int i = weapons.length - 1; i >= 0; i--)
+        {
+            if (weapons[i] == null) continue;
+            int blockRating = weapons[i].getBlockRating();
+            if (blockRating > maxRating)
+            {
+                maxRating = blockRating;
+                maxRatingIndex = i;
+            }
+        }
+        return weapons[maxRatingIndex];
+    }
+
     public int getMaxCommandChain() { return 3; /* TODO: Make abstract */ }
 
     public void changeDirFace()
@@ -1078,8 +1094,8 @@ public class Actor extends Item
                 /* Infliction applied here */
                 Print.yellow("Actor: " + inf);
 
-                inf.applyDamage(this);
-                inf.applyMomentum(this);
+                boolean deflected = inf.applyDamage(this);
+                inf.applyMomentum(this, getBlockingWeapon());
                 inf.applyCondition(this);
 
                 inf.resolve();

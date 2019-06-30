@@ -191,6 +191,17 @@ public class Sword extends Weapon
     }
 
     @Override
+    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
+    {
+        // TODO: decide formula
+        float mod = 0.1F;
+        return new Vec2(dir.getHoriz().getSign() * mod, dir.getVert().getSign() * mod);
+    }
+
+    @Override
+    public int getBlockRating() { return 2; }
+
+    @Override
     Orient getDefaultOrient()
     {
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));

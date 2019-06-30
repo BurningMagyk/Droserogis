@@ -16,7 +16,7 @@ public class Infliction
     private int damage;
     private Weapon.ConditionApp conditionApp;
     // TODO: add damage-type
-    private Vec2 weaponMomentum;
+    //private Vec2 weaponMomentum;
 
     private boolean finished = false;
 
@@ -30,8 +30,8 @@ public class Infliction
         this.damage = damage;
         this.conditionApp = conditionApp;
 
-        float weaponMomentumMod = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
-        weaponMomentum = new Vec2(dir.getHoriz().getSign() * weaponMomentumMod, dir.getVert().getSign() * weaponMomentumMod);
+        //float weaponMomentumMod = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
+        //weaponMomentum = new Vec2(dir.getHoriz().getSign() * weaponMomentumMod, dir.getVert().getSign() * weaponMomentumMod);
     }
 
     void finish() { finished = true; }
@@ -44,27 +44,30 @@ public class Infliction
     public void applyCondition(Actor other) { conditionApp.apply(other); }
     public boolean applyCondition(Weapon other) { return other.clash(source, op); }
 
-    public void applyMomentum(Actor other)
+    public void applyMomentum(Actor otherActor, Weapon otherWeapon)
     {
         //v_after = ((m_other * v_other) + (m_this * v_this)) / (m_other + m_this)
 
-        Vec2 finalVelocity = inflictor.getVelocity().mul(inflictor.mass).add(other.getVelocity().mul(other.mass))
-                .mul(1F / inflictor.mass + other.mass);
+        Vec2 finalVelocity = inflictor.getVelocity().mul(inflictor.mass).add(otherActor.getVelocity().mul(otherActor.mass))
+                .mul(1F / inflictor.mass + otherActor.mass);
 
         inflictor.setVelocity(finalVelocity);
-        Vec2 finalVelocityPlusWeapon = finalVelocity.add(weaponMomentum);
-        if (dir.getVert() == DirEnum.DOWN && other.getState().isGrounded()
-                && (other.has(Actor.Condition.FORCE_CROUCH)
-                || other.has(Actor.Condition.NEGATE_STABILITY)
-                || other.has(Actor.Condition.NEGATE_ACTIVITY)))
+        Vec2 finalVelocityPlusWeapon = finalVelocity.add(source.getMomentum(op, dir, otherWeapon));
+        if (dir.getVert() == DirEnum.DOWN && otherActor.getState().isGrounded()
+                && (otherActor.has(Actor.Condition.FORCE_CROUCH)
+                || otherActor.has(Actor.Condition.NEGATE_STABILITY)
+                || otherActor.has(Actor.Condition.NEGATE_ACTIVITY)))
             finalVelocityPlusWeapon = new Vec2(0, finalVelocityPlusWeapon.y);
-        other.setVelocity(finalVelocity.add(finalVelocityPlusWeapon));
+        otherActor.setVelocity(finalVelocity.add(finalVelocityPlusWeapon));
 
-        other.stagger(dir, (float) finalVelocityPlusWeapon.mag());
+        otherActor.stagger(dir, (float) finalVelocityPlusWeapon.mag());
     }
 
     public void cancelDamage() { damage = 0; }
-    public void applyDamage(Item other)
+    /**
+     * Returns false if damage is dealt, returns true if deflected
+     */
+    public boolean applyDamage(Item other)
     {
         if (other instanceof Actor)
         {
@@ -83,13 +86,13 @@ public class Infliction
                 {
                     if ((weaponPos >= actorPos && !blockRating[2])
                             || (weaponPos <= actorPos && blockRating[2])) other.damage(damage);
-                    else {} // Get deflected
+                    else return true;
                 }
                 else
                 {
                     if ((weaponPos <= actorPos && blockRating[2])
                             || (weaponPos >= actorPos && !blockRating[2])) other.damage(damage);
-                    else {} // Get deflected
+                    else return true;
                 }
             }
             else
@@ -101,14 +104,14 @@ public class Infliction
                     float _weaponPos = source.getOffsetPosition().y, _actorPos = other.getPosition().y;
                     if ((_weaponPos < _actorPos && !blockRating[2]) || _weaponPos > _actorPos && blockRating[2])
                         other.damage(damage);
-                    else {} // Get deflected
+                    else return true;
                 }
                 else if (weaponPos <= actorPos || weaponPos >= actorPos) other.damage(damage);
-                else {} // Get deflected
+                else return true;
             }
-
         }
         else other.damage(damage);
+        return false;
     }
 
     private boolean resolved = false;
