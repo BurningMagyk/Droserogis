@@ -37,6 +37,13 @@ public class Vec2
         return this;
     }
 
+    public Vec2 div(float a)
+    {
+        x /= a;
+        y /= a;
+        return this;
+    }
+
     public Vec2 add(float a)
     {
         x += a;

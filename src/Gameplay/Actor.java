@@ -999,18 +999,20 @@ public class Actor extends Item
     }
     public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
-    public void stagger(DirEnum dir, float mag)
+    public void stagger(DirEnum dir, float mag, boolean operator)
     {
         // TODO: should depend on attack type, Actor's stats, and value of mag
         // TODO: replace mag with static values
+        float time = 2F;
+        if (operator) time /= 2;
         if (has(Condition.NEGATE_ACTIVITY))
         {
-            addCondition(2, Condition.NEGATE_ACTIVITY);
+            addCondition(time, Condition.NEGATE_ACTIVITY);
             Print.green("ouch!");
         }
         else if (has(Condition.NEGATE_STABILITY))
         {
-            addCondition(2, Condition.NEGATE_ACTIVITY);
+            addCondition(time, Condition.NEGATE_ACTIVITY);
         }
         else if (state.isGrounded())
         {
@@ -1019,33 +1021,33 @@ public class Actor extends Item
             if (vert == DirEnum.UP)
             {
                 if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(2, Condition.FORCE_STAND);
+                    addCondition(time, Condition.FORCE_STAND);
             }
             else if (vert == DirEnum.DOWN)
             {
-                if (state.isLow()) addCondition(2, Condition.NEGATE_STABILITY);
+                if (state.isLow()) addCondition(time, Condition.NEGATE_STABILITY);
                 else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(2, Condition.FORCE_CROUCH);
+                    addCondition(time, Condition.FORCE_CROUCH);
             }
 
             if (horiz == DirEnum.LEFT)
             {
-                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(2, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(2, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(2, Condition.NEGATE_RUN_RIGHT);
+                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(time, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(time, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(time, Condition.NEGATE_RUN_RIGHT);
             }
             else if (horiz == DirEnum.RIGHT)
             {
-                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(2, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(2, Condition.NEGATE_WALK_LEFT);
-                else addCondition(2, Condition.NEGATE_RUN_LEFT);
+                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(time, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(time, Condition.NEGATE_WALK_LEFT);
+                else addCondition(time, Condition.NEGATE_RUN_LEFT);
             }
             else if (vert != DirEnum.NONE)
             {
                 if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
-                    addCondition(2, Condition.NEGATE_STABILITY);
-                else if (!canRun()) addCondition(2, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(2, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                    addCondition(time, Condition.NEGATE_STABILITY);
+                else if (!canRun()) addCondition(time, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(time, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
             }
         }
 
@@ -1095,7 +1097,7 @@ public class Actor extends Item
                 Print.yellow("Actor: " + inf);
 
                 boolean deflected = inf.applyDamage(this);
-                inf.applyMomentum(this, getBlockingWeapon());
+                inf.applyMomentum(this, getBlockingWeapon(), deflected);
                 inf.applyCondition(this);
 
                 inf.resolve();

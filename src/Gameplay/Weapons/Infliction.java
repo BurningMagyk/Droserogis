@@ -44,23 +44,36 @@ public class Infliction
     public void applyCondition(Actor other) { conditionApp.apply(other); }
     public boolean applyCondition(Weapon other) { return other.clash(source, op); }
 
-    public void applyMomentum(Actor otherActor, Weapon otherWeapon)
+    public void applyMomentum(Actor otherActor, Weapon otherWeapon, boolean deflected)
     {
         //v_after = ((m_other * v_other) + (m_this * v_this)) / (m_other + m_this)
 
-        Vec2 finalVelocity = inflictor.getVelocity().mul(inflictor.mass).add(otherActor.getVelocity().mul(otherActor.mass))
-                .mul(1F / inflictor.mass + otherActor.mass);
+        Vec2 velForThis, velForOther,
+                weaponMomentum = source.getMomentum(op, dir, otherWeapon),
+                bodyMomentum = inflictor.getVelocity().mul(inflictor.mass).add(otherActor.getVelocity().mul(otherActor.mass))
+                        .div(inflictor.mass + otherActor.mass);;
 
-        inflictor.setVelocity(finalVelocity);
-        Vec2 finalVelocityPlusWeapon = finalVelocity.add(source.getMomentum(op, dir, otherWeapon));
+        if (deflected)
+        {
+            velForThis = weaponMomentum.clone().div(-2).add(bodyMomentum);
+            velForOther = weaponMomentum.clone().div(2).add(bodyMomentum);
+            inflictor.stagger(dir.getOpp(), (float) velForThis.mag(), true);
+        }
+        else
+        {
+            velForThis = bodyMomentum.clone();
+            velForOther = weaponMomentum.clone().add(bodyMomentum);
+        }
+        otherActor.stagger(dir, (float) velForOther.mag(), false);
+
+        inflictor.setVelocity(velForThis);
+
         if (dir.getVert() == DirEnum.DOWN && otherActor.getState().isGrounded()
                 && (otherActor.has(Actor.Condition.FORCE_CROUCH)
                 || otherActor.has(Actor.Condition.NEGATE_STABILITY)
                 || otherActor.has(Actor.Condition.NEGATE_ACTIVITY)))
-            finalVelocityPlusWeapon = new Vec2(0, finalVelocityPlusWeapon.y);
-        otherActor.setVelocity(finalVelocity.add(finalVelocityPlusWeapon));
-
-        otherActor.stagger(dir, (float) finalVelocityPlusWeapon.mag());
+            velForOther = new Vec2(0, velForOther.y);
+        otherActor.setVelocity(velForOther);
     }
 
     public void cancelDamage() { damage = 0; }
