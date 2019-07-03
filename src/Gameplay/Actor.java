@@ -895,6 +895,36 @@ public class Actor extends Item
     /* How long it takes to get up from being prone */
     private float proneRecoverTime = 1;
 
+    public int getSpeedRating()
+    {
+        double speed = Math.abs(getVelocity().mag());
+        if (speed > topSprintSpeed) return 3;
+        if (speed > topRunSpeed) return 2;
+        if (speed > walkSpeed) return 1;
+        return 0;
+    }
+    public DirEnum getTravelDir()
+    {
+        Vec2 vel = getVelocity();
+        if (vel.x == 0)
+        {
+            if (vel.y == 0) return DirEnum.NONE;
+            if (vel.y > 0) return DirEnum.DOWN;
+            else /* vel.y < 0 */ return DirEnum.UP;
+        }
+        if (vel.x > 0)
+        {
+            if (vel.y == 0) return DirEnum.RIGHT;
+            if (vel.y > 0) return DirEnum.DOWNRIGHT;
+            else /* vel.y < 0 */ return DirEnum.UPRIGHT;
+        }
+        else // if (vel.x < 0)
+        {
+            if (vel.y == 0) return DirEnum.LEFT;
+            if (vel.y > 0) return DirEnum.DOWNLEFT;
+            else /* vel.y < 0 */ return DirEnum.UPLEFT;
+        }
+    }
 
     //================================================================================================================
     // State
@@ -1004,7 +1034,11 @@ public class Actor extends Item
         // TODO: should depend on attack type, Actor's stats, and value of mag
         // TODO: replace mag with static values
         float time = 2F;
-        if (operator) time /= 2;
+        if (operator)
+        {
+            time /= 2;
+            addCondition(time, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
+        }
         if (has(Condition.NEGATE_ACTIVITY))
         {
             addCondition(time, Condition.NEGATE_ACTIVITY);

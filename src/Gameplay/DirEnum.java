@@ -9,6 +9,7 @@ public enum DirEnum
                 public int getSign() { return -1; }
                 public DirEnum getVert() { return this; }
                 public DirEnum getOpp() { return DOWN; }
+                public boolean isOpp(DirEnum other) { return other == DOWN; }
                 public DirEnum add(DirEnum other) {
                     if (other.getVert() == DOWN) return other.getHoriz();
                     if (other.getHoriz() == LEFT) return UPLEFT;
@@ -31,6 +32,7 @@ public enum DirEnum
                 public int getSign() { return 1; }
                 public DirEnum getVert() { return this; }
                 public DirEnum getOpp() { return UP; }
+                public boolean isOpp(DirEnum other) { return other == UP; }
                 public DirEnum add(DirEnum other) {
                     if (other.getVert() == UP) return other.getHoriz();
                     if (other.getHoriz() == LEFT) return DOWNLEFT;
@@ -53,6 +55,7 @@ public enum DirEnum
                 public int getSign() { return -1; }
                 public DirEnum getHoriz() { return this; }
                 public DirEnum getOpp() { return RIGHT; }
+                public boolean isOpp(DirEnum other) { return other == RIGHT; }
                 public DirEnum add(DirEnum other) {
                     if (other.getHoriz() == RIGHT) return other.getVert();
                     if (other.getVert() == UP) return UPLEFT;
@@ -75,6 +78,7 @@ public enum DirEnum
                 public int getSign() { return 1; }
                 public DirEnum getHoriz() { return this; }
                 public DirEnum getOpp() { return LEFT; }
+                public boolean isOpp(DirEnum other) { return other == LEFT; }
                 public DirEnum add(DirEnum other) {
                     if (other.getHoriz() == LEFT) return other.getVert();
                     if (other.getVert() == UP) return UPRIGHT;
@@ -97,6 +101,7 @@ public enum DirEnum
                 public DirEnum getHoriz() { return LEFT; }
                 public DirEnum getVert() { return UP; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
+                public boolean isOpp(DirEnum other) { return UP.isOpp(other) || LEFT.isOpp(other); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -111,6 +116,7 @@ public enum DirEnum
                 public DirEnum getHoriz()  { return RIGHT; }
                 public DirEnum getVert() { return UP; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
+                public boolean isOpp(DirEnum other) { return UP.isOpp(other) || RIGHT.isOpp(other); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -125,6 +131,7 @@ public enum DirEnum
                 public DirEnum getHoriz() { return LEFT; }
                 public DirEnum getVert() { return DOWN; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
+                public boolean isOpp(DirEnum other) { return DOWN.isOpp(other) || LEFT.isOpp(other); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -139,6 +146,7 @@ public enum DirEnum
                 public DirEnum getHoriz() { return RIGHT; }
                 public DirEnum getVert() { return DOWN; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
+                public boolean isOpp(DirEnum other) { return DOWN.isOpp(other) || RIGHT.isOpp(other); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -173,6 +181,7 @@ public enum DirEnum
     public DirEnum getHoriz() { return NONE; }
     public DirEnum getVert() { return NONE; }
     public DirEnum getOpp() { return NONE; }
+    public boolean isOpp(DirEnum other) { return false; }
     public DirEnum add(DirEnum other) { return NONE; }
 
     public boolean getCollisionPos(Item _this, Item other) { return false; }

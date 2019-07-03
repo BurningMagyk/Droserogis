@@ -215,7 +215,7 @@ public class Sword extends Weapon
     private class Thrust extends HoldableMelee {
         Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
                ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-            super("thrust", waits, functionalDir, useDirHorizFunctionaly, new int[]{DURING_COOLDOWN},
+            super("thrust", waits, functionalDir, useDirHorizFunctionaly, true, new int[]{DURING_COOLDOWN},
                     statusAppCycle, null, execJourney); } }
 
     /* THRUST_LUNGE, STAB, STAB_UNTERHAU */

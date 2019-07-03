@@ -691,23 +691,26 @@ public abstract class Weapon extends Item
     abstract class HoldableMelee extends Melee
     {
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
-                      boolean useDirHorizFunctionally, int[] interruptConditions,
+                      boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney);
+            this.speedReliant = speedReliant;
         }
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
-                      boolean useDirHorizFunctionally, int[] interruptConditions,
+                      boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney, Tick customWarmPos)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
                     conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
+            this.speedReliant = speedReliant;
         }
 
         boolean erected = false;
+        boolean speedReliant;
 
         @Override
         public void start()
@@ -768,6 +771,46 @@ public abstract class Weapon extends Item
             collidedItems.clear();
             clearInflictionsDealt();
             return true;
+        }
+
+        @Override
+        public void apply(Weapon _this, Item other)
+        {
+            if (other == null || other == _this || other == actor) return;
+            if (collidedItems.contains(other)) return;
+
+            Item target;
+
+            /* If it's a weapon that's being wielded */
+            if (other instanceof Weapon && !((Weapon) other).isBallistic())
+            {
+                if (!isIntersect(getShapeCorners(),
+                        ((Weapon) other).getShapeCorners())) return;
+                target = ((Weapon) other).actor;
+            }
+
+            /* If it's an actor, non-weapon item, or weapon that isn't being wielded */
+            else
+            {
+                if (!isIntersect(getShapeCorners(), other)) return;
+                target = other;
+            }
+
+            DirEnum dir = useDirHorizFunctionally
+                    ? getDir().getHoriz().add(functionalDir) : functionalDir;
+            if (dir.getCollisionPos(_this, target))
+            {
+                if (speedReliant && other instanceof Actor && erected
+                        && (((Actor) other).getSpeedRating() <= 1
+                        || !((Actor) other).getTravelDir().isOpp(getDir())))
+                    return;
+
+                collidedItems.add(other);
+                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
+                inflictionsDealt.add(infliction);
+                other.inflict(infliction);
+                Print.blue(" by " + this);
+            }
         }
     }
 
