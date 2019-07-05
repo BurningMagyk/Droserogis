@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+
 class Controller extends AnimationTimer
 {
     private final Gameplay Gameplay;
@@ -169,6 +172,8 @@ class Controller extends AnimationTimer
                 break;
             }
             case QUIT: {
+                glfwTerminate();
+                glfwSetErrorCallback(null).free();
                 Platform.exit();
                 System.exit(0);
             }

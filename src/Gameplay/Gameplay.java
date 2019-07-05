@@ -14,8 +14,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import org.lwjgl.glfw.GLFWGamepadState;
 
 import java.util.ArrayList;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
 {
@@ -34,18 +37,17 @@ public class Gameplay implements Reactor
 
     public Gameplay(Group root, GraphicsContext context)
     {
-      this.context = context;
-      this.viewWidth = (int) context.getCanvas().getWidth();
-      this.viewHeight = (int) context.getCanvas().getHeight();
+        this.context = context;
+        this.viewWidth = (int) context.getCanvas().getWidth();
+        this.viewHeight = (int) context.getCanvas().getHeight();
 
-      entities = new ArrayList<>();
-      items = new ArrayList<>();
+        entities = new ArrayList<>();
+        items = new ArrayList<>();
 
-      /* Set up initial position and zoom of the camera */
-      moveCamera(0, 0, 100);
+        /* Set up initial position and zoom of the camera */
+        moveCamera(0, 0, 100);
 
-
-      timer = new AnimationTimer()
+        timer = new AnimationTimer()
       {
         @Override
         public void handle(long now)
@@ -96,6 +98,10 @@ public class Gameplay implements Reactor
 
       /* Draw all entities after they've been moved and their flags have been set */
       for (Entity entity : entities) drawEntity(entity);
+
+      GLFWGamepadState gamepadState = GLFWGamepadState.create();
+      glfwGetGamepadState(GLFW_JOYSTICK_1, gamepadState);
+      Print.blue(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A));
     }
 
     @Override
@@ -103,6 +109,8 @@ public class Gameplay implements Reactor
     {
         if (code == KeyCode.ESCAPE)
         {
+            glfwTerminate();
+            glfwSetErrorCallback(null).free();
             Platform.exit();
             System.exit(0);
         }

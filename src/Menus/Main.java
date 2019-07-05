@@ -5,6 +5,7 @@ import Importer.ImageResource;
 import Importer.FontResource;
 import Util.DebugEnum;
 import Util.LanguageEnum;
+import Util.Print;
 import Util.Translator;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -17,9 +18,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.awt.Toolkit;
 import java.util.Locale;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Main extends Application
 {
@@ -39,6 +43,20 @@ public class Main extends Application
     @Override
     public void start(Stage stage)
     {
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        if ( !glfwInit() )
+            throw new IllegalStateException("Unable to initialize GLFW");
+
+        // Testing
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+        {
+            if (glfwJoystickPresent(i))
+            {
+                Print.blue(i + ", " + glfwJoystickIsGamepad(i));
+            }
+        }
+
         final String VERSION = "indev";
         final String NAME = "Autism is a choice";
         stage.setTitle(NAME + " - " + VERSION);
@@ -307,6 +325,8 @@ public class Main extends Application
     /* Quits the game */
     private void quitGame(Stage stage, Group root)
     {
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
         TRANSLATOR.clear();
         root.getChildren().clear();
         stage.close();
