@@ -2,6 +2,7 @@ package Gameplay;
 
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
+import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
 import Util.Print;
@@ -26,20 +27,23 @@ public class Gameplay implements Reactor
     private GraphicsContext context;
     private AnimationTimer timer;
 
+    private final Gamepad[] GAMEPADS;
+
     private ArrayList<Entity> entities;
     private ArrayList<Item> items;
 
     private Actor player, player2;
     private long lastUpdateTime = -1;
 
-
     private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
 
-    public Gameplay(Group root, GraphicsContext context)
+    public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
         this.context = context;
         this.viewWidth = (int) context.getCanvas().getWidth();
         this.viewHeight = (int) context.getCanvas().getHeight();
+
+        GAMEPADS = gamepads;
 
         entities = new ArrayList<>();
         items = new ArrayList<>();
@@ -48,60 +52,63 @@ public class Gameplay implements Reactor
         moveCamera(0, 0, 100);
 
         timer = new AnimationTimer()
-      {
-        @Override
-        public void handle(long now)
         {
-          mainGameLoop(now);
-        }
-      };
+            @Override
+            public void handle(long now)
+            {
+                mainGameLoop(now);
+            }
+        };
     }
 
     // Gameplay stats would go in here
     public void start()
-      {
+    {
         buildLevels();
 
         timer.start();
-      }
+    }
 
     private void mainGameLoop(long now)
     {
-      if (lastUpdateTime < 0)
-      {
+        if (lastUpdateTime < 0)
+        {
+            lastUpdateTime = now;
+            return;
+        }
+
+        float deltaSec = (now - lastUpdateTime) * 1e-9f;
         lastUpdateTime = now;
-        return;
-      }
 
-      float deltaSec = (now - lastUpdateTime) * 1e-9f;
-      lastUpdateTime = now;
+        //System.out.println(now);
+        clearContext();
 
-      //System.out.println(now);
-      clearContext();
+        context.setFill(Color.BLACK);
 
-      context.setFill(Color.BLACK);
+        queryGamepads();
 
-      // triggerContacts() sets every entity's flags correctly only if they've all been reset
-      for (Entity entity : entities) entity.resetFlags();
+        // triggerContacts() sets every entity's flags correctly only if they've all been reset
+        for (Entity entity : entities) entity.resetFlags();
 
-      for (Item item : items) { item.update(entities, deltaSec); }
+        for (Item item : items) { item.update(entities, deltaSec); }
 
-      for (Item item : items)
-      {
-          if (item instanceof Weapon) ((Weapon) item).update(items);
-      }
+        for (Item item : items)
+        {
+            if (item instanceof Weapon) ((Weapon) item).update(items);
+        }
 
-      /* Center the camera on the player
-       * TODO: Make the camera move ahead of the player's headed direction */
-      cameraPosX = player.getPosition().x;
-      cameraPosY = player.getPosition().y;
+        /* Center the camera on the player
+         * TODO: Make the camera move ahead of the player's headed direction */
+        cameraPosX = player.getPosition().x;
+        cameraPosY = player.getPosition().y;
 
-      /* Draw all entities after they've been moved and their flags have been set */
-      for (Entity entity : entities) drawEntity(entity);
+        /* Draw all entities after they've been moved and their flags have been set */
+        for (Entity entity : entities) drawEntity(entity);
 
-      GLFWGamepadState gamepadState = GLFWGamepadState.create();
-      glfwGetGamepadState(GLFW_JOYSTICK_1, gamepadState);
-      Print.blue(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A));
+        // Testing
+        GLFWGamepadState gamepadState = GLFWGamepadState.create();
+        glfwGetGamepadState(GLFW_JOYSTICK_1, gamepadState);
+        //Print.blue(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A));
     }
 
     @Override
@@ -209,13 +216,15 @@ public class Gameplay implements Reactor
     }
 
     @Override
-    public void mouse(boolean pressed, MouseButton button, int x, int y) {
-
-    }
+    public void mouse(boolean pressed, MouseButton button, int x, int y) { }
 
     @Override
-    public void mouse(int x, int y) {
+    public void mouse(int x, int y) { }
 
+    private void queryGamepads()
+    {
+        GAMEPADS[0].query(player);
+        GAMEPADS[1].query(player2);
     }
 
     /**

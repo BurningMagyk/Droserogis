@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Menus.Gamepad;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -8,7 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public class Battle extends Gameplay
 {
-    public Battle(Group root, GraphicsContext context) {
-        super(root, context);
+    public Battle(Group root, GraphicsContext context, Gamepad[] gamepads) {
+        super(root, context, gamepads);
     }
 }

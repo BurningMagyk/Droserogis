@@ -19,11 +19,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.*;
 
 class Controller extends AnimationTimer
 {
@@ -31,6 +29,7 @@ class Controller extends AnimationTimer
 
     private final Mouse MOUSE;
     private final Keyboard KEYBOARD;
+    private final Gamepad[] GAMEPADS;
     private final ImageView BACKGROUND;
     private final Group ROOT;
 
@@ -53,6 +52,8 @@ class Controller extends AnimationTimer
 
         MOUSE = new Mouse();
         KEYBOARD = new Keyboard();
+        GAMEPADS = new Gamepad[GLFW_JOYSTICK_LAST];
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) { GAMEPADS[i] = new Gamepad(); }
 
         Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
@@ -77,7 +78,7 @@ class Controller extends AnimationTimer
         versusMenu = new VersusMenu(CONTEXT); menuList.add(versusMenu);
 
         /* Testing */
-        Gameplay = new Battle(ROOT, CONTEXT);
+        Gameplay = new Battle(ROOT, CONTEXT, GAMEPADS);
 
         /* Temporary */
         storyMenu = startMenu;
@@ -131,6 +132,8 @@ class Controller extends AnimationTimer
 
         Menu.MenuEnum nextMenu = currentMenu.animateFrame(framesMissed + 1);
         if (nextMenu != null) goToMenu(nextMenu);
+
+        searchForGamepads();
 
         lastUpdate = now;
     }
@@ -260,6 +263,14 @@ class Controller extends AnimationTimer
         MOUSE.setReactor(Gameplay);
         KEYBOARD.setReactor(Gameplay);
         Gameplay.start();
+    }
+
+    private void searchForGamepads()
+    {
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+        {
+            GAMEPADS[i].checkConnection(i);
+        }
     }
 
     public static void main(String[] args)
