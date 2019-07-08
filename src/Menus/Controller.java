@@ -53,7 +53,7 @@ class Controller extends AnimationTimer
         MOUSE = new Mouse();
         KEYBOARD = new Keyboard();
         GAMEPADS = new Gamepad[GLFW_JOYSTICK_LAST];
-        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) { GAMEPADS[i] = new Gamepad(); }
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) { GAMEPADS[i] = new Gamepad(i); }
 
         Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
@@ -269,7 +269,7 @@ class Controller extends AnimationTimer
     {
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
         {
-            GAMEPADS[i].checkConnection(i);
+            GAMEPADS[i].checkConnection();
         }
     }
 

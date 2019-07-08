@@ -517,7 +517,7 @@ public class Actor extends Item
         }
     }
 
-    void pressLeft(boolean pressed)
+    public void pressLeft(boolean pressed)
     {
         if (pressed)
         {
@@ -543,7 +543,7 @@ public class Actor extends Item
         }
         pressingLeft = pressed;
     }
-    void pressRight(boolean pressed)
+    public void pressRight(boolean pressed)
     {
         if (pressed)
         {
@@ -569,7 +569,7 @@ public class Actor extends Item
         }
         pressingRight = pressed;
     }
-    void pressUp(boolean pressed)
+    public void pressUp(boolean pressed)
     {
         if (pressed) dirVert = UP;
         else if (dirVert == UP)
@@ -579,7 +579,7 @@ public class Actor extends Item
         }
         pressingUp = pressed;
     }
-    void pressDown(boolean pressed)
+    public void pressDown(boolean pressed)
     {
         if (pressed) dirVert = DOWN;
         else if (dirVert == DOWN)
@@ -589,11 +589,11 @@ public class Actor extends Item
         }
         pressingDown = pressed;
     }
-    void pressShift(boolean pressed) { pressingShift = pressed; }
+    public void pressShift(boolean pressed) { pressingShift = pressed; }
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
-    void pressJump(boolean pressed)
+    public void pressJump(boolean pressed)
     {
         if (pressed && !pressingJump) pressedJumpTime = 1F;
         else if (!pressed) pressedJumpTime = -1F;
@@ -604,8 +604,8 @@ public class Actor extends Item
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
-    void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
-    void pressAttack(boolean pressed, int attackKey)
+    public void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
+    public void pressAttack(boolean pressed, int attackKey)
     {
         if (!has(Condition.NEGATE_ATTACK))
         {
@@ -640,7 +640,7 @@ public class Actor extends Item
                 ? dirHoriz : dirFace, dirVert);
     }
 
-    public Weapon getBlockingWeapon()
+    private Weapon getBlockingWeapon()
     {
         int maxRating = 0, maxRatingIndex = 0;
         for (int i = weapons.length - 1; i >= 0; i--)

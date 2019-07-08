@@ -23,13 +23,13 @@ public class Sword extends Weapon
             if (command.TYPE == Command.StateType.MOMENTUM
                     && command.MOMENTUM_DIR.getHoriz().getSign() != 0)
                 return setOperation(STAB, command); // with normal warm-up time
-            if (command.TYPE == Command.StateType.FREE)
+            if (command.TYPE == Command.StateType.FREE || command.TYPE == Command.StateType.MOMENTUM)
             {
                 if (command.DIR.getHoriz().getSign() != 0)
                 {
-                    if (command.DIR == DirEnum.UP)
+                    if (command.DIR.getVert() == DirEnum.UP)
                         return setOperation(THRUST_DIAG_UP, command);
-                    if (command.DIR == DirEnum.DOWN)
+                    if (command.DIR.getVert() == DirEnum.DOWN)
                         return setOperation(THRUST_DIAG_DOWN, command);
                 }
                 if (command.DIR == DirEnum.DOWN)
