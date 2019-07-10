@@ -497,26 +497,6 @@ public class Actor extends Item
         super.setPosition(p);
     }
 
-    private void countdownCondition(float deltaSec)
-    {
-        boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
-
-        for (int i = 0; i < conditions.length; i++)
-        {
-            if (conditions[i] > 0)
-            {
-                conditions[i] -= deltaSec;
-                if (conditions[i] < 0) conditions[i] = 0;
-            }
-        }
-
-        if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && state.isGrounded())
-        {
-            if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
-            else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
-        }
-    }
-
     public void pressLeft(boolean pressed)
     {
         if (pressed)
@@ -677,8 +657,18 @@ public class Actor extends Item
         {
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
-                setHeight(ORIGINAL_WIDTH);
-                setWidth(ORIGINAL_HEIGHT);
+                if (has(Condition.NEGATE_ACTIVITY) && canTumble())
+                {
+                    /* Tumbling */
+                    setWidth(ORIGINAL_WIDTH);
+                    setHeight(ORIGINAL_WIDTH);
+                }
+                else
+                {
+                    /* Width and height are switched */
+                    setHeight(ORIGINAL_WIDTH);
+                    setWidth(ORIGINAL_HEIGHT);
+                }
                 return State.CROUCH;
             }
             else if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0) // crouch
@@ -1028,6 +1018,34 @@ public class Actor extends Item
         }
     }
     public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
+
+    private boolean canTumble() { return Math.abs(getVelocity().mag()) > walkSpeed; }
+    private void countdownCondition(float deltaSec)
+    {
+        boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
+
+        for (int i = 0; i < conditions.length; i++)
+        {
+            if (conditions[i] > 0)
+            {
+                conditions[i] -= deltaSec;
+                if (conditions[i] < 0) conditions[i] = 0;
+            }
+        }
+
+        if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
+        {
+            /* Tumbling */
+            if (canTumble()) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
+
+            /* Dodging while knocked down */
+            else
+            {
+                if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
+                else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
+            }
+        }
+    }
 
     public void stagger(DirEnum dir, float mag, boolean operator)
     {
