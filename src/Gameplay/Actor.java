@@ -280,11 +280,24 @@ public class Actor extends Item
                 }
             }
 
-            if (dirHoriz != -1)
+            if (dirHoriz != -1
+                    && (dirVert == UP || touchEntity[dirHoriz] != null))
             {
-                if (dirHoriz == UP
-                        || touchEntity[dirHoriz] != null)
-                    addAccelerationY(-climbAccel);
+                addAccelerationY(-climbAccel);
+
+                /* Ledge-climbing */
+                int _dirHoriz = -1;
+                if (touchEntity[dirHoriz] != null) _dirHoriz = dirHoriz;
+                else if (touchEntity[LEFT] != null && touchEntity[LEFT] instanceof Block) _dirHoriz = LEFT;
+                else if (touchEntity[RIGHT] != null && touchEntity[RIGHT] instanceof Block) _dirHoriz = RIGHT;
+                if (_dirHoriz != -1
+                        && getPosition().y - (getHeight() / 2)
+                        < touchEntity[_dirHoriz].getPosition().y - (touchEntity[_dirHoriz].getHeight() / 2)
+                        && Math.abs(getVelocityY()) < walkSpeed)
+                {
+                    addCondition(1, Condition.NEGATE_STABILITY); // TODO: make time based on character stat
+                    // TODO: place actor on top of the block near the side where he was climbing on
+                }
             }
         }
 
