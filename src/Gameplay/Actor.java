@@ -293,10 +293,15 @@ public class Actor extends Item
                 if (_dirHoriz != -1
                         && getPosition().y - (getHeight() / 2)
                         < touchEntity[_dirHoriz].getPosition().y - (touchEntity[_dirHoriz].getHeight() / 2)
-                        && Math.abs(getVelocityY()) < walkSpeed)
+                        && Math.abs(getVelocityY()) < walkSpeed
+                        && getVelocityY() >= 0)
                 {
                     addCondition(1, Condition.NEGATE_STABILITY); // TODO: make time based on character stat
-                    // TODO: place actor on top of the block near the side where he was climbing on
+                    float xPos = touchEntity[_dirHoriz].getPosition().x
+                            + (((touchEntity[_dirHoriz].getWidth() / 2) - (getWidth() / 2)) * _dirHoriz == LEFT ? 1 : -1);
+                    float yPos = touchEntity[_dirHoriz].getPosition().y
+                            - (touchEntity[_dirHoriz].getHeight() / 2) - (getHeight() / 2);
+                    setPosition(new Vec2(xPos, yPos));
                 }
             }
         }
