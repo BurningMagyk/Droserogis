@@ -80,6 +80,11 @@ public class Actor extends Item
         weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
     }
 
+    private void setCharacterStat(CharacterStat stat)
+    {
+        mass = stat.mass();
+    }
+
     Item[] getItems()
     {
         Item[] items = new Item[1];
@@ -296,7 +301,7 @@ public class Actor extends Item
                         && Math.abs(getVelocityY()) < walkSpeed
                         && getVelocityY() >= 0)
                 {
-                    addCondition(1, Condition.NEGATE_STABILITY); // TODO: make time based on character stat
+                    addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
                     float xPos = touchEntity[_dirHoriz].getPosition().x
                             + (((touchEntity[_dirHoriz].getWidth() / 2) - (getWidth() / 2)) * _dirHoriz == LEFT ? 1 : -1);
                     float yPos = touchEntity[_dirHoriz].getPosition().y
@@ -871,6 +876,9 @@ public class Actor extends Item
      * Most characters should use their crawlAccel value for this, unless they
      * know how to climb without needing a running start. */
     private float climbAccel = crawlAccel;
+
+    /* How long it takes to climb over a ledge after grabbing it */
+    private float climbLedgeTime = 1;
 
     /* This is the highest speed the player can move.
      * (In the air or anywhere) */
