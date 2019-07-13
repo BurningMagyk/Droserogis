@@ -812,105 +812,6 @@ public class Actor extends Item
         return super.triggerContacts(goal, entityList);
     }
 
-    /*=======================================================================*/
-    /* Variables that are set by the character's stats                       */
-    /*=======================================================================*/
-
-    /* This is the highest speed the player can be running or sprinting before
-     * changing their state to TUMBLE. */
-    private float maxRunSpeed = 0.2F;
-
-    /* This is the highest speed the player can get from walking alone.
-     * They can go faster while walking with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float walkSpeed = 0.04F;
-
-    private float rushSpeed = 0.3F;
-
-    /* This is the highest speed the player can get from sprinting alone.
-     * They can go faster while sprinting with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float topSprintSpeed = 0.13F;
-
-    /* This is the highest speed the player can get from running alone.
-     * They can go faster while running with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 0.08F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is running or sprinting on the ground. */
-    private float runAccel = 0.4F;
-
-    /* This is the highest speed the player can be crawling or crouching before
-     * changing their state to TUMBLE or SLIDE. */
-    private float maxCrawlSpeed = 0.15F;
-
-    /* This is the highest speed the player can get from sprinting on their
-     * hands alone. They can go faster while sprinting on their hands with the
-     * help of external influences, such as going down a slope or being pushed
-     * by a faster object. */
-    private float topLowerSprintSpeed = 0.10F;
-
-    /* This is the highest speed the player can get from crawling alone.
-     * They can go faster while crawling with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float topCrawlSpeed = 0.05F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is crawling on the ground. */
-    private float crawlAccel = 0.3F;
-
-    /* This is the highest speed the player can be sliding before changing
-     * their state to TUMBLE. */
-    private float maxSlideSpeed = 0.3F;
-
-    /* This is the highest speed the player can be climbing before changing
-     * their state to RISE. */
-    private float maxClimbSpeed = 1F;
-
-    /* This is the highest speed the player can be skidding down a wall before
-     * changing their state to FALL. */
-    private float maxStickSpeed = 1.5F;
-
-    /* This is the acceleration that is applied to the player when on a wall.
-     * Most characters should use their crawlAccel value for this, unless they
-     * know how to climb without needing a running start. */
-    private float climbAccel = crawlAccel;
-
-    /* How long it takes to climb over a ledge after grabbing it */
-    private float climbLedgeTime = 1;
-
-    /* This is the highest speed the player can move.
-     * (In the air or anywhere) */
-    private float maxTotalSpeed = 5F;
-
-    /* This is the highest speed the player can get from moving themselves in
-     * the air. They can go faster in the air with the help of external
-     * influences such as wind or being pushed by a faster object. */
-    private float topAirSpeed = 0.2F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is airborne. */
-    private float airAccel = 0.1F;
-
-    /* This is the highest speed the player can move in water. */
-    private float maxSwimSpeed = 3F;
-
-    /* A variable "topSwimSpeed" won't be needed because the drag underwater
-     * will be high enough to cap the player's speed. */
-
-    /* This is the acceleration that is applied to the player when in water. */
-    private float swimAccel = 0.3F;
-
-    /* The velocity used to jump */
-    private float jumpVel = 0.4F;
-
-    /* How long dashing negates walking */
-    private float dashRecoverTime = 1;
-
-    /* How long it takes to get up from being prone */
-    private float proneRecoverTime = 1;
-
     public int getSpeedRating()
     {
         double speed = Math.abs(getVelocity().mag());
@@ -1045,7 +946,21 @@ public class Actor extends Item
     }
     public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
-    private boolean canTumble() { return Math.abs(getVelocity().mag()) > walkSpeed; }
+    private boolean willTumble()
+    {
+        double vel = Math.abs(getVelocity().mag());
+        if (has(Condition.NEGATE_ACTIVITY)) return vel > walkSpeed;
+        if (state.isGrounded())
+        {
+            if (state.isLow())
+            {
+                if (state == State.SLIDE) return vel > maxSlideSpeed;
+                return vel > maxCrawlSpeed;
+            }
+            return vel > maxRunSpeed;
+        }
+        return false;
+    }
     private void countdownCondition(float deltaSec)
     {
         boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
@@ -1061,7 +976,7 @@ public class Actor extends Item
 
         if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
         {
-            /* Tumbling */
+            /* Tumbling */ // TODO: adjust this using new willTumble() method
             if (canTumble()) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
 
             /* Dodging while knocked down */
@@ -1224,4 +1139,103 @@ public class Actor extends Item
 
         ShapeEnum getShape() { return entity.getShape(); }
     }
+
+    /*=======================================================================*/
+    /* Variables that are set by the character's stats                       */
+    /*=======================================================================*/
+
+    /* This is the highest speed the player can be running or sprinting before
+     * changing their state to TUMBLE. */
+    private float maxRunSpeed = 0.2F;
+
+    /* This is the highest speed the player can get from walking alone.
+     * They can go faster while walking with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float walkSpeed = 0.04F;
+
+    private float rushSpeed = 0.3F;
+
+    /* This is the highest speed the player can get from sprinting alone.
+     * They can go faster while sprinting with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topSprintSpeed = 0.13F;
+
+    /* This is the highest speed the player can get from running alone.
+     * They can go faster while running with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topRunSpeed = 0.08F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is running or sprinting on the ground. */
+    private float runAccel = 0.4F;
+
+    /* This is the highest speed the player can be crawling or crouching before
+     * changing their state to TUMBLE or SLIDE. */
+    private float maxCrawlSpeed = 0.15F;
+
+    /* This is the highest speed the player can get from sprinting on their
+     * hands alone. They can go faster while sprinting on their hands with the
+     * help of external influences, such as going down a slope or being pushed
+     * by a faster object. */
+    private float topLowerSprintSpeed = 0.10F;
+
+    /* This is the highest speed the player can get from crawling alone.
+     * They can go faster while crawling with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float topCrawlSpeed = 0.05F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is crawling on the ground. */
+    private float crawlAccel = 0.3F;
+
+    /* This is the highest speed the player can be sliding before changing
+     * their state to TUMBLE. */
+    private float maxSlideSpeed = 0.3F;
+
+    /* This is the highest speed the player can be climbing before changing
+     * their state to RISE. */
+    private float maxClimbSpeed = 1F;
+
+    /* This is the highest speed the player can be skidding down a wall before
+     * changing their state to FALL. */
+    private float maxStickSpeed = 1.5F;
+
+    /* This is the acceleration that is applied to the player when on a wall.
+     * Most characters should use their crawlAccel value for this, unless they
+     * know how to climb without needing a running start. */
+    private float climbAccel = crawlAccel;
+
+    /* How long it takes to climb over a ledge after grabbing it */
+    private float climbLedgeTime = 1;
+
+    /* This is the highest speed the player can move.
+     * (In the air or anywhere) */
+    private float maxTotalSpeed = 5F;
+
+    /* This is the highest speed the player can get from moving themselves in
+     * the air. They can go faster in the air with the help of external
+     * influences such as wind or being pushed by a faster object. */
+    private float topAirSpeed = 0.2F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is airborne. */
+    private float airAccel = 0.1F;
+
+    /* This is the highest speed the player can move in water. */
+    private float maxSwimSpeed = 3F;
+
+    /* A variable "topSwimSpeed" won't be needed because the drag underwater
+     * will be high enough to cap the player's speed. */
+
+    /* This is the acceleration that is applied to the player when in water. */
+    private float swimAccel = 0.3F;
+
+    /* The velocity used to jump */
+    private float jumpVel = 0.4F;
+
+    /* How long dashing negates walking */
+    private float dashRecoverTime = 1;
+
+    /* How long it takes to get up from being prone */
+    private float proneRecoverTime = 1;
 }
