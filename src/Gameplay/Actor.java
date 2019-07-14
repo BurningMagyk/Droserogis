@@ -674,24 +674,20 @@ public class Actor extends Item
 
     private State determineState()
     {
+        if (willTumble(false))
+        {
+            tumble();
+            return State.CROUCH;
+        }
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
         {
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
-                if (has(Condition.NEGATE_ACTIVITY) && canTumble())
-                {
-                    /* Tumbling */
-                    setWidth(ORIGINAL_WIDTH);
-                    setHeight(ORIGINAL_WIDTH);
-                }
-                else
-                {
-                    /* Width and height are switched */
-                    setHeight(ORIGINAL_WIDTH);
-                    setWidth(ORIGINAL_HEIGHT);
-                }
+                /* Width and height are switched */
+                setHeight(ORIGINAL_WIDTH);
+                setWidth(ORIGINAL_HEIGHT);
                 return State.CROUCH;
             }
             else if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0) // crouch
@@ -946,10 +942,11 @@ public class Actor extends Item
     }
     public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
-    private boolean willTumble()
+    private boolean willTumble(boolean hadNegateActivity)
     {
         double vel = Math.abs(getVelocity().mag());
-        if (has(Condition.NEGATE_ACTIVITY)) return vel > walkSpeed;
+        if (hadNegateActivity || has(Condition.NEGATE_STABILITY)
+                || has(Condition.NEGATE_ACTIVITY)) return vel > walkSpeed;
         if (state.isGrounded())
         {
             if (state.isLow())
@@ -961,6 +958,13 @@ public class Actor extends Item
         }
         return false;
     }
+    private void tumble()
+    {
+        addCondition(0.01F, Condition.NEGATE_ACTIVITY);
+        setWidth(ORIGINAL_WIDTH);
+        setHeight(ORIGINAL_WIDTH);
+    }
+
     private void countdownCondition(float deltaSec)
     {
         boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
@@ -976,8 +980,7 @@ public class Actor extends Item
 
         if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
         {
-            /* Tumbling */ // TODO: adjust this using new willTumble() method
-            if (canTumble()) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
+            if (willTumble(true)) tumble();
 
             /* Dodging while knocked down */
             else
@@ -1146,7 +1149,7 @@ public class Actor extends Item
 
     /* This is the highest speed the player can be running or sprinting before
      * changing their state to TUMBLE. */
-    private float maxRunSpeed = 0.2F;
+    private float maxRunSpeed = 0.01F;
 
     /* This is the highest speed the player can get from walking alone.
      * They can go faster while walking with the help of external influences,

@@ -174,6 +174,11 @@ public abstract class Item extends Entity
         return contactVel;
     }
 
+    void ground()
+    {
+        // TODO: force this item to stand on touchEntity[DOWN]
+    }
+
     Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
         Vec2 originalVel = null;
