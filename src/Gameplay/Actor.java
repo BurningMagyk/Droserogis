@@ -674,11 +674,6 @@ public class Actor extends Item
 
     private State determineState()
     {
-        if (willTumble(false))
-        {
-            tumble();
-            return State.CROUCH;
-        }
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
             return State.SWIM;
         else if (touchEntity[DOWN] != null)
@@ -942,11 +937,13 @@ public class Actor extends Item
     }
     public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
 
-    private boolean willTumble(boolean hadNegateActivity)
+    private boolean willTumble()
     {
         double vel = Math.abs(getVelocity().mag());
-        if (hadNegateActivity || has(Condition.NEGATE_STABILITY)
-                || has(Condition.NEGATE_ACTIVITY)) return vel > walkSpeed;
+        if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY))
+        {
+            return vel > walkSpeed;
+        }
         if (state.isGrounded())
         {
             if (state.isLow())
@@ -980,10 +977,8 @@ public class Actor extends Item
 
         if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
         {
-            if (willTumble(true)) tumble();
-
             /* Dodging while knocked down */
-            else
+            if (Math.abs(getVelocity().mag()) <= walkSpeed)
             {
                 if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
                 else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
