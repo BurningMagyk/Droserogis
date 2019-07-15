@@ -67,7 +67,7 @@ public abstract class Weapon extends Item
 
         if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt(commandQueue.peek())))
         {
-            Command nextCommand = commandQueue.peek().setStats(actor.getState(), actor.getVelocity());
+            Command nextCommand = commandQueue.peek().setStats(actor.getState(), actor.has(Actor.Condition.FORCE_CROUCH));
             Operation nextOp = getOperation(nextCommand, currentOp);
             if (nextOp != currentOp)
             {
@@ -107,7 +107,7 @@ public abstract class Weapon extends Item
         }
         else if (!commandQueue.isEmpty())
         {
-            Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.getVelocity());
+            Command nextCommand = commandQueue.remove().setStats(actor.getState(), actor.has(Actor.Condition.FORCE_CROUCH));
             currentOp = getOperation(nextCommand, null);
             if (currentOp != null) currentOp.start();
         }

@@ -402,6 +402,7 @@ public class Actor extends Item
         }
         return MoveType.STILL;
     }
+
     private boolean canWalk() {
         return conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
                 && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;

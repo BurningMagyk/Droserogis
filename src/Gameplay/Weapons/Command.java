@@ -27,11 +27,11 @@ public class Command
         DIR = dir;
     }
 
-    Command setStats(Actor.State state, Vec2 vel)
+    Command setStats(Actor.State state, boolean canStand)
     {
         if (state.isAirborne() || state == Actor.State.SWIM)
             TYPE = StateType.FREE;
-        else if (state == Actor.State.SLIDE)
+        else if (state == Actor.State.SLIDE || !canStand)
             TYPE = StateType.PRONE;
         else if (state.isLow())
             TYPE = StateType.LOW;
