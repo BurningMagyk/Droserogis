@@ -57,6 +57,33 @@ public abstract class Weapon extends Item
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
     }
 
+    private void runCurrentOp(float deltaSec)
+    {
+        boolean operationDone = currentOp.run(deltaSec);
+        if (operationDone)
+        {
+            currentOp = null;
+        }
+
+        if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt(commandQueue.peek())))
+        {
+            Command nextCommand = commandQueue.peek().setStats(actor.getState(), actor.getVelocity());
+            Operation nextOp = getOperation(nextCommand, currentOp);
+            if (nextOp != currentOp)
+            {
+                collidedItems.clear();
+                clearInflictionsDealt();
+                commandQueue.remove();
+                currentOp = nextOp;
+                if (currentOp != null)
+                {
+                    currentOp.start();
+                    runCurrentOp(deltaSec);
+                }
+            }
+        }
+    }
+
     @Override
     protected void update(ArrayList<Entity> entities, float deltaSec)
     {
@@ -76,25 +103,7 @@ public abstract class Weapon extends Item
         }
         else if (currentOp != null)
         {
-            boolean operationDone = currentOp.run(deltaSec);
-            if (operationDone)
-            {
-                currentOp = null;
-            }
-
-            if (!commandQueue.isEmpty() && (operationDone || currentOp.mayInterrupt(commandQueue.peek())))
-            {
-                Command nextCommand = commandQueue.peek().setStats(actor.getState(), actor.getVelocity());
-                Operation nextOp = getOperation(nextCommand, currentOp);
-                if (nextOp != currentOp)
-                {
-                    collidedItems.clear();
-                    clearInflictionsDealt();
-                    commandQueue.remove();
-                    currentOp = nextOp;
-                    if (currentOp != null) currentOp.start();
-                }
-            }
+            runCurrentOp(deltaSec);
         }
         else if (!commandQueue.isEmpty())
         {
