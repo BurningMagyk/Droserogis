@@ -163,7 +163,6 @@ public abstract class Item extends Entity
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
-        //snugCollided();
 
         /* Stop horizontal velocity from building up by setting it to match change in
          * position. Needed for jumping to work correctly and when falling off block. */

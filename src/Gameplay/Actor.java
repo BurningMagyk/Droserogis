@@ -346,6 +346,7 @@ public class Actor extends Item
             } else gravity = NORMAL_GRAVITY;
         }
 
+        if (willTumble()) addCondition(minTumbleTime, Condition.NEGATE_ACTIVITY);
         /* FORCE_CRAWL condition must remain longer than NEGATE_STABILITY */
         if (has(Condition.NEGATE_ACTIVITY))
         {
@@ -403,7 +404,7 @@ public class Actor extends Item
     }
     private boolean canWalk() {
         return conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
-            && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
+                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
     }
     private boolean canRun()
     {
@@ -458,7 +459,9 @@ public class Actor extends Item
                     || (getVelocityX() < -walkSpeed   && conditions[Condition.NEGATE_RUN_LEFT    .ordinal()] > 0)
                     || (getVelocityX() >  0           && conditions[Condition.NEGATE_WALK_RIGHT  .ordinal()] > 0)
                     || (getVelocityX() <  0           && conditions[Condition.NEGATE_WALK_LEFT   .ordinal()] > 0)
-                    || state == State.SLIDE)
+                    || state == State.SLIDE
+                    || conditions[Condition.NEGATE_ACTIVITY.ordinal()] > 0
+                    || conditions[Condition.NEGATE_STABILITY.ordinal()] > 0)
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
@@ -939,7 +942,7 @@ public class Actor extends Item
 
     private boolean willTumble()
     {
-        double vel = Math.abs(getVelocity().mag());
+        double vel = Math.abs(getVelocityX());
         if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY))
         {
             return vel > walkSpeed;
@@ -955,12 +958,6 @@ public class Actor extends Item
         }
         return false;
     }
-    private void tumble()
-    {
-        addCondition(0.01F, Condition.NEGATE_ACTIVITY);
-        setWidth(ORIGINAL_WIDTH);
-        setHeight(ORIGINAL_WIDTH);
-    }
 
     private void countdownCondition(float deltaSec)
     {
@@ -975,13 +972,17 @@ public class Actor extends Item
             }
         }
 
-        if (_negate_activity && !has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
+        if (_negate_activity)
         {
-            /* Dodging while knocked down */
-            if (Math.abs(getVelocity().mag()) <= walkSpeed)
+            if (Math.abs(getVelocity().mag()) > walkSpeed) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
+            else if (!has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
             {
-                if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
-                else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
+                /* Dodging while knocked down */
+                if (Math.abs(getVelocity().mag()) <= walkSpeed)
+                {
+                    if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
+                    else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
+                }
             }
         }
     }
@@ -1144,7 +1145,7 @@ public class Actor extends Item
 
     /* This is the highest speed the player can be running or sprinting before
      * changing their state to TUMBLE. */
-    private float maxRunSpeed = 0.01F;
+    private float maxRunSpeed = 0.25F;
 
     /* This is the highest speed the player can get from walking alone.
      * They can go faster while walking with the help of external influences,
@@ -1236,4 +1237,7 @@ public class Actor extends Item
 
     /* How long it takes to get up from being prone */
     private float proneRecoverTime = 1;
+
+    /* How long the player tumbles */
+    private float minTumbleTime = 1F;
 }
