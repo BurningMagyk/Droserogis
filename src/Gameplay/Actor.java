@@ -347,18 +347,22 @@ public class Actor extends Item
         }
 
         if (willTumble()) addCondition(minTumbleTime, Condition.NEGATE_ACTIVITY);
-        /* FORCE_CRAWL condition must remain longer than NEGATE_STABILITY */
+
         if (has(Condition.NEGATE_ACTIVITY))
         {
-            conditions[Condition.NEGATE_STABILITY.ordinal()] = Math.max(
-                    conditions[Condition.NEGATE_STABILITY.ordinal()],
-                    conditions[Condition.NEGATE_ACTIVITY.ordinal()]);
+            float condTime = conditions[Condition.NEGATE_ACTIVITY.ordinal()];
+            addCondition(condTime, Condition.NEGATE_STABILITY);
+            addCondition(condTime, Condition.NEGATE_ATTACK);
+            addCondition(condTime, Condition.NEGATE_BLOCK);
         }
+
+        /* FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY */
         if (has(Condition.NEGATE_STABILITY))
         {
-            conditions[Condition.FORCE_CROUCH.ordinal()] = Math.max(
-                    conditions[Condition.FORCE_CROUCH.ordinal()],
-                    conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime);
+            float condTime = conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime;
+            addCondition(condTime, Condition.FORCE_CROUCH);
+            addCondition(condTime, Condition.NEGATE_WALK_LEFT);
+            addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
         }
     }
 
