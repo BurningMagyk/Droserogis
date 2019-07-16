@@ -47,23 +47,14 @@ public class Natural extends Weapon
                     return setOperation(STOMP, command);
                 return setOperation(KICK_ARC, command);
             }
-            if (command.TYPE == Command.StateType.MOMENTUM)
-            {
-                if (command.MOMENTUM_DIR.getVert() == DirEnum.DOWN)
-                {
-                    if (command.DIR.getHoriz().getSign() != 0
-                            && command.DIR.getVert() != DirEnum.DOWN)
-                        return setOperation(KICK_AERIAL, command);
-                    return setOperation(STOMP_FALL, command);
-                }
-                if (command.DIR.getVert() == DirEnum.DOWN)
-                    return setOperation(KICK_AERIAL_DIAG, command);
-                return setOperation(KICK_AERIAL, command);
-            }
             if (command.TYPE == Command.StateType.FREE)
             {
                 if (command.DIR.getVert() == DirEnum.DOWN)
+                {
+                    if (command.DIR.getHoriz() == DirEnum.NONE)
+                        return setOperation(STOMP_FALL, command);
                     return setOperation(KICK_AERIAL_DIAG, command);
+                }
                 return setOperation(KICK_AERIAL, command);
             }
         }
@@ -78,10 +69,8 @@ public class Natural extends Weapon
                     return setOperation(TACKLE, command);
                 return setOperation(GRAB, command);
             }
-            if (command.TYPE == Command.StateType.MOMENTUM
-                    && command.MOMENTUM_DIR.getVert() == DirEnum.DOWN)
+            if (command.TYPE == Command.StateType.FREE)
                 return setOperation(TACKLE, command);
-            return setOperation(GRAB, command);
         }
 
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_3 + Actor.ATTACK_KEY_MOD)

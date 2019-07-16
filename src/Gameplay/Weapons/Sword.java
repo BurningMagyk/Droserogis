@@ -20,10 +20,7 @@ public class Sword extends Weapon
     {
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
         {
-            if (command.TYPE == Command.StateType.MOMENTUM
-                    && command.MOMENTUM_DIR.getHoriz().getSign() != 0)
-                return setOperation(STAB, command); // with normal warm-up time
-            if (command.TYPE == Command.StateType.FREE || command.TYPE == Command.StateType.MOMENTUM)
+            if (command.TYPE == Command.StateType.FREE)
             {
                 if (command.DIR.getHoriz().getSign() != 0)
                 {
@@ -71,8 +68,7 @@ public class Sword extends Weapon
                 if (command.SPRINT) return setOperation(SWING_LUNGE_UNTERHAU, command);
                 return setOperation(SWING_UNTERHAU_CROUCH, command);
             }
-            if (command.TYPE == Command.StateType.MOMENTUM
-                    && command.MOMENTUM_DIR.getHoriz().getSign() != 0)
+            if (command.TYPE == Command.StateType.PRONE)
             {
                 if (currentOp == SWING_UP_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
