@@ -23,15 +23,11 @@ import java.util.ArrayList;
  */
 public class Actor extends Item
 {
-    public float mass = 1; // TODO: make private with getter
-
     private final float NORMAL_GRAVITY = gravity;
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
     private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
 
     private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
-
-    private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -223,19 +219,19 @@ public class Actor extends Item
 
         else if (state.isAirborne())
         {
-            suspendedMovement(vx, topAirSpeed, airAccel);
+            suspendedMovement(vx, airSpeed, airAccel);
         }
 
         else if (state == State.SWIM)
         {
-            suspendedMovement(vx, maxSwimSpeed, swimAccel);
+            suspendedMovement(vx, swimSpeed, swimAccel);
             if (dirVert == UP)
             {
-                if (vy > -maxSwimSpeed) addAccelerationY(-swimAccel);
+                if (vy > -swimSpeed) addAccelerationY(-swimAccel);
             }
             else if (dirVert == DOWN)
             {
-                if (vy < maxSwimSpeed) addAccelerationY(swimAccel);
+                if (vy < swimSpeed) addAccelerationY(swimAccel);
             }
         }
 
@@ -370,9 +366,9 @@ public class Actor extends Item
     {
         switch (moveType)
         {
-            case WALK: return low ? topCrawlSpeed : walkSpeed;
-            case RUN: return low ? topCrawlSpeed : topRunSpeed;
-            case SPRINT: return low ? topLowerSprintSpeed : topSprintSpeed;
+            case WALK: return low ? crawlSpeed : walkSpeed;
+            case RUN: return low ? crawlSpeed : runSpeed;
+            case SPRINT: return low ? lowerSprintSpeed : sprintSpeed;
         }
         return 0;
     }
@@ -458,8 +454,8 @@ public class Actor extends Item
             if (dirHoriz == -1
                     || (getVelocityX() >  0           && dirHoriz == LEFT )
                     || (getVelocityX() <  0           && dirHoriz == RIGHT)
-                    || (getVelocityX() >  topRunSpeed && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] > 0)
-                    || (getVelocityX() < -topRunSpeed && conditions[Condition.NEGATE_SPRINT_LEFT .ordinal()] > 0)
+                    || (getVelocityX() >  runSpeed && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] > 0)
+                    || (getVelocityX() < -runSpeed && conditions[Condition.NEGATE_SPRINT_LEFT .ordinal()] > 0)
                     || (getVelocityX() >  walkSpeed   && conditions[Condition.NEGATE_RUN_RIGHT   .ordinal()] > 0)
                     || (getVelocityX() < -walkSpeed   && conditions[Condition.NEGATE_RUN_LEFT    .ordinal()] > 0)
                     || (getVelocityX() >  0           && conditions[Condition.NEGATE_WALK_RIGHT  .ordinal()] > 0)
@@ -611,7 +607,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(state); }
+    public void debug() { Print.yellow(getVelocity()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
@@ -667,7 +663,7 @@ public class Actor extends Item
         return weapons[maxRatingIndex];
     }
 
-    public int getMaxCommandChain() { return 3; /* TODO: Make abstract */ }
+    public int getMaxCommandChain() { return maxCommandChain; }
 
     public void changeDirFace()
     {
@@ -699,11 +695,11 @@ public class Actor extends Item
                 setWidth(ORIGINAL_WIDTH);
                 setHeight(ORIGINAL_HEIGHT / 2);
 
-                if (Math.abs(getVelocityX()) > maxCrawlSpeed)
+                if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
                 if (dirHoriz != -1)
                 {
-                    if (Math.abs(getVelocityX()) > topCrawlSpeed
+                    if (Math.abs(getVelocityX()) > crawlSpeed
                             && getMoveType() == MoveType.SPRINT) return State.LOWER_SPRINT;
                     return State.CRAWL;
                 }
@@ -732,7 +728,7 @@ public class Actor extends Item
 
             if (dirHoriz != -1)
             {
-                if (Math.abs(getVelocityX()) > topRunSpeed
+                if (Math.abs(getVelocityX()) > runSpeed
                         && getMoveType() == MoveType.SPRINT) return State.SPRINT;
                 return State.RUN;
             }
@@ -814,8 +810,8 @@ public class Actor extends Item
     public int getSpeedRating()
     {
         double speed = Math.abs(getVelocity().mag());
-        if (speed > topSprintSpeed) return 3;
-        if (speed > topRunSpeed) return 2;
+        if (speed > sprintSpeed) return 3;
+        if (speed > runSpeed) return 2;
         if (speed > walkSpeed) return 1;
         return 0;
     }
@@ -957,9 +953,9 @@ public class Actor extends Item
             if (state.isLow())
             {
                 if (state == State.SLIDE) return vel > maxSlideSpeed;
-                return vel > maxCrawlSpeed;
+                return vel > maxLowerGroundSpeed;
             }
-            return vel > maxRunSpeed;
+            return vel > maxGroundSpeed;
         }
         return false;
     }
@@ -992,24 +988,26 @@ public class Actor extends Item
         }
     }
 
+    /* Called when player is hit or blocked */
     public void stagger(DirEnum dir, float mag, boolean operator)
     {
         // TODO: should depend on attack type, Actor's stats, and value of mag
-        // TODO: replace mag with static values
-        float time = 2F;
-        if (operator)
+        // TODO: replace mag with int using other Actor's stats
+        if (operator) /* When player gets blocked */
         {
-            time /= 2;
-            addCondition(time, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
+            float staggerBlockedTime = staggerAttackedTime * staggerBlockedMod;
+            addCondition(staggerBlockedTime, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
         }
+
+        /* When player is hit */
         if (has(Condition.NEGATE_ACTIVITY))
         {
-            addCondition(time, Condition.NEGATE_ACTIVITY);
+            addCondition(staggerAttackedTime, Condition.NEGATE_ACTIVITY);
             Print.green("ouch!");
         }
         else if (has(Condition.NEGATE_STABILITY))
         {
-            addCondition(time, Condition.NEGATE_ACTIVITY);
+            addCondition(staggerAttackedTime, Condition.NEGATE_ACTIVITY);
         }
         else if (state.isGrounded())
         {
@@ -1018,44 +1016,46 @@ public class Actor extends Item
             if (vert == DirEnum.UP)
             {
                 if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(time, Condition.FORCE_STAND);
+                    addCondition(staggerAttackedTime, Condition.FORCE_STAND);
             }
             else if (vert == DirEnum.DOWN)
             {
-                if (state.isLow()) addCondition(time, Condition.NEGATE_STABILITY);
+                if (state.isLow()) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
                 else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(time, Condition.FORCE_CROUCH);
+                    addCondition(staggerAttackedTime, Condition.FORCE_CROUCH);
             }
 
             if (horiz == DirEnum.LEFT)
             {
-                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(time, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(time, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(time, Condition.NEGATE_RUN_RIGHT);
+                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_RIGHT);
             }
             else if (horiz == DirEnum.RIGHT)
             {
-                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(time, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(time, Condition.NEGATE_WALK_LEFT);
-                else addCondition(time, Condition.NEGATE_RUN_LEFT);
+                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_LEFT);
+                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_LEFT);
             }
             else if (vert != DirEnum.NONE)
             {
                 if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
-                    addCondition(time, Condition.NEGATE_STABILITY);
-                else if (!canRun()) addCondition(time, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(time, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                    addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
+                else if (!canRun()) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
             }
         }
 
         for (Weapon weapon : weapons) { weapon.disrupt(); }
     }
 
+    /* Called when player's attack is parried */
     public void stagger(float mag)
     {
         // TODO: should depend on Actor's stats and value of mag
-        // TODO: replace mag with static values
-        addCondition(2, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
+        // TODO: replace mag with int using other Actor's stats
+        addCondition(staggerAttackedTime * staggerBlockedMod * 2,
+                Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
     @Override
@@ -1065,7 +1065,7 @@ public class Actor extends Item
     }
 
     @Override
-    public boolean easyToBlock() { return false; }
+    public boolean easyToBlock() { return false; } // TODO: return true if wielding a shield
     public boolean tryingToBlock() { return pressingUp; }
 
     @Override
@@ -1148,9 +1148,13 @@ public class Actor extends Item
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
 
+    public float mass = 1; // TODO: make private with getter
+
+    private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
+
     /* This is the highest speed the player can be running or sprinting before
      * changing their state to TUMBLE. */
-    private float maxRunSpeed = 0.25F;
+    private float maxGroundSpeed = 0.25F;
 
     /* This is the highest speed the player can get from walking alone.
      * They can go faster while walking with the help of external influences,
@@ -1162,12 +1166,12 @@ public class Actor extends Item
     /* This is the highest speed the player can get from sprinting alone.
      * They can go faster while sprinting with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topSprintSpeed = 0.13F;
+    private float sprintSpeed = 0.13F;
 
     /* This is the highest speed the player can get from running alone.
      * They can go faster while running with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topRunSpeed = 0.08F;
+    private float runSpeed = 0.08F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is running or sprinting on the ground. */
@@ -1175,18 +1179,18 @@ public class Actor extends Item
 
     /* This is the highest speed the player can be crawling or crouching before
      * changing their state to TUMBLE or SLIDE. */
-    private float maxCrawlSpeed = 0.15F;
+    private float maxLowerGroundSpeed = 0.15F;
 
     /* This is the highest speed the player can get from sprinting on their
      * hands alone. They can go faster while sprinting on their hands with the
      * help of external influences, such as going down a slope or being pushed
      * by a faster object. */
-    private float topLowerSprintSpeed = 0.10F;
+    private float lowerSprintSpeed = 0.10F;
 
     /* This is the highest speed the player can get from crawling alone.
      * They can go faster while crawling with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
-    private float topCrawlSpeed = 0.05F;
+    private float crawlSpeed = 0.05F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is crawling on the ground. */
@@ -1219,14 +1223,14 @@ public class Actor extends Item
     /* This is the highest speed the player can get from moving themselves in
      * the air. They can go faster in the air with the help of external
      * influences such as wind or being pushed by a faster object. */
-    private float topAirSpeed = 0.2F;
+    private float airSpeed = 0.2F;
 
     /* This is the acceleration that is applied to the player when dirPrimary
      * is not null and the player is airborne. */
     private float airAccel = 0.1F;
 
     /* This is the highest speed the player can move in water. */
-    private float maxSwimSpeed = 3F;
+    private float swimSpeed = 3F;
 
     /* A variable "topSwimSpeed" won't be needed because the drag underwater
      * will be high enough to cap the player's speed. */
@@ -1245,4 +1249,12 @@ public class Actor extends Item
 
     /* How long the player tumbles */
     private float minTumbleTime = 1F;
+
+    // friction
+
+    private int maxCommandChain = 3;
+
+    private float staggerAttackedTime = 2;
+
+    private float staggerBlockedMod = 0.5F;
 }

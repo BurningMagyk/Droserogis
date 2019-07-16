@@ -253,11 +253,13 @@ public abstract class Item extends Entity
             }
             else if (edge[0] == DOWN)
             {
+
                 goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
 
                 /* Colliding with up-right slope or up-left slope */
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
+                    // TODO: make this apply correctly
                     if (!isGrounded)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
