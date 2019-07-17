@@ -39,21 +39,22 @@ public class CharacterStat
     private Grade[] grades;
 
     enum Ability {
-        STRENGTH,
-        STAMINA,
+        STRENGTH,       /* Physical strength */
+        STAMINA,        /* Endurance */
 
-        DEXTERITY,
-        AGILITY,
+        DEXTERITY,      /* How precise one is */
+        AGILITY,        /* Speed */
 
-        CONSTITUTION,
-        VITALITY,
+        CONSTITUTION,   /* Natural ability to shrug off certain affects */
+        VITALITY,       /* Physical hardiness */
 
-        WILL,
-        WISDOM,
-        KNOWLEDGE,
-        INTELLIGENCE,
+        WISDOM,         /* Ability to make good judgements */
+        WILL,           /* Mental fortitude */
 
-        PRESENCE
+        INTELLIGENCE,   /* Application of knowledge, memory, thinking speed */
+        KNOWLEDGE,      /* Measure of how much someone knows */
+
+        PRESENCE        /* Power of Personality */
     }
 
     CharacterStat(
@@ -73,6 +74,10 @@ public class CharacterStat
     }
 
     private final static int iMASS = 0, iWIDTH = 0, iHEIGHT = 0;
+
+    /*****************************************************************************/
+    /**************************** Static Value Charts ****************************/
+    /*****************************************************************************/
 
     private final static float[] MASS = new float[] {
             1.0F, 1.0F, 1.0F,
@@ -113,6 +118,47 @@ public class CharacterStat
             1.0F, 1.0F, 1.0F,
             1.0F, 1.0F, 1.0F };
 
+    /*****************************************************************************/
+    /************************ Ability Score Charts *******************************/
+    /*****************************************************************************/
+
+    private final static float[] STRENGTH = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+    private final static float[] STAMINA = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+
+    private final static float[] DEXTERITY = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
     private final static float[] AGILITY = new float[] {
             1.0F, 1.0F, 1.0F,
             1.0F, 1.0F, 1.0F,
@@ -125,52 +171,186 @@ public class CharacterStat
             1.0F, 1.0F, 1.0F,
             1.0F, 1.0F, 1.0F,
             1.0F, 1.0F, 1.0F };
+
+    private final static float[] CONSTITUTION = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+    private final static float[] VITALITY = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+
+    private final static float[] WISDOM = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+    private final static float[] WILL = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+
+    private final static float[] INTELLIGENCE = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+    private final static float[] KNOWLEDGE = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+
+    private final static float[] PRESENCE = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+
+    /***************************** Ability Score Chart Access *****************************/
+
+    private float strength(float base, float offset)
+    {
+        return (STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base) + offset;
+    }
+    private float stamina(float base, float offset)
+    {
+        return (STAMINA[grades[Ability.STAMINA.ordinal()].ordinal()] * base) + offset;
+    }
+    private float dexterity(float base, float offset)
+    {
+        return (DEXTERITY[grades[Ability.DEXTERITY.ordinal()].ordinal()] * base) + offset;
+    }
     private float agility(float base, float offset)
     {
         return (AGILITY[grades[Ability.AGILITY.ordinal()].ordinal()] * base) + offset;
     }
+    private float constitution(float base, float offset)
+    {
+        return (CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base) + offset;
+    }
+    private float vitality(float base, float offset)
+    {
+        return (VITALITY[grades[Ability.VITALITY.ordinal()].ordinal()] * base) + offset;
+    }
+    private float wisdom(float base, float offset)
+    {
+        return (WISDOM[grades[Ability.WISDOM.ordinal()].ordinal()] * base) + offset;
+    }
+    private float will(float base, float offset)
+    {
+        return (WILL[grades[Ability.WILL.ordinal()].ordinal()] * base) + offset;
+    }
+    private float intelligence(float base, float offset)
+    {
+        return (INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base) + offset;
+    }
+    private float knowledge(float base, float offset)
+    {
+        return (KNOWLEDGE[grades[Ability.KNOWLEDGE.ordinal()].ordinal()] * base) + offset;
+    }
+    private float presence(float base, float offset)
+    {
+        return (PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base) + offset;
+    }
+
+    /*****************************************************************************/
+    /****************************** Balancing Tools ******************************/
+    /*****************************************************************************/
 
     float mass() { return MASS[grades[iMASS].ordinal()]; }
     float width() { return WIDTH[grades[iWIDTH].ordinal()]; }
     float height() { return HEIGHT[grades[iHEIGHT].ordinal()]; }
 
-    //float attackPower() { return ATTACK_POWER[grades[Ability.STRENGTH.ordinal()]]; }
+    //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
+
     float airSpeed() { return agility(0.2F, 0); }
     float swimSpeed() { return agility(3F, 0); }
+    float crawlSpeed() { return agility(0.05F, 0); }
+    float walkSpeed() { return agility(0.04F, 0); }
+    float runSpeed() { return agility(0.08F, 0); }
+    float lowerSprintSpeed() { return agility(0.10F, 0); }
+    float sprintSpeed() { return agility(0.13F, 0); }
+    float rushSpeed() { return agility(0.3F, 0); }
 
-    //private float airSpeed = 0.2F;
-    private float swimSpeed = 3F;
-    private float crawlSpeed = 0.05F;
-    private float walkSpeed = 0.04F;
-    private float runSpeed = 0.08F;
-    private float lowerSprintSpeed = 0.10F;
-    private float sprintSpeed = 0.13F;
-    private float rushSpeed = 0.3F;
+    float maxClimbSpeed() { return agility(1F, 0); }
+    float maxStickSpeed() { return agility(1.5F, 0); }
+    float maxSlideSpeed() { return agility(0.3F, 0); }
+    float maxLowerGroundSpeed() { return agility(0.15F, 0); }
+    float maxGroundSpeed() { return agility(0.25F, 0); }
+    float maxTotalSpeed() { return agility(5F, 0); }
 
-    private float maxClimbSpeed = 1F;
-    private float maxStickSpeed = 1.5F;
-    private float maxSlideSpeed = 0.3F;
-    private float maxLowerGroundSpeed = 0.15F;
-    private float maxGroundSpeed = 0.25F;
-    private float maxTotalSpeed = 5F;
 
-    private float airAccel = 0.1F;
-    private float swimAccel = 0.3F;
-    private float crawlAccel = 0.3F;
-    private float climbAccel = crawlAccel;
-    private float runAccel = 0.4F;
+    float airAccel() { return agility(0.1F, 0); }
+    float swimAccel() { return agility(0.3F, 0); }
+    float crawlAccel() { return agility(0.3F, 0); }
+    float climbAccel() { return agility(0.3F, 0); }
+    float runAccel() { return agility(0.4F, 0); }
 
-    private float jumpVel = 0.4F;
+    float jumpVel() { return agility(0.4F, 0); }
 
-    private float climbLedgeTime = 1;
-    private float dashRecoverTime = 1;
-    private float minTumbleTime = 1F;
+    float climbLedgeTime() { return agility(1, 0); }
+    float dashRecoverTime() { return agility(1, 0); }
+    float minTumbleTime() { return agility(1F, 0); }
 
-    private float proneRecoverTime = 1;
-    private float staggerAttackedTime = 2;
-    private float staggerBlockedMod = 0.5F;
+    float proneRecoverTime() { return constitution(1, 0); }
+    float staggerAttackedTime() { return strength(2, 0); }
+    float staggerBlockedMod() { return constitution(0.5F, 0); }
 
     // friction
 
-    private int maxCommandChain = 3;
+    float maxCommandChain() { return intelligence(3, 0); }
 }
