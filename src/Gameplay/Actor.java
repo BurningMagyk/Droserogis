@@ -1,6 +1,5 @@
 package Gameplay;
 
-import Gameplay.Character.CharacterStat;
 import Gameplay.Weapons.Command;
 import Gameplay.Weapons.Infliction;
 import Gameplay.Weapons.Natural;
@@ -77,7 +76,7 @@ public class Actor extends Item
         weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
     }
 
-    //TODO: Need to do the Actor setting from the Character class
+    //TODO: Need to do the Actor setting from the Characters class
     /*private void setCharacterStat(CharacterStat stat)
     {
         mass = stat.mass();

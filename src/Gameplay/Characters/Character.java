@@ -1,9 +1,8 @@
-package Gameplay.Character;
+package Gameplay.Characters;
 
 import Gameplay.Actor;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 public class Character
 {

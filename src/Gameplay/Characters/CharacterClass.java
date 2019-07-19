@@ -1,6 +1,4 @@
-package Gameplay.Character;
-
-import Gameplay.Gameplay;
+package Gameplay.Characters;
 
 public class CharacterClass
 {

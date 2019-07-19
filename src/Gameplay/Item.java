@@ -33,7 +33,7 @@ public abstract class Item extends Entity
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
 
-        // TODO: get this value from Character or Weapon
+        // TODO: get this value from Characters or Weapon
         hitPoints = 10;
     }
 
