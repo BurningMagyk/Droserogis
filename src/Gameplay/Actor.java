@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Character.CharacterStat;
 import Gameplay.Weapons.Command;
 import Gameplay.Weapons.Infliction;
 import Gameplay.Weapons.Natural;
@@ -61,7 +62,7 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;
     }
 
-    Actor(float xPos, float yPos, float width, float height)
+    public Actor(float xPos, float yPos, float width, float height)
     {
         super(xPos, yPos, width, height);
 
@@ -76,10 +77,11 @@ public class Actor extends Item
         weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
     }
 
-    private void setCharacterStat(CharacterStat stat)
+    //TODO: Need to do the Actor setting from the Character class
+    /*private void setCharacterStat(CharacterStat stat)
     {
         mass = stat.mass();
-    }
+    }*/
 
     Item[] getItems()
     {

@@ -1,7 +1,28 @@
-package Gameplay;
+package Gameplay.Character;
+
+import Gameplay.Gameplay;
 
 public class CharacterStat
 {
+    enum Ability {
+        STRENGTH,       /* Physical strength */
+        STAMINA,        /* Endurance */
+
+        DEXTERITY,      /* How precise one is */
+        AGILITY,        /* Speed */
+
+        CONSTITUTION,   /* Natural ability to shrug off certain affects */
+        VITALITY,       /* Physical hardiness */
+
+        WISDOM,         /* Ability to make good judgements */
+        WILL,           /* Mental fortitude */
+
+        INTELLIGENCE,   /* Application of knowledge, memory, thinking speed */
+        KNOWLEDGE,      /* Measure of how much someone knows */
+
+        PRESENCE        /* Power of Personality */
+    }
+
     enum Grade {
         SSS__, SSS_, SSS,
         SS__ , SS_ , SS ,
@@ -26,6 +47,14 @@ public class CharacterStat
         "E+"  , "E"  , "E-"  ,  // Inexperienced
         "F+"  , "F"  , "F-" };  // Impaired, small child
 
+    private final static String[] abilityStrings = new String[] {
+            "STRENGTH", "STAMINA",
+            "DEXTERITY", "AGILITY",
+            "CONSTITUTION", "VITALITY",
+            "WISDOM", "WILL",
+            "INTELLIGENCE", "KNOWLEDGE",
+            "PRESENCE"};
+
     private Grade parseGrade(String string)
     {
         for (int i = 0; i < Grade.values().length; i++)
@@ -35,26 +64,58 @@ public class CharacterStat
         }
         return null;
     }
+    public static String getGradeString(Grade gr)
+    {
+        String grStr = "";
+        Grade gradesArr[] = Grade.values();
+
+        for(int i = 0; i < gradeStrings.length; i++)
+        {
+            if(gr == gradesArr[i]) grStr = gradeStrings[i];
+        }
+
+        return grStr;
+    }
+    public static String getAbilityString(Ability ab)
+    {
+        String abStr = "";
+        Ability abilitiesArr[] = Ability.values();
+
+        for(int i = 0; i < abilityStrings.length; i++)
+        {
+            if(ab == abilitiesArr[i]) abStr = abilityStrings[i];
+        }
+
+        return abStr;
+    }
 
     private Grade[] grades;
+    public Grade[] getGrades() { return grades; }
+    public void setGrades(String[] g)
+    {
+        for(int i = 0; i < g.length; i++)
+        {
+            grades[i] = parseGrade(g[i]);
+        }
+    }
+    public int[] increaseGrades(int[] sortedStats, int maxIncrease)
+    {
+        Grade posGrades[] = Grade.values();
+        int increasedStats[] = new int[maxIncrease];
+        int increasedSoFar = 0;
 
-    enum Ability {
-        STRENGTH,       /* Physical strength */
-        STAMINA,        /* Endurance */
+        for(int i = 0; i < sortedStats.length; i++)
+        {
+            int increase = grades[sortedStats[i]].ordinal()-1;
+            if(increase <= 0) continue;
 
-        DEXTERITY,      /* How precise one is */
-        AGILITY,        /* Speed */
+            grades[sortedStats[i]] = posGrades[increase];
+            increasedStats[increasedSoFar] = sortedStats[i];
+            increasedSoFar++;
 
-        CONSTITUTION,   /* Natural ability to shrug off certain affects */
-        VITALITY,       /* Physical hardiness */
-
-        WISDOM,         /* Ability to make good judgements */
-        WILL,           /* Mental fortitude */
-
-        INTELLIGENCE,   /* Application of knowledge, memory, thinking speed */
-        KNOWLEDGE,      /* Measure of how much someone knows */
-
-        PRESENCE        /* Power of Personality */
+            if(increasedSoFar == (maxIncrease)) break;
+        }
+        return increasedStats;
     }
 
     CharacterStat(
@@ -71,6 +132,14 @@ public class CharacterStat
         grades[6] = parseGrade(wil); grades[7] = parseGrade(wis);
         grades[8] = parseGrade(kno); grades[9] = parseGrade(nte);
         grades[10] = parseGrade(pre);
+    }
+    CharacterStat(String stats[])
+    {
+        grades = new Grade[Ability.values().length];
+        for(int i = 0; i < stats.length; i++)
+        {
+            grades[i] = parseGrade(stats[i]);
+        }
     }
 
     private final static int iMASS = 0, iWIDTH = 0, iHEIGHT = 0;
@@ -332,7 +401,6 @@ public class CharacterStat
     float maxLowerGroundSpeed() { return agility(0.15F, 0); }
     float maxGroundSpeed() { return agility(0.25F, 0); }
     float maxTotalSpeed() { return agility(5F, 0); }
-
 
     float airAccel() { return agility(0.1F, 0); }
     float swimAccel() { return agility(0.3F, 0); }
