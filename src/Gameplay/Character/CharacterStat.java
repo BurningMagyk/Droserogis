@@ -88,6 +88,15 @@ public class CharacterStat
 
         return abStr;
     }
+    private Ability parseAbility(String string)
+    {
+        for (int i = 0; i < Ability.values().length; i++)
+        {
+            if (string.equalsIgnoreCase(abilityStrings[i]))
+                return Ability.values()[i];
+        }
+        return null;
+    }
 
     private Grade[] grades;
     public Grade[] getGrades() { return grades; }

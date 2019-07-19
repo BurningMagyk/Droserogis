@@ -13,6 +13,7 @@ public class Character
     private CharacterStat stats;
     private String name;
     private int level;
+    private CharacterStat.Grade characterGrade;
 
     private int statEXP[];
     private String baseStats[]; //In order listed in the CharacterStat class
@@ -26,7 +27,7 @@ public class Character
         level = 0;
 
         statEXP = new int[11];
-        classes = new CharacterClass[20];
+        classes = new CharacterClass[40];
 
         name = n;
         myUID = uniqueID;
@@ -34,6 +35,7 @@ public class Character
 
         stats.setGrades(bStats);
         levelUp(starterClass);
+        updateCharacterGrade();
     }
 
     /*****************************************************************************/
@@ -47,25 +49,29 @@ public class Character
 
     public void levelUp(CharacterClass newClass)
     {
+        if(level >= classes.length) return;
         classes[level] = newClass;
         statEXP = newClass.adjustStatEXP(statEXP);
         level++;
 
         if((level%4) == 0)
         {
-            int indexArray[] = stats.increaseGrades(sortStats(),3); //Set the number of increases here
+            int indexArray[] = stats.increaseGrades(sortStats(),4); //Set the number of increases here
             CharacterStat.Ability abilityArr[] = CharacterStat.Ability.values();
             for(int i = 0; i < indexArray.length; i++)
             {
                 statEXP[indexArray[i]] = 0;
                 System.out.println("Increased " + CharacterStat.getAbilityString(abilityArr[indexArray[i]]));
             }
+            updateCharacterGrade();
         }
     }
 
     /*****************************************************************************/
     /******************************* Utility Stuff *******************************/
     /*****************************************************************************/
+
+    private void updateCharacterGrade() { characterGrade = CharacterStat.Grade.B; }
 
     //Returns an array of indices that sorts the stat increases for use
     private int[] sortStats()
@@ -102,49 +108,49 @@ public class Character
     public static void main(String[] args)
     {
         String grades[] = {
-                "D-", "C",
-                "B", "A-",
-                "C+", "E+",
+                "D-", "D",
+                "B-", "C",
+                "D+", "E",
                 "C-", "C+",
                 "C+", "D",
                 "A-"
         };
         Actor lyraA = new Actor(0,0,0,0);
         CharacterStat lyraStats = new CharacterStat(grades);
-        //For this test, 10 increase points for the class total (basically for %)
+        //For this test, 100 increase points for the class total (basically for %)
         CharacterClass assassin = new CharacterClass("Assassin",
                 new int[] {
-                        1,1,
-                        3,3,
-                        0,1,
-                        0,1,
-                        0,0,
+                        10,5,
+                        35,30,
+                        5,0,
+                        0,10,
+                        5,0,
                         0
         });
         CharacterClass eMage = new CharacterClass("Erudian Mage",
                 new int[] {
                         0,0,
-                        1,0,
+                        5,0,
                         0,0,
-                        1,1,
-                        1,2,
-                        4
+                        10,5,
+                        15,20,
+                        45
                 });
         Character lyra = new Character("Lyra",lyraA,lyraStats,grades,assassin);
 
         boolean print = false;
 
-        for(int level = 1; level <= 12; level++)
+        for(int level = 1; level <= 40; level++)
         {
             if(level != 1)
             {
-                if(lyra.level < 4 || lyra.level > 10) lyra.levelUp(assassin);
+                if(lyra.level < 12) lyra.levelUp(assassin);
                 else lyra.levelUp(eMage);
             }
 
-            if((lyra.level%4) == 0) print = true;
+            if((level%4) == 0) print = true;
 
-            if(print) System.out.println("Name: " + lyra.name + ", " + lyra.level);
+            if(print) System.out.println(lyra.name + ", level " + lyra.level);
             int exps[] = lyra.statEXP;
 
             for (int i = 0; i < lyra.classes.length; i++)
