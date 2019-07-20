@@ -6,9 +6,10 @@ import Util.Print;
 
 public class WeaponStat
 {
+    private String[] info;
     private WeaponGrade[] damageGrades, rangeGrades, speedGrades, warmupGrades, cooldownGrades;
 
-    class WeaponGrade
+    private class WeaponGrade
     {
         GradeEnum nativeGrade, charGrade1, charGrade2;
         WeaponGrade(GradeEnum nativeGrade, GradeEnum[] charGrades)
@@ -24,11 +25,11 @@ public class WeaponStat
         return GradeEnum.avg(charStat, charStat.parseAbilities(string));
     }
 
-    WeaponStat(CharacterStat charStat, String[] info)
+    WeaponStat(String[] info)
     {
         if (info.length % 10 != 0)
         {
-            Print.red(info.length + " string parameters used for WeaponStat");
+            Print.red("Error: " + info.length + " string parameters used for WeaponStat constructor.");
             return;
         }
 
@@ -38,6 +39,12 @@ public class WeaponStat
         speedGrades = new WeaponGrade[opCount];
         warmupGrades = new WeaponGrade[opCount];
         cooldownGrades = new WeaponGrade[opCount];
+        this.info = info;
+    }
+
+
+    public void setCharStat(CharacterStat charStat)
+    {
         for (int i = 0; i < info.length; i += 10)
         {
             damageGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i]),
@@ -57,7 +64,7 @@ public class WeaponStat
     /****************************** Balancing Tools ******************************/
     /*****************************************************************************/
 
-    GradeEnum damage(int i)
+    private GradeEnum damage(int i)
     {
         WeaponGrade weaponGrade = damageGrades[i];
 
@@ -65,35 +72,70 @@ public class WeaponStat
         return null;
     }
 
-    GradeEnum range(int i)
+    private float range(int i)
     {
         WeaponGrade weaponGrade = rangeGrades[i];
 
         // TODO: return final grade based on weaponGrade member values
-        return null;
+        return 1;
     }
 
-    GradeEnum speed(int i)
+    private float speed(int i)
     {
         WeaponGrade weaponGrade = speedGrades[i];
 
         // TODO: return final grade based on weaponGrade member values
-        return null;
+        return 1;
     }
 
-    GradeEnum warmup(int i)
+    private float warmup(int i)
     {
         WeaponGrade weaponGrade = warmupGrades[i];
 
         // TODO: return final grade based on weaponGrade member values
-        return null;
+        return 1;
     }
 
-    GradeEnum cooldown(int i)
+    private float cooldown(int i)
     {
         WeaponGrade weaponGrade = cooldownGrades[i];
 
         // TODO: return final grade based on weaponGrade member values
-        return null;
+        return 1;
+    }
+
+    GradeEnum[] damage()
+    {
+        GradeEnum[] vals = new GradeEnum[damageGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = damage(i); }
+        return vals;
+    }
+
+    float[] range()
+    {
+        float[] vals = new float[rangeGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = range(i); }
+        return vals;
+    }
+
+    float[] speed()
+    {
+        float[] vals = new float[speedGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = speed(i); }
+        return vals;
+    }
+
+    float[] warmup()
+    {
+        float[] vals = new float[warmupGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = warmup(i); }
+        return vals;
+    }
+
+    float[] cooldown()
+    {
+        float[] vals = new float[cooldownGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = cooldown(i); }
+        return vals;
     }
 }

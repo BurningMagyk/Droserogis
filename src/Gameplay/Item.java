@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 public abstract class Item extends Entity
 {
+    protected float mass;
     private int hitPoints;
 
     /* The entities that are in contact from each of 4 directions */
@@ -29,9 +30,10 @@ public abstract class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    protected Item(float xPos, float yPos, float width, float height)
+    protected Item(float xPos, float yPos, float width, float height, float mass)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
+        this.mass = mass;
 
         // TODO: get this value from Characters or Weapon
         hitPoints = 10;

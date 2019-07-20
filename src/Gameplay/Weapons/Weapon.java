@@ -1,9 +1,11 @@
 package Gameplay.Weapons;
 
 import Gameplay.Actor;
+import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entity;
 import Gameplay.Item;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
@@ -49,9 +51,11 @@ public abstract class Weapon extends Item
     }
 
     abstract Orient getDefaultOrient();
-    Weapon(float xPos, float yPos, float width, float height)
+    Weapon(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass)
     {
-        super(xPos, yPos, width, height);
+        super(xPos, yPos, width, height, mass);
+
+        this.weaponStat = weaponStat;
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
@@ -224,17 +228,22 @@ public abstract class Weapon extends Item
         disrupted = true;
         orient.set(defaultOrient.copy());
     }
-    void disrupt(float mag)
+    void disrupt(GradeEnum grade)
     {
-        // TODO: replace mag with static values
-        disrupt();
-        if (actor != null) actor.stagger(mag);
+        if (grade.ordinal() >= disruptThresh.ordinal())
+        {
+            // If weapon is thrown, actor will be null but weapon stats still apply
+            if (actor != null) actor.stagger(grade);
+            disrupt();
+        }
     }
 
-    public Weapon equip(Actor actor)
+    public Weapon equip(Actor actor, CharacterStat charStat)
     {
         setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
         orient.set(defaultOrient.copy());
+
+        setWeaponStats(charStat);
 
         this.actor = actor;
         ballistic = false;
@@ -1069,6 +1078,21 @@ public abstract class Weapon extends Item
     {
         inflictions.add(infliction);
     }
+
+    /*=======================================================================*/
+    /* Variables that are set by the weapon's stats                          */
+    /*=======================================================================*/
+
+    private GradeEnum disruptThresh;
+
+    public void setWeaponStats(CharacterStat charStat)
+    {
+        weaponStat.setCharStat(charStat);
+
+        // TODO: set stats here
+    }
+
+    private WeaponStat weaponStat;
 
     /*
      * (If two actors are equally powered)

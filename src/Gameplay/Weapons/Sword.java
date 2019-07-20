@@ -160,7 +160,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(0);//Print.green("Sword: Interrupted us");
+                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Uninterrupted");
@@ -173,7 +173,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(0);//Print.green("Sword: Interrupted us, interrupted them");
+                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Interrupted them");
@@ -227,9 +227,9 @@ public class Sword extends Weapon
             super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
                     statusAppCycle, null, execJourney); } }
 
-    public Sword(float xPos, float yPos, float width, float height)
+    public Sword(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass)
     {
-        super(xPos, yPos, width, height);
+        super(weaponStat, xPos, yPos, width, height, mass);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///

@@ -1,9 +1,11 @@
 package Gameplay;
 
+import Gameplay.Characters.CharacterStat;
 import Gameplay.Weapons.Command;
 import Gameplay.Weapons.Infliction;
 import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Weapon;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
@@ -27,7 +29,7 @@ public class Actor extends Item
     private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
     private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
 
-    private final float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
+    private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -61,27 +63,18 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;
     }
 
-    public Actor(float xPos, float yPos, float width, float height, float mass)
+    public Actor(CharacterStat charStat, float xPos, float yPos, float width, float height, float mass)
     {
-        super(xPos, yPos, width, height);
-        this.mass = mass;
-
-        NORMAL_FRICTION = 1F;
-        GREATER_FRICTION = NORMAL_FRICTION * 3;
-        REDUCED_FRICTION = NORMAL_FRICTION / 3;
-        setFriction(NORMAL_FRICTION);
+        super(xPos, yPos, width, height, mass);
 
         ORIGINAL_WIDTH = width;
         ORIGINAL_HEIGHT = height;
 
         weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
-    }
 
-    //TODO: Need to do the Actor setting from the Characters class
-    /*private void setCharacterStat(CharacterStat stat)
-    {
-        mass = stat.mass();
-    }*/
+        this.charStat = charStat;
+        setCharacterStats();
+    }
 
     Item[] getItems()
     {
@@ -777,7 +770,7 @@ public class Actor extends Item
 
     void equip(Weapon weapon)
     {
-        weapons[1] = weapon.equip(this);
+        weapons[1] = weapon.equip(this, charStat);
     }
 
     //===============================================================================================================
@@ -993,8 +986,7 @@ public class Actor extends Item
     /* Called when player is hit or blocked */
     public void stagger(DirEnum dir, float mag, boolean operator)
     {
-        // TODO: should depend on attack type, Actor's stats, and value of mag
-        // TODO: replace mag with int using other Actor's stats
+        // TODO: need formula for this
         if (operator) /* When player gets blocked */
         {
             float staggerBlockedTime = staggerAttackedTime * staggerBlockedMod;
@@ -1051,11 +1043,10 @@ public class Actor extends Item
         for (Weapon weapon : weapons) { weapon.disrupt(); }
     }
 
-    /* Called when player's attack is parried */
-    public void stagger(float mag)
+    /* Called when player is attack is parried */
+    public void stagger(GradeEnum grade)
     {
-        // TODO: should depend on Actor's stats and value of mag
-        // TODO: replace mag with int using other Actor's stats
+        // TODO: need formula for this
         addCondition(staggerAttackedTime * staggerBlockedMod * 2,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
@@ -1151,8 +1142,6 @@ public class Actor extends Item
     /*=======================================================================*/
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
-
-    private float mass;
 
     private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
 
@@ -1258,7 +1247,51 @@ public class Actor extends Item
 
     private int maxCommandChain = 3;
 
-    private float staggerAttackedTime = 2;
+    private float staggerAttackedTime = 2; // TODO: change name
 
-    private float staggerBlockedMod = 0.5F;
+    private float staggerBlockedMod = 0.5F;  // TODO: change name
+
+    private void setCharacterStats()
+    {
+        airSpeed = charStat.airSpeed();
+        swimSpeed = charStat.swimSpeed();
+        crawlSpeed = charStat.crawlSpeed();
+        walkSpeed = charStat.walkSpeed();
+        runSpeed = charStat.runSpeed();
+        lowerSprintSpeed = charStat.lowerSprintSpeed();
+        sprintSpeed = charStat.sprintSpeed();
+        rushSpeed = charStat.rushSpeed();
+
+        maxClimbSpeed = charStat.maxClimbSpeed();
+        maxStickSpeed = charStat.maxStickSpeed();
+        maxSlideSpeed = charStat.maxSlideSpeed();
+        maxLowerGroundSpeed = charStat.maxLowerGroundSpeed();
+        maxGroundSpeed = charStat.maxGroundSpeed();
+        maxTotalSpeed = charStat.maxTotalSpeed();
+
+        airAccel = charStat.airAccel();
+        swimAccel = charStat.swimAccel();
+        crawlAccel = charStat.crawlAccel();
+        climbAccel = charStat.climbAccel();
+        runAccel = charStat.runAccel();
+
+        jumpVel = charStat.jumpVel();
+
+        climbLedgeTime = charStat.climbLedgeTime();
+        dashRecoverTime = charStat.dashRecoverTime();
+        minTumbleTime = charStat.minTumbleTime();
+
+        proneRecoverTime = charStat.proneRecoverTime();
+        staggerAttackedTime = charStat.staggerAttackedTime();
+        staggerBlockedMod = charStat.staggerBlockedMod();
+
+        NORMAL_FRICTION = charStat.friction();
+        GREATER_FRICTION = NORMAL_FRICTION * 3;
+        REDUCED_FRICTION = NORMAL_FRICTION / 3;
+        setFriction(NORMAL_FRICTION);
+
+        maxCommandChain = charStat.maxCommandChain();
+    }
+
+    private CharacterStat charStat;
 }
