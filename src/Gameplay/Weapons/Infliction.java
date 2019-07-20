@@ -50,8 +50,8 @@ public class Infliction
 
         Vec2 velForThis, velForOther,
                 weaponMomentum = source.getMomentum(op, dir, otherWeapon),
-                bodyMomentum = inflictor.getVelocity().mul(inflictor.mass).add(otherActor.getVelocity().mul(otherActor.mass))
-                        .div(inflictor.mass + otherActor.mass);;
+                bodyMomentum = inflictor.getVelocity().mul(inflictor.getMass()).add(otherActor.getVelocity().mul(otherActor.getMass()))
+                        .div(inflictor.getMass() + otherActor.getMass());
 
         if (deflected)
         {

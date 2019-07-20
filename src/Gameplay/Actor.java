@@ -61,9 +61,10 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;
     }
 
-    public Actor(float xPos, float yPos, float width, float height)
+    public Actor(float xPos, float yPos, float width, float height, float mass)
     {
         super(xPos, yPos, width, height);
+        this.mass = mass;
 
         NORMAL_FRICTION = 1F;
         GREATER_FRICTION = NORMAL_FRICTION * 3;
@@ -1121,6 +1122,8 @@ public class Actor extends Item
         return true;
     }
 
+    public float getMass() { return mass; }
+
     private class LateSurface
     {
         private Entity entity;
@@ -1149,7 +1152,7 @@ public class Actor extends Item
     /* Variables that are set by the character's stats                       */
     /*=======================================================================*/
 
-    public float mass = 1; // TODO: make private with getter
+    private float mass;
 
     private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
 
