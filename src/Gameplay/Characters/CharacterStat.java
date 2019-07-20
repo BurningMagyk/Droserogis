@@ -1,6 +1,7 @@
 package Gameplay.Characters;
 
 import Util.GradeEnum;
+import Util.Print;
 
 import static Util.GradeEnum.parseGrade;
 
@@ -35,6 +36,7 @@ public class CharacterStat
             "INTELLIGENCE", "KNOWLEDGE",
             "PRESENCE"};
 
+    // TODO: may be redundant
     public static String getAbilityString(Ability ab)
     {
         String abStr = "";
@@ -54,7 +56,15 @@ public class CharacterStat
             if (string.equalsIgnoreCase(abilityStrings[i]))
                 return Ability.values()[i];
         }
+        Print.red("Could not parse string \"" + string + "\" as ability name.");
         return null;
+    }
+    public Ability[] parseAbilities(String string)
+    {
+        String[] words = string.split(", ");
+        Ability[] vals = new Ability[words.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = parseAbility(words[i]); }
+        return vals;
     }
 
     private GradeEnum[] grades;
