@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Droserogis">
-    <output-path>$PROJECT_DIR$/out/artifacts/indev</output-path>
-    <root id="archive" name="Droserogis.jar">
-      <element id="module-output" name="Droserogis" />
-    </root>
-  </artifact>
-</component>

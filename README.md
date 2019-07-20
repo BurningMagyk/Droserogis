@@ -25,7 +25,8 @@
 + <h6>Alex Dineen</h6>
 
 ### Composers:
-+ <h6><i>--to be decided--</i></h6>
++ <h6>Mariano Pokagon</h6>
++ <h6>Alan Gatica</h6>
 
 ### Voice Actors:
 + <h6><i>--to be decided--</i></h6>

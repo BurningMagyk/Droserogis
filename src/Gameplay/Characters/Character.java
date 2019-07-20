@@ -1,6 +1,7 @@
 package Gameplay.Characters;
 
 import Gameplay.Actor;
+import Util.GradeEnum;
 
 import java.util.Arrays;
 
@@ -10,9 +11,9 @@ public class Character
     private int myUID;
     private Actor actor;
     private CharacterStat stats;
-    private CharacterStat.Grade characterGrade;
     private String name;
     private int level;
+    private GradeEnum characterGrade;
 
     private int statEXP[];
     private String baseStats[]; //In order listed in the CharacterStat class
@@ -34,6 +35,7 @@ public class Character
 
         stats.setGrades(bStats);
         levelUp(starterClass);
+        //updateAllActor();
     }
 
     /*****************************************************************************/
@@ -43,7 +45,7 @@ public class Character
     public int getUID() { return myUID; }
     public String getName() { return name;}
     public Actor getActor() { return actor;}
-    public CharacterStat.Grade[] getStats() { return stats.getGrades(); }
+    public GradeEnum[] getStats() { return stats.getGrades(); }
 
     public void levelUp(CharacterClass newClass)
     {
@@ -116,7 +118,7 @@ public class Character
     /******************************* Utility Stuff *******************************/
     /*****************************************************************************/
 
-    private void updateCharacterGrade() { characterGrade = CharacterStat.Grade.B; }
+    private void updateCharacterGrade() { characterGrade = GradeEnum.B; }
 
     //Returns an array of indices that sorts the stat increases for use
     private int[] sortStats()
@@ -160,7 +162,7 @@ public class Character
                 "C+", "D",
                 "A-"
         };
-        Actor lyraA = new Actor(0,0,0,0,0);
+        Actor lyraA = new Actor(0,0,0,0, 0);
         CharacterStat lyraStats = new CharacterStat(grades);
         //For this test, 100 increase points for the class total (basically for %)
         CharacterClass assassin = new CharacterClass("Assassin",
@@ -171,7 +173,7 @@ public class Character
                         0,10,
                         5,0,
                         0
-                });
+        });
         CharacterClass eMage = new CharacterClass("Erudian Mage",
                 new int[] {
                         0,0,
@@ -181,46 +183,41 @@ public class Character
                         15,20,
                         45
                 });
-        Character lyra[] = new Character[1000]; //testing speed
+        Character lyra = new Character("Lyra",lyraA,lyraStats,grades,assassin);
 
         boolean print = false;
 
-        for(int i = 0; i < lyra.length; i++)
+        for(int level = 1; level <= 40; level++)
         {
-            lyra[i] = new Character("Lyra",lyraA,lyraStats,grades,assassin);
-
-            for(int level = 1; level <= 40; level++)
+            if(level != 1)
             {
-                if(level != 1)
-                {
-                    if(lyra[i].level < 12) lyra[i].levelUp(assassin);
-                    else lyra[i].levelUp(eMage);
-                }
-
-                if((level%4) == 0) print = true;
-
-                if(print) System.out.println(lyra[i].name + ", level " + lyra[i].level);
-                int exps[] = lyra[i].statEXP;
-
-                for (int j = 0; j < lyra[i].classes.length; j++)
-                {
-                    if(lyra[i].classes[j] == null) break;
-                    if(print) System.out.println("  " + (1+j) + ": " + lyra[i].classes[j].getClassName());
-                }
-
-                if(print) System.out.println("Stats:");
-                CharacterStat.Grade lgrades[] = lyra[i].stats.getGrades();
-                for (int j = 0; j < lgrades.length; j++)
-                {
-                    if(lgrades[j] == null) break;
-                    if(print) System.out.print(" " + CharacterStat.getGradeString(lgrades[j]) + "(" + exps[j] + ")");
-                    if(((j+1)%2) == 0 && print) System.out.println();
-                    else if((j+1) < lgrades.length && print) System.out.print(", ");
-                }
-                if(print) System.out.println();
-
-                if(print) print = false;
+                if(lyra.level < 12) lyra.levelUp(assassin);
+                else lyra.levelUp(eMage);
             }
+
+            if((level%4) == 0) print = true;
+
+            if(print) System.out.println(lyra.name + ", level " + lyra.level);
+            int exps[] = lyra.statEXP;
+
+            for (int i = 0; i < lyra.classes.length; i++)
+            {
+                if(lyra.classes[i] == null) break;
+                if(print) System.out.println("  " + (1+i) + ": " + lyra.classes[i].getClassName());
+            }
+
+            if(print) System.out.println("Stats:");
+            GradeEnum lgrades[] = lyra.stats.getGrades();
+            for (int i = 0; i < lgrades.length; i++)
+            {
+                if(lgrades[i] == null) break;
+                if(print) System.out.print(" " + GradeEnum.getGradeString(lgrades[i]) + "(" + exps[i] + ")");
+                if(((i+1)%2) == 0 && print) System.out.println();
+                else if((i+1) < lgrades.length && print) System.out.print(", ");
+            }
+            if(print) System.out.println();
+
+            if(print) print = false;
         }
     }
 }

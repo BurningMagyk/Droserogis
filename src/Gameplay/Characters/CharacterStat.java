@@ -1,8 +1,12 @@
 package Gameplay.Characters;
 
+import Util.GradeEnum;
+
+import static Util.GradeEnum.parseGrade;
+
 public class CharacterStat
 {
-    enum Ability {
+    public enum Ability {
         STRENGTH,       /* Physical strength */
         STAMINA,        /* Endurance */
 
@@ -21,29 +25,7 @@ public class CharacterStat
         PRESENCE        /* Power of Personality */
     }
 
-    enum Grade {
-        SSS__, SSS_, SSS,
-        SS__ , SS_ , SS ,
-        S__  , S_  , S  ,
 
-        A__  , A_  , A  ,
-        B__  , B_  , B  ,
-        C__  , C_  , C  ,
-
-        D__  , D_  , D  ,
-        E__  , E_  , E  ,
-        F__  , F_  , F  }
-
-    private final static String[] gradeStrings = new String[] {
-        "SSS+", "SSS", "SSS-",  // Transcendent
-        "SS+" , "SS" , "SS-" ,  // Super-human
-        "S+"  , "S"  , "S-"  ,  // Meta-human
-        "A+"  , "A"  , "A-"  ,  // Master
-        "B+"  , "B"  , "B-"  ,  // Veteran
-        "C+"  , "C"  , "C-"  ,  // Trained
-        "D+"  , "D"  , "D-"  ,  // Experienced
-        "E+"  , "E"  , "E-"  ,  // Inexperienced
-        "F+"  , "F"  , "F-" };  // Impaired, small child
 
     private final static String[] abilityStrings = new String[] {
             "STRENGTH", "STAMINA",
@@ -53,27 +35,6 @@ public class CharacterStat
             "INTELLIGENCE", "KNOWLEDGE",
             "PRESENCE"};
 
-    private Grade parseGrade(String string)
-    {
-        for (int i = 0; i < Grade.values().length; i++)
-        {
-            if (string.equalsIgnoreCase(gradeStrings[i]))
-                return Grade.values()[i];
-        }
-        return null;
-    }
-    public static String getGradeString(Grade gr)
-    {
-        String grStr = "";
-        Grade gradesArr[] = Grade.values();
-
-        for(int i = 0; i < gradeStrings.length; i++)
-        {
-            if(gr == gradesArr[i]) grStr = gradeStrings[i];
-        }
-
-        return grStr;
-    }
     public static String getAbilityString(Ability ab)
     {
         String abStr = "";
@@ -96,8 +57,9 @@ public class CharacterStat
         return null;
     }
 
-    private Grade[] grades;
-    public Grade[] getGrades() { return grades; }
+    private GradeEnum[] grades;
+    public GradeEnum[] getGrades() { return grades; }
+    public GradeEnum getGrade(Ability ability) { return grades[ability.ordinal()]; }
     public void setGrades(String[] g)
     {
         for(int i = 0; i < g.length; i++)
@@ -107,7 +69,7 @@ public class CharacterStat
     }
     public int[] increaseGrades(int[] sortedStats, int maxIncrease)
     {
-        Grade posGrades[] = Grade.values();
+        GradeEnum posGrades[] = GradeEnum.values();
         int increasedStats[] = new int[maxIncrease];
         int increasedSoFar = 0;
 
@@ -132,7 +94,7 @@ public class CharacterStat
             String wil, String wis, String kno, String nte,
             String pre)
     {
-        grades = new Grade[Ability.values().length];
+        grades = new GradeEnum[Ability.values().length];
         grades[0] = parseGrade(str); grades[1] = parseGrade(sta);
         grades[2] = parseGrade(dex); grades[3] = parseGrade(agi);
         grades[4] = parseGrade(con); grades[5] = parseGrade(vit);
@@ -142,7 +104,7 @@ public class CharacterStat
     }
     CharacterStat(String stats[])
     {
-        grades = new Grade[Ability.values().length];
+        grades = new GradeEnum[Ability.values().length];
         for(int i = 0; i < stats.length; i++)
         {
             grades[i] = parseGrade(stats[i]);
