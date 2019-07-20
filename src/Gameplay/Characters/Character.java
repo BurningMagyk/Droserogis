@@ -10,9 +10,9 @@ public class Character
     private int myUID;
     private Actor actor;
     private CharacterStat stats;
+    private CharacterStat.Grade characterGrade;
     private String name;
     private int level;
-    private CharacterStat.Grade characterGrade;
 
     private int statEXP[];
     private String baseStats[]; //In order listed in the CharacterStat class
@@ -34,7 +34,6 @@ public class Character
 
         stats.setGrades(bStats);
         levelUp(starterClass);
-        updateCharacterGrade();
     }
 
     /*****************************************************************************/
@@ -63,8 +62,55 @@ public class Character
                 System.out.println("Increased " + CharacterStat.getAbilityString(abilityArr[indexArray[i]]));
             }
             updateCharacterGrade();
+            //updateAllActor();
         }
     }
+
+    /*Need to be public variables or make setters
+    public void updateAllActor()
+    {
+        //actor.mass = stats.mass();
+        //actor.width = stats.width();
+        //actor.height =  stats.height();
+
+        //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
+
+        actor.airSpeed = stats.airSpeed();
+        actor.swimSpeed = stats.swimSpeed();
+        actor.crawlSpeed = stats.crawlSpeed();
+        actor.walkSpeed = stats.walkSpeed();
+        actor.runSpeed = stats.runSpeed();
+        actor.lowerSprintSpeed = stats.lowerSprintSpeed();
+        actor.sprintSpeed = stats.sprintSpeed();
+        actor.rushSpeed = stats.rushSpeed();
+
+        actor.maxClimbSpeed = stats.maxClimbSpeed();
+        actor.maxStickSpeed = stats.maxStickSpeed();
+        actor.maxSlideSpeed = stats.maxSlideSpeed();
+        actor.maxLowerGroundSpeed = stats.maxLowerGroundSpeed();
+        actor.maxGroundSpeed = stats.maxGroundSpeed();
+        actor.maxTotalSpeed = stats.maxTotalSpeed();
+
+        actor.airAccel = stats.airAccel();
+        actor.swimAccel = stats.swimAccel();
+        actor.crawlAccel = stats.crawlAccel();
+        actor.climbAccel = stats.climbAccel();
+        actor.runAccel = stats.runAccel();
+
+        actor.jumpVel = stats.jumpVel();
+
+        actor.climbLedgeTime = stats.climbLedgeTime();
+        actor.dashRecoverTime = stats.dashRecoverTime();
+        actor.minTumbleTime = stats.minTumbleTime();
+
+        actor.proneRecoverTime = stats.proneRecoverTime();
+        actor.staggerAttackedTime = stats.staggerAttackedTime();
+        actor.staggerBlockedMod = stats.staggerBlockedMod();
+
+        // friction
+
+        actor.maxCommandChain = (int) stats.maxCommandChain();
+    }*/
 
     /*****************************************************************************/
     /******************************* Utility Stuff *******************************/
@@ -114,7 +160,7 @@ public class Character
                 "C+", "D",
                 "A-"
         };
-        Actor lyraA = new Actor(0,0,0,0, 0);
+        Actor lyraA = new Actor(0,0,0,0,0);
         CharacterStat lyraStats = new CharacterStat(grades);
         //For this test, 100 increase points for the class total (basically for %)
         CharacterClass assassin = new CharacterClass("Assassin",
@@ -125,7 +171,7 @@ public class Character
                         0,10,
                         5,0,
                         0
-        });
+                });
         CharacterClass eMage = new CharacterClass("Erudian Mage",
                 new int[] {
                         0,0,
@@ -135,41 +181,46 @@ public class Character
                         15,20,
                         45
                 });
-        Character lyra = new Character("Lyra",lyraA,lyraStats,grades,assassin);
+        Character lyra[] = new Character[1000]; //testing speed
 
         boolean print = false;
 
-        for(int level = 1; level <= 40; level++)
+        for(int i = 0; i < lyra.length; i++)
         {
-            if(level != 1)
+            lyra[i] = new Character("Lyra",lyraA,lyraStats,grades,assassin);
+
+            for(int level = 1; level <= 40; level++)
             {
-                if(lyra.level < 12) lyra.levelUp(assassin);
-                else lyra.levelUp(eMage);
+                if(level != 1)
+                {
+                    if(lyra[i].level < 12) lyra[i].levelUp(assassin);
+                    else lyra[i].levelUp(eMage);
+                }
+
+                if((level%4) == 0) print = true;
+
+                if(print) System.out.println(lyra[i].name + ", level " + lyra[i].level);
+                int exps[] = lyra[i].statEXP;
+
+                for (int j = 0; j < lyra[i].classes.length; j++)
+                {
+                    if(lyra[i].classes[j] == null) break;
+                    if(print) System.out.println("  " + (1+j) + ": " + lyra[i].classes[j].getClassName());
+                }
+
+                if(print) System.out.println("Stats:");
+                CharacterStat.Grade lgrades[] = lyra[i].stats.getGrades();
+                for (int j = 0; j < lgrades.length; j++)
+                {
+                    if(lgrades[j] == null) break;
+                    if(print) System.out.print(" " + CharacterStat.getGradeString(lgrades[j]) + "(" + exps[j] + ")");
+                    if(((j+1)%2) == 0 && print) System.out.println();
+                    else if((j+1) < lgrades.length && print) System.out.print(", ");
+                }
+                if(print) System.out.println();
+
+                if(print) print = false;
             }
-
-            if((level%4) == 0) print = true;
-
-            if(print) System.out.println(lyra.name + ", level " + lyra.level);
-            int exps[] = lyra.statEXP;
-
-            for (int i = 0; i < lyra.classes.length; i++)
-            {
-                if(lyra.classes[i] == null) break;
-                if(print) System.out.println("  " + (1+i) + ": " + lyra.classes[i].getClassName());
-            }
-
-            if(print) System.out.println("Stats:");
-            CharacterStat.Grade lgrades[] = lyra.stats.getGrades();
-            for (int i = 0; i < lgrades.length; i++)
-            {
-                if(lgrades[i] == null) break;
-                if(print) System.out.print(" " + CharacterStat.getGradeString(lgrades[i]) + "(" + exps[i] + ")");
-                if(((i+1)%2) == 0 && print) System.out.println();
-                else if((i+1) < lgrades.length && print) System.out.print(", ");
-            }
-            if(print) System.out.println();
-
-            if(print) print = false;
         }
     }
 }
