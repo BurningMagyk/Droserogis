@@ -1,6 +1,7 @@
 package Gameplay.Characters;
 
 import Gameplay.Actor;
+import Util.GradeEnum;
 
 import java.util.Arrays;
 
@@ -12,7 +13,7 @@ public class Character
     private CharacterStat stats;
     private String name;
     private int level;
-    private CharacterStat.Grade characterGrade;
+    private GradeEnum characterGrade;
 
     private int statEXP[];
     private String baseStats[]; //In order listed in the CharacterStat class
@@ -44,7 +45,7 @@ public class Character
     public int getUID() { return myUID; }
     public String getName() { return name;}
     public Actor getActor() { return actor;}
-    public CharacterStat.Grade[] getStats() { return stats.getGrades(); }
+    public GradeEnum[] getStats() { return stats.getGrades(); }
 
     public void levelUp(CharacterClass newClass)
     {
@@ -70,7 +71,7 @@ public class Character
     /******************************* Utility Stuff *******************************/
     /*****************************************************************************/
 
-    private void updateCharacterGrade() { characterGrade = CharacterStat.Grade.B; }
+    private void updateCharacterGrade() { characterGrade = GradeEnum.B; }
 
     //Returns an array of indices that sorts the stat increases for use
     private int[] sortStats()
@@ -159,11 +160,11 @@ public class Character
             }
 
             if(print) System.out.println("Stats:");
-            CharacterStat.Grade lgrades[] = lyra.stats.getGrades();
+            GradeEnum lgrades[] = lyra.stats.getGrades();
             for (int i = 0; i < lgrades.length; i++)
             {
                 if(lgrades[i] == null) break;
-                if(print) System.out.print(" " + CharacterStat.getGradeString(lgrades[i]) + "(" + exps[i] + ")");
+                if(print) System.out.print(" " + GradeEnum.getGradeString(lgrades[i]) + "(" + exps[i] + ")");
                 if(((i+1)%2) == 0 && print) System.out.println();
                 else if((i+1) < lgrades.length && print) System.out.print(", ");
             }
