@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Gameplay.Weapons.Infliction;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
@@ -324,7 +325,7 @@ public abstract class Item extends Entity
     }
 
     public abstract void inflict(Infliction infliction);
-    public abstract void damage(int amount); // TODO: include damage type and direction
+    public abstract void damage(GradeEnum amount); // TODO: include damage type and direction
     public abstract boolean easyToBlock();
 
     /* This is the speed the player gets automatically when running or

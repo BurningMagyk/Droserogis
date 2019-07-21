@@ -4,28 +4,34 @@ import Gameplay.Characters.CharacterStat;
 
 public enum GradeEnum
 {
-        SSS__, SSS_, SSS,
-        SS__ , SS_ , SS ,
-        S__  , S_  , S  ,
+        F    , F_   , F__  ,
+        E    , E_   , E__  ,
+        D    , D_   , D__  ,
 
-        A__  , A_  , A  ,
-        B__  , B_  , B  ,
-        C__  , C_  , C  ,
+        C    , C_   , C__  ,
+        B    , B_   , B__  ,
+        A    , A_   , A__  ,
 
-        D__  , D_  , D  ,
-        E__  , E_  , E  ,
-        F__  , F_  , F;
+        S    , S_   , S__  ,
+        SS   , SS_  , SS__ ,
+        SSS  , SSS_ , SSS__;
 
-    private final static String[] gradeStrings = new String[] {
-            "SSS+", "SSS", "SSS-",  // Transcendent
-            "SS+" , "SS" , "SS-" ,  // Super-human
-            "S+"  , "S"  , "S-"  ,  // Meta-human
-            "A+"  , "A"  , "A-"  ,  // Master
-            "B+"  , "B"  , "B-"  ,  // Veteran
-            "C+"  , "C"  , "C-"  ,  // Trained
-            "D+"  , "D"  , "D-"  ,  // Experienced
-            "E+"  , "E"  , "E-"  ,  // Inexperienced
-            "F+"  , "F"  , "F-" };  // Impaired, small child
+    private final static String[] gradeStrings = new String[]{
+        "F-"  , "F"  , "F+"  ,  // Impaired, small child
+        "E-"  , "E"  , "E+"  ,  // Inexperienced
+        "D-"  , "D"  , "D+"  ,  // Experienced
+
+        "C-"  , "C"  , "C+"  ,  // Trained
+        "B-"  , "B"  , "B+"  ,  // Veteran
+        "A-"  , "A"  , "A+"  ,  // Master
+
+        "S-"  , "S"  , "S+"  ,  // Meta-human
+        "SS-" , "SS" , "SS+" ,  // Super-human
+        "SSS-", "SSS", "SSS+"}; // Transcendent
+
+
+    @Override
+    public String toString() { return gradeStrings[ordinal()]; }
 
     public static GradeEnum parseGrade(String string)
     {

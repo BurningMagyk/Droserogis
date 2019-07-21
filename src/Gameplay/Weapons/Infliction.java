@@ -3,6 +3,7 @@ package Gameplay.Weapons;
 import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Gameplay.Item;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
@@ -13,7 +14,8 @@ public class Infliction
     private Actor inflictor;
 
     private DirEnum dir;
-    private int damage;
+    private GradeEnum damage;
+    private float critThreshSpeed;
     private Weapon.ConditionApp conditionApp;
     // TODO: add damage-type
     //private Vec2 weaponMomentum;
@@ -21,7 +23,7 @@ public class Infliction
     private boolean finished = false;
 
     Infliction(Weapon source, Weapon.Operation op, Actor inflictor,
-               DirEnum dir, int damage, Weapon.ConditionApp conditionApp)
+               DirEnum dir, GradeEnum damage, float critThreshSpeed, Weapon.ConditionApp conditionApp)
     {
         this.source = source;
         this.op = op;
@@ -40,7 +42,7 @@ public class Infliction
     public boolean sameSource(Infliction other) { return this.source == other.source; }
 
     public DirEnum getDir() { return dir; }
-    public int getDamage() { return damage; }
+    public GradeEnum getDamage() { return damage; }
     public void applyCondition(Actor other) { conditionApp.apply(other); }
     public boolean applyCondition(Weapon other) { return other.clash(source, op); }
 
@@ -76,12 +78,30 @@ public class Infliction
         otherActor.setVelocity(velForOther);
     }
 
-    public void cancelDamage() { damage = 0; }
+    public void cancelDamage() { damage = GradeEnum.F; }
     /**
      * Returns false if damage is dealt, returns true if deflected
      */
     public boolean applyDamage(Item other)
     {
+        GradeEnum _damage = damage;
+
+        /* Use velocity and thresh to decide if damage should be doubled as crit */
+        DirEnum travelDir = inflictor.getTravelDir();
+        if (travelDir == dir && critThreshSpeed != 0)
+        {
+            /* If critThreshSpeed is greater than zero, the weapon relies more on momentum,
+             * like a claymore. If critThreshSpeed is less than zero, the weapon relies more
+             * on precision, like a rapier. If critThreshSpeed is equal to zero, then it
+             * can't crit depending on travel speed, like a magic wand. */
+
+            double inflictorVel = inflictor.getVelocity().mag();
+            if ((critThreshSpeed > 0 && inflictorVel > critThreshSpeed)
+                    || (critThreshSpeed < 0 && inflictorVel > -critThreshSpeed))
+                _damage = GradeEnum.values()[Math.max(damage.ordinal() + 2, GradeEnum.values().length - 1)];
+            // TODO: decide on crit value (right now it's 2)
+        }
+
         if (other instanceof Actor)
         {
             boolean[] blockRating = ((Actor) other).getBlockRating();
@@ -89,7 +109,7 @@ public class Infliction
              * 1 - Prone
              * 2 - Pressing up
              * 3 - Using shield */
-            if (!blockRating[0] || (!blockRating[3] && !source.easyToBlock())) other.damage(damage);
+            if (!blockRating[0] || (!blockRating[3] && !source.easyToBlock())) other.damage(_damage);
             else if (blockRating[1])
             {
                 float weaponPos = source.getOffsetPosition().x, actorPos = other.getPosition().x;
@@ -98,13 +118,13 @@ public class Infliction
                 if (((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT)
                 {
                     if ((weaponPos >= actorPos && !blockRating[2])
-                            || (weaponPos <= actorPos && blockRating[2])) other.damage(damage);
+                            || (weaponPos <= actorPos && blockRating[2])) other.damage(_damage);
                     else return true;
                 }
                 else
                 {
                     if ((weaponPos <= actorPos && blockRating[2])
-                            || (weaponPos >= actorPos && !blockRating[2])) other.damage(damage);
+                            || (weaponPos >= actorPos && !blockRating[2])) other.damage(_damage);
                     else return true;
                 }
             }
@@ -116,14 +136,14 @@ public class Infliction
                 {
                     float _weaponPos = source.getOffsetPosition().y, _actorPos = other.getPosition().y;
                     if ((_weaponPos < _actorPos && !blockRating[2]) || _weaponPos > _actorPos && blockRating[2])
-                        other.damage(damage);
+                        other.damage(_damage);
                     else return true;
                 }
-                else if (weaponPos <= actorPos || weaponPos >= actorPos) other.damage(damage);
+                else if (weaponPos <= actorPos || weaponPos >= actorPos) other.damage(_damage);
                 else return true;
             }
         }
-        else other.damage(damage);
+        else other.damage(_damage);
         return false;
     }
 

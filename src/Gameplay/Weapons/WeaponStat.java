@@ -7,7 +7,8 @@ import Util.Print;
 public class WeaponStat
 {
     private String[] info;
-    private WeaponGrade[] damageGrades, rangeGrades, speedGrades, warmupGrades, cooldownGrades;
+    private WeaponGrade[] damageGrades, rangeGrades, speedGrades,
+            critThreshSpeedGrades, warmupGrades, cooldownGrades;
     private GradeEnum disruptThreshGrade;
     private float conditionModFloat;
 
@@ -36,6 +37,7 @@ public class WeaponStat
         damageGrades = new WeaponGrade[opCount];
         rangeGrades = new WeaponGrade[opCount];
         speedGrades = new WeaponGrade[opCount];
+        critThreshSpeedGrades = new WeaponGrade[opCount];
         warmupGrades = new WeaponGrade[opCount];
         cooldownGrades = new WeaponGrade[opCount];
         this.info = info;
@@ -57,10 +59,12 @@ public class WeaponStat
                     getCharGrade(charStat, info[i + 3]));
             speedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 4]),
                     getCharGrade(charStat, info[i + 5]));
-            warmupGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
+            speedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
                     getCharGrade(charStat, info[i + 7]));
-            cooldownGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
+            warmupGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
                     getCharGrade(charStat, info[i + 9]));
+            cooldownGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 10]),
+                    getCharGrade(charStat, info[i + 11]));
         }
 
         conditionModFloat = charStat.agility(getCharGrade(charStat, "AGILITY")[0]);
@@ -94,6 +98,14 @@ public class WeaponStat
         return 1;
     }
 
+    private float critThreshSpeed(int i)
+    {
+        WeaponGrade weaponGrade = critThreshSpeedGrades[i];
+
+        // TODO: return final grade based on weaponGrade member values
+        return 1;
+    }
+
     private float warmup(int i)
     {
         WeaponGrade weaponGrade = warmupGrades[i];
@@ -114,35 +126,42 @@ public class WeaponStat
 
     float conditionMod() { return conditionModFloat; }
 
-    GradeEnum[] damage()
+    GradeEnum[] damages()
     {
         GradeEnum[] vals = new GradeEnum[damageGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = damage(i); }
         return vals;
     }
 
-    float[] range()
+    float[] ranges()
     {
         float[] vals = new float[rangeGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = range(i); }
         return vals;
     }
 
-    float[] speed()
+    float[] speeds()
     {
         float[] vals = new float[speedGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = speed(i); }
         return vals;
     }
 
-    float[] warmup()
+    float[] critThreshSpeeds()
+    {
+        float[] vals = new float[speedGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = critThreshSpeed(i); }
+        return vals;
+    }
+
+    float[] warmups()
     {
         float[] vals = new float[warmupGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = warmup(i); }
         return vals;
     }
 
-    float[] cooldown()
+    float[] cooldowns()
     {
         float[] vals = new float[cooldownGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = cooldown(i); }

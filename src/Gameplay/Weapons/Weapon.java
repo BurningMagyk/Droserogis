@@ -520,6 +520,9 @@ public abstract class Weapon extends Item
 
         ArrayList<Integer> interruptConditions = new ArrayList<>();
 
+        GradeEnum damage;
+        float critThreshSpeed;
+
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
 
@@ -528,6 +531,8 @@ public abstract class Weapon extends Item
               DirEnum functionalDir,
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
+              GradeEnum damage,
+              float critThreshSpeed,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
               Tick[] execJourney)
         {
@@ -543,6 +548,8 @@ public abstract class Weapon extends Item
                     defaultOrient, cooldownTime);
             this.functionalDir = functionalDir;
             this.useDirHorizFunctionally = useDirHorizFunctionally;
+            this.damage = damage;
+            this.critThreshSpeed = critThreshSpeed;
             this.conditionAppCycle = conditionAppCycle;
             this.conditionAppInfliction = conditionAppInflicion == null ? new ConditionApp(0) : conditionAppInflicion;
         }
@@ -551,11 +558,14 @@ public abstract class Weapon extends Item
               DirEnum functionalDir,
               boolean useDirHorizFunctionally,
               int[] interruptConditions,
+              GradeEnum damage,
+              float critThreshSpeed,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
               Tick[] execJourney,
               Tick customWarmPos)
         {
-            this(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions, conditionAppCycle, conditionAppInflicion, execJourney);
+            this(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions, damage, critThreshSpeed,
+                    conditionAppCycle, conditionAppInflicion, execJourney);
             /* For kicking, the warm-up needs to start in a different spot */
             warmJourney = new Journey(customWarmPos.getOrient(),
                     execJourney[0].getOrient(), waits.x);
@@ -695,7 +705,8 @@ public abstract class Weapon extends Item
             if (dir.getCollisionPos(_this, target))
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
+                Infliction infliction = new Infliction(
+                        _this, this, actor, dir, damage, critThreshSpeed, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.blue(" by " + this);
@@ -710,20 +721,22 @@ public abstract class Weapon extends Item
     {
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
+                      GradeEnum damage, float critThreshSpeed,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
-                    conditionAppCycle, conditionAppInfliction, execJourney);
+                    damage, critThreshSpeed, conditionAppCycle, conditionAppInfliction, execJourney);
             this.speedReliant = speedReliant;
         }
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
+                      GradeEnum damage, float critThreshSpeed,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney, Tick customWarmPos)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
-                    conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
+                    damage, critThreshSpeed, conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
             this.speedReliant = speedReliant;
         }
 
@@ -824,7 +837,8 @@ public abstract class Weapon extends Item
                     return;
 
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
+                Infliction infliction = new Infliction(
+                        _this, this, actor, dir, damage, critThreshSpeed, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.blue(" by " + this);
@@ -834,18 +848,23 @@ public abstract class Weapon extends Item
 
     abstract class Rush implements Operation
     {
+        GradeEnum damage;
+        float critThreshSpeed;
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
         float warmupTime, cooldownTime, execTime;
 
         Rush(Vec2 waits, float execTime,
                  DirEnum functionalDir, boolean useDirHorizFunctionally,
+                 GradeEnum damage, float critThreshSpeed,
                  ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
             warmupTime = waits.x; cooldownTime = waits.y;
             this.execTime = execTime;
             this.functionalDir = functionalDir;
             this.useDirHorizFunctionally = useDirHorizFunctionally;
+            this.damage = damage;
+            this.critThreshSpeed = critThreshSpeed;
             this.conditionAppCycle = conditionAppCycle;
             this.conditionAppInfliction = conditionAppInfliction == null ? new ConditionApp(0) : conditionAppInfliction;
         }
@@ -944,7 +963,8 @@ public abstract class Weapon extends Item
             if (collisionSpeed > 0)
             {
                 collidedItems.add(other);
-                Infliction infliction = new Infliction(_this, this, actor, dir, 1, conditionAppInfliction);
+                Infliction infliction = new Infliction(
+                        _this, this, actor, dir, damage, critThreshSpeed, conditionAppInfliction);
                 inflictionsDealt.add(infliction);
                 other.inflict(infliction);
                 Print.yellow(" by " + this);
@@ -957,9 +977,11 @@ public abstract class Weapon extends Item
         HoldableRush(Vec2 waits,
                          float minExecTime, float maxExecTime,
                          DirEnum functionalDir, boolean useDirHorizFunctionally,
+                         GradeEnum damage, float critThreshSpeed,
                          ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction)
         {
-            super(waits, minExecTime, functionalDir, useDirHorizFunctionally, conditionAppCycle, conditionAppInfliction);
+            super(waits, minExecTime, functionalDir, useDirHorizFunctionally, damage, critThreshSpeed,
+                    conditionAppCycle, conditionAppInfliction);
             this.minExecTime = minExecTime;
             this.maxExecTime = maxExecTime;
         }
@@ -1038,7 +1060,7 @@ public abstract class Weapon extends Item
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
-                if (inf.getDamage() != 0 && actor.hasSameInfliction(inf))
+                if (inf.getDamage().ordinal() != 0 && actor.hasSameInfliction(inf))
                     inf.cancelDamage();
             }
         }
@@ -1067,7 +1089,7 @@ public abstract class Weapon extends Item
     }
 
     @Override
-    public void damage(int amount)
+    public void damage(GradeEnum amount)
     {
         if (isNatural()) Print.yellow("Actor: Dealt " + amount + " damage");
         else Print.yellow("Weapon: Dealt " + amount + " damage");
@@ -1083,26 +1105,29 @@ public abstract class Weapon extends Item
     /* Variables that are set by the weapon's stats                          */
     /*=======================================================================*/
 
-    /* Minimum damage + speed grade needed to disrupt this weapon in a clash */
+    /* Minimum damage grade needed to disrupt this weapon in a clash */
     private GradeEnum disruptThresh;
 
     /* Percentage of condition time that gets applied to the wielder by ConditionApp */
     private float conditionMod = 1;
 
     /* Damage rating that attacks do */
-    protected GradeEnum[] damage;
+    GradeEnum[] damages;
 
     /* How far the attacks throw/fire */
-    protected float[] range;
+    float[] ranges;
 
     /* Speed during execution */
-    protected float[] speed;
+    float[] speeds;
+
+    /* Speed needed to make a critical hit */
+    float[] critThreshSpeeds;
 
     /* Speed during warmup */
-    protected float[] warmup;
+    float[] warmups;
 
     /* Speed during cooldown */
-    protected float[] cooldown;
+    float[] cooldowns;
 
     public void setWeaponStats(CharacterStat charStat)
     {
@@ -1110,11 +1135,12 @@ public abstract class Weapon extends Item
 
         disruptThresh = weaponStat.disruptThresh();
         conditionMod = weaponStat.conditionMod();
-        damage = weaponStat.damage();
-        range = weaponStat.range();
-        speed = weaponStat.speed();
-        warmup = weaponStat.warmup();
-        cooldown = weaponStat.cooldown();
+        damages = weaponStat.damages();
+        ranges = weaponStat.ranges();
+        speeds = weaponStat.speeds();
+        critThreshSpeeds = weaponStat.critThreshSpeeds();
+        warmups = weaponStat.warmups();
+        cooldowns = weaponStat.cooldowns();
     }
 
     private WeaponStat weaponStat;

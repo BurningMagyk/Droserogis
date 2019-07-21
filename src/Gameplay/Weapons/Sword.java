@@ -2,6 +2,7 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
@@ -160,7 +161,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage + speed grade here
+                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Uninterrupted");
@@ -173,7 +174,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage + speed grade here
+                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Interrupted them");
@@ -210,22 +211,26 @@ public class Sword extends Weapon
     /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN */
     private class Thrust extends HoldableMelee {
         Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
+               GradeEnum damage, float critThreshSpeed,
                ConditionAppCycle statusAppCycle, Tick[] execJourney) {
             super("thrust", waits, functionalDir, useDirHorizFunctionaly, true, new int[]{DURING_COOLDOWN},
-                    statusAppCycle, null, execJourney); } }
+                    damage, critThreshSpeed, statusAppCycle, null, execJourney); } }
 
     /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
     private class Stab extends Melee {
         Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
             super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
-                    statusAppCycle, null, execJourney); } }
+                    damages[2], critThreshSpeeds[2] ,statusAppCycle, null, execJourney); } }
+                    // TODO: use named indices to refer to stat arrays
 
     /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
        SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
     private class Swing extends Melee {
-        Swing(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+        Swing(Vec2 waits, DirEnum functionalDir,
+              GradeEnum damage, float critThreshSpeed,
+              ConditionAppCycle statusAppCycle, Tick[] execJourney) {
             super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
-                    statusAppCycle, null, execJourney); } }
+                    damage, critThreshSpeed, statusAppCycle, null, execJourney); } }
 
     public Sword(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass)
     {
@@ -355,6 +360,8 @@ public class Sword extends Weapon
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                ATTACKS                                                  ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // TODO: set these every time weaponStat is applied instead of in the constructor
 
         THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, basicCycle, thrustJourneys[0]);
         THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, thrustJourneys[1]);

@@ -1069,7 +1069,7 @@ public class Actor extends Item
     }
 
     @Override
-    public void damage(int amount)
+    public void damage(GradeEnum amount)
     {
         Print.yellow("Actor: Dealt " + amount + " damage");
     }
@@ -1089,7 +1089,7 @@ public class Actor extends Item
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);
-                if (inf.getDamage() != 0 && weapon.hasSameInfliction(inf))
+                if (inf.getDamage().ordinal() != 0 && weapon.hasSameInfliction(inf))
                     inf.cancelDamage();
             }
         }
