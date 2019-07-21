@@ -31,6 +31,9 @@ public class Actor extends Item
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
+    // TODO: these values need to be balanced for MVP
+    private float[] STAGGER_MAG_MOD = new float[] { 1.25F, 1.5F, 1.75F };
+
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
     /* The horizontal direction that the player intends to face towards.
@@ -983,25 +986,34 @@ public class Actor extends Item
         }
     }
 
+    private float getStaggerMagMod(float mag)
+    {
+        if (mag < walkSpeed) return 1;
+        else if (mag < runSpeed) return STAGGER_MAG_MOD[0];
+        else if (mag < rushSpeed) return STAGGER_MAG_MOD[1];
+        else return STAGGER_MAG_MOD[2];
+    }
+
     /* Called when player is hit or blocked */
     public void stagger(DirEnum dir, float mag, boolean operator)
     {
-        // TODO: need formula for this
+        float _staggerRecoverTime = getStaggerMagMod(mag) * staggerRecoverTime;
+
         if (operator) /* When player gets blocked */
         {
-            float staggerBlockedTime = staggerAttackedTime * staggerBlockedMod;
+            float staggerBlockedTime = _staggerRecoverTime * staggerBlockMod;
             addCondition(staggerBlockedTime, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
         }
 
         /* When player is hit */
         if (has(Condition.NEGATE_ACTIVITY))
         {
-            addCondition(staggerAttackedTime, Condition.NEGATE_ACTIVITY);
+            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
             Print.green("ouch!");
         }
         else if (has(Condition.NEGATE_STABILITY))
         {
-            addCondition(staggerAttackedTime, Condition.NEGATE_ACTIVITY);
+            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
         }
         else if (state.isGrounded())
         {
@@ -1010,44 +1022,49 @@ public class Actor extends Item
             if (vert == DirEnum.UP)
             {
                 if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(staggerAttackedTime, Condition.FORCE_STAND);
+                    addCondition(_staggerRecoverTime, Condition.FORCE_STAND);
             }
             else if (vert == DirEnum.DOWN)
             {
-                if (state.isLow()) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
+                if (state.isLow()) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
                 else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(staggerAttackedTime, Condition.FORCE_CROUCH);
+                    addCondition(_staggerRecoverTime, Condition.FORCE_CROUCH);
             }
 
             if (horiz == DirEnum.LEFT)
             {
-                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_RIGHT);
+                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_RIGHT);
             }
             else if (horiz == DirEnum.RIGHT)
             {
-                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_LEFT);
-                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_LEFT);
+                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT);
+                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT);
             }
             else if (vert != DirEnum.NONE)
             {
                 if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
-                    addCondition(staggerAttackedTime, Condition.NEGATE_STABILITY);
-                else if (!canRun()) addCondition(staggerAttackedTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(staggerAttackedTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                    addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+                else if (!canRun()) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
             }
         }
 
         for (Weapon weapon : weapons) { weapon.disrupt(); }
     }
 
-    /* Called when player is attack is parried */
+    /* Called when player's attack is parried */
     public void stagger(GradeEnum grade)
     {
-        // TODO: need formula for this
-        addCondition(staggerAttackedTime * staggerBlockedMod * 2,
+        float gradeInflucence;
+        if (grade.ordinal() < GradeEnum.E.ordinal()) gradeInflucence = 1;
+        else if (grade.ordinal() <= GradeEnum.C.ordinal()) gradeInflucence = STAGGER_MAG_MOD[0];
+        else if (grade.ordinal() <= GradeEnum.A.ordinal()) gradeInflucence = STAGGER_MAG_MOD[1];
+        else gradeInflucence = STAGGER_MAG_MOD[2];
+
+        addCondition(staggerRecoverTime * staggerParryMod * gradeInflucence,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
@@ -1247,9 +1264,16 @@ public class Actor extends Item
 
     private int maxCommandChain = 3;
 
-    private float staggerAttackedTime = 2; // TODO: change name
+    /* How long the player staggers */
+    private float staggerRecoverTime = 2;
 
-    private float staggerBlockedMod = 0.5F;  // TODO: change name
+    /* Modifies staggerRecoverTime when parried.
+     * Want this to be low but would never fall below 1.0F */
+    private float staggerParryMod = 2F;
+
+    /* Modifies staggerRecoverTime when blocking.
+    *  Want this to be low and would never go over 1.0F */
+    private float staggerBlockMod = 0.5F;
 
     private void setCharacterStats()
     {
@@ -1282,8 +1306,9 @@ public class Actor extends Item
         minTumbleTime = charStat.minTumbleTime();
 
         proneRecoverTime = charStat.proneRecoverTime();
-        staggerAttackedTime = charStat.staggerAttackedTime();
-        staggerBlockedMod = charStat.staggerBlockedMod();
+        staggerRecoverTime = charStat.staggerRecoverTime();
+        staggerParryMod = charStat.staggerParryMod();
+        staggerBlockMod = charStat.staggerBlockMod();
 
         NORMAL_FRICTION = charStat.friction();
         GREATER_FRICTION = NORMAL_FRICTION * 3;

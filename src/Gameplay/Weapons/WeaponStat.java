@@ -8,6 +8,7 @@ public class WeaponStat
 {
     private String[] info;
     private WeaponGrade[] damageGrades, rangeGrades, speedGrades, warmupGrades, cooldownGrades;
+    private GradeEnum disruptThreshGrade, conditionModGrade;
 
     private class WeaponGrade
     {
@@ -20,13 +21,10 @@ public class WeaponStat
         }
     }
 
-    private GradeEnum[] getCharGrade(CharacterStat charStat, String string)
+    WeaponStat(String disruptThresh, String... info)
     {
-        return GradeEnum.avg(charStat, charStat.parseAbilities(string));
-    }
+        disruptThreshGrade = GradeEnum.parseGrade(disruptThresh);
 
-    WeaponStat(String[] info)
-    {
         if (info.length % 10 != 0)
         {
             Print.red("Error: " + info.length + " string parameters used for WeaponStat constructor.");
@@ -40,6 +38,11 @@ public class WeaponStat
         warmupGrades = new WeaponGrade[opCount];
         cooldownGrades = new WeaponGrade[opCount];
         this.info = info;
+    }
+
+    private GradeEnum[] getCharGrade(CharacterStat charStat, String string)
+    {
+        return GradeEnum.avg(charStat, charStat.parseAbilities(string));
     }
 
 
@@ -58,6 +61,8 @@ public class WeaponStat
             cooldownGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
                     getCharGrade(charStat, info[i + 9]));
         }
+
+        conditionModGrade = getCharGrade(charStat, "AGILITY")[0];
     }
 
     /*****************************************************************************/

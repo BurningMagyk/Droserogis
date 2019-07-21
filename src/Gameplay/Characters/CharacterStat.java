@@ -345,8 +345,9 @@ public class CharacterStat
     public float minTumbleTime() { return agility(1F, 0); }
 
     public float proneRecoverTime() { return constitution(1, 0); }
-    public float staggerAttackedTime() { return strength(2, 0); }
-    public float staggerBlockedMod() { return constitution(0.5F, 0); }
+    public float staggerRecoverTime() { return strength(2, 0); }
+    public float staggerParryMod() { return strength(2, 0); }
+    public float staggerBlockMod() { return constitution(0.5F, 0); }
 
     public float friction() { return agility(0.5F, 0); }
 

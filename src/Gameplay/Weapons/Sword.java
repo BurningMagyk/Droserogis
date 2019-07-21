@@ -160,7 +160,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage grade here
+                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage + speed grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Uninterrupted");
@@ -173,7 +173,7 @@ public class Sword extends Weapon
                     {
                         if (otherOp instanceof Swing)
                         {
-                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage grade here
+                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage + speed grade here
                             return true;
                         }
                         else return false;//Print.green("Sword: Interrupted them");

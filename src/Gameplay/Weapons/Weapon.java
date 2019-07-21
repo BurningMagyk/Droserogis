@@ -482,10 +482,10 @@ public abstract class Weapon extends Item
         ConditionApp add(ConditionApp app) { return new ConditionApp(app, conditions); }
         ConditionApp lengthen(float newTime) { return new ConditionApp(this, newTime); }
 
-        void apply(Actor actor) // TODO: Actor should determine what percentage of time the condition should be applied
+        void apply(Actor actor)
         {
             for (Actor.Condition condition : conditions)
-                actor.addCondition(time, condition);
+                actor.addCondition(time * conditionMod, condition);
         }
     }
 
@@ -1083,7 +1083,11 @@ public abstract class Weapon extends Item
     /* Variables that are set by the weapon's stats                          */
     /*=======================================================================*/
 
+    /* Minimum damage + speed grade needed to disrupt this weapon in a clash */
     private GradeEnum disruptThresh;
+
+    /* Percentage of condition time that gets applied to the wielder by ConditionApp */
+    private float conditionMod = 1;
 
     public void setWeaponStats(CharacterStat charStat)
     {
