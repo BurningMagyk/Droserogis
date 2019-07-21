@@ -310,6 +310,8 @@ public class CharacterStat
         return (PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base) + offset;
     }
 
+    public float agility(GradeEnum grade) { return AGILITY[grade.ordinal()]; }
+
     /*****************************************************************************/
     /****************************** Balancing Tools ******************************/
     /*****************************************************************************/

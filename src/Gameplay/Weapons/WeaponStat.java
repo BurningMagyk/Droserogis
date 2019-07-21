@@ -8,7 +8,8 @@ public class WeaponStat
 {
     private String[] info;
     private WeaponGrade[] damageGrades, rangeGrades, speedGrades, warmupGrades, cooldownGrades;
-    private GradeEnum disruptThreshGrade, conditionModGrade;
+    private GradeEnum disruptThreshGrade;
+    private float conditionModFloat;
 
     private class WeaponGrade
     {
@@ -62,7 +63,7 @@ public class WeaponStat
                     getCharGrade(charStat, info[i + 9]));
         }
 
-        conditionModGrade = getCharGrade(charStat, "AGILITY")[0];
+        conditionModFloat = charStat.agility(getCharGrade(charStat, "AGILITY")[0]);
     }
 
     /*****************************************************************************/
@@ -108,6 +109,10 @@ public class WeaponStat
         // TODO: return final grade based on weaponGrade member values
         return 1;
     }
+
+    GradeEnum disruptThresh() { return disruptThreshGrade; }
+
+    float conditionMod() { return conditionModFloat; }
 
     GradeEnum[] damage()
     {

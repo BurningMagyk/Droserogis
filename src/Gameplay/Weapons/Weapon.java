@@ -1089,11 +1089,32 @@ public abstract class Weapon extends Item
     /* Percentage of condition time that gets applied to the wielder by ConditionApp */
     private float conditionMod = 1;
 
+    /* Damage rating that attacks do */
+    protected GradeEnum[] damage;
+
+    /* How far the attacks throw/fire */
+    protected float[] range;
+
+    /* Speed during execution */
+    protected float[] speed;
+
+    /* Speed during warmup */
+    protected float[] warmup;
+
+    /* Speed during cooldown */
+    protected float[] cooldown;
+
     public void setWeaponStats(CharacterStat charStat)
     {
         weaponStat.setCharStat(charStat);
 
-        // TODO: set stats here
+        disruptThresh = weaponStat.disruptThresh();
+        conditionMod = weaponStat.conditionMod();
+        damage = weaponStat.damage();
+        range = weaponStat.range();
+        speed = weaponStat.speed();
+        warmup = weaponStat.warmup();
+        cooldown = weaponStat.cooldown();
     }
 
     private WeaponStat weaponStat;
