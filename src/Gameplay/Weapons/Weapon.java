@@ -295,6 +295,9 @@ public abstract class Weapon extends Item
 
         void apply(Weapon _this, Item other);
 
+        boolean isEasyToBlock();
+        boolean isDisruptive();
+
         enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
     }
 
@@ -522,6 +525,7 @@ public abstract class Weapon extends Item
 
         GradeEnum damage;
         float critThreshSpeed;
+        boolean easyToBlock, disruptive;
 
         ConditionAppCycle conditionAppCycle;
         ConditionApp conditionAppInfliction;
@@ -533,6 +537,8 @@ public abstract class Weapon extends Item
               int[] interruptConditions,
               GradeEnum damage,
               float critThreshSpeed,
+              boolean easyToBlock,
+              boolean disruptive,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
               Tick[] execJourney)
         {
@@ -550,6 +556,8 @@ public abstract class Weapon extends Item
             this.useDirHorizFunctionally = useDirHorizFunctionally;
             this.damage = damage;
             this.critThreshSpeed = critThreshSpeed;
+            this.easyToBlock = easyToBlock;
+            this.disruptive = disruptive;
             this.conditionAppCycle = conditionAppCycle;
             this.conditionAppInfliction = conditionAppInflicion == null ? new ConditionApp(0) : conditionAppInflicion;
         }
@@ -560,12 +568,14 @@ public abstract class Weapon extends Item
               int[] interruptConditions,
               GradeEnum damage,
               float critThreshSpeed,
+              boolean easyToBlock,
+              boolean disruptive,
               ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInflicion,
               Tick[] execJourney,
               Tick customWarmPos)
         {
             this(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions, damage, critThreshSpeed,
-                    conditionAppCycle, conditionAppInflicion, execJourney);
+                    easyToBlock, disruptive, conditionAppCycle, conditionAppInflicion, execJourney);
             /* For kicking, the warm-up needs to start in a different spot */
             warmJourney = new Journey(customWarmPos.getOrient(),
                     execJourney[0].getOrient(), waits.x);
@@ -713,6 +723,11 @@ public abstract class Weapon extends Item
             }
         }
 
+        @Override
+        public boolean isEasyToBlock() { return easyToBlock; }
+        @Override
+        public boolean isDisruptive() { return disruptive; }
+
         void boostWarmup(boolean skip) { warmSkip = skip; }
         void boostWarmup(float boostSec) { warmBoostSec = boostSec; }
     }
@@ -722,21 +737,23 @@ public abstract class Weapon extends Item
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
                       GradeEnum damage, float critThreshSpeed,
+                      boolean easyToBlock, boolean disruptive,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
-                    damage, critThreshSpeed, conditionAppCycle, conditionAppInfliction, execJourney);
+                    damage, critThreshSpeed, easyToBlock, disruptive, conditionAppCycle, conditionAppInfliction, execJourney);
             this.speedReliant = speedReliant;
         }
         HoldableMelee(String name, Vec2 waits, DirEnum functionalDir,
                       boolean useDirHorizFunctionally, boolean speedReliant, int[] interruptConditions,
                       GradeEnum damage, float critThreshSpeed,
+                      boolean easyToBlock, boolean disruptive,
                       ConditionAppCycle conditionAppCycle, ConditionApp conditionAppInfliction,
                       Tick[] execJourney, Tick customWarmPos)
         {
             super(name, waits, functionalDir, useDirHorizFunctionally, interruptConditions,
-                    damage, critThreshSpeed, conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
+                    damage, critThreshSpeed, easyToBlock, disruptive, conditionAppCycle, conditionAppInfliction, execJourney, customWarmPos);
             this.speedReliant = speedReliant;
         }
 
@@ -970,6 +987,11 @@ public abstract class Weapon extends Item
                 Print.yellow(" by " + this);
             }
         }
+
+        @Override
+        public boolean isEasyToBlock() { return true; }
+        @Override
+        public boolean isDisruptive() { return true; }
     }
 
     abstract class HoldableRush extends Rush
@@ -1141,7 +1163,11 @@ public abstract class Weapon extends Item
         critThreshSpeeds = weaponStat.critThreshSpeeds();
         warmups = weaponStat.warmups();
         cooldowns = weaponStat.cooldowns();
+
+        setup();
     }
+
+    abstract void setup();
 
     private WeaponStat weaponStat;
 
