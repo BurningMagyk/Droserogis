@@ -303,14 +303,16 @@ public abstract class Weapon extends Item
 
     class Tick
     {
-        float totalSec;
+        float _sec, totalSec;
         Orient tickOrient;
 
-        Tick(float totalSec, float posX, float posY, float theta)
+        Tick(float _sec, float posX, float posY, float theta)
         {
-            this.totalSec = totalSec;
+            this._sec = _sec;
             tickOrient = new Orient(new Vec2(posX, posY), reduceTheta(theta));
         }
+
+        void setSpeed(float speed) { totalSec = _sec * speed; }
 
         boolean check(float totalSec, DirEnum dir)
         {
@@ -352,15 +354,17 @@ public abstract class Weapon extends Item
     class Journey
     {
         private Orient start, end, distance;
-        private float totalTime;
+        private float _time, totalTime;
 
-        Journey(Orient start, Orient end, float totalTime)
+        Journey(Orient start, Orient end, float _time)
         {
             end._reduceTheta();
             this.end = end;
-            this.totalTime = totalTime;
+            this._time = _time;
             setStart(start);
         }
+
+        void setSpeed(float speed) { totalTime = _time * speed; }
 
         boolean check(float time, DirEnum dir)
         {
@@ -1145,11 +1149,8 @@ public abstract class Weapon extends Item
     /* Speed needed to make a critical hit */
     float[] critThreshSpeeds;
 
-    /* Speed during warmup */
-    float[] warmups;
-
-    /* Speed during cooldown */
-    float[] cooldowns;
+    /* Speeds during warmup and cooldown */
+    Vec2[] waits;
 
     public void setWeaponStats(CharacterStat charStat)
     {
@@ -1161,8 +1162,7 @@ public abstract class Weapon extends Item
         ranges = weaponStat.ranges();
         speeds = weaponStat.speeds();
         critThreshSpeeds = weaponStat.critThreshSpeeds();
-        warmups = weaponStat.warmups();
-        cooldowns = weaponStat.cooldowns();
+        waits = weaponStat.waits();
 
         setup();
     }

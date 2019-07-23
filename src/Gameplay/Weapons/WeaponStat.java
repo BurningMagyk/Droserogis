@@ -3,6 +3,7 @@ package Gameplay.Weapons;
 import Gameplay.Characters.CharacterStat;
 import Util.GradeEnum;
 import Util.Print;
+import Util.Vec2;
 
 public class WeaponStat
 {
@@ -154,7 +155,7 @@ public class WeaponStat
         return vals;
     }
 
-    float[] warmups()
+    /*float[] warmups()
     {
         float[] vals = new float[warmupGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = warmup(i); }
@@ -165,6 +166,13 @@ public class WeaponStat
     {
         float[] vals = new float[cooldownGrades.length];
         for (int i = 0; i < vals.length; i++) { vals[i] = cooldown(i); }
+        return vals;
+    }*/
+
+    Vec2[] waits()
+    {
+        Vec2[] vals = new Vec2[warmupGrades.length];
+        for (int i = 0; i < vals.length; i++) { vals[i] = new Vec2(warmup(i), cooldown(i)); }
         return vals;
     }
 }

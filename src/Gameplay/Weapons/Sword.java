@@ -244,7 +244,7 @@ public class Sword extends Weapon
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         thrustJourneys = new Tick[][] {
-                new Tick[] { /* THRUST, THRUST_LUNGE */
+                new Tick[] { /* THRUST */
                         new Tick(0.06F, 0.8F, -0.2F, 0F),
                         new Tick(0.10F, 1.4F, -0.2F, 0F),
                         new Tick(0.16F, 2F, -0.2F, 0F) },
@@ -257,7 +257,8 @@ public class Sword extends Weapon
                         new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4),
                         new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4),
                         new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4) },
-                null /* THRUST_DIAG_DOWN */
+                null, /* THRUST_DIAG_DOWN */
+                null  /* THRUST_LUNGE */
         };
 
         thrustJourneys[2] = new Tick[thrustJourneys[1].length];
@@ -270,6 +271,9 @@ public class Sword extends Weapon
         thrustJourneys[4] = new Tick[thrustJourneys[3].length];
         for (int i = 0; i < thrustJourneys[3].length; i++)
             thrustJourneys[4][i] = thrustJourneys[3][i].getMirrorCopy(false, true);
+        thrustJourneys[5] = new Tick[thrustJourneys[0].length];
+        for (int i = 0; i < thrustJourneys[0].length; i++)
+            thrustJourneys[5][i] = thrustJourneys[0][i].getMirrorCopy(false, false);
 
         stabJourneys = new Tick[][] {
                 new Tick[] { /* STAB */
@@ -333,9 +337,37 @@ public class Sword extends Weapon
     private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
     private Tick[][] thrustJourneys, stabJourneys, swingJourneys;
 
+    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
+
     @Override
     void setup()
     {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                SPEEDS                                                   ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        for (Tick[] journey : thrustJourneys)
+        {
+            for (int i = 0; i < journey.length; i++)
+            {
+                if (i < 5) journey[i].setSpeed(speeds[iThrust]);
+                else journey[i].setSpeed(speeds[iThrustLunge]);
+            }
+        }
+        for (Tick[] journey : stabJourneys)
+        {
+            journey[0].setSpeed(speeds[iStab]);
+            journey[1].setSpeed(speeds[iStab]);
+        }
+        for (Tick[] journey : swingJourneys)
+        {
+            for (int i = 0; i < journey.length; i++)
+            {
+                if (i < 6) journey[i].setSpeed(speeds[iSwing]);
+                else journey[i].setSpeed(speeds[iSwingLunge]);
+            }
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CLASSES                                                  ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,13 +377,15 @@ public class Sword extends Weapon
             Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly, boolean lunge,
                    ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("thrust", waits, functionalDir, useDirHorizFunctionaly, true, new int[]{DURING_COOLDOWN},
-                        damages[lunge ? 1 : 0], critThreshSpeeds[lunge ? 1 : 0], false, false, statusAppCycle, null, execJourney); } }
+                        damages[lunge ? iThrustLunge : iThrust], critThreshSpeeds[lunge ? iThrustLunge : iThrust],
+                        false, false, statusAppCycle, null, execJourney); } }
 
         /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
         class Stab extends Melee {
             Stab(Vec2 waits, DirEnum functionalDir, ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("stab", waits, functionalDir, true, new int[]{DURING_COOLDOWN},
-                        damages[2], critThreshSpeeds[2], false, false, statusAppCycle, null, execJourney); } }
+                        damages[iStab], critThreshSpeeds[iStab],
+                        false, false, statusAppCycle, null, execJourney); } }
 
     /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
        SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
@@ -359,31 +393,32 @@ public class Sword extends Weapon
             Swing(Vec2 waits, DirEnum functionalDir, boolean lunge,
                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
-                        damages[lunge ? 4 : 3], critThreshSpeeds[lunge ? 4 : 3], true, true, statusAppCycle, null, execJourney); } }
+                        damages[lunge ? iSwingLunge : iSwing], critThreshSpeeds[lunge ? iSwingLunge : iSwing],
+                        true, true, statusAppCycle, null, execJourney); } }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                ATTACKS                                                  ///
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        THRUST = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, false, basicCycle, thrustJourneys[0]);
-        THRUST_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, false, false, basicCycle, thrustJourneys[1]);
-        THRUST_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, false, basicCycle, thrustJourneys[2]);
-        THRUST_DIAG_UP = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.UP, true, false, basicCycle, thrustJourneys[3]);
-        THRUST_DIAG_DOWN = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, false, basicCycle, thrustJourneys[4]);
-        THRUST_LUNGE = new Thrust(new Vec2(0.6F, 0.3F), DirEnum.NONE, true, true, lungeCycle, thrustJourneys[0]);
+        THRUST = new Thrust(waits[iThrust], DirEnum.NONE, true, false, basicCycle, thrustJourneys[0]);
+        THRUST_UP = new Thrust(waits[iThrust], DirEnum.UP, false, false, basicCycle, thrustJourneys[1]);
+        THRUST_DOWN = new Thrust(waits[iThrust], DirEnum.DOWN, false, false, basicCycle, thrustJourneys[2]);
+        THRUST_DIAG_UP = new Thrust(waits[iThrust], DirEnum.UP, true, false, basicCycle, thrustJourneys[3]);
+        THRUST_DIAG_DOWN = new Thrust(waits[iThrust], DirEnum.DOWN, true, false, basicCycle, thrustJourneys[4]);
+        THRUST_LUNGE = new Thrust(waits[iThrustLunge], DirEnum.NONE, true, true, lungeCycle, thrustJourneys[5]);
 
-        STAB = new Stab(new Vec2(0.6F, 0.3F), DirEnum.DOWN, a_Cycle, stabJourneys[0]);
-        STAB_UNTERHAU = new Stab(new Vec2(0.6F, 0.3F), DirEnum.UP, a_Cycle, stabJourneys[1]);
+        STAB = new Stab(waits[iStab], DirEnum.DOWN, a_Cycle, stabJourneys[0]);
+        STAB_UNTERHAU = new Stab(waits[iStab], DirEnum.UP, a_Cycle, stabJourneys[1]);
 
-        SWING = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, swingJourneys[0]);
-        SWING_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, swingJourneys[1]);
-        SWING_UNTERHAU_CROUCH = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, false, b_Cycle, swingJourneys[1]);
-        SWING_UP_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, swingJourneys[2]);
-        SWING_UP_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, false, basicCycle, swingJourneys[3]);
-        SWING_DOWN_FORWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, swingJourneys[4]);
-        SWING_DOWN_BACKWARD = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, false, basicCycle, swingJourneys[5]);
-        SWING_LUNGE = new Swing(new Vec2(0.6F, 0.3F), DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
-        SWING_LUNGE_UNTERHAU = new Swing(new Vec2(0.6F, 0.3F), DirEnum.UP, true, lungeCycle, swingJourneys[7]);
+        SWING = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[0]);
+        SWING_UNTERHAU = new Swing(waits[iSwing], DirEnum.UP, false, basicCycle, swingJourneys[1]);
+        SWING_UNTERHAU_CROUCH = new Swing(waits[iSwing], DirEnum.UP, false, b_Cycle, swingJourneys[1]);
+        SWING_UP_FORWARD = new Swing(waits[iSwing], DirEnum.UP, false, basicCycle, swingJourneys[2]);
+        SWING_UP_BACKWARD = new Swing(waits[iSwing], DirEnum.UP, false, basicCycle, swingJourneys[3]);
+        SWING_DOWN_FORWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[4]);
+        SWING_DOWN_BACKWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[5]);
+        SWING_LUNGE = new Swing(waits[iSwingLunge], DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
+        SWING_LUNGE_UNTERHAU = new Swing(waits[iSwingLunge], DirEnum.UP, true, lungeCycle, swingJourneys[7]);
     }
 
     @Override
