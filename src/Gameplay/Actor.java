@@ -1,10 +1,7 @@
 package Gameplay;
 
 import Gameplay.Characters.CharacterStat;
-import Gameplay.Weapons.Command;
-import Gameplay.Weapons.Infliction;
-import Gameplay.Weapons.Natural;
-import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.*;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -66,14 +63,14 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;
     }
 
-    public Actor(CharacterStat charStat, float xPos, float yPos, float width, float height, float mass)
+    public Actor(CharacterStat charStat, WeaponStat naturalStat, float xPos, float yPos, float width, float height, float mass)
     {
         super(xPos, yPos, width, height, mass);
 
         ORIGINAL_WIDTH = width;
         ORIGINAL_HEIGHT = height;
 
-        weapons[0] = new Natural(xPos, yPos, 0.2F, 0.1F, this);
+        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.4F, this);
 
         this.charStat = charStat;
         setCharacterStats();
