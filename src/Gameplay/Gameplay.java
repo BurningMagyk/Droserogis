@@ -1,7 +1,9 @@
 package Gameplay;
 
+import Gameplay.Characters.CharacterStat;
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.WeaponStat;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
@@ -32,7 +34,7 @@ public class Gameplay implements Reactor
     private ArrayList<Entity> entities;
     private ArrayList<Item> items;
 
-    private Actor player, player2;
+    private Actor player1, player2;
     private long lastUpdateTime = -1;
 
     private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
@@ -99,8 +101,8 @@ public class Gameplay implements Reactor
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
-        cameraPosX = player.getPosition().x;
-        cameraPosY = player.getPosition().y;
+        cameraPosX = player1.getPosition().x;
+        cameraPosY = player1.getPosition().y;
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
@@ -123,7 +125,7 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.ENTER && pressed)
         {
-            player.debug();
+            player1.debug();
         }
         else if (code == KeyCode.LEFT)// && pressed)
         {
@@ -159,43 +161,43 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.A)
         {
-            player.pressLeft(pressed);
+            player1.pressLeft(pressed);
         }
         else if (code == KeyCode.D)
         {
-            player.pressRight(pressed);
+            player1.pressRight(pressed);
         }
         else if (code == KeyCode.J)
         {
-            player.pressJump(pressed);
+            player1.pressJump(pressed);
         }
         else if (code == KeyCode.W)
         {
-            player.pressUp(pressed);
+            player1.pressUp(pressed);
         }
         else if (code == KeyCode.S)
         {
-            player.pressDown(pressed);
+            player1.pressDown(pressed);
         }
         else if (code == KeyCode.SHIFT)
         {
-            player.pressShift(pressed);
+            player1.pressShift(pressed);
         }
         else if (code == KeyCode.K)
         {
-            player.pressAttack(pressed, Actor.ATTACK_KEY_1);
+            player1.pressAttack(pressed, Actor.ATTACK_KEY_1);
         }
         else if (code == KeyCode.L)
         {
-            player.pressAttack(pressed, Actor.ATTACK_KEY_2);
+            player1.pressAttack(pressed, Actor.ATTACK_KEY_2);
         }
         else if (code == KeyCode.SEMICOLON)
         {
-            player.pressAttack(pressed, Actor.ATTACK_KEY_3);
+            player1.pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
         else if (code == KeyCode.U)
         {
-            player.pressAttackMod(pressed);
+            player1.pressAttackMod(pressed);
         }
         else if (code == KeyCode.N)
         {
@@ -223,7 +225,7 @@ public class Gameplay implements Reactor
 
     private void queryGamepads()
     {
-        GAMEPADS[0].query(player);
+        GAMEPADS[0].query(player1);
         GAMEPADS[1].query(player2);
     }
 
@@ -291,14 +293,23 @@ public class Gameplay implements Reactor
 
         addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
 
+        CharacterStat player1Stat = new CharacterStat(
+                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+        WeaponStat player1NaturalStat = null;
+        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F);
 
-        player = new Actor(1F, -3F, .35f, .7f, 1F);
-        Sword sword = new Sword(0, -4, 0.45F, 0.075F);
-        player.equip(sword);
-        addEntity(player);
+        WeaponStat swordStat = null;
+        Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
+        player1.equip(sword);
+        addEntity(player1);
         addEntity(sword);
-        player2 = new Actor(1F, -5F, .35f, .7f, 1F);
-        Sword sword2 = new Sword(0, -4, 0.45F, 0.075F);
+
+        CharacterStat player2Stat = new CharacterStat(
+            "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+        WeaponStat player2NaturalStat = null;
+        player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F);
+
+        Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
         player2.equip(sword2);
         addEntity(player2);
         addEntity(sword2);

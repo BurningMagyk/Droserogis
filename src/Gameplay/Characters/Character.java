@@ -1,6 +1,7 @@
 package Gameplay.Characters;
 
 import Gameplay.Actor;
+import Gameplay.Weapons.WeaponStat;
 import Util.GradeEnum;
 
 import java.util.Arrays;
@@ -162,7 +163,9 @@ public class Character
                 "C+", "D",
                 "A-"
         };
-        Actor lyraA = new Actor(0,0,0,0, 0);
+        CharacterStat lyraAStat = new CharacterStat(grades);
+        WeaponStat lyraANaturalStat = null;
+        Actor lyraA = new Actor(lyraAStat, lyraANaturalStat,0,0,0,0, 0);
         CharacterStat lyraStats = new CharacterStat(grades);
         //For this test, 100 increase points for the class total (basically for %)
         CharacterClass assassin = new CharacterClass("Assassin",

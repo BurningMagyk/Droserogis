@@ -52,7 +52,7 @@ public class WeaponStat
 
     public void setCharStat(CharacterStat charStat)
     {
-        for (int i = 0; i < info.length; i += 10)
+        for (int i = 0; i < info.length; i += 12)
         {
             damageGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i]),
                     getCharGrade(charStat, info[i + 1]));
@@ -60,7 +60,7 @@ public class WeaponStat
                     getCharGrade(charStat, info[i + 3]));
             speedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 4]),
                     getCharGrade(charStat, info[i + 5]));
-            speedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
+            critThreshSpeedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
                     getCharGrade(charStat, info[i + 7]));
             warmupGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
                     getCharGrade(charStat, info[i + 9]));
@@ -154,20 +154,6 @@ public class WeaponStat
         for (int i = 0; i < vals.length; i++) { vals[i] = critThreshSpeed(i); }
         return vals;
     }
-
-    /*float[] warmups()
-    {
-        float[] vals = new float[warmupGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = warmup(i); }
-        return vals;
-    }
-
-    float[] cooldowns()
-    {
-        float[] vals = new float[cooldownGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = cooldown(i); }
-        return vals;
-    }*/
 
     Vec2[] waits()
     {

@@ -97,7 +97,7 @@ public class CharacterStat
         return increasedStats;
     }
 
-    CharacterStat(
+    public CharacterStat(
             String str, String sta,
             String dex, String agi,
             String con, String vit,
