@@ -4,13 +4,12 @@ import Gameplay.Actor;
 import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Item;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
 public class Natural extends Weapon
 {
-    public boolean isNatural() { return true; } // TODO: see if can be replaced with "instance of Natural"
-
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
             KICK_AERIAL_DIAG, GRAB, GRAB_LOW, TACKLE;
@@ -86,10 +85,39 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
-    boolean clash(Weapon otherWeapon, Operation otherOp)
+    boolean clash(Weapon otherWeapon, Operation otherOp, GradeEnum damage)
     {
         //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
-        // TODO: fill this in
+
+        if (currentOp != null)
+        {
+            if (!currentOp.isDisruptive())
+            {
+                if (otherOp != null)
+                {
+                    if (otherOp.isDisruptive())
+                    {
+                        disrupt(damage);//Print.green("Natural: Interrupted us");
+                        return true;
+                    }
+                    else return false;//Print.green("Natural Uninterrupted");
+                }
+                else return false;//Print.green("Natural: Uninterrupted");
+            }
+            else // if (currentOp.isDisruptive())
+            {
+                if (otherOp != null)
+                {
+                    if (otherOp.isDisruptive())
+                    {
+                        disrupt(damage);//Print.green("Natural: Interrupted us, interrupted them");
+                        return true;
+                    }
+                    else return false;//Print.green("Natural: Interrupted them");
+                }
+                else return false;//Print.green("Natural: Uninterrupted");
+            }
+        }
 
         return false;
     }
@@ -97,9 +125,7 @@ public class Natural extends Weapon
     @Override
     Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
     {
-        // TODO: decide formula
-        float mod = 0.1F;
-        return new Vec2(dir.getHoriz().getSign() * mod, dir.getVert().getSign() * mod);
+        return new Vec2(dir.getHoriz().getSign() * mass, dir.getVert().getSign() * mass);
     }
 
     @Override

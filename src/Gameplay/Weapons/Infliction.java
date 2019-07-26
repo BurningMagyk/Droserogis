@@ -44,7 +44,7 @@ public class Infliction
     public DirEnum getDir() { return dir; }
     public GradeEnum getDamage() { return damage; }
     public void applyCondition(Actor other) { conditionApp.apply(other); }
-    public boolean applyCondition(Weapon other) { return other.clash(source, op); }
+    public boolean applyCondition(Weapon other) { return other.clash(source, op, damage); }
 
     public void applyMomentum(Actor otherActor, Weapon otherWeapon, boolean deflected)
     {

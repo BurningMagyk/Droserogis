@@ -1056,7 +1056,7 @@ public class Actor extends Item
     public void stagger(GradeEnum grade)
     {
         float gradeInflucence;
-        if (grade.ordinal() < GradeEnum.E.ordinal()) gradeInflucence = 1;
+        if (grade.ordinal() <= GradeEnum.E.ordinal()) gradeInflucence = 1;
         else if (grade.ordinal() <= GradeEnum.C.ordinal()) gradeInflucence = STAGGER_MAG_MOD[0];
         else if (grade.ordinal() <= GradeEnum.A.ordinal()) gradeInflucence = STAGGER_MAG_MOD[1];
         else gradeInflucence = STAGGER_MAG_MOD[2];
@@ -1082,7 +1082,7 @@ public class Actor extends Item
 
         for (Weapon weapon : weapons)
         {
-            if (weapon == null || !weapon.isNatural()) continue;
+            if (!(weapon instanceof Natural)) continue;
             for (int i = 0; i < inflictions.size(); i++)
             {
                 Infliction inf = inflictions.get(i);

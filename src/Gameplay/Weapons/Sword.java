@@ -8,8 +8,6 @@ import Util.Vec2;
 
 public class Sword extends Weapon
 {
-    public boolean isNatural() { return false; }
-
     private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
             THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
             SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD, SWING_UP_BACKWARD,
@@ -147,40 +145,37 @@ public class Sword extends Weapon
     }
 
     @Override
-    boolean clash(Weapon otherWeapon, Operation otherOp)
+    boolean clash(Weapon otherWeapon, Operation otherOp, GradeEnum damage)
     {
         //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
 
-        if (otherWeapon.getClass() == Sword.class)
+        if (currentOp != null)
         {
-            if (currentOp != null)
+            if (!currentOp.isDisruptive())
             {
-                if (!currentOp.isDisruptive())
+                if (otherOp != null)
                 {
-                    if (otherOp != null)
+                    if (otherOp.isDisruptive())
                     {
-                        if (otherOp.isDisruptive())
-                        {
-                            disrupt(null);//Print.green("Sword: Interrupted us"); TODO: put damage grade here
-                            return true;
-                        }
-                        else return false;//Print.green("Sword: Uninterrupted");
+                        disrupt(damage);//Print.green("Sword: Interrupted us");
+                        return true;
                     }
                     else return false;//Print.green("Sword: Uninterrupted");
                 }
-                else if (currentOp.isDisruptive())
+                else return false;//Print.green("Sword: Uninterrupted");
+            }
+            else // if (currentOp.isDisruptive())
+            {
+                if (otherOp != null)
                 {
-                    if (otherOp != null)
+                    if (otherOp.isDisruptive())
                     {
-                        if (otherOp.isDisruptive())
-                        {
-                            disrupt(null);//Print.green("Sword: Interrupted us, interrupted them"); TODO: put damage grade here
-                            return true;
-                        }
-                        else return false;//Print.green("Sword: Interrupted them");
+                        disrupt(damage);//Print.green("Sword: Interrupted us, interrupted them");
+                        return true;
                     }
-                    else return false;//Print.green("Sword: Uninterrupted");
+                    else return false;//Print.green("Sword: Interrupted them");
                 }
+                else return false;//Print.green("Sword: Uninterrupted");
             }
         }
 
@@ -190,9 +185,7 @@ public class Sword extends Weapon
     @Override
     Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
     {
-        // TODO: decide formula
-        float mod = 0.1F;
-        return new Vec2(dir.getHoriz().getSign() * mod, dir.getVert().getSign() * mod);
+        return new Vec2(dir.getHoriz().getSign() * mass, dir.getVert().getSign() * mass);
     }
 
     @Override

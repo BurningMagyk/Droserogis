@@ -1071,8 +1071,7 @@ public abstract class Weapon extends Item
         }
     }
 
-    public abstract boolean isNatural();
-    abstract boolean clash(Weapon otherWeapon, Operation otherOp);
+    abstract boolean clash(Weapon otherWeapon, Operation otherOp, GradeEnum damage);
     abstract Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other);
     public abstract int getBlockRating();
 
@@ -1081,7 +1080,7 @@ public abstract class Weapon extends Item
     {
         if (inflictions.isEmpty()) return;
 
-        if (actor != null && isNatural())
+        if (actor != null && this instanceof Natural)
         {
             for (int i = 0; i < inflictions.size(); i++)
             {
@@ -1117,7 +1116,7 @@ public abstract class Weapon extends Item
     @Override
     public void damage(GradeEnum amount)
     {
-        if (isNatural()) Print.yellow("Actor: Dealt " + amount + " damage");
+        if (this instanceof Natural) Print.yellow("Actor: Dealt " + amount + " damage");
         else Print.yellow("Weapon: Dealt " + amount + " damage");
     }
 
