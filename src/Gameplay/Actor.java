@@ -70,10 +70,10 @@ public class Actor extends Item
         ORIGINAL_WIDTH = width;
         ORIGINAL_HEIGHT = height;
 
-        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this);
-
         this.charStat = charStat;
         setCharacterStats();
+
+        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this);
     }
 
     Item[] getItems()

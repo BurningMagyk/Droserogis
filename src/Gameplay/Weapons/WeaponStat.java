@@ -24,17 +24,17 @@ public class WeaponStat
         }
     }
 
-    WeaponStat(String disruptThresh, String... info)
+    public WeaponStat(String disruptThresh, String... info)
     {
         disruptThreshGrade = GradeEnum.parseGrade(disruptThresh);
 
-        if (info.length % 10 != 0)
+        if (info.length % 12 != 0)
         {
             Print.red("Error: " + info.length + " string parameters used for WeaponStat constructor.");
             return;
         }
 
-        int opCount = info.length / 10;
+        int opCount = info.length / 12;
         damageGrades = new WeaponGrade[opCount];
         rangeGrades = new WeaponGrade[opCount];
         speedGrades = new WeaponGrade[opCount];
@@ -52,19 +52,19 @@ public class WeaponStat
 
     public void setCharStat(CharacterStat charStat)
     {
-        for (int i = 0; i < info.length; i += 12)
+        for (int i = 0, j = 0; i < info.length; i += 12, j++)
         {
-            damageGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i]),
+            damageGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i]),
                     getCharGrade(charStat, info[i + 1]));
-            rangeGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 2]),
+            rangeGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 2]),
                     getCharGrade(charStat, info[i + 3]));
-            speedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 4]),
+            speedGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 4]),
                     getCharGrade(charStat, info[i + 5]));
-            critThreshSpeedGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
+            critThreshSpeedGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
                     getCharGrade(charStat, info[i + 7]));
-            warmupGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
+            warmupGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
                     getCharGrade(charStat, info[i + 9]));
-            cooldownGrades[i] = new WeaponGrade(GradeEnum.parseGrade(info[i + 10]),
+            cooldownGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 10]),
                     getCharGrade(charStat, info[i + 11]));
         }
 

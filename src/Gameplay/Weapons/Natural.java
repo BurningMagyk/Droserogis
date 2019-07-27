@@ -140,7 +140,6 @@ public class Natural extends Weapon
     public Natural(WeaponStat weaponStat, CharacterStat charStat, float xPos, float yPos, float width, float height, float mass, Actor actor)
     {
         super(weaponStat, xPos, yPos, width, height, mass);
-        equip(actor, charStat);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///
@@ -225,6 +224,10 @@ public class Natural extends Weapon
                         new Tick(0.05F, 0.7F, -0.2F, (float) Math.PI / 2F),
                         new Tick(0.08F, 1.2F, -0.2F, (float) Math.PI / 2F),
                         new Tick(0.13F, 1.7F, -0.2F, (float) Math.PI / 2F) };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        equip(actor, charStat);
     }
 
     private ConditionAppCycle basicCycle, pushCycle, uppercutCycle, shoveCycle,
