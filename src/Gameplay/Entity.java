@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
@@ -476,4 +477,6 @@ abstract public class Entity
             return getVertexY(0) + (xRatio * height);
         }
     }
+
+    public abstract void damage(GradeEnum amount); // TODO: include damage type
 }

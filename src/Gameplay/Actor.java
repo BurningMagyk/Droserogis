@@ -276,10 +276,12 @@ public class Actor extends Item
                 }
             }
 
+            float velY = getVelocityY();
             if (dirHoriz != -1
-                    && (dirVert == UP || touchEntity[dirHoriz] != null))
+                    && (dirVert == UP || touchEntity[dirHoriz] != null)
+                    && velY >= -maxClimbSpeed && velY <= maxStickSpeed)
             {
-                addAccelerationY(-climbAccel);
+                addAccelerationY(-climbAccel * (velY > 0 ? 5 : 1)); // TODO: decide this value (right now it's 5)
 
                 /* Ledge-climbing */
                 int _dirHoriz = -1;
@@ -289,8 +291,8 @@ public class Actor extends Item
                 if (_dirHoriz != -1
                         && getPosition().y - (getHeight() / 2)
                         < touchEntity[_dirHoriz].getPosition().y - (touchEntity[_dirHoriz].getHeight() / 2)
-                        && Math.abs(getVelocityY()) < walkSpeed
-                        && getVelocityY() >= 0)
+                        && Math.abs(velY) < walkSpeed
+                        && velY >= 0)
                 {
                     addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
                     float xPos = touchEntity[_dirHoriz].getPosition().x
@@ -407,6 +409,13 @@ public class Actor extends Item
         return canWalk()
                 && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0
                 && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0;
+    }
+    private boolean canJump()
+    {
+        return canWalk()
+                && !has(Condition.NEGATE_ACTIVITY)
+                && !has(Condition.NEGATE_STABILITY)
+                && !has(Condition.FORCE_CROUCH);
     }
 
     public boolean[] getBlockRating()
@@ -597,12 +606,12 @@ public class Actor extends Item
     private float pressedJumpTime = 0;
     public void pressJump(boolean pressed)
     {
-        if (pressed && !pressingJump) pressedJumpTime = 1F;
+        if (pressed && !pressingJump && canJump()) pressedJumpTime = 1F;
         else if (!pressed) pressedJumpTime = -1F;
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(""); }
+    public void debug() { Print.yellow(getVelocityY()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;

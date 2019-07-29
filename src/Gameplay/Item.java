@@ -243,20 +243,19 @@ public abstract class Item extends Entity
                     if (this.bumpingCeiling)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
-                        takeDamage((float) newVel.minus(originalVel).mag());
+                        damage((float) newVel.minus(originalVel).mag());
                         setVelocity(newVel);
                     }
                 }
                 /* Colliding with level surface from below */
                 else
                 {
-                    takeDamage(Math.abs(getVelocityY()));
+                    damage(Math.abs(getVelocityY()));
                     setVelocityY(0);
                 }
             }
             else if (edge[0] == DOWN)
             {
-
                 goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
 
                 /* Colliding with up-right slope or up-left slope */
@@ -266,27 +265,27 @@ public abstract class Item extends Entity
                     if (!isGrounded)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
-                        takeDamage((float) newVel.minus(originalVel).mag());
+                        damage((float) newVel.minus(originalVel).mag());
                         setVelocity(newVel);
                     }
                 }
                 /* Colliding with level surface from above */
                 else
                 {
-                    takeDamage(Math.abs(getVelocityY()));
+                    damage(Math.abs(getVelocityY()));
                     setVelocityY(0);
                 }
             }
             else if (edge[0] == LEFT)
             {
                 goal.x = entity.getRightEdge() + getWidth() / 2;
-                takeDamage(Math.abs(getVelocityX()));
+                damage(Math.abs(getVelocityX()));
                 setVelocityX(0);
             }
             else if (edge[0] == RIGHT)
             {
                 goal.x = entity.getLeftEdge() - getWidth() / 2;
-                takeDamage(Math.abs(getVelocityX()));
+                damage(Math.abs(getVelocityX()));
                 setVelocityX(0);
             }
         }
@@ -307,15 +306,21 @@ public abstract class Item extends Entity
         return false;
     }
 
-    void takeDamage(float amount) { takeDamage((int) (amount * 3)); }
+    void damage(float amount)
+    {
+        // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-    void takeDamage(int amount)
+        // TODO: write formula for this
+        if (amount > 0.3) damage(GradeEnum.F);
+    }
+
+    /*void takeDamage(int amount)
     {
         if (amount == 0) return;
         /*Print.green("Took " + amount + " point"
                 + (amount == 1 ? "" : "s") + " of damage");*/
-        hitPoints -= amount;
-    }
+        //hitPoints -= amount;
+    //}*/
 
     protected ArrayList<Infliction> inflictions = new ArrayList<>();
     public boolean hasSameInfliction(Infliction other)
@@ -325,7 +330,6 @@ public abstract class Item extends Entity
     }
 
     public abstract void inflict(Infliction infliction);
-    public abstract void damage(GradeEnum amount); // TODO: include damage type and direction
     public abstract boolean easyToBlock();
 
     /* This is the speed the player gets automatically when running or

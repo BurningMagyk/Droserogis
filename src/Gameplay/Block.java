@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Util.GradeEnum;
 import javafx.scene.paint.Color;
 
 
@@ -22,4 +23,7 @@ class Block extends Entity
         if (isLiquid) return liquidColor;
         return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
+
+    @Override
+    public void damage(GradeEnum gradeEnum) {}
 }
