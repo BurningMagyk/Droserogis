@@ -80,7 +80,7 @@ public class WeaponStat
         WeaponGrade weaponGrade = damageGrades[i];
 
         // TODO: return final grade based on weaponGrade member values
-        return null;
+        return GradeEnum.D;
     }
 
     private float range(int i)

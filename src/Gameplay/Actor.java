@@ -602,14 +602,14 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(getVelocity()); }
+    public void debug() { Print.yellow(""); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
     public void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     public void pressAttack(boolean pressed, int attackKey)
     {
-        if (!has(Condition.NEGATE_ATTACK))
+        if (!has(Condition.NEGATE_ATTACK) || !pressed)
         {
             int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
             Command command = new Command(attackKey + usingAttackMod,
