@@ -261,7 +261,6 @@ public abstract class Item extends Entity
                 /* Colliding with up-right slope or up-left slope */
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
-                    // TODO: make this apply correctly
                     if (!isGrounded)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
