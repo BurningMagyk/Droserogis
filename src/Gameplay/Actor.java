@@ -1074,6 +1074,16 @@ public class Actor extends Item
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
+    /* Called when player lands too hard */
+    void stagger(float amount)
+    {
+        if (amount <= landingThresh[0]) return;
+        addCondition(staggerRecoverTime,
+                Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK,
+                Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT,
+                amount > landingThresh[1] ? Condition.NEGATE_ACTIVITY : Condition.FORCE_CROUCH);
+    }
+
     @Override
     public void damage(GradeEnum amount)
     {
@@ -1280,6 +1290,8 @@ public class Actor extends Item
     /* Modifies staggerRecoverTime when blocking.
     *  Want this to be low and would never go over 1.0F */
     private float staggerBlockMod = 0.5F;
+
+    float[] landingThresh = { 0.3F, 0.6F };
 
     private void setCharacterStats()
     {

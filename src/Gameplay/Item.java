@@ -305,11 +305,15 @@ public abstract class Item extends Entity
         return false;
     }
 
+    /* Only called for damage caused by colliding with Blocks */
     void damage(float amount)
     {
+        if (this instanceof Actor)
+            ((Actor) this).stagger(amount);
+
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-        // TODO: write formula for this
+        // TODO: write formula for this, taking the Block's material into account
         if (amount > 0.3) damage(GradeEnum.F);
     }
 
