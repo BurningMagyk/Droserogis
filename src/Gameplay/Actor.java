@@ -412,6 +412,7 @@ public class Actor extends Item
     }
     private boolean canJump()
     {
+        if (state.isAirborne()) return false;
         return canWalk()
                 && !has(Condition.NEGATE_ACTIVITY)
                 && !has(Condition.NEGATE_STABILITY)
