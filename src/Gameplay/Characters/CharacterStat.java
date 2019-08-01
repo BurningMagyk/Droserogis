@@ -351,6 +351,8 @@ public class CharacterStat
     public float staggerParryMod() { return strength(2, 0); }
     public float staggerBlockMod() { return constitution(0.5F, 0); }
 
+    public float[] landingThresh() { return new float[] { agility(0.5F, 0), agility(1, 0) }; }
+
     public float friction() { return agility(0.5F, 0); }
 
     public int maxCommandChain() { return (int) intelligence(3, 0); }

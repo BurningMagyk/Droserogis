@@ -610,7 +610,7 @@ public class Actor extends Item
     private Entity pressedJumpSurface;
     public void pressJump(boolean pressed)
     {
-        if (pressed && !pressingJump && canJump()) pressedJumpTime = 1F;
+        if (pressed && !pressingJump && canJump()) pressedJumpTime = 1F; // TODO: decide this value
         else if (!pressed) pressedJumpTime = -1F;
         pressingJump = pressed;
     }
@@ -1158,7 +1158,7 @@ public class Actor extends Item
     {
         private Entity entity;
         private Vec2 lateVel;
-        private float duration = 0.2F;
+        private float duration = 0.2F; // TODO: decide this value
 
         LateSurface(Entity entity, Vec2 lateVel)
         {
@@ -1335,6 +1335,8 @@ public class Actor extends Item
         staggerRecoverTime = charStat.staggerRecoverTime();
         staggerParryMod = charStat.staggerParryMod();
         staggerBlockMod = charStat.staggerBlockMod();
+
+        landingThresh = charStat.landingThresh();
 
         NORMAL_FRICTION = charStat.friction();
         GREATER_FRICTION = NORMAL_FRICTION * 3;
