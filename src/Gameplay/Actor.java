@@ -102,14 +102,14 @@ public class Actor extends Item
         /* Late surfaces acts wacky when not airborne. */
         if (pressedJumpTime > 0 && state.isAirborne())
         {
-            if (touchLateSurface[DOWN] != null)
+            if (touchLateSurface[DOWN] != null && touchLateSurface[DOWN].valid())
             {
                 float lateVelY = touchLateSurface[DOWN].getLateVel().y;
                 setVelocityY(touchLateSurface[DOWN].getShape().getDirs()[UP]
                         ? -jumpVel + lateVelY : -jumpVel - slopeJumpBuffer + lateVelY);
                 pressedJumpTime = 0F;
             }
-            else if (touchLateSurface[LEFT] != null)
+            else if (touchLateSurface[LEFT] != null && touchLateSurface[LEFT].valid())
             {
                 Vec2 lateVel = touchLateSurface[LEFT].getLateVel();
                 if (dirHoriz == RIGHT)
@@ -130,7 +130,7 @@ public class Actor extends Item
                     pressedJumpTime = 0;
                 }
             }
-            else if (touchLateSurface[RIGHT] != null)
+            else if (touchLateSurface[RIGHT] != null && touchLateSurface[RIGHT].valid())
             {
                 Vec2 lateVel = touchLateSurface[RIGHT].getLateVel();
                 if (dirHoriz == LEFT)
@@ -208,6 +208,7 @@ public class Actor extends Item
             {
                 addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
                         ? -jumpVel : -jumpVel - slopeJumpBuffer);
+                pressedJumpSurface = touchEntity[DOWN];
                 pressedJumpTime = 0F;
             }
         }
@@ -253,6 +254,7 @@ public class Actor extends Item
                         addVelocityX(jumpVel);
                         pressedJumpTime = 0;
                     }
+                    pressedJumpSurface = touchEntity[LEFT];
                 }
                 else // if (touchEntity[RIGHT] != null)
                 {
@@ -273,6 +275,7 @@ public class Actor extends Item
                         addVelocityX(-jumpVel);
                         pressedJumpTime = 0;
                     }
+                    pressedJumpSurface = touchEntity[RIGHT];
                 }
             }
 
@@ -412,7 +415,6 @@ public class Actor extends Item
     }
     private boolean canJump()
     {
-        if (state.isAirborne()) return false;
         return canWalk()
                 && !has(Condition.NEGATE_ACTIVITY)
                 && !has(Condition.NEGATE_STABILITY)
@@ -605,6 +607,7 @@ public class Actor extends Item
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0;
+    private Entity pressedJumpSurface;
     public void pressJump(boolean pressed)
     {
         if (pressed && !pressingJump && canJump()) pressedJumpTime = 1F;
@@ -1078,7 +1081,9 @@ public class Actor extends Item
     /* Called when player lands too hard */
     void stagger(float amount)
     {
+        pressedJumpSurface = null;
         if (amount <= landingThresh[0]) return;
+
         addCondition(staggerRecoverTime,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK,
                 Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT,
@@ -1171,6 +1176,8 @@ public class Actor extends Item
         Vec2 getLateVel() { return lateVel; }
 
         ShapeEnum getShape() { return entity.getShape(); }
+
+        boolean valid() { return entity != pressedJumpSurface; }
     }
 
     /*=======================================================================*/
@@ -1292,7 +1299,7 @@ public class Actor extends Item
     *  Want this to be low and would never go over 1.0F */
     private float staggerBlockMod = 0.5F;
 
-    float[] landingThresh = { 0.3F, 0.6F };
+    float[] landingThresh = { 0.5F, 1F };
 
     private void setCharacterStats()
     {
