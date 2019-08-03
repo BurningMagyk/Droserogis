@@ -87,7 +87,7 @@ public class Gameplay implements Reactor
 
         context.setFill(Color.BLACK);
 
-        //queryGamepads();
+        queryGamepads();
 
         // triggerContacts() sets every entity's flags correctly only if they've all been reset
         for (Entity entity : entities) entity.resetFlags();
@@ -225,8 +225,8 @@ public class Gameplay implements Reactor
 
     private void queryGamepads()
     {
-        GAMEPADS[0].query(player1);
-        GAMEPADS[1].query(player2);
+        //GAMEPADS[0].query(player1);
+        GAMEPADS[0].query(player2);
     }
 
     /**

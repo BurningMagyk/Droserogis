@@ -318,7 +318,7 @@ public class CharacterStat
 
     //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
 
-    public float airSpeed() { return agility(0.2F, 0); }
+    public float airSpeed() { return 0.2F; }
     public float swimSpeed() { return agility(3F, 0); }
     public float crawlSpeed() { return agility(0.05F, 0); }
     public float walkSpeed() { return agility(0.04F, 0); }
