@@ -7,6 +7,7 @@ import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -813,6 +814,31 @@ public class Actor extends Item
         }
 
         return super.triggerContacts(goal, entityList);
+    }
+
+    float getZoom(ArrayList<Entity> entityList)
+    {
+        float sum = 0;
+        ArrayList<Float> distances = new ArrayList<>();
+        ArrayList<Float> zooms = new ArrayList<>();
+        for (Entity entity : entityList)
+        {
+            if (entity instanceof CameraZone && entity.withinBounds(this))
+            {
+                float distance = ((CameraZone) entity).getDistanceFromEdge(this);
+                sum += distance;
+                distances.add(distance);
+                zooms.add(((CameraZone) entity).getZoom());
+            }
+                //cameraZones.add((CameraZone) entity);
+        }
+        if (sum == 0) return -1; // No camera zones in bounds
+        float totalZoom = 0;
+        for (int i = 0; i < distances.size(); i++)
+        {
+            totalZoom += (distances.get(i) / sum) * zooms.get(i);
+        }
+        return totalZoom;
     }
 
     public int getSpeedRating()

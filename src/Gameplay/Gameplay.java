@@ -101,8 +101,10 @@ public class Gameplay implements Reactor
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
-        cameraPosX = player1.getPosition().x;
-        cameraPosY = player1.getPosition().y;
+        //cameraPosX = player1.getPosition().x;
+        //cameraPosY = player1.getPosition().y;
+
+        moveCamera(player1.getPosition().x, player1.getPosition().y, player1.getZoom(entities));
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
@@ -284,6 +286,9 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
+        addEntity(new CameraZone(0, 0, 50F, 2F, 50));
+        addEntity(new CameraZone(0, -2, 50F, 4F, 150));
+
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
         addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
@@ -335,17 +340,27 @@ public class Gameplay implements Reactor
     }
 
     /**
-     * Call whenever the player(s) moves. Camera should be moved further in the direction
-     * that the player is moving towards. Movement and zooming should be smooth.
+     * Call every frame. Movement and zooming should be smooth.
      */
     private void moveCamera(float posX, float posY, float zoom)
     {
-        cameraZoom = zoom;
+        if (zoom != -1) cameraZoom = zoom;
         cameraPosX = posX;
         cameraPosY = posY;
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
         cameraOffsetY = viewHeight / 2F / cameraZoom;
+    }
+
+    /**
+     * Returns what the zoom should be using information of which
+     * camera zones the Actors are in. Value used for zoom parameter
+     * in the moveCamera method should use this return value lerped
+     * with the current zoom value.
+     */
+    private void calculateZoom()
+    {
+
     }
 
     /**
