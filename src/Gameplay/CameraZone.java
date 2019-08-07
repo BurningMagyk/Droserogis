@@ -21,9 +21,10 @@ public class CameraZone extends Entity
 
     float getDistanceFromEdge(Actor actor)
     {
+        float w = actor.getWidth() / 2, h = actor.getHeight() / 2;
         return Math.min(
-                Math.min(actor.getX() - getLeftEdge(), getRightEdge() - actor.getX()),
-                Math.min(actor.getY() - getTopEdge(), getBottomEdge() - actor.getY()));
+                Math.min(actor.getX() - w - getLeftEdge(), getRightEdge() - actor.getX() - w),
+                Math.min(actor.getY() - h - getTopEdge(), getBottomEdge() - actor.getY() - h));
     }
 
     @Override

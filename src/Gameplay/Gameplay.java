@@ -286,11 +286,11 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
-        addEntity(new CameraZone(0, 0, 50F, 2F, 50));
-        addEntity(new CameraZone(0, -2, 50F, 4F, 150));
+        addEntity(new CameraZone(0, -1, 50F, 4F, 50));
+        addEntity(new CameraZone(0, -3, 50F, 4F, 150));
 
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
+        //addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));

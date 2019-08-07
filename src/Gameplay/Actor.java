@@ -823,14 +823,13 @@ public class Actor extends Item
         ArrayList<Float> zooms = new ArrayList<>();
         for (Entity entity : entityList)
         {
-            if (entity instanceof CameraZone && entity.withinBounds(this))
+            if (entity instanceof CameraZone && entity.surrounds(this))
             {
                 float distance = ((CameraZone) entity).getDistanceFromEdge(this);
                 sum += distance;
                 distances.add(distance);
                 zooms.add(((CameraZone) entity).getZoom());
             }
-                //cameraZones.add((CameraZone) entity);
         }
         if (sum == 0) return -1; // No camera zones in bounds
         float totalZoom = 0;
