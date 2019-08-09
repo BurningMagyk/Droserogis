@@ -23,9 +23,11 @@ import java.util.ArrayList;
  */
 public class Actor extends Item
 {
-    private final float NORMAL_GRAVITY = gravity;
-    private final float REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F;
-    private final float WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F;
+    private final float
+            NORMAL_GRAVITY = gravity,
+            REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
+            WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F,
+            GREATER_GRAVITY = NORMAL_GRAVITY / 0.7F;
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
@@ -149,7 +151,7 @@ public class Actor extends Item
                 else if (dirVert == DOWN)
                 {
                     setVelocityX(-jumpVel + lateVel.x);
-                    pressedJumpTime = 0;
+                    pressedJumpTime = 0F;
                 }
             }
         }
@@ -253,7 +255,7 @@ public class Actor extends Item
                     else if (dirVert == DOWN)
                     {
                         addVelocityX(jumpVel);
-                        pressedJumpTime = 0;
+                        pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[LEFT];
                 }
@@ -274,7 +276,7 @@ public class Actor extends Item
                     else if (dirVert == DOWN)
                     {
                         addVelocityX(-jumpVel);
-                        pressedJumpTime = 0;
+                        pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[RIGHT];
                 }
@@ -316,7 +318,11 @@ public class Actor extends Item
         /* If pressedJumpTime is -1, that means the player let go of the
          * jump key while airborne and its effect on the player's movement
          * already occurred this frame. */
-        else if (pressedJumpTime == -1) pressedJumpTime = 0F;
+        else if (pressedJumpTime == -1)
+        {
+            pressedJumpTime = 0F;
+            if (state == State.RISE) gravity = GREATER_GRAVITY;
+        }
 
         /* Cap overall speed */
         if (getVelocityX() > maxTotalSpeed) setVelocityX(maxTotalSpeed);
@@ -324,14 +330,14 @@ public class Actor extends Item
         if (getVelocityY() > maxTotalSpeed) setVelocityY(maxTotalSpeed);
         else if (getVelocityY() < -maxTotalSpeed) setVelocityY(-maxTotalSpeed);
 
-        /* When travelling on a ramp, they get weak gravity */
+        /* When travelling on a ramp, they get reduced gravity */
         if (touchEntity[DOWN] != null
                 && !touchEntity[DOWN].getShape().getDirs()[UP]
                 && dirHoriz != -1) {
             //gravity = WEAK_GRAVITY;
             gravity = REDUCED_GRAVITY;
         }
-        /* When starting to fall, they lose reduced gravity */
+        /* When starting to fall, they lose reduced/strong gravity */
         else if (getVelocityY() >= 0)
         {
             /* If in water, the gravity is weak when still,
@@ -607,7 +613,7 @@ public class Actor extends Item
     public void pressShift(boolean pressed) { pressingShift = pressed; }
 
     private boolean pressingJump = false;
-    private float pressedJumpTime = 0;
+    private float pressedJumpTime = 0F;
     private Entity pressedJumpSurface;
     public void pressJump(boolean pressed)
     {
@@ -816,6 +822,14 @@ public class Actor extends Item
         return super.triggerContacts(goal, entityList);
     }
 
+    /**
+     * @param entityList - List of every entity in the list kept in Gameplay.
+     *                   Same list that gets passed into the update method for
+     *                   all items.
+     * @return - The zoom value that this Actor should have based on what
+     *          camera zone it's inside of. Only applicable if being controlled
+     *          by a player.
+     */
     float getZoom(ArrayList<Entity> entityList)
     {
         float sum = 0;
@@ -1112,7 +1126,9 @@ public class Actor extends Item
         addCondition(staggerRecoverTime,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK,
                 Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT,
-                amount > landingThresh[1] ? Condition.NEGATE_ACTIVITY : Condition.FORCE_CROUCH);
+                amount > landingThresh[1] ? Condition.NEGATE_ACTIVITY : !canWalk()
+                        ? Condition.NEGATE_STABILITY : Condition.FORCE_CROUCH);
+        pressedJumpTime = 0F;
     }
 
     @Override

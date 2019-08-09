@@ -37,7 +37,8 @@ public class Gameplay implements Reactor
     private Actor player1, player2;
     private long lastUpdateTime = -1;
 
-    private static float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom;
+    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY,
+            cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
@@ -286,11 +287,11 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
-        addEntity(new CameraZone(0, -1, 50F, 4F, 50));
-        addEntity(new CameraZone(0, -3, 50F, 4F, 150));
+        addEntity(new CameraZone(0, -1, 50F, 4F, 100));
+        addEntity(new CameraZone(0, -3, 50F, 4F, 100));
 
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        //addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
+        addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
@@ -344,23 +345,15 @@ public class Gameplay implements Reactor
      */
     private void moveCamera(float posX, float posY, float zoom)
     {
-        if (zoom != -1) cameraZoom = zoom;
+        if (zoom != -1) cameraZoomGoal = zoom;//cameraZoom = zoom;
+        if (Math.abs(cameraZoomGoal - cameraZoom) < Math.sqrt(cameraZoomLerp)) cameraZoom = cameraZoomGoal;
+        else cameraZoom = ((cameraZoomGoal - cameraZoom) * cameraZoomLerp) + cameraZoom;
+
         cameraPosX = posX;
         cameraPosY = posY;
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
         cameraOffsetY = viewHeight / 2F / cameraZoom;
-    }
-
-    /**
-     * Returns what the zoom should be using information of which
-     * camera zones the Actors are in. Value used for zoom parameter
-     * in the moveCamera method should use this return value lerped
-     * with the current zoom value.
-     */
-    private void calculateZoom()
-    {
-
     }
 
     /**

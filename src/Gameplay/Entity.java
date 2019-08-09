@@ -161,6 +161,7 @@ abstract public class Entity
         velocity.y = y;
     }
 
+    void addVelocity(Vec2 v) { velocity.add(v); }
     void addVelocity(float x, float y) { velocity.add(new Vec2(x, y)); }
     void addVelocityX(float x) { velocity.x += x; }
     void addVelocityY(float y) { velocity.y += y; }
