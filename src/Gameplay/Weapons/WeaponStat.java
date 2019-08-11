@@ -68,7 +68,7 @@ public class WeaponStat
                     getCharGrade(charStat, info[i + 11]));
         }
 
-        conditionModFloat = charStat.agility(getCharGrade(charStat, "AGILITY")[0]);
+        conditionModFloat = charStat.agility(getCharGrade(charStat, "AGI")[0]);
     }
 
     /*****************************************************************************/

@@ -302,18 +302,18 @@ public class Gameplay implements Reactor
         CharacterStat player1Stat = new CharacterStat(
                 "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
         WeaponStat player1NaturalStat = new WeaponStat("C",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH");
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
         player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F);
 
         WeaponStat swordStat = new WeaponStat("C",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH");
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
         Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
         player1.equip(sword);
         addEntity(player1);
@@ -322,10 +322,10 @@ public class Gameplay implements Reactor
         CharacterStat player2Stat = new CharacterStat(
             "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
         WeaponStat player2NaturalStat = new WeaponStat("C",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH",
-                "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH", "C", "STRENGTH");
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
         player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F);
 
         Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);

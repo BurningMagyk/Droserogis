@@ -287,7 +287,7 @@ public class Actor extends Item
                     && (dirVert == UP || touchEntity[dirHoriz] != null)
                     && velY >= -maxClimbSpeed && velY <= maxStickSpeed)
             {
-                addAccelerationY(-climbAccel * (velY > 0 ? 5 : 1)); // TODO: decide this value (right now it's 5)
+                addAccelerationY(-climbAccel * (velY > 0 && canRun() ? 5 : 1)); // TODO: decide this value (right now it's 5)
 
                 /* Ledge-climbing */
                 int _dirHoriz = -1;

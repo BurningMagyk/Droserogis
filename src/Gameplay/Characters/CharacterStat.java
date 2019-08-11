@@ -29,14 +29,13 @@ public class CharacterStat
 
 
     private final static String[] abilityStrings = new String[] {
-            "STRENGTH", "STAMINA",
-            "DEXTERITY", "AGILITY",
-            "CONSTITUTION", "VITALITY",
-            "WISDOM", "WILL",
-            "INTELLIGENCE", "KNOWLEDGE",
-            "PRESENCE"};
+            "STR", "STA",
+            "DEX", "AGI",
+            "CON", "VIT",
+            "WIS", "WIL",
+            "INT", "KNO",
+            "PRE"};
 
-    // TODO: may be redundant
     public static String getAbilityString(Ability ab)
     {
         String abStr = "";
