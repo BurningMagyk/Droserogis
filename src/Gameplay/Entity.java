@@ -21,34 +21,42 @@ abstract public class Entity
         return -1;
     }
 
-    enum ShapeEnum
+    public enum ShapeEnum
     {
-        RECTANGLE,
+        RECTANGLE
+                {
+                    public String getText() {return "Rectangle";}
+                },
         TRIANGLE_UP_R
                 {
                     public boolean isTriangle() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {false, false, true, true};}
+                    public String getText() {return "Triangle (upward right)";}
                 },
         TRIANGLE_UP_L
                 {
                     public boolean isTriangle() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {false, true, true, false};}
+                    public String getText() {return "Triangle (upward left)";}
                 },
         TRIANGLE_DW_R
                 {
                     public boolean isTriangle() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {true, false, false, true};}
+                    public String getText() {return "Triangle (downward right)";}
                 },
         TRIANGLE_DW_L
                 {
                     public boolean isTriangle() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {true, true, false, false};}
+                    public String getText() {return "Triangle (downward left)";}
                 };
 
+        public abstract String getText();
         public boolean isTriangle() {return false;}
         public boolean[] getDirs() {return new boolean[]
                 {true, true, true, true};}
