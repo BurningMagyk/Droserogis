@@ -7,7 +7,6 @@ import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -27,7 +26,7 @@ public class Actor extends Item
             NORMAL_GRAVITY = gravity,
             REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
             WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F,
-            GREATER_GRAVITY = NORMAL_GRAVITY / 0.7F;
+            GREATER_GRAVITY = NORMAL_GRAVITY / 0.5F;
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
@@ -45,6 +44,7 @@ public class Actor extends Item
     private State state = State.FALL;
 
     private LateSurface[] touchLateSurface = new LateSurface[4];
+    private Entity prevGround = null;
 
     private boolean
             pressingLeft = false, pressingRight = false,
@@ -211,6 +211,14 @@ public class Actor extends Item
                 }
             }
 
+            /* Going up stairs */
+            if (prevGround != null && prevGround != touchEntity[DOWN]
+                    && prevGround.getTopEdge() > touchEntity[DOWN].getTopEdge())
+            {
+                //addCondition(stairRecoverTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                // TODO: properly apply stairRecoverTime here
+            }
+
             if (pressedJumpTime > 0)
             {
                 addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
@@ -371,6 +379,8 @@ public class Actor extends Item
             addCondition(condTime, Condition.NEGATE_WALK_LEFT);
             addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
         }
+
+        prevGround = touchEntity[DOWN];
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)
@@ -627,12 +637,16 @@ public class Actor extends Item
     private Entity pressedJumpSurface;
     public void pressJump(boolean pressed)
     {
-        if (pressed && !pressingJump && canJump()) pressedJumpTime = 1F; // TODO: decide this value
+        if (pressed && !pressingJump && canJump())
+        {
+            pressedJumpTime = 1F; // TODO: decide this value
+            addCondition(0.3F, Condition.FORCE_STAND);
+        }
         else if (!pressed) pressedJumpTime = -1F;
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(getVelocityX()); }
+    public void debug() { Print.yellow(getVelocityY()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
@@ -704,7 +718,11 @@ public class Actor extends Item
     private State determineState()
     {
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
+        {
+            setWidth(ORIGINAL_WIDTH);
+            setHeight(ORIGINAL_HEIGHT);
             return State.SWIM;
+        }
         else if (touchEntity[DOWN] != null)
         {
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
@@ -714,7 +732,7 @@ public class Actor extends Item
                 setWidth(ORIGINAL_HEIGHT);
                 return State.CROUCH;
             }
-            else if ((dirVert == DOWN && conditions[Condition.FORCE_STAND.ordinal()] == 0) // crouch
+            else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))
             {
                 setWidth(ORIGINAL_WIDTH);
@@ -766,7 +784,20 @@ public class Actor extends Item
         }
         else
         {
-            if (getVelocityY() < 0) return State.RISE;
+            if (getVelocityY() < 0)
+            {
+                if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
+                {
+                    setWidth(ORIGINAL_WIDTH);
+                    setHeight(ORIGINAL_HEIGHT / 2);
+                }
+                else
+                {
+                    setWidth(ORIGINAL_WIDTH);
+                    setHeight(ORIGINAL_HEIGHT);
+                }
+                return State.RISE;
+            }
             else return State.FALL;
         }
     }
@@ -1301,6 +1332,8 @@ public class Actor extends Item
     /* How long it takes to climb over a ledge after grabbing it */
     private float climbLedgeTime = 1;
 
+    private float[] stairRecoverTime = { 0.05F, 0.05F, 0.05F };
+
     /* This is the highest speed the player can move.
      * (In the air or anywhere) */
     private float maxTotalSpeed = 5F;
@@ -1373,12 +1406,13 @@ public class Actor extends Item
         airAccel = charStat.airAccel();
         swimAccel = charStat.swimAccel();
         crawlAccel = charStat.crawlAccel();
-        climbAccel = charStat.climbAccel();
+        climbAccel = charStat.climbAccel() / mass;
         runAccel = charStat.runAccel();
 
-        jumpVel = charStat.jumpVel();
+        jumpVel = charStat.jumpVel() / mass;
 
-        climbLedgeTime = charStat.climbLedgeTime();
+        climbLedgeTime = charStat.climbLedgeTime() / mass;
+        stairRecoverTime = charStat.stairRecoverTime();
         dashRecoverTime = charStat.dashRecoverTime();
         minTumbleTime = charStat.minTumbleTime();
 

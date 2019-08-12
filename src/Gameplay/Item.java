@@ -183,15 +183,6 @@ public abstract class Item extends Entity
         return contactVel;
     }
 
-    // TODO: may not need this
-    /*void ground()
-    {
-        if (touchEntity[DOWN] == null) return;
-        // TODO: force this item to stand on touchEntity[DOWN]
-        setPosition(new Vec2(getPosition().x, touchEntity[DOWN].getTopEdge(getPosition().x - getHeight() / 2)));
-        //goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
-    }*/
-
     Vec2 triggerContacts(Vec2 goal, ArrayList<Entity> entityList)
     {
         Vec2 originalVel = null;
