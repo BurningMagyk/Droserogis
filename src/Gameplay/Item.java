@@ -62,11 +62,17 @@ public abstract class Item extends Entity
 
     private void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
+        boolean slopeLeft = false, slopeRight = false;
+        if (touchEntity[DOWN] != null)
+        {
+            slopeLeft = !touchEntity[DOWN].getShape().getDirs()[LEFT];
+            slopeRight = !touchEntity[DOWN].getShape().getDirs()[RIGHT];
+        }
         applyAcceleration(getAcceleration(), deltaSec);
         Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
-        neutralizeVelocity(beforeDrag);
+        neutralizeVelocity(beforeDrag, slopeLeft, slopeRight);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
-        neutralizeVelocity(beforeFriction);
+        neutralizeVelocity(beforeFriction, slopeLeft, slopeRight);
         /* Vec2 contactVelocity = */ applyVelocity(deltaSec, entities);
     }
 
@@ -88,7 +94,7 @@ public abstract class Item extends Entity
      * Sets velocity to zero if the acceleration was high enough to make it
      * reverse direction.
      */
-    void neutralizeVelocity(Vec2 oldVel)
+    void neutralizeVelocity(Vec2 oldVel, boolean leftSlope, boolean rightSlope)
     {
         int unitPosVelX = 0;
         if (oldVel.x > 0) unitPosVelX = 1;
@@ -108,7 +114,8 @@ public abstract class Item extends Entity
         if (newVel.y > 0) unitPosVelYNew = 1;
         else if (newVel.y < 0) unitPosVelYNew = -1;
 
-        if (unitPosVelX != unitPosVelXNew) setVelocityX(0);
+        if (unitPosVelX != unitPosVelXNew) setVelocityX(
+                leftSlope ? -minSlopeSpeed : rightSlope ? minSlopeSpeed : 0);
         if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
 
         /* This is needed so that the Actor sinks when inactive in liquid */
@@ -339,4 +346,7 @@ public abstract class Item extends Entity
      * crawling. Also used for the threshold when neutralizing velocity.
      * Fixes the glitch of not being able to run up a slope after stopping. */
     double minThreshSpeed = 1E-3;
+
+    /* Minimum speed that they go down a slope after hitting terminally low speeds */
+    private float minSlopeSpeed = 0.01F;
 }

@@ -160,7 +160,11 @@ public class Actor extends Item
         {
             /* If the entity being stood on is an upward-slope triangle */
             if (!touchEntity[DOWN].getShape().getDirs()[UP])
-                setAcceleration(touchEntity[DOWN].applySlopeY(this.gravity));
+            {
+                float slopeAccel = gravity * mass;
+                if (state == State.CROUCH || state == State.CRAWL) slopeAccel /= 2;
+                setAcceleration(touchEntity[DOWN].applySlopeY(slopeAccel));
+            }
 
             float accel, topSpeed;
             MoveType moveType = getMoveType();
@@ -438,11 +442,17 @@ public class Actor extends Item
 
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
+        boolean slopeLeft = false, slopeRight = false;
+        if (touchEntity[DOWN] != null)
+        {
+            slopeLeft = !touchEntity[DOWN].getShape().getDirs()[LEFT];
+            slopeRight = !touchEntity[DOWN].getShape().getDirs()[RIGHT];
+        }
         applyAcceleration(getAcceleration(), deltaSec);
         Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
-        neutralizeVelocity(beforeDrag);
+        neutralizeVelocity(beforeDrag, slopeLeft, slopeRight);
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
-        neutralizeVelocity(beforeFriction);
+        neutralizeVelocity(beforeFriction, slopeLeft, slopeRight);
         Vec2 contactVelocity = applyVelocity(deltaSec, entities);
         if (setState(determineState()) && contactVelocity != null)
             addVelocityY(-Math.abs(contactVelocity.x));
@@ -622,7 +632,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(getVelocityY()); }
+    public void debug() { Print.yellow(getVelocityX()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
@@ -1009,7 +1019,7 @@ public class Actor extends Item
 
     private void countdownCondition(float deltaSec)
     {
-        boolean _negate_activity = has(Condition.NEGATE_ACTIVITY);
+        boolean wasTumbling = has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall());
 
         for (int i = 0; i < conditions.length; i++)
         {
@@ -1020,10 +1030,10 @@ public class Actor extends Item
             }
         }
 
-        if (_negate_activity)
+        if (wasTumbling)
         {
-            if (Math.abs(getVelocity().mag()) > walkSpeed) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
-            else if (!has(Condition.NEGATE_ACTIVITY) && (state.isGrounded() || state.isOnWall()))
+            if (Math.abs(getVelocityX()) > walkSpeed) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
+            else if (!has(Condition.NEGATE_ACTIVITY))
             {
                 /* Dodging while knocked down */
                 if (Math.abs(getVelocity().mag()) <= walkSpeed)

@@ -306,7 +306,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F);
+        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1.5F);
 
         WeaponStat swordStat = new WeaponStat("C",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
