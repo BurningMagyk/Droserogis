@@ -4,7 +4,7 @@ import Util.GradeEnum;
 import javafx.scene.paint.Color;
 
 
-class Block extends Entity
+public class Block extends Entity
 {
     private boolean isLiquid = false;
     private Color liquidColor = Color.rgb(150, 180, 230, 0.5);

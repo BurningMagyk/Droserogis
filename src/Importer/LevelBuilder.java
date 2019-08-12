@@ -1,6 +1,10 @@
 package Importer;
 import Gameplay.Entity;
+import Gameplay.Block;
+import Util.Vec2;
+
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
@@ -15,12 +19,18 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 
+import java.util.ArrayList;
+
+
 public class LevelBuilder  extends Application {
 
     private Canvas canvas;
     private GraphicsContext gtx;
     private WritableImage imageBaseLayer;
     private ContextMenu contextMenu;
+    private ArrayList<Block> blockList = new ArrayList<>();
+    private float mouseX, mouseY;
+    private Block selectedBlock = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -56,61 +66,116 @@ public class LevelBuilder  extends Application {
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             MenuItem item = new MenuItem(shape.getText());
             contextMenu.getItems().add(item);
+            item.setOnAction(this::menuEvent);
+
         }
 
-        //public Block(float xPos, float yPos, float width, float height, shape)
-
         gtx.setFont(new Font("Verdana", 16));
-        gtx.strokeText("Right-click on canvas to add Block (currently just menu shows).\n" +
-                "Right-click on Block to apply texture (not implemented yet).\n" +
-                "Right-click on edge of Block to resize (not implemented yet).\n\n" +
-                "Left-click-drag on Block to move (not implemented yet).\n" +
-                "Left-click-drag on canvas to extend canvas (not implemented yet).\n\n"+
-                "Ctrl-S to save (not implemented yet).\n" +
-                "Ctrl-L to Load (not implemented yet).",
-                200, 200);
+        gtx.strokeText("Right-click on canvas to add Block.\n" +
+                "Right-click on Block to make liquid (default is solid) or to apply texture (not yet implemented).\n\n" +
+
+                "Left-click-drag on Block to move.\n" +
+                "Left-click-drag on Block vertex resize.\n" +
+                "Left-click-drag on canvas to extend canvas (not yet implemented).\n\n"+
+
+                "Ctrl-S to save (not yet implemented).\n" +
+                "Ctrl-L to Load (not yet implemented).",
+                100, 200);
         canvas.setOnMousePressed(this::canvasMousePressed);
 
         Pane root = new Pane();
-        // Set the Style-properties of the Pane
-        //root.setStyle("-fx-padding: 10;" +
-        //        "-fx-border-style: solid inside;" +
-        //       "-fx-border-width: 2;" +
-        //       "-fx-border-insets: 5;" +
-        //        "-fx-border-radius: 5;" +
-        //       "-fx-border-color: blue;");
-        root.setStyle("-fx-background-color: #FFF8DC");
+        //root.setStyle("-fx-background-color: #FFF8DC");
+        root.setStyle("-fx-background-color: #18cbd6");
         root.getChildren().add(canvas);
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
-
-
-        //Button btn = new Button();
-        //btn.setText("Say 'Hello World'");
-        //btn.setOnAction(new EventHandler<ActionEvent>() {
-//
-        //    @Override
-        //    public void handle(ActionEvent event) {
-        //        System.out.println("Hello World!");
-        //    }
-        //});
-
-        //StackPane root = new StackPane();
-        //root.getChildren().add(btn);
-        //primaryStage.setScene(new Scene(root, 1000, 600));
-        //primaryStage.show();
     }
 
     public void canvasMousePressed(MouseEvent event) {
-        gtx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        canvas.getGraphicsContext2D().drawImage(imageBaseLayer, 0, 0);
+        mouseX = (float)event.getX();
+        mouseY = (float)event.getY();
+
+        renderAll();
 
         if (event.isSecondaryButtonDown()) {
             contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
         }
         else {
             contextMenu.hide();
+            selectedBlock = getBlock(mouseX, mouseY);
         }
     }
+
+    private Block getBlock(double mouseX, double mouseY) {
+        for (Block block : blockList) {
+            if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
+            {
+
+                Vec2 pos = block.getPosition();
+                if (mouseX < pos.x - block.getWidth() / 2) continue;
+                if (mouseX > pos.x + block.getWidth() / 2) continue;
+                if (mouseY < pos.y - block.getHeight() / 2) continue;
+                if (mouseY > pos.y + block.getHeight() / 2) continue;
+                return block;
+            }
+        }
+       return null;
+    }
+
+
+    public void menuEvent(ActionEvent e) {
+        //System.out.println("menu event "+e.getSource());
+        MenuItem item = (MenuItem)e.getSource();
+        String text = item.getText();
+        for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
+            if (text.equals(shape.getText())) {
+                Block block = new Block(mouseX, mouseY, 50, 50, shape);
+                blockList.add(block);
+
+                System.out.println("New block at " + mouseX +", " + mouseY);
+                System.out.println("    center " + block.getX() +", " + block.getY());
+                //System.out.println("    vertex 0 " + block.getVertexX(0)+", "+block.getVertexY(0));
+                break;
+            }
+        }
+        renderAll();
+    }
+
+    private void renderAll() {
+        gtx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gtx.drawImage(imageBaseLayer, 0, 0);
+
+        for (Block block : blockList) {
+            render(block);
+        }
+    }
+    private void render(Block block) {
+        //System.out.println("    render() "+block.getShape());
+        gtx.setFill(block.getColor());
+
+        if (block.getShape().isTriangle())
+        {
+            double[] xPos = new double[3];
+            double[] yPos = new double[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                xPos[i] = block.getVertexX(i);
+                yPos[i] = block.getVertexY(i);
+            }
+            gtx.fillPolygon(xPos, yPos, 3);
+        }
+        else if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
+        {
+
+            Vec2 pos = block.getPosition();
+            gtx.fillRect(
+                    pos.x - block.getWidth() / 2, pos.y - block.getHeight() / 2, block.getWidth(), block.getHeight());
+
+            //System.out.println("          "+(pos.x - block.getWidth()) + ", " + (pos.y - block.getHeight()));
+
+        }
+    }
+
 }
