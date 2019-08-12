@@ -291,7 +291,7 @@ public class Gameplay implements Reactor
         addEntity(new CameraZone(0, -3, 50F, 4F, 100));
 
         addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(5.5F, -1.5F, 2F, 5F, Entity.ShapeEnum.RECTANGLE));
+        addEntity(new Block(5.5F, 1F, 2F, 0.6F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
         addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
@@ -330,7 +330,7 @@ public class Gameplay implements Reactor
 
         Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
         player2.equip(sword2);
-        addEntity(player2);
+        //addEntity(player2);
         addEntity(sword2);
 
         Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
