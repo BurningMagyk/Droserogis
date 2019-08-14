@@ -109,16 +109,7 @@ public class LevelBuilder  extends Application {
 
     private Block getBlock(double mouseX, double mouseY) {
         for (Block block : blockList) {
-            if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
-            {
-
-                Vec2 pos = block.getPosition();
-                if (mouseX < pos.x - block.getWidth() / 2) continue;
-                if (mouseX > pos.x + block.getWidth() / 2) continue;
-                if (mouseY < pos.y - block.getHeight() / 2) continue;
-                if (mouseY > pos.y + block.getHeight() / 2) continue;
-                return block;
-            }
+            if (block.isInside(mouseX, mouseY)) return block;
         }
        return null;
     }

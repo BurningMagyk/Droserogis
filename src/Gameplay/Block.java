@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Util.GradeEnum;
+import Util.Vec2;
 import javafx.scene.paint.Color;
 
 
@@ -27,4 +28,20 @@ public class Block extends Entity
 
     @Override
     public void damage(GradeEnum gradeEnum) {}
+
+
+    //Added for use by LevelBuilder and, for now, only needed in Block, but this utility may be useful by other
+    //   modules at the level of Entity.
+    public boolean isInside(double x, double y) {
+        if (getShape() == Entity.ShapeEnum.RECTANGLE)
+        {
+            Vec2 pos = getPosition();
+            if (x < pos.x - getWidth() / 2) return false;
+            if (x > pos.x + getWidth() / 2) return false;
+            if (y < pos.y - getHeight() / 2) return false;
+            if (y > pos.y + getHeight() / 2) return false;
+            return true;
+        }
+        return false;
+    }
 }
