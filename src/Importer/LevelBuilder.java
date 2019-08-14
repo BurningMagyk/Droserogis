@@ -5,6 +5,7 @@ import Util.Vec2;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 
 public class LevelBuilder  extends Application {
 
+    private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
     private WritableImage imageBaseLayer;
@@ -31,6 +33,7 @@ public class LevelBuilder  extends Application {
     private ArrayList<Block> blockList = new ArrayList<>();
     private float mouseX, mouseY;
     private Block selectedBlock = null;
+    private int selectedVertexIdx = -1;
 
     public static void main(String[] args) {
         launch(args);
@@ -75,24 +78,69 @@ public class LevelBuilder  extends Application {
                 "Right-click on Block to make liquid (default is solid) or to apply texture (not yet implemented).\n\n" +
 
                 "Left-click-drag on Block to move.\n" +
-                "Left-click-drag on Block vertex resize.\n" +
+                "Left-click-drag on Block vertex resize (not yet implemented).\n" +
                 "Left-click-drag on canvas to extend canvas (not yet implemented).\n\n"+
 
                 "Ctrl-S to save (not yet implemented).\n" +
                 "Ctrl-L to Load (not yet implemented).",
                 100, 200);
-        canvas.setOnMousePressed(this::canvasMousePressed);
+        canvas.setOnMousePressed(this::mousePressed);
+        canvas.setOnMouseMoved(this::mouseMoved);
+        canvas.setOnMouseDragged(this::mouseDragged);
 
         Pane root = new Pane();
         //root.setStyle("-fx-background-color: #FFF8DC");
         root.setStyle("-fx-background-color: #18cbd6");
         root.getChildren().add(canvas);
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
+        scene.setCursor(Cursor.CROSSHAIR);
         stage.setScene(scene);
         stage.show();
     }
 
-    public void canvasMousePressed(MouseEvent event) {
+
+    public void mouseMoved(MouseEvent event)
+    {
+        mouseX = (float) event.getX();
+        mouseY = (float) event.getY();
+
+        for (Block block : blockList)
+        {
+            int vertexIdx = block.getVertexNear(mouseX, mouseY);
+            if (vertexIdx >= 0)
+            {
+                scene.setCursor(Cursor.MOVE);
+                selectedBlock = block;
+                selectedVertexIdx = vertexIdx;
+                return;
+            }
+
+            if (block.isInside(mouseX, mouseY)) {
+                scene.setCursor(Cursor.HAND);
+                selectedBlock = block;
+                selectedVertexIdx = -1;
+                return;
+            }
+        }
+        if (selectedVertexIdx >= 0 || selectedBlock != null)
+        {
+            scene.setCursor(Cursor.CROSSHAIR);
+            selectedVertexIdx = -1;
+            selectedBlock = null;
+        }
+    }
+
+
+    public void mouseDragged(MouseEvent event) {
+        mouseX = (float)event.getX();
+        mouseY = (float)event.getY();
+
+        if (selectedBlock == null) return;
+        selectedBlock.setPosition(mouseX, mouseY);
+        renderAll();
+    }
+
+    public void mousePressed(MouseEvent event) {
         mouseX = (float)event.getX();
         mouseY = (float)event.getY();
 
@@ -104,8 +152,11 @@ public class LevelBuilder  extends Application {
         else {
             contextMenu.hide();
             selectedBlock = getBlock(mouseX, mouseY);
+            selectedVertexIdx = -1;
         }
     }
+
+
 
     private Block getBlock(double mouseX, double mouseY) {
         for (Block block : blockList) {

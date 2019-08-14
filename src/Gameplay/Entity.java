@@ -62,6 +62,9 @@ abstract public class Entity
                 {true, true, true, true};}
     }
 
+    //pos is the position of the entity.
+    //  For a rectangle, pos is the intersection of the two diagonals.
+    //  For a triangle, pos is the midpoint of the hypotenuse.
     private Vec2 pos;
     private Vec2 velocity = new Vec2(Vec2.ZERO);
     private Vec2 acceleration = new Vec2(Vec2.ZERO);
@@ -124,6 +127,14 @@ abstract public class Entity
             vertexList[2] = new Vec2(-width / 2, -height / 2);
             normal = new Vec2(-width, height);
         }
+        else if (shape == ShapeEnum.RECTANGLE)
+        {
+            vertexList = new Vec2[4];
+            vertexList[0] = new Vec2(width / 2, height / 2);
+            vertexList[1] = new Vec2(width / 2, -height / 2);
+            vertexList[2] = new Vec2(-width / 2, -height / 2);
+            vertexList[3] = new Vec2(-width / 2, height / 2);
+        }
 
         double hypotenuse = Math.sqrt(width * width + height * height);
         sinTheta = (double) height / hypotenuse;
@@ -157,6 +168,12 @@ abstract public class Entity
     }
     public void setPositionX(float x) { pos.x = x; }
     public void setPositionY(float y) { pos.y = y; }
+
+    public void setPosition(float x, float y)
+    {
+        pos.x = x;
+        pos.y = y;
+    }
 
     public void setVelocityX(float x) { velocity.x = x; }
     public void setVelocityY(float y)
@@ -342,6 +359,29 @@ abstract public class Entity
     {
         return surroundsX(other) && surroundsY(other);
     }
+
+
+    //====================================================================================================
+    // Added for use by levelBuilder.
+    // Currently only used for Block subclass of Entity.
+    // If a vertex is near the given point, then that vertex index is returned.
+    // Otherwise, getVertexNear() returns -1;
+    //====================================================================================================
+    public int getVertexNear(double x, double y) {
+        double radiusSquared = 16; //4 pixels squared
+        for (int i=0; i<vertexList.length; i++) {
+            double dx = pos.x + vertexList[i].x - x;
+            double dy = pos.y + vertexList[i].y - y;
+            double distSquared = dx*dx + dy*dy;
+            if (distSquared < radiusSquared) return i;
+        }
+        return -1;
+    }
+
+
+
+
+
 
     public int[] getTouchEdge(Entity other, Vec2 goal)
     {

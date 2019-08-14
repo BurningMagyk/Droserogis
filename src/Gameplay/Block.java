@@ -30,16 +30,45 @@ public class Block extends Entity
     public void damage(GradeEnum gradeEnum) {}
 
 
-    //Added for use by LevelBuilder and, for now, only needed in Block, but this utility may be useful by other
-    //   modules at the level of Entity.
+    //====================================================================================================
+    // Added for use by levelBuilder.
+    // This is in Block (not Entity) since, for now at least, only Block needs it and Blocks can only
+    // be two convex shapes: axis aligned rectangles and axis aligned right-triangles. These are easy shapes
+    // to calculate contains.
+    // This method must be fast as it is called on mouse move events.
+    //====================================================================================================
     public boolean isInside(double x, double y) {
+        Vec2 pos = getPosition();
+        if (x < pos.x - getWidth() / 2) return false;
+        if (x > pos.x + getWidth() / 2) return false;
+        if (y < pos.y - getHeight() / 2) return false;
+        if (y > pos.y + getHeight() / 2) return false;
         if (getShape() == Entity.ShapeEnum.RECTANGLE)
         {
-            Vec2 pos = getPosition();
-            if (x < pos.x - getWidth() / 2) return false;
-            if (x > pos.x + getWidth() / 2) return false;
-            if (y < pos.y - getHeight() / 2) return false;
-            if (y > pos.y + getHeight() / 2) return false;
+            return true;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_UP_R)
+        {
+            if (x > pos.x) return false;
+            if (y < pos.y) return false;
+            return true;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_UP_L)
+        {
+            if (x < pos.x) return false;
+            if (y < pos.y) return false;
+            return true;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_DW_R)
+        {
+            if (x > pos.x) return false;
+            if (y > pos.y) return false;
+            return true;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_DW_L)
+        {
+            if (x < pos.x) return false;
+            if (y > pos.y) return false;
             return true;
         }
         return false;
