@@ -212,11 +212,20 @@ public class Actor extends Item
             }
 
             /* Going up stairs */
+            float stairTopEdge = touchEntity[DOWN].getTopEdge();
             if (prevGround != null && prevGround != touchEntity[DOWN]
-                    && prevGround.getTopEdge() > touchEntity[DOWN].getTopEdge())
+                    && prevGround.getTopEdge() > stairTopEdge)
             {
-                //addCondition(stairRecoverTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
-                // TODO: properly apply stairRecoverTime here
+                float diff = (prevGround.getTopEdge() - stairTopEdge) / getHeight();
+                if (diff < stairRecoverTime[0])
+                {
+                    if (diff < stairRecoverTime[1])
+                    {
+                        addCondition(stairRecoverTime[2], Condition.NEGATE_SPRINT_LEFT, Condition.NEGATE_SPRINT_RIGHT);
+                    }
+                    else addCondition(stairRecoverTime[2], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                }
+                else addCondition(stairRecoverTime[2], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT, Condition.FORCE_CROUCH);
             }
 
             if (pressedJumpTime > 0)

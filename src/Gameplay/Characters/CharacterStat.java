@@ -342,7 +342,8 @@ public class CharacterStat
     public float jumpVel() { return strength(0.4F, 0); }
 
     public float climbLedgeTime() { return agility(1, 0); }
-    public float[] stairRecoverTime() { return new float[] { dexterity(0.05F, 0), strength(0.05F, 0), stamina(0.05F, 0) }; }
+    public float[] stairRecoverTime() { return new float[]
+            { agility(0.45F, 0), dexterity(0.4F, 0), stamina(0.5F, 0) }; }
     public float dashRecoverTime() { return agility(1, 0); }
     public float minTumbleTime() { return agility(1F, 0); }
 
