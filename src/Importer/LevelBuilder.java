@@ -135,8 +135,17 @@ public class LevelBuilder  extends Application {
         mouseX = (float)event.getX();
         mouseY = (float)event.getY();
 
-        if (selectedBlock == null) return;
-        selectedBlock.setPosition(mouseX, mouseY);
+        if (selectedVertexIdx >= 0)
+        {
+            //if (selectedBlock.getShape() == Entity.ShapeEnum.RECTANGLE) {
+            //    double dx =
+            //}
+        }
+        else if (selectedBlock != null)
+        {
+            selectedBlock.setPosition(mouseX, mouseY);
+        }
+        else return;
         renderAll();
     }
 
@@ -214,8 +223,6 @@ public class LevelBuilder  extends Application {
             Vec2 pos = block.getPosition();
             gtx.fillRect(
                     pos.x - block.getWidth() / 2, pos.y - block.getHeight() / 2, block.getWidth(), block.getHeight());
-
-            //System.out.println("          "+(pos.x - block.getWidth()) + ", " + (pos.y - block.getHeight()));
 
         }
     }
