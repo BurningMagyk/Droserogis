@@ -62,7 +62,7 @@ public class LevelBuilder  extends Application {
         }
         SnapshotParameters params = new SnapshotParameters();
         params.setFill(Color.TRANSPARENT);
-        imageBaseLayer = canvas.snapshot(params, null);
+        imageBaseLayer = canvas.snapshot(params, imageBaseLayer);
 
         contextMenu = new ContextMenu();
 
