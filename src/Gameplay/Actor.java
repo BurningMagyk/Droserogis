@@ -5,6 +5,7 @@ import Gameplay.Weapons.*;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -66,9 +67,9 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;
     }
 
-    public Actor(CharacterStat charStat, WeaponStat naturalStat, float xPos, float yPos, float width, float height, float mass)
+    public Actor(CharacterStat charStat, WeaponStat naturalStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
     {
-        super(xPos, yPos, width, height, mass);
+        super(xPos, yPos, width, height, mass, spritePaths);
 
         ORIGINAL_WIDTH = width;
         ORIGINAL_HEIGHT = height;
@@ -76,7 +77,7 @@ public class Actor extends Item
         this.charStat = charStat;
         setCharacterStats();
 
-        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this);
+        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this, null);
     }
 
     Item[] getItems()

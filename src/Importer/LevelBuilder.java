@@ -180,7 +180,7 @@ public class LevelBuilder  extends Application {
         String text = item.getText();
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             if (text.equals(shape.getText())) {
-                Block block = new Block(mouseX, mouseY, 50, 50, shape);
+                Block block = new Block(mouseX, mouseY, 50, 50, shape, new String[]{});
                 blockList.add(block);
 
                 System.out.println("New block at " + mouseX +", " + mouseY);

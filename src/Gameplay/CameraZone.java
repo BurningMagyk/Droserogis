@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Util.GradeEnum;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class CameraZone extends Entity
@@ -9,7 +10,7 @@ public class CameraZone extends Entity
 
     CameraZone(float xPos, float yPos, float width, float height, float zoom)
     {
-        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
+        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, null);
         this.zoom = zoom;
     }
 

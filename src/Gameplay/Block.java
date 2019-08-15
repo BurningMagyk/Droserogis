@@ -2,6 +2,7 @@ package Gameplay;
 
 import Util.GradeEnum;
 import Util.Vec2;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 
@@ -11,9 +12,9 @@ public class Block extends Entity
     private Color liquidColor = Color.rgb(150, 180, 230, 0.5);
 
     public Block(float xPos, float yPos, float width, float height,
-                 ShapeEnum shape)
+                 ShapeEnum shape, String[] spritePaths)
     {
-        super(xPos, yPos, width, height, shape);
+        super(xPos, yPos, width, height, shape, spritePaths);
     }
 
     public void setLiquid(boolean liquid) { isLiquid = liquid; }

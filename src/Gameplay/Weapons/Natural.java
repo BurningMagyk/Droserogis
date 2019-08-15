@@ -7,6 +7,7 @@ import Gameplay.Item;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.image.Image;
 
 public class Natural extends Weapon
 {
@@ -137,9 +138,10 @@ public class Natural extends Weapon
         return new Orient(new Vec2(0.8F, 0), 0);
     }
 
-    public Natural(WeaponStat weaponStat, CharacterStat charStat, float xPos, float yPos, float width, float height, float mass, Actor actor)
+    public Natural(WeaponStat weaponStat, CharacterStat charStat,
+                   float xPos, float yPos, float width, float height, float mass, Actor actor, String[] spritePaths)
     {
-        super(weaponStat, xPos, yPos, width, height, mass);
+        super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///

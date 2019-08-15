@@ -31,9 +31,9 @@ public abstract class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    protected Item(float xPos, float yPos, float width, float height, float mass)
+    protected Item(float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
     {
-        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE);
+        super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, spritePaths);
         this.mass = mass;
 
         // TODO: get this value from Characters or Weapon

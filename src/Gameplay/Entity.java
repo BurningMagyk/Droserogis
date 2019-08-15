@@ -1,9 +1,13 @@
 package Gameplay;
 
+import Menus.Main;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+
+import static Menus.Main.IMPORTER;
 
 abstract public class Entity
 {
@@ -62,6 +66,8 @@ abstract public class Entity
                 {true, true, true, true};}
     }
 
+    private final Image[] SPRITES;
+
     //pos is the position of the entity.
     //  For a rectangle, pos is the intersection of the two diagonals.
     //  For a triangle, pos is the midpoint of the hypotenuse.
@@ -81,8 +87,7 @@ abstract public class Entity
     private float friction = 0.5F;
     private float mass = 5;
 
-
-    Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)
+    Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
     {
         this.width = width;
         this.height = height;
@@ -139,6 +144,19 @@ abstract public class Entity
         double hypotenuse = Math.sqrt(width * width + height * height);
         sinTheta = (double) height / hypotenuse;
         cosTheta = (double) width / hypotenuse;
+
+        if (spritePaths == null || spritePaths.length == 0)
+        {
+            SPRITES = null;
+        }
+        else
+        {
+            SPRITES = new Image[spritePaths.length];
+            for (int i = 0; i < spritePaths.length; i++)
+            {
+                SPRITES[i] = Main.IMPORTER.getImage(spritePaths[i]).getImage();
+            }
+        }
     }
 
     public Vec2 getPosition() { return new Vec2(pos); }
@@ -521,11 +539,14 @@ abstract public class Entity
             return getVertexY(1) - (xRatio * height);
         }
         /* Down-right */
-        else // if (shape.getDirs()[RIGHT])
+        else // if (shape.getDirs()[LEFT])
         {
             return getVertexY(0) + (xRatio * height);
         }
     }
 
     public abstract void damage(GradeEnum amount); // TODO: include damage type
+
+    public int spriteIndex = 0;
+    Image getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
 }
