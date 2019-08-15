@@ -7,7 +7,6 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.PixelWriter;
@@ -29,6 +28,7 @@ public class LevelBuilder  extends Application {
     private Canvas canvas;
     private GraphicsContext gtx;
     private WritableImage imageBaseLayer;
+    private PixelWriter pixelWriter;
     private ContextMenu contextMenu;
     private ArrayList<Block> blockList = new ArrayList<>();
     private float mouseX, mouseY;
@@ -47,22 +47,20 @@ public class LevelBuilder  extends Application {
         canvas = new Canvas(1000, 600);
         gtx = canvas.getGraphicsContext2D();
 
-
-        PixelWriter pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
+        imageBaseLayer = new WritableImage(1000, 600);
+        pixelWriter = imageBaseLayer.getPixelWriter();
 
         for (int x=0; x<canvas.getWidth(); x+=50) {
             for (int y=0; y<canvas.getHeight(); y+=5) {
-                pixelWriter.setColor(x,y, Color.GREY);
+                pixelWriter.setColor(x,y, Color.BLACK);
             }
         }
         for (int y=0; y<canvas.getHeight(); y+=50) {
             for (int x=0; x<canvas.getWidth(); x+=5) {
-                pixelWriter.setColor(x,y, Color.GREY);
+                pixelWriter.setColor(x,y, Color.BLACK);
             }
         }
-        SnapshotParameters params = new SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
-        imageBaseLayer = canvas.snapshot(params, imageBaseLayer);
+
 
         contextMenu = new ContextMenu();
 
@@ -96,6 +94,7 @@ public class LevelBuilder  extends Application {
         scene.setCursor(Cursor.CROSSHAIR);
         stage.setScene(scene);
         stage.show();
+        renderAll();
     }
 
 
@@ -195,6 +194,7 @@ public class LevelBuilder  extends Application {
 
     private void renderAll() {
         gtx.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gtx.drawImage(imageBaseLayer, 0, 0);
         gtx.drawImage(imageBaseLayer, 0, 0);
 
         for (Block block : blockList) {
