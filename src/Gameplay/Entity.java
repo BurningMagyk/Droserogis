@@ -82,13 +82,19 @@ abstract public class Entity
     private float mass = 5;
 
 
-    Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)
+    public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape)
+    {
+        this.shape = shape;
+        pos = new Vec2(xPos, yPos);
+        if (shape != ShapeEnum.RECTANGLE) normal = new Vec2(0,0);
+
+        setSize(width, height);
+    }
+
+    public void setSize(float width, float height)
     {
         this.width = width;
         this.height = height;
-        this.shape = shape;
-
-        pos = new Vec2(xPos, yPos);
 
         //For a triangle, the given (xPos,yPos) is the center of the hypotenuse.
         //  This is done to make it easy to align objects in level building. However, the center of the hypotenuse would NOT
@@ -99,7 +105,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(-width / 2, height / 2);   // Lower-left corner (square corner)
             vertexList[1] = new Vec2(-width / 2, -height / 2);  // Upper-left corner
             vertexList[2] = new Vec2(width / 2, height / 2);    // Lower-right corner
-            normal = new Vec2(width, -height);
+            normal.x = width; normal.y = -height;
         }
 
         else if (shape == ShapeEnum.TRIANGLE_UP_L)
@@ -108,7 +114,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
             vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
             vertexList[2] = new Vec2(width / 2, -height / 2);   // Upper-right corner
-            normal = new Vec2(-width, -height);
+            normal.x = -width; normal.y = -height;
         }
 
         else if (shape == ShapeEnum.TRIANGLE_DW_R)
@@ -117,7 +123,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(-width / 2, -height / 2);
             vertexList[1] = new Vec2(width / 2, -height / 2);
             vertexList[2] = new Vec2(-width / 2, height / 2);
-            normal = new Vec2(width, height);
+            normal.x = width; normal.y = height;
         }
         else if (shape == ShapeEnum.TRIANGLE_DW_L)
         {
@@ -125,7 +131,7 @@ abstract public class Entity
             vertexList[0] = new Vec2(width / 2, -height / 2);
             vertexList[1] = new Vec2(width / 2, height / 2);
             vertexList[2] = new Vec2(-width / 2, -height / 2);
-            normal = new Vec2(-width, height);
+            normal.x = -width; normal.y = height;
         }
         else if (shape == ShapeEnum.RECTANGLE)
         {

@@ -76,7 +76,7 @@ public class LevelBuilder  extends Application {
                 "Right-click on Block to make liquid (default is solid) or to apply texture (not yet implemented).\n\n" +
 
                 "Left-click-drag on Block to move.\n" +
-                "Left-click-drag on Block vertex resize (not yet implemented).\n" +
+                "Left-click-drag on Block vertex resize.\n" +
                 "Left-click-drag on canvas to extend canvas (not yet implemented).\n\n"+
 
                 "Ctrl-S to save (not yet implemented).\n" +
@@ -108,7 +108,7 @@ public class LevelBuilder  extends Application {
             int vertexIdx = block.getVertexNear(mouseX, mouseY);
             if (vertexIdx >= 0)
             {
-                scene.setCursor(Cursor.MOVE);
+                scene.setCursor(Cursor.NE_RESIZE);
                 selectedBlock = block;
                 selectedVertexIdx = vertexIdx;
                 return;
@@ -136,9 +136,16 @@ public class LevelBuilder  extends Application {
 
         if (selectedVertexIdx >= 0)
         {
-            //if (selectedBlock.getShape() == Entity.ShapeEnum.RECTANGLE) {
-            //    double dx =
-            //}
+            float x0 = selectedBlock.getX();
+            float y0 = selectedBlock.getY();
+            float px = selectedBlock.getVertexX(selectedVertexIdx);
+            float py = selectedBlock.getVertexY(selectedVertexIdx);
+            float dx = (mouseX - x0) - (px - x0);
+            float dy = (mouseY - y0) - (py - y0);
+            selectedBlock.setPosition(x0+dx/2, y0+dy/2);
+            float width  = Math.abs(selectedBlock.getWidth()  + dx*Math.signum(px - x0));
+            float height = Math.abs(selectedBlock.getHeight() + dy*Math.signum(py - y0));
+            selectedBlock.setSize(width, height);
         }
         else if (selectedBlock != null)
         {
@@ -159,8 +166,6 @@ public class LevelBuilder  extends Application {
         }
         else {
             contextMenu.hide();
-            selectedBlock = getBlock(mouseX, mouseY);
-            selectedVertexIdx = -1;
         }
     }
 
