@@ -51,12 +51,12 @@ public class LevelBuilder  extends Application {
         pixelWriter = imageBaseLayer.getPixelWriter();
 
         for (int x=0; x<canvas.getWidth(); x+=50) {
-            for (int y=0; y<canvas.getHeight(); y+=5) {
+            for (int y=0; y<canvas.getHeight(); y+=10) {
                 pixelWriter.setColor(x,y, Color.BLACK);
             }
         }
         for (int y=0; y<canvas.getHeight(); y+=50) {
-            for (int x=0; x<canvas.getWidth(); x+=5) {
+            for (int x=0; x<canvas.getWidth(); x+=10) {
                 pixelWriter.setColor(x,y, Color.BLACK);
             }
         }
@@ -142,6 +142,8 @@ public class LevelBuilder  extends Application {
             float py = selectedBlock.getVertexY(selectedVertexIdx);
             float dx = (mouseX - x0) - (px - x0);
             float dy = (mouseY - y0) - (py - y0);
+            dx = Math.round(dx/10)*10;
+            dy = Math.round(dy/10)*10;
             selectedBlock.setPosition(x0+dx/2, y0+dy/2);
             float width  = Math.abs(selectedBlock.getWidth()  + dx*Math.signum(px - x0));
             float height = Math.abs(selectedBlock.getHeight() + dy*Math.signum(py - y0));
@@ -149,7 +151,9 @@ public class LevelBuilder  extends Application {
         }
         else if (selectedBlock != null)
         {
-            selectedBlock.setPosition(mouseX, mouseY);
+            float x = Math.round(mouseX/10)*10;
+            float y = Math.round(mouseY/10)*10;
+            selectedBlock.setPosition(x, y);
         }
         else return;
         renderAll();
@@ -185,11 +189,13 @@ public class LevelBuilder  extends Application {
         String text = item.getText();
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             if (text.equals(shape.getText())) {
-                Block block = new Block(mouseX, mouseY, 50, 50, shape, new String[]{});
+                float x = Math.round(mouseX/10)*10;
+                float y = Math.round(mouseY/10)*10;
+                Block block = new Block(x, y, 100, 100, shape, new String[]{});
                 blockList.add(block);
 
-                System.out.println("New block at " + mouseX +", " + mouseY);
-                System.out.println("    center " + block.getX() +", " + block.getY());
+                //System.out.println("New block at " + mouseX +", " + mouseY);
+                //System.out.println("    center " + block.getX() +", " + block.getY());
                 //System.out.println("    vertex 0 " + block.getVertexX(0)+", "+block.getVertexY(0));
                 break;
             }
