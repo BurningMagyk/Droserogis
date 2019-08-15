@@ -14,6 +14,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -238,47 +239,55 @@ public class Gameplay implements Reactor
      */
     private void drawEntity(Entity entity)
     {
-        context.setFill(entity.getColor());
-
-        if (entity.getShape().isTriangle())
+        Image sprite = entity.getSprite();
+        if (sprite != null)
         {
-            double[] xPos = new double[3];
-            double[] yPos = new double[3];
-
-            for (int i = 0; i < 3; i++)
-            {
-                xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
-                yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
-            }
-            context.fillPolygon(xPos, yPos, 3);
+            // TODO: Draw the sprite using entity.getSprite()
         }
-        else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+        else
         {
-            if (entity instanceof Weapon)
+            context.setFill(entity.getColor());
+
+            if (entity.getShape().isTriangle())
             {
-                Vec2[] c = ((Weapon) entity).getShapeCorners();
-                double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
-                double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
-                for (int i = 0; i < xCorners.length; i++)
+                double[] xPos = new double[3];
+                double[] yPos = new double[3];
+
+                for (int i = 0; i < 3; i++)
                 {
-                    xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                    yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                    xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
+                    yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                 }
-                context.fillPolygon(xCorners, yCorners, 4);
-            } else {
-                Vec2 pos = entity.getPosition();
-                context.fillRect(
-                        (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
-                        (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
-                        entity.getWidth() * cameraZoom,
-                        entity.getHeight() * cameraZoom);
+                context.fillPolygon(xPos, yPos, 3);
             }
-        }
+            else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+            {
+                if (entity instanceof Weapon)
+                {
+                    Vec2[] c = ((Weapon) entity).getShapeCorners();
+                    double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+                    double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
+                    for (int i = 0; i < xCorners.length; i++)
+                    {
+                        xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                        yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                    }
+                    context.fillPolygon(xCorners, yCorners, 4);
+                } else {
+                    Vec2 pos = entity.getPosition();
+                    context.fillRect(
+                            (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
+                            (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
+                            entity.getWidth() * cameraZoom,
+                            entity.getHeight() * cameraZoom);
+                }
+            }
 
-        /* Draws vertical and horizontal lines through the middle for debugging */
-        context.setFill(Color.BLACK);
-        context.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
-        context.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+            /* Draws vertical and horizontal lines through the middle for debugging */
+            context.setFill(Color.BLACK);
+            context.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+            context.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+        }
     }
 
     /**
@@ -290,14 +299,14 @@ public class Gameplay implements Reactor
         addEntity(new CameraZone(0, -1, 50F, 4F, 100));
         addEntity(new CameraZone(0, -3, 50F, 4F, 100));
 
-        addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE));
-        addEntity(new Block(5.5F, 1F, 2F, 0.6F, Entity.ShapeEnum.RECTANGLE));
+        addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE, new String[]{}));
+        addEntity(new Block(5.5F, 1F, 2F, 0.6F, Entity.ShapeEnum.RECTANGLE, new String[]{}));
         //addEntity(new Block(-10, 0, 9F, 2F, Entity.ShapeEnum.RECTANGLE));
         //addEntity(new Block(-8, -2.5F, 6F, 3F, Entity.ShapeEnum.TRIANGLE_UP_R));
-        addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L));
-        addEntity(new Block(-4, -1F, 6F, 4F, Entity.ShapeEnum.TRIANGLE_UP_R));
+        addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L, new String[]{}));
+        addEntity(new Block(-4, -1F, 6F, 4F, Entity.ShapeEnum.TRIANGLE_UP_R, new String[]{}));
 
-        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R));
+        addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R, new String[]{}));
 
         CharacterStat player1Stat = new CharacterStat(
                 "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
@@ -306,7 +315,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F);
+        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F, new String[]{});
 
         WeaponStat swordStat = new WeaponStat("C",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
@@ -314,7 +323,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
+        Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
         player1.equip(sword);
         addEntity(player1);
         addEntity(sword);
@@ -326,14 +335,14 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F);
+        player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F, new String[]{});
 
-        Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F);
+        Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
         player2.equip(sword2);
         //addEntity(player2);
         addEntity(sword2);
 
-        Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE);
+        Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE, new String[]{});
         water.setLiquid(true);
         addEntity(water);
 

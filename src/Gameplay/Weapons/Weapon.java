@@ -51,9 +51,9 @@ public abstract class Weapon extends Item
     }
 
     abstract Orient getDefaultOrient();
-    Weapon(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass)
+    Weapon(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
     {
-        super(xPos, yPos, width, height, mass);
+        super(xPos, yPos, width, height, mass, spritePaths);
 
         this.weaponStat = weaponStat;
 

@@ -5,6 +5,7 @@ import Gameplay.DirEnum;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.image.Image;
 
 public class Sword extends Weapon
 {
@@ -197,9 +198,9 @@ public class Sword extends Weapon
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
     }
 
-    public Sword(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass)
+    public Sword(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
     {
-        super(weaponStat, xPos, yPos, width, height, mass);
+        super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                CONDITIONS                                               ///
