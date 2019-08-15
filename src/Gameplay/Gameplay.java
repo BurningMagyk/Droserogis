@@ -4,6 +4,7 @@ import Gameplay.Characters.CharacterStat;
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
 import Gameplay.Weapons.WeaponStat;
+import Importer.ImageResource;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
@@ -242,16 +243,20 @@ public class Gameplay implements Reactor
     {
         //TODO: Right now the image loader loads every image size 35x70
         //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
-        Image sprite = entity.getSprite();
+        ImageResource sprite = entity.getSprite();
         if (sprite != null)
         {
-            double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
+            /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
             xPos = xPos - sprite.getRequestedWidth() / 2; //this is set in the Importer
 
             double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
             yPos = yPos - sprite.getRequestedHeight() / 2; //this is set in the Importer
 
-            context.drawImage(sprite,xPos,yPos);
+            context.drawImage(sprite,xPos,yPos);*/
+
+            sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
+                    (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
+                    entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
         }
         else
         {
@@ -325,7 +330,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
         player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F,
-                new String[]{ "player_sprite_01.jpg" }); //SPRITES
+                new String[]{ /*"player_sprite_01.jpg"*/ }); //SPRITES
         player1.spriteIndex = 0;
 
         WeaponStat swordStat = new WeaponStat("C",

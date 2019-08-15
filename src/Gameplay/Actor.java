@@ -45,7 +45,13 @@ public class Actor extends Item
     private State state = State.FALL;
 
     private LateSurface[] touchLateSurface = new LateSurface[4];
-    private Entity prevGround = null;
+
+    private class PrevGround
+    {
+        Entity ground = null; float xPos;
+        float getTopEdge() { return ground.getTopEdge(xPos); }
+    }
+    private PrevGround prevGround = new PrevGround();
 
     private boolean
             pressingLeft = false, pressingRight = false,
@@ -213,8 +219,8 @@ public class Actor extends Item
             }
 
             /* Going up stairs */
-            float stairTopEdge = touchEntity[DOWN].getTopEdge();
-            if (prevGround != null && prevGround != touchEntity[DOWN]
+            float stairTopEdge = touchEntity[DOWN].getTopEdge(prevGround.xPos);
+            if (prevGround.ground != null && prevGround.ground != touchEntity[DOWN]
                     && prevGround.getTopEdge() > stairTopEdge)
             {
                 float diff = (prevGround.getTopEdge() - stairTopEdge) / getHeight();
@@ -390,7 +396,8 @@ public class Actor extends Item
             addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
         }
 
-        prevGround = touchEntity[DOWN];
+        prevGround.ground = touchEntity[DOWN];
+        prevGround.xPos = getX();
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)

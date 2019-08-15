@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Importer.ImageResource;
 import Menus.Main;
 import Util.GradeEnum;
 import Util.Print;
@@ -66,7 +67,7 @@ abstract public class Entity
                 {true, true, true, true};}
     }
 
-    private final Image[] SPRITES;
+    private final ImageResource[] SPRITES;
 
     //pos is the position of the entity.
     //  For a rectangle, pos is the intersection of the two diagonals.
@@ -99,10 +100,10 @@ abstract public class Entity
         }
         else
         {
-            SPRITES = new Image[spritePaths.length];
+            SPRITES = new ImageResource[spritePaths.length];
             for (int i = 0; i < spritePaths.length; i++)
             {
-                SPRITES[i] = Main.IMPORTER.getImage(spritePaths[i]).getImage();
+                SPRITES[i] = Main.IMPORTER.getImage(spritePaths[i]);
             }
         }
 
@@ -403,10 +404,6 @@ abstract public class Entity
     }
 
 
-
-
-
-
     public int[] getTouchEdge(Entity other, Vec2 goal)
     {
         int[] directions = {-1, -1};
@@ -554,5 +551,5 @@ abstract public class Entity
     public abstract void damage(GradeEnum amount); // TODO: include damage type
 
     public int spriteIndex = 0;
-    Image getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
+    ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
 }
