@@ -17,7 +17,7 @@ public class Importer
     private final ResourceComp COMP = new ResourceComp();
 
     private String fontDir = "/Fonts/";
-    private String imageDir = "/Images/";
+    private String imageDir = "/Resources/Images/";
     private String audioDir = "/Audio/";
 
     public void setContext(GraphicsContext context)
@@ -27,12 +27,13 @@ public class Importer
 
     public ImageResource getImage(String path, Color color)
     {
+        System.out.println();
         int index = binarySearch(0, images.size() - 1,
                 imageDir + path, images);
         if (index == -1)
-        {
+        { //imageDir
             ImageResource resource = new ImageResource(
-                    imageDir + path, context, color);
+                     path, context, color);
             images.add(resource);
             images.sort(COMP);
             return resource;

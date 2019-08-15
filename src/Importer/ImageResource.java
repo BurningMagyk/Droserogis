@@ -17,7 +17,8 @@ public class ImageResource extends Resource
         super(path);
         this.context = context;
         InputStream input = getClass().getResourceAsStream(path);
-        if (input != null) image = new Image(input);
+        //TODO: don't hard code this probably? and set it up to only do this with sprites
+        if (input != null) image = new Image(input,35,70,false,false);
         else
         {
             image = null;

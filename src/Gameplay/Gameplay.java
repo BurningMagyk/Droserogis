@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -239,10 +240,18 @@ public class Gameplay implements Reactor
      */
     private void drawEntity(Entity entity)
     {
+        //TODO: Right now the image loader loads every image size 35x70
+        //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
         Image sprite = entity.getSprite();
         if (sprite != null)
         {
-            // TODO: Draw the sprite using entity.getSprite()
+            double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
+            xPos = xPos - sprite.getRequestedWidth() / 2; //this is set in the Importer
+
+            double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
+            yPos = yPos - sprite.getRequestedHeight() / 2; //this is set in the Importer
+
+            context.drawImage(sprite,xPos,yPos);
         }
         else
         {
@@ -315,7 +324,9 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F, new String[]{});
+        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F,
+                new String[]{ "player_sprite_01.jpg" }); //SPRITES
+        player1.spriteIndex = 0;
 
         WeaponStat swordStat = new WeaponStat("C",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
