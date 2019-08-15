@@ -28,7 +28,6 @@ public class LevelBuilder  extends Application {
     private Canvas canvas;
     private GraphicsContext gtx;
     private WritableImage imageBaseLayer;
-    private PixelWriter pixelWriter;
     private ContextMenu contextMenu;
     private ArrayList<Block> blockList = new ArrayList<>();
     private float mouseX, mouseY;
@@ -48,7 +47,7 @@ public class LevelBuilder  extends Application {
         gtx = canvas.getGraphicsContext2D();
 
         imageBaseLayer = new WritableImage(1000, 600);
-        pixelWriter = imageBaseLayer.getPixelWriter();
+        PixelWriter pixelWriter = imageBaseLayer.getPixelWriter();
 
         for (int x=0; x<canvas.getWidth(); x+=50) {
             for (int y=0; y<canvas.getHeight(); y+=10) {
@@ -98,7 +97,7 @@ public class LevelBuilder  extends Application {
     }
 
 
-    public void mouseMoved(MouseEvent event)
+    private void mouseMoved(MouseEvent event)
     {
         mouseX = (float) event.getX();
         mouseY = (float) event.getY();
@@ -130,7 +129,7 @@ public class LevelBuilder  extends Application {
     }
 
 
-    public void mouseDragged(MouseEvent event) {
+    private void mouseDragged(MouseEvent event) {
         mouseX = (float)event.getX();
         mouseY = (float)event.getY();
 
@@ -159,7 +158,7 @@ public class LevelBuilder  extends Application {
         renderAll();
     }
 
-    public void mousePressed(MouseEvent event) {
+    private void mousePressed(MouseEvent event) {
         mouseX = (float)event.getX();
         mouseY = (float)event.getY();
 
@@ -175,15 +174,7 @@ public class LevelBuilder  extends Application {
 
 
 
-    private Block getBlock(double mouseX, double mouseY) {
-        for (Block block : blockList) {
-            if (block.isInside(mouseX, mouseY)) return block;
-        }
-       return null;
-    }
-
-
-    public void menuEvent(ActionEvent e) {
+    private void menuEvent(ActionEvent e) {
         //System.out.println("menu event "+e.getSource());
         MenuItem item = (MenuItem)e.getSource();
         String text = item.getText();
