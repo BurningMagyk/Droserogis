@@ -87,7 +87,7 @@ public class LevelBuilder  extends Application {
 
         scene.setOnMousePressed(this::mousePressed);
         scene.setOnMouseMoved(this::mouseMoved);
-        scene.setOnMouseDragged(this::mouseDragged);;
+        scene.setOnMouseDragged(this::mouseDragged);
 
         scene.widthProperty().addListener(this::windowResize);
         scene.heightProperty().addListener(this::windowResize);
