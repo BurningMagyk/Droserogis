@@ -4,6 +4,7 @@ import Gameplay.Block;
 import Util.Vec2;
 
 import javafx.application.Application;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -33,6 +34,7 @@ public class LevelBuilder  extends Application {
     private float mouseX, mouseY;
     private Block selectedBlock = null;
     private int selectedVertexIdx = -1;
+    private boolean windowWasResized = false;
 
     public static void main(String[] args) {
         launch(args);
@@ -43,23 +45,8 @@ public class LevelBuilder  extends Application {
         stage.setTitle("Hermano Level Builder");
 
 
-        canvas = new Canvas(1000, 600);
+        canvas = new Canvas(100, 60);
         gtx = canvas.getGraphicsContext2D();
-
-        imageBaseLayer = new WritableImage(1000, 600);
-        PixelWriter pixelWriter = imageBaseLayer.getPixelWriter();
-
-        for (int x=0; x<canvas.getWidth(); x+=50) {
-            for (int y=0; y<canvas.getHeight(); y+=10) {
-                pixelWriter.setColor(x,y, Color.BLACK);
-            }
-        }
-        for (int y=0; y<canvas.getHeight(); y+=50) {
-            for (int x=0; x<canvas.getWidth(); x+=10) {
-                pixelWriter.setColor(x,y, Color.BLACK);
-            }
-        }
-
 
         contextMenu = new ContextMenu();
 
@@ -81,24 +68,88 @@ public class LevelBuilder  extends Application {
                 "Ctrl-S to save (not yet implemented).\n" +
                 "Ctrl-L to Load (not yet implemented).",
                 100, 200);
-        canvas.setOnMousePressed(this::mousePressed);
-        canvas.setOnMouseMoved(this::mouseMoved);
-        canvas.setOnMouseDragged(this::mouseDragged);
+        //canvas.setOnMousePressed(this::mousePressed);
+        //canvas.setOnMouseMoved(this::mouseMoved);
+        //canvas.setOnMouseDragged(this::mouseDragged);
+
+
 
         Pane root = new Pane();
-        //root.setStyle("-fx-background-color: #FFF8DC");
-        root.setStyle("-fx-background-color: #18cbd6");
-        root.getChildren().add(canvas);
+        root.setStyle("-fx-background-color: #999999");
+
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
         stage.setScene(scene);
         stage.show();
+        createCanvas();
+        root.getChildren().add(canvas);
+
+        scene.setOnMousePressed(this::mousePressed);
+        scene.setOnMouseMoved(this::mouseMoved);
+        scene.setOnMouseDragged(this::mouseDragged);;
+
+        scene.widthProperty().addListener(this::windowResize);
+        scene.heightProperty().addListener(this::windowResize);
+    }
+
+    //=================================================================================================================
+    // When the user is resizing the window, there are many resize width and resize height events generated.
+    // This avoids creating a new canvas and imageBaseLayer or every event.
+    //=================================================================================================================
+    private void windowResize(Observable value) {
+        //new ChangeListener<Number>() {
+        //    @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+         //       System.out.println("Width: " + newSceneWidth);
+        //System.out.println("scene Width: " + scene.getWidth());
+        //System.out.println("canvas Width: " + canvas.getWidth());
+        windowWasResized = true;
+
+
+    }
+
+    private void createCanvas() {
+        windowWasResized = false;
+        int width  = (int)scene.getWidth();
+        int height = (int)scene.getHeight();
+        System.out.println("************* create canvas (" + width + ", " + height + ") *****************");
+
+        if (canvas == null) {
+            canvas = new Canvas(100,100);
+        }
+
+        if ((canvas.getWidth() < width) || (canvas.getHeight() < height))
+        {
+            canvas.setWidth(width);
+            canvas.setHeight(height);
+
+            imageBaseLayer = new WritableImage(width, height);
+            PixelWriter pixelWriter = imageBaseLayer.getPixelWriter();
+
+            for (int x = 0; x < width; x += 50)
+            {
+                for (int y = 0; y < height; y += 10)
+                {
+                    pixelWriter.setColor(x, y, Color.BLACK);
+                }
+            }
+            for (int y = 0; y < height; y += 50)
+            {
+                for (int x = 0; x < width; x += 10)
+                {
+                    pixelWriter.setColor(x, y, Color.BLACK);
+                }
+            }
+        }
         renderAll();
     }
 
-
     private void mouseMoved(MouseEvent event)
     {
+        if (windowWasResized)
+        {
+            createCanvas();
+            return;
+        }
         mouseX = (float) event.getX();
         mouseY = (float) event.getY();
 
@@ -144,8 +195,8 @@ public class LevelBuilder  extends Application {
             dx = Math.round(dx/10)*10;
             dy = Math.round(dy/10)*10;
             selectedBlock.setPosition(x0+dx/2, y0+dy/2);
-            float width  = Math.abs(selectedBlock.getWidth()  + dx*Math.signum(px - x0));
-            float height = Math.abs(selectedBlock.getHeight() + dy*Math.signum(py - y0));
+            float width  = Math.max(20,selectedBlock.getWidth()  + dx*Math.signum(px - x0));
+            float height = Math.max(20,selectedBlock.getHeight() + dy*Math.signum(py - y0));
             selectedBlock.setSize(width, height);
         }
         else if (selectedBlock != null)
