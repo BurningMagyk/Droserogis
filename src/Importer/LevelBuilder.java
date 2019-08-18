@@ -492,6 +492,52 @@ public class LevelBuilder  extends Application {
 
 
 
+    //============================================================================================
+    //============================================================================================
+    public static ArrayList<Entity> loadLevel(String path)
+    {
+        try
+        {
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            ArrayList<Entity> entityList = new ArrayList();
+
+            String line = reader.readLine();
+            String[] data = line.split(",");
+            float centerX = Float.valueOf(data[1]);
+            float centerY = Float.valueOf(data[2]);
+            float scale = Float.valueOf(data[4]);
+
+            line = reader.readLine();
+            while (line != null) {
+                data = line.split(",");
+
+                if (data.length != 6) {
+                    System.out.println("Error Reading Line: ["+line+"]");
+                    throw new IOException("each record must have 6 fields");
+                }
+                Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                float x = (Float.valueOf(data[1]) - centerX)*scale;
+                float y = (Float.valueOf(data[2]) - centerY)*scale;
+                float width = Float.valueOf(data[3])*scale;
+                float height = Float.valueOf(data[4])*scale;
+                boolean isLiquid = Boolean.valueOf(data[5]);
+
+                Block block = new Block(x, y, width, height, shape, null);
+                block.setLiquid(isLiquid);
+                entityList.add(block);
+
+                line = reader.readLine();
+            }
+            reader.close();
+            return entityList;
+        } catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     //============================================================================================
     //                               fileChooserWrite()
@@ -507,7 +553,7 @@ public class LevelBuilder  extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Level File");
         fileChooser.setInitialDirectory(new File("."));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.csv"));
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null)
         {
@@ -550,7 +596,7 @@ public class LevelBuilder  extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Level File");
         fileChooser.setInitialDirectory(new File("."));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.csv"));
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null)
         {
