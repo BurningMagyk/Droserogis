@@ -18,7 +18,7 @@ public class Block extends Entity
     }
 
     public void setLiquid(boolean liquid) { isLiquid = liquid; }
-    boolean isLiquid() { return isLiquid; }
+    public boolean isLiquid() { return isLiquid; }
 
     @Override
     public Color getColor()

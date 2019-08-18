@@ -9,7 +9,11 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -21,7 +25,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -67,6 +76,7 @@ public class LevelBuilder  extends Application {
         itemPlayer1.setOnAction(this::menuEvent);
         itemPlayer2.setOnAction(this::menuEvent);
         menuBlock.getItems().add(new SeparatorMenuItem());
+        itemPlayer1.setDisable(true);
         itemPlayer2.setDisable(true);
 
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
@@ -119,7 +129,7 @@ public class LevelBuilder  extends Application {
 
     private void keyPressed(KeyEvent key)
     {
-        if (key.getCode() == KeyCode.L) openFile();
+        if (key.getCode() == KeyCode.L) loadFile();
         if (key.getCode() == KeyCode.S) saveFile();
     }
 
@@ -259,24 +269,29 @@ public class LevelBuilder  extends Application {
 
     private void menuEvent(ActionEvent e) {
         //System.out.println("menu event "+e.getSource());
+        float x = Math.round((lastMouseX-offsetX)/10)*10;
+        float y = Math.round((lastMouseY-offsetY)/10)*10;
         MenuItem item = (MenuItem)e.getSource();
         if (item == itemPlayer1)
         {
-            float x = Math.round((lastMouseX-offsetX)/10)*10;
-            float y = Math.round((lastMouseY-offsetY)/10)*10;
             //player1 = new Actor(x, y, 100, 100, shape, new String[]{});
 
             itemPlayer1.setDisable(true);
             itemPlayer2.setDisable(false);
+            return;
         }
 
+        if (item == itemPlayer2)
+        {
+            //player1 = new Actor(x, y, 100, 100, shape, new String[]{});
+            itemPlayer2.setDisable(true);
+            return;
+        }
 
         String text = item.getText();
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             if (text.endsWith(shape.getText())) {
-                float x = Math.round((lastMouseX-offsetX)/10)*10;
-                float y = Math.round((lastMouseY-offsetY)/10)*10;
-                Block block = new Block(x, y, 100, 100, shape, new String[]{});
+                Block block = new Block(x, y, 100, 100, shape, null);
                 blockList.add(block);
 
                 //System.out.println("New block at " + mouseX +", " + mouseY);
@@ -371,15 +386,122 @@ public class LevelBuilder  extends Application {
     }
 
 
+
+
     //============================================================================================
-    //                               openFileWriter()
+    //                               saveFile()
+    //
+    // Called when the user presses Ctrl-S button.
+    // Convert pixel coordinates to world (20 world = 1000 pixels)
+    //    center of scene is (0,0)
+    //    -y is up.
+    //
+    //============================================================================================
+    private void saveFile()
+    {
+        System.out.println("LevelBuilder.saveFile()");
+        BufferedWriter writer = fileChooserWrite();
+        if (writer == null) return;
+
+        if (blockList.isEmpty()) return;
+        float minX = Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxX = Float.MIN_VALUE;
+        float maxY = Float.MIN_VALUE;
+        for (Block block : blockList) {
+            if (block.getLeftEdge() < minX) minX = block.getLeftEdge();
+            if (block.getTopEdge()  < minY) minY = block.getTopEdge();
+            if (block.getRightEdge()  > maxX) maxX = block.getRightEdge();
+            if (block.getBottomEdge() > maxY) maxY = block.getBottomEdge();
+        }
+        float centerX = (minX + maxX)/2;
+        float centerY = (minY + maxY)/2;
+        float scale = 1.0f/50.0f;
+
+        try
+        {
+            writer.write("Center,"+centerX+","+centerY+",  Scale,"+scale+"\n");
+            for (Block block : blockList)
+            {
+                //float x = (block.getX() - centerX) * scale;
+                //float y = (block.getY() - centerY) * scale;
+                //float width = block.getWidth() * scale;
+                writer.write(block.getShape() + ", "+block.getX()+","+block.getY()+","+
+                        block.getWidth()+","+ block.getHeight()+","+block.isLiquid()+"\n");
+
+                //Block block = new Block(x, y, 100, 100, shape, null);
+            }
+
+            writer.close();
+        } catch (IOException e)
+        {
+
+        }
+    }
+
+
+
+    //============================================================================================
+    //                               loadFile()
+    //
+    // Called when the user presses Ctrl-S button.
+    // Convert pixel coordinates to world (20 world = 1000 pixels)
+    //    center of scene is (0,0)
+    //    -y is up.
+    //
+    //============================================================================================
+    private void loadFile()
+    {
+        System.out.println("LevelBuilder.loadFile()");
+        BufferedReader reader = fileChooserRead();
+        if (reader == null) return;
+
+        blockList.clear();
+        try
+        {
+            String line = reader.readLine();  //do not need center or scale.
+            line = reader.readLine();
+            while (line != null) {
+                String[] data = line.split(",");
+
+                if (data.length != 6) {
+                    System.out.println("Error Reading Line: ["+line+"]");
+                    throw new IOException("each record must have 6 fields");
+                }
+                Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                float x = Float.valueOf(data[1]);
+                float y = Float.valueOf(data[2]);
+                float width = Float.valueOf(data[3]);
+                float height = Float.valueOf(data[4]);
+                boolean isLiquid = Boolean.valueOf(data[5]);
+
+                Block block = new Block(x, y, width, height, shape, null);
+                block.setLiquid(isLiquid);
+                blockList.add(block);
+
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        renderAll();
+    }
+
+
+
+
+    //============================================================================================
+    //                               fileChooserWrite()
     //
     // Called when the user presses Ctrl-S button.
     // This method displays a file chooser dialog that allows the user to browse folders
     //    to select a .txt or a .csv file.
     //
     //============================================================================================
-    private static BufferedWriter openFileWriter()
+    private static BufferedWriter fileChooserWrite()
     {
         BufferedWriter writer = null;
         FileChooser fileChooser = new FileChooser();
@@ -407,34 +529,7 @@ public class LevelBuilder  extends Application {
     }
 
     //============================================================================================
-    //                               saveFile()
-    //
-    // Called when the user presses Ctrl-S button.
-    // Convert pixel coordinates to world (20 world = 1000 pixels)
-    //    center of scene is (0,0)
-    //    +y is up.
-    //
-    //============================================================================================
-    private void saveFile()
-    {
-        System.out.println("LevelBuilder.saveFile()");
-        BufferedWriter writer = openFileWriter();
-        if (writer == null) return;
-
-        try
-        {
-
-            writer.close();
-        } catch (IOException e)
-        {
-
-        }
-    }
-
-
-
-    //============================================================================================
-    //                               openFile()
+    //                               fileChooserRead()
     //
     // Called when the user presses Ctrl-L button.
     // This method displays a file chooser dialog that allows the user to browse folders
@@ -448,9 +543,9 @@ public class LevelBuilder  extends Application {
     // successfully created.
     // Otherwise, an error dialog is displayed and the method returns false.
     //============================================================================================
-    private BufferedReader openFile()
+    private static BufferedReader fileChooserRead()
     {
-        System.out.println("LevelBuilder.openFile()");
+        System.out.println("LevelBuilder.fileChooserRead()");
         BufferedReader reader = null;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Level File");
