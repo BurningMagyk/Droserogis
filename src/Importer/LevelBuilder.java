@@ -211,6 +211,8 @@ public class LevelBuilder  extends Application {
         float mouseX = (float)event.getX();
         float mouseY = (float)event.getY();
 
+        if (event.isSecondaryButtonDown()) return;
+
         if (selectedVertexIdx >= 0)
         {   //Resize block
             float x0 = selectedBlock.getX();
@@ -239,6 +241,7 @@ public class LevelBuilder  extends Application {
             offsetX += mouseX - lastMouseX;
             offsetY += mouseY - lastMouseY;
         }
+
         lastMouseX = mouseX;
         lastMouseY = mouseY;
         renderAll();
@@ -249,29 +252,31 @@ public class LevelBuilder  extends Application {
         mouseDownY = (float)event.getY();
         lastMouseX = mouseDownX;
         lastMouseY = mouseDownY;
-        if (selectedBlock != null)
-        {
-            mouseDownOffsetWithinBlockX = (mouseDownX - offsetX) - selectedBlock.getX();
-            mouseDownOffsetWithinBlockY = (mouseDownY - offsetY) - selectedBlock.getY();
-        }
 
         renderAll();
 
         if (event.isSecondaryButtonDown()) {
             if (selectedBlock != null)
             {
+                menuBlock.hide();
                 if (selectedBlock.isLiquid()) menuItemWater.setSelected(true);
                 else menuItemStone.setSelected(true);
                 menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
             }
             else
             {
+                menuMaterial.hide();
                 menuBlock.show(canvas, event.getScreenX(), event.getScreenY());
             }
         }
         else {
             menuBlock.hide();
             menuMaterial.hide();
+            if (selectedBlock != null)
+            {
+                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX) - selectedBlock.getX();
+                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY) - selectedBlock.getY();
+            }
         }
     }
 
@@ -296,6 +301,8 @@ public class LevelBuilder  extends Application {
         else if (item == menuItemDelete)
         {
             if (selectedBlock != null) blockList.remove(selectedBlock);
+            selectedBlock = null;
+            selectedVertexIdx = -1;
         }
         else
         {
