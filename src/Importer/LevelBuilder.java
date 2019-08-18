@@ -551,9 +551,9 @@ public class LevelBuilder  extends Application {
     {
         BufferedWriter writer = null;
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Level File");
-        fileChooser.setInitialDirectory(new File("."));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.csv"));
+        fileChooser.setTitle("Save Hermano Level File");
+        fileChooser.setInitialDirectory(new File("Resources/Levels"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null)
         {
@@ -594,9 +594,9 @@ public class LevelBuilder  extends Application {
         System.out.println("LevelBuilder.fileChooserRead()");
         BufferedReader reader = null;
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Level File");
-        fileChooser.setInitialDirectory(new File("."));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.csv"));
+        fileChooser.setTitle("Open Hermano Level File");
+        fileChooser.setInitialDirectory(new File("Resources/Levels"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV", "*.csv"));
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null)
         {
