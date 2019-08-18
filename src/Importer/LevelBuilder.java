@@ -1,6 +1,7 @@
 package Importer;
 import Gameplay.Entity;
 import Gameplay.Block;
+import Gameplay.Actor;
 import Util.Vec2;
 
 import javafx.application.Application;
@@ -8,18 +9,19 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 
+import java.io.*;
 import java.util.ArrayList;
 
 
@@ -30,7 +32,7 @@ public class LevelBuilder  extends Application {
     private GraphicsContext gtx;
     //private WritableImage imageBaseLayer;
     //private PixelWriter pixelWriter;
-    private ContextMenu contextMenu;
+    private ContextMenu menuBlock, menuMaterial;
     private ArrayList<Block> blockList = new ArrayList<>();
     private float lastMouseX, lastMouseY;
     private Block selectedBlock = null;
@@ -38,6 +40,10 @@ public class LevelBuilder  extends Application {
     private boolean windowWasResized = false;
     private int offsetX=0;
     private int offsetY=0;
+
+    private MenuItem itemPlayer1, itemPlayer2;
+    private Actor player1, player2;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -51,14 +57,30 @@ public class LevelBuilder  extends Application {
         canvas = new Canvas(100, 60);
         gtx = canvas.getGraphicsContext2D();
 
-        contextMenu = new ContextMenu();
+        menuBlock = new ContextMenu();
+        menuMaterial = new ContextMenu();
+
+        itemPlayer1 = new MenuItem("Add Player 1");
+        itemPlayer2 = new MenuItem("Add Player 2");
+        menuBlock.getItems().add(itemPlayer1);
+        menuBlock.getItems().add(itemPlayer2);
+        itemPlayer1.setOnAction(this::menuEvent);
+        itemPlayer2.setOnAction(this::menuEvent);
+        menuBlock.getItems().add(new SeparatorMenuItem());
+        itemPlayer2.setDisable(true);
 
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
-            MenuItem item = new MenuItem(shape.getText());
-            contextMenu.getItems().add(item);
+            MenuItem item = new MenuItem("Add " + shape.getText());
+            menuBlock.getItems().add(item);
             item.setOnAction(this::menuEvent);
-
         }
+
+        CheckMenuItem menuItemStone = new CheckMenuItem("Stone");
+        CheckMenuItem menuItemWater = new CheckMenuItem("Water");
+        menuMaterial.getItems().add(menuItemStone);
+        menuMaterial.getItems().add(menuItemWater);
+        menuItemStone.setOnAction(this::menuEvent);
+        menuItemWater.setOnAction(this::menuEvent);
 
         gtx.setFill(Color.DARKBLUE);
         gtx.setFont(new Font("Verdana", 20));
@@ -73,16 +95,16 @@ public class LevelBuilder  extends Application {
         createCanvas();
         root.getChildren().add(canvas);
 
-        gtx.clearRect(80, 180, 1000, 230);
+        gtx.clearRect(80, 180, 600, 230);
         gtx.fillText("Right-click on canvas to add Block.\n" +
-                        "Right-click on Block to make liquid (default is solid) or to apply texture (not yet implemented).\n\n" +
+                        "Right-click on Block to make liquid (default is solid).\n\n" +
 
                         "Left-click-drag on Block to move.\n" +
                         "Left-click-drag on Block vertex resize.\n" +
                         "Left-click-drag on canvas to extend canvas.\n\n"+
 
-                        "Ctrl-S to save (not yet implemented).\n" +
-                        "Ctrl-L to Load (not yet implemented).",
+                        "Press S to Save level.\n" +
+                        "Press L to Load level.",
                 100, 200);
 
         scene.setOnMousePressed(this::mousePressed);
@@ -91,6 +113,14 @@ public class LevelBuilder  extends Application {
 
         scene.widthProperty().addListener(this::windowResize);
         scene.heightProperty().addListener(this::windowResize);
+
+        scene.setOnKeyPressed(this::keyPressed);
+    }
+
+    private void keyPressed(KeyEvent key)
+    {
+        if (key.getCode() == KeyCode.L) openFile();
+        if (key.getCode() == KeyCode.S) saveFile();
     }
 
     //=================================================================================================================
@@ -210,10 +240,18 @@ public class LevelBuilder  extends Application {
         renderAll();
 
         if (event.isSecondaryButtonDown()) {
-            contextMenu.show(canvas, event.getScreenX(), event.getScreenY());
+            if (selectedBlock != null)
+            {
+                menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
+            }
+            else
+            {
+                menuBlock.show(canvas, event.getScreenX(), event.getScreenY());
+            }
         }
         else {
-            contextMenu.hide();
+            menuBlock.hide();
+            menuMaterial.hide();
         }
     }
 
@@ -222,9 +260,20 @@ public class LevelBuilder  extends Application {
     private void menuEvent(ActionEvent e) {
         //System.out.println("menu event "+e.getSource());
         MenuItem item = (MenuItem)e.getSource();
+        if (item == itemPlayer1)
+        {
+            float x = Math.round((lastMouseX-offsetX)/10)*10;
+            float y = Math.round((lastMouseY-offsetY)/10)*10;
+            //player1 = new Actor(x, y, 100, 100, shape, new String[]{});
+
+            itemPlayer1.setDisable(true);
+            itemPlayer2.setDisable(false);
+        }
+
+
         String text = item.getText();
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
-            if (text.equals(shape.getText())) {
+            if (text.endsWith(shape.getText())) {
                 float x = Math.round((lastMouseX-offsetX)/10)*10;
                 float y = Math.round((lastMouseY-offsetY)/10)*10;
                 Block block = new Block(x, y, 100, 100, shape, new String[]{});
@@ -272,7 +321,6 @@ public class LevelBuilder  extends Application {
         gtx.setLineWidth(1);
         int xStart = offsetX % 50;
         int yStart = offsetY % 10;
-        //if (offsetX < 0) xStart = 50 + xStart;
         for (int x = xStart; x < width; x += 50)
         {
             for (int y = yStart; y < height; y += 10)
@@ -282,7 +330,6 @@ public class LevelBuilder  extends Application {
         }
         xStart = offsetX % 10;
         yStart = offsetY % 50;
-        //if (offsetX < 0) xStart = 50 + xStart;
         for (int y = yStart; y < height; y += 50)
         {
             for (int x = xStart; x < width; x += 10)
@@ -321,6 +368,112 @@ public class LevelBuilder  extends Application {
                     x, y, block.getWidth(), block.getHeight());
 
         }
+    }
+
+
+    //============================================================================================
+    //                               openFileWriter()
+    //
+    // Called when the user presses Ctrl-S button.
+    // This method displays a file chooser dialog that allows the user to browse folders
+    //    to select a .txt or a .csv file.
+    //
+    //============================================================================================
+    private static BufferedWriter openFileWriter()
+    {
+        BufferedWriter writer = null;
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Level File");
+        fileChooser.setInitialDirectory(new File("."));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv"));
+        File selectedFile = fileChooser.showSaveDialog(null);
+        if (selectedFile != null)
+        {
+            try
+            {
+                writer = new BufferedWriter(new FileWriter(selectedFile));
+            } catch (IOException e)
+            {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("File Error");
+                alert.setHeaderText("IO Exception:");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+                return null;
+            }
+        }
+
+        return writer;
+    }
+
+    //============================================================================================
+    //                               saveFile()
+    //
+    // Called when the user presses Ctrl-S button.
+    // Convert pixel coordinates to world (20 world = 1000 pixels)
+    //    center of scene is (0,0)
+    //    +y is up.
+    //
+    //============================================================================================
+    private void saveFile()
+    {
+        System.out.println("LevelBuilder.saveFile()");
+        BufferedWriter writer = openFileWriter();
+        if (writer == null) return;
+
+        try
+        {
+
+            writer.close();
+        } catch (IOException e)
+        {
+
+        }
+    }
+
+
+
+    //============================================================================================
+    //                               openFile()
+    //
+    // Called when the user presses Ctrl-L button.
+    // This method displays a file chooser dialog that allows the user to browse folders
+    //    to select a .txt or a .csv file.
+    //
+    // The selected file is opened in a BufferedReader.
+    // The BufferedReader is assigned to the class variable BufferedReader reader.
+    // The name of the selected file is assigned to the class variable String filename.
+    //
+    // Returns true if a file was successfully selected, opened and the BufferedReader
+    // successfully created.
+    // Otherwise, an error dialog is displayed and the method returns false.
+    //============================================================================================
+    private BufferedReader openFile()
+    {
+        System.out.println("LevelBuilder.openFile()");
+        BufferedReader reader = null;
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Level File");
+        fileChooser.setInitialDirectory(new File("."));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.csv"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null)
+        {
+            try
+            {
+                reader = new BufferedReader(new FileReader(selectedFile));
+            }
+            catch (IOException e)
+            {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("File Error");
+                alert.setHeaderText("IO Exception:");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+                return null;
+            }
+        }
+        return reader;
     }
 
 }
