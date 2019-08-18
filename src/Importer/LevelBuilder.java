@@ -13,7 +13,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -50,8 +52,10 @@ public class LevelBuilder  extends Application {
     private int offsetX=0;
     private int offsetY=0;
 
-    private MenuItem itemPlayer1, itemPlayer2;
     private Actor player1, player2;
+
+    private RadioMenuItem menuItemStone, menuItemWater;
+    private MenuItem menuItemDelete;
 
 
     public static void main(String[] args) {
@@ -69,28 +73,26 @@ public class LevelBuilder  extends Application {
         menuBlock = new ContextMenu();
         menuMaterial = new ContextMenu();
 
-        itemPlayer1 = new MenuItem("Add Player 1");
-        itemPlayer2 = new MenuItem("Add Player 2");
-        menuBlock.getItems().add(itemPlayer1);
-        menuBlock.getItems().add(itemPlayer2);
-        itemPlayer1.setOnAction(this::menuEvent);
-        itemPlayer2.setOnAction(this::menuEvent);
-        menuBlock.getItems().add(new SeparatorMenuItem());
-        itemPlayer1.setDisable(true);
-        itemPlayer2.setDisable(true);
-
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             MenuItem item = new MenuItem("Add " + shape.getText());
             menuBlock.getItems().add(item);
             item.setOnAction(this::menuEvent);
         }
 
-        CheckMenuItem menuItemStone = new CheckMenuItem("Stone");
-        CheckMenuItem menuItemWater = new CheckMenuItem("Water");
+        menuItemStone = new RadioMenuItem("Stone");
+        menuItemWater = new RadioMenuItem("Water");
+        menuItemDelete = new MenuItem("Delete Block");
         menuMaterial.getItems().add(menuItemStone);
         menuMaterial.getItems().add(menuItemWater);
+        menuMaterial.getItems().add(new SeparatorMenuItem());
+        menuMaterial.getItems().add(menuItemDelete);
         menuItemStone.setOnAction(this::menuEvent);
         menuItemWater.setOnAction(this::menuEvent);
+        menuItemDelete.setOnAction(this::menuEvent);
+
+        ToggleGroup toggleGroupMaterial = new ToggleGroup();
+        menuItemStone.setToggleGroup(toggleGroupMaterial);
+        menuItemWater.setToggleGroup(toggleGroupMaterial);
 
         gtx.setFill(Color.DARKBLUE);
         gtx.setFont(new Font("Verdana", 20));
@@ -252,6 +254,8 @@ public class LevelBuilder  extends Application {
         if (event.isSecondaryButtonDown()) {
             if (selectedBlock != null)
             {
+                if (selectedBlock.isLiquid()) menuItemWater.setSelected(true);
+                else menuItemStone.setSelected(true);
                 menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
             }
             else
@@ -272,32 +276,30 @@ public class LevelBuilder  extends Application {
         float x = Math.round((lastMouseX-offsetX)/10)*10;
         float y = Math.round((lastMouseY-offsetY)/10)*10;
         MenuItem item = (MenuItem)e.getSource();
-        if (item == itemPlayer1)
+
+        if (item == menuItemStone)
         {
-            //player1 = new Actor(x, y, 100, 100, shape, new String[]{});
-
-            itemPlayer1.setDisable(true);
-            itemPlayer2.setDisable(false);
-            return;
+            if (selectedBlock != null) selectedBlock.setLiquid(false);
         }
-
-        if (item == itemPlayer2)
+        else if (item == menuItemWater)
         {
-            //player1 = new Actor(x, y, 100, 100, shape, new String[]{});
-            itemPlayer2.setDisable(true);
-            return;
+            if (selectedBlock != null) selectedBlock.setLiquid(true);
         }
-
-        String text = item.getText();
-        for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
-            if (text.endsWith(shape.getText())) {
-                Block block = new Block(x, y, 100, 100, shape, null);
-                blockList.add(block);
-
-                //System.out.println("New block at " + mouseX +", " + mouseY);
-                //System.out.println("    center " + block.getX() +", " + block.getY());
-                //System.out.println("    vertex 0 " + block.getVertexX(0)+", "+block.getVertexY(0));
-                break;
+        else if (item == menuItemDelete)
+        {
+            if (selectedBlock != null) blockList.remove(selectedBlock);
+        }
+        else
+        {
+            String text = item.getText();
+            for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
+            {
+                if (text.endsWith(shape.getText()))
+                {
+                    Block block = new Block(x, y, 100, 100, shape, null);
+                    blockList.add(block);
+                    break;
+                }
             }
         }
         renderAll();
