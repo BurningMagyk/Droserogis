@@ -9,8 +9,6 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-//import javafx.scene.control.Alert;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -41,8 +39,6 @@ public class LevelBuilder  extends Application {
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
-    //private WritableImage imageBaseLayer;
-    //private PixelWriter pixelWriter;
     private ContextMenu menuBlock, menuMaterial;
     private ArrayList<Block> blockList = new ArrayList<>();
     private float lastMouseX, lastMouseY;
@@ -146,8 +142,6 @@ public class LevelBuilder  extends Application {
         //System.out.println("scene Width: " + scene.getWidth());
         //System.out.println("canvas Width: " + canvas.getWidth());
         windowWasResized = true;
-
-
     }
 
     private void createCanvas() {
@@ -451,7 +445,7 @@ public class LevelBuilder  extends Application {
             writer.close();
         } catch (IOException e)
         {
-
+            e.printStackTrace();
         }
     }
 
@@ -477,8 +471,8 @@ public class LevelBuilder  extends Application {
         offsetY=0;
         try
         {
-            String line = reader.readLine();  //do not need center or scale.
-            line = reader.readLine();
+            reader.readLine();  //do not need center or scale.
+            String line = reader.readLine();
             while (line != null) {
                 String[] data = line.split(",");
 
@@ -517,7 +511,7 @@ public class LevelBuilder  extends Application {
         try
         {
             BufferedReader reader = new BufferedReader(new FileReader(path));
-            ArrayList<Entity> entityList = new ArrayList();
+            ArrayList<Entity> entityList = new ArrayList<>();
 
             String line = reader.readLine();
             String[] data = line.split(",");
