@@ -108,11 +108,11 @@ public class LevelBuilder  extends Application {
         gtx.clearRect(80, 180, 600, 250);
         gtx.fillText("Right-click on canvas to add Block.\n" +
                         "Right-click on Block to delete.\n" +
-                        "Right-click on Block to make liquid (default is solid).\n\n" +
+                        "Right-click on Block to set liquid (default is solid).\n\n" +
 
-                        "Left-click-drag on Block to move.\n" +
-                        "Left-click-drag on Block vertex resize.\n" +
-                        "Left-click-drag on canvas to extend canvas.\n\n"+
+                        "Left-click-drag on Block to move block.\n" +
+                        "Left-click-drag on Vertex of Block to resize.\n" +
+                        "Left-click-drag on canvas to scroll canvas.\n\n"+
 
                         "Press S to Save level.\n" +
                         "Press L to Load level.",
