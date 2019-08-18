@@ -46,6 +46,7 @@ public class LevelBuilder  extends Application {
     private ContextMenu menuBlock, menuMaterial;
     private ArrayList<Block> blockList = new ArrayList<>();
     private float lastMouseX, lastMouseY;
+    private float mouseDownX, mouseDownY;
     private Block selectedBlock = null;
     private int selectedVertexIdx = -1;
     private boolean windowWasResized = false;
@@ -181,6 +182,9 @@ public class LevelBuilder  extends Application {
         float x = mouseX - offsetX;
         float y = mouseY - offsetY;
 
+        //lastMouseX = mouseX;
+        //lastMouseY = mouseY;
+
         for (Block block : blockList)
         {
             int vertexIdx = block.getVertexNear(x, y);
@@ -205,9 +209,6 @@ public class LevelBuilder  extends Application {
             selectedVertexIdx = -1;
             selectedBlock = null;
         }
-
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
     }
 
 
@@ -216,7 +217,7 @@ public class LevelBuilder  extends Application {
         float mouseY = (float)event.getY();
 
         if (selectedVertexIdx >= 0)
-        {
+        {   //Resize block
             float x0 = selectedBlock.getX();
             float y0 = selectedBlock.getY();
             float px = selectedBlock.getVertexX(selectedVertexIdx);
@@ -231,13 +232,17 @@ public class LevelBuilder  extends Application {
             selectedBlock.setSize(width, height);
         }
         else if (selectedBlock != null)
-        {
-            float x = Math.round((mouseX-offsetX)/10)*10;
-            float y = Math.round((mouseY-offsetY)/10)*10;
+        {  //Move block
+            float offsetWithinBlockX = (mouseDownX-offsetX)-selectedBlock.getX();
+            float offsetWithinBlockY = (mouseDownY-offsetY)-selectedBlock.getY();
+            float x = Math.round(((mouseX-offsetX)-offsetWithinBlockX)/10)*10;
+            float y = Math.round(((mouseY-offsetY)-offsetWithinBlockY)/10)*10;
+            //float x = Math.round((selectedBlock.getX() + (mouseX-lastMouseX))/10)*10;
+            //float y = Math.round((selectedBlock.getY() + (mouseY-lastMouseY))/10)*10;
             selectedBlock.setPosition(x, y);
         }
         else
-        {
+        {   //Drag world
             offsetX += mouseX - lastMouseX;
             offsetY += mouseY - lastMouseY;
         }
@@ -247,8 +252,10 @@ public class LevelBuilder  extends Application {
     }
 
     private void mousePressed(MouseEvent event) {
-        lastMouseX = (float)event.getX();
-        lastMouseY = (float)event.getY();
+        mouseDownX = (float)event.getX();
+        mouseDownY = (float)event.getY();
+        lastMouseX = mouseDownX;
+        lastMouseY = mouseDownY;
 
         renderAll();
 
@@ -274,8 +281,10 @@ public class LevelBuilder  extends Application {
 
     private void menuEvent(ActionEvent e) {
         //System.out.println("menu event "+e.getSource());
-        float x = Math.round((lastMouseX-offsetX)/10)*10;
-        float y = Math.round((lastMouseY-offsetY)/10)*10;
+        //float x = Math.round((lastMouseX-offsetX)/10)*10;
+        //float y = Math.round((lastMouseY-offsetY)/10)*10;
+        float x = Math.round((mouseDownX-offsetX)/10)*10;
+        float y = Math.round((mouseDownY-offsetY)/10)*10;
         MenuItem item = (MenuItem)e.getSource();
 
         if (item == menuItemStone)
