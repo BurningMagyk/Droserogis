@@ -457,6 +457,8 @@ public class LevelBuilder  extends Application {
         if (reader == null) return;
 
         blockList.clear();
+        offsetX=0;
+        offsetY=0;
         try
         {
             String line = reader.readLine();  //do not need center or scale.
