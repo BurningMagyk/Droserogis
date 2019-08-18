@@ -9,7 +9,7 @@ import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+//import javafx.scene.control.Alert;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -564,11 +564,11 @@ public class LevelBuilder  extends Application {
                 writer = new BufferedWriter(new FileWriter(selectedFile));
             } catch (IOException e)
             {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
+                /*Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("File Error");
                 alert.setHeaderText("IO Exception:");
                 alert.setContentText(e.getMessage());
-                alert.showAndWait();
+                alert.showAndWait();*/
                 return null;
             }
         }
@@ -608,11 +608,11 @@ public class LevelBuilder  extends Application {
             }
             catch (IOException e)
             {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
+                /*Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("File Error");
                 alert.setHeaderText("IO Exception:");
                 alert.setContentText(e.getMessage());
-                alert.showAndWait();
+                alert.showAndWait();*/
                 return null;
             }
         }

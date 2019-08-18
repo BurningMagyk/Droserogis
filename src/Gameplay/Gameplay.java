@@ -339,7 +339,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
         player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F,
-                new String[]{ /*"player_sprite_01.jpg"*/ }); //SPRITES
+                new String[]{ }); //SPRITES
         player1.spriteIndex = 0;
 
         WeaponStat swordStat = new WeaponStat("C",

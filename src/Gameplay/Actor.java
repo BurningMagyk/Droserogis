@@ -470,7 +470,7 @@ public class Actor extends Item
     void applyPhysics(ArrayList<Entity> entities, float deltaSec)
     {
         boolean slopeLeft = false, slopeRight = false;
-        if (touchEntity[DOWN] != null)
+        if (touchEntity[DOWN] != null && touchEntity[DOWN].getShape().getDirs()[DOWN])
         {
             slopeLeft = !touchEntity[DOWN].getShape().getDirs()[LEFT];
             slopeRight = !touchEntity[DOWN].getShape().getDirs()[RIGHT];
@@ -663,7 +663,7 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(getVelocityY()); }
+    public void debug() { Print.yellow(getVelocityX()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
