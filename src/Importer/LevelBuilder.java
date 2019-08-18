@@ -107,8 +107,9 @@ public class LevelBuilder  extends Application {
         createCanvas();
         root.getChildren().add(canvas);
 
-        gtx.clearRect(80, 180, 600, 230);
+        gtx.clearRect(80, 180, 600, 250);
         gtx.fillText("Right-click on canvas to add Block.\n" +
+                        "Right-click on Block to delete.\n" +
                         "Right-click on Block to make liquid (default is solid).\n\n" +
 
                         "Left-click-drag on Block to move.\n" +
