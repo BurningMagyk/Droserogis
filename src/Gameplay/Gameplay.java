@@ -42,7 +42,8 @@ public class Gameplay implements Reactor
     private Actor player1, player2;
     private long lastUpdateTime = -1;
 
-    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY,
+    private float cameraPosX, cameraPosY, cameraPosLerp = 0.05F,
+            cameraOffsetX, cameraOffsetY,
             cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
@@ -57,7 +58,7 @@ public class Gameplay implements Reactor
         items = new ArrayList<>();
 
         /* Set up initial position and zoom of the camera */
-        moveCamera(0, 0, 100);
+        moveCamera(0, 0, 100, 10, true);
 
         timer = new AnimationTimer()
         {
@@ -110,7 +111,8 @@ public class Gameplay implements Reactor
         //cameraPosX = player1.getPosition().x;
         //cameraPosY = player1.getPosition().y;
 
-        moveCamera(player1.getPosition().x, player1.getPosition().y, player1.getZoom(entities));
+        moveCamera(player1.getPosition().x, player1.getPosition().y,
+                player1.getZoom(entities), player1.getTopSpeed(), player1.shouldVertCam());
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
@@ -158,14 +160,6 @@ public class Gameplay implements Reactor
         else if (code == KeyCode.NUMPAD0)
         {
             player2.pressJump(pressed);
-        }
-        else if (code == KeyCode.Q && pressed)
-        {
-            moveCamera(cameraPosX, cameraPosY, cameraZoom - 5);
-        }
-        else if (code == KeyCode.E && pressed)
-        {
-            moveCamera(cameraPosX, cameraPosY, cameraZoom + 5);
         }
         else if (code == KeyCode.A)
         {
@@ -338,7 +332,7 @@ public class Gameplay implements Reactor
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .35f, .7f, 1F,
+        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .4f, .8f, 1F,
                 new String[]{ }); //SPRITES
         player1.spriteIndex = 0;
 
@@ -373,14 +367,20 @@ public class Gameplay implements Reactor
     /**
      * Call every frame. Movement and zooming should be smooth.
      */
-    private void moveCamera(float posX, float posY, float zoom)
+    private void moveCamera(float posX, float posY, float zoom, float topSpeed, boolean updateVert)
     {
         if (zoom != -1) cameraZoomGoal = zoom;//cameraZoom = zoom;
         if (Math.abs(cameraZoomGoal - cameraZoom) < Math.sqrt(cameraZoomLerp)) cameraZoom = cameraZoomGoal;
         else cameraZoom = ((cameraZoomGoal - cameraZoom) * cameraZoomLerp) + cameraZoom;
 
-        cameraPosX = posX;
-        cameraPosY = posY;
+        float _camPosLerp = (cameraPosLerp * topSpeed * 10) + cameraPosLerp;
+        if (Math.abs(cameraPosX - posX) < _camPosLerp / 10) cameraPosX = posX;
+        else cameraPosX += (posX - cameraPosX) * _camPosLerp;
+        if (updateVert)
+        {
+            if (Math.abs(cameraPosY - posY) < _camPosLerp / 10) cameraPosY = posY;
+            else cameraPosY += (posY - cameraPosY) * _camPosLerp;
+        }
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
         cameraOffsetY = viewHeight / 2F / cameraZoom;

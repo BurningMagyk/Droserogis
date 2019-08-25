@@ -411,6 +411,7 @@ public class Actor extends Item
         return 0;
     }
     private float getTopSpeed(boolean low) { return getTopSpeed(getMoveType(), low); }
+    public float getTopSpeed() { return getTopSpeed(false); }
 
     private enum MoveType { STILL, WALK, RUN, SPRINT }
     private MoveType getMoveType()
@@ -910,6 +911,11 @@ public class Actor extends Item
             totalZoom += (distances.get(i) / sum) * zooms.get(i);
         }
         return totalZoom;
+    }
+
+    boolean shouldVertCam()
+    {
+        return state.isGrounded() || state.isOnWall() || state == State.SWIM;
     }
 
     public int getSpeedRating()
