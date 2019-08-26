@@ -1,4 +1,5 @@
 package Importer;
+import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.Block;
 import Gameplay.Actor;
@@ -7,7 +8,6 @@ import Util.Vec2;
 import javafx.application.Application;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
@@ -23,12 +23,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 
-import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,12 +41,12 @@ public class LevelBuilder  extends Application {
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
-    private ContextMenu menuBlock, menuMaterial;
-    private ArrayList<Block> blockList = new ArrayList<>();
+    private ContextMenu menuBlock, menuMaterial,  menuCameraZoom;
+    private ArrayList<Entity> entityList = new ArrayList<>();
     private float lastMouseX, lastMouseY;
     private float mouseDownX, mouseDownY;
     private float mouseDownOffsetWithinBlockX, mouseDownOffsetWithinBlockY;
-    private Block selectedBlock = null;
+    private Entity selectedEntity = null;
     private int selectedVertexIdx = -1;
     private boolean windowWasResized = false;
     private int offsetX=0;
@@ -58,7 +56,7 @@ public class LevelBuilder  extends Application {
     private Actor player1, player2;
 
     private RadioMenuItem menuItemStone, menuItemWater;
-    private MenuItem menuItemDelete;
+    private MenuItem menuItemDelete, menuItemAddCameraZone;
 
 
     public static void main(String[] args) {
@@ -75,7 +73,14 @@ public class LevelBuilder  extends Application {
 
         menuBlock = new ContextMenu();
         menuMaterial = new ContextMenu();
+        menuCameraZoom = new ContextMenu();
 
+
+        menuItemAddCameraZone = new MenuItem("Add Camera Zone");
+        menuItemAddCameraZone.setOnAction(this::menuEvent);
+        menuBlock.getItems().add(menuItemAddCameraZone);
+
+        menuBlock.getItems().add(new SeparatorMenuItem());
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             MenuItem item = new MenuItem("Add " + shape.getText());
             menuBlock.getItems().add(item);
@@ -84,7 +89,7 @@ public class LevelBuilder  extends Application {
 
         menuItemStone = new RadioMenuItem("Stone");
         menuItemWater = new RadioMenuItem("Water");
-        menuItemDelete = new MenuItem("Delete Block");
+        menuItemDelete = new MenuItem("Delete");
         menuMaterial.getItems().add(menuItemStone);
         menuMaterial.getItems().add(menuItemWater);
         menuMaterial.getItems().add(new SeparatorMenuItem());
@@ -147,7 +152,7 @@ public class LevelBuilder  extends Application {
         offsetY += lastMouseY/zoom2 - lastMouseY/zoomFactor;
         zoomFactor = zoom2;
 
-        System.out.println("zoomFactor="+zoomFactor);
+        //System.out.println("zoomFactor="+zoomFactor);
         gtx.restore();
         gtx.save();
         gtx.scale(zoomFactor,zoomFactor);
@@ -200,35 +205,35 @@ public class LevelBuilder  extends Application {
         }
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
-        float x = (float)(mouseX/zoomFactor) - offsetX;
-        float y = (float)(mouseY/zoomFactor) - offsetY;
+        float x = mouseX/zoomFactor - offsetX;
+        float y = mouseY/zoomFactor - offsetY;
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
 
-        for (Block block : blockList)
-        {
-            int vertexIdx = block.getVertexNear(x, y);
+        for(int i = entityList.size() - 1; i >= 0; i--) {
+            Entity entity = entityList.get(i);
+            int vertexIdx = entity.getVertexNear(x, y);
             if (vertexIdx >= 0)
             {
                 scene.setCursor(Cursor.NE_RESIZE);
-                selectedBlock = block;
+                selectedEntity = entity;
                 selectedVertexIdx = vertexIdx;
                 return;
             }
 
-            if (block.isInside(x, y)) {
+            if (entity.isInside(x, y)) {
                 scene.setCursor(Cursor.HAND);
-                selectedBlock = block;
+                selectedEntity = entity;
                 selectedVertexIdx = -1;
                 return;
             }
         }
-        if (selectedVertexIdx >= 0 || selectedBlock != null)
+        if (selectedVertexIdx >= 0 || selectedEntity != null)
         {
             scene.setCursor(Cursor.CROSSHAIR);
             selectedVertexIdx = -1;
-            selectedBlock = null;
+            selectedEntity = null;
         }
     }
 
@@ -241,28 +246,26 @@ public class LevelBuilder  extends Application {
 
         if (selectedVertexIdx >= 0)
         {   //Resize block
-            float x0 = selectedBlock.getX();
-            float y0 = selectedBlock.getY();
-            float px = selectedBlock.getVertexX(selectedVertexIdx);
-            float py = selectedBlock.getVertexY(selectedVertexIdx);
-            //float dx = ((mouseX-offsetX) - x0) - (px - x0);
-            //float dy = ((mouseY-offsetY) - y0) - (py - y0);
+            float x0 = selectedEntity.getX();
+            float y0 = selectedEntity.getY();
+            float px = selectedEntity.getVertexX(selectedVertexIdx);
+            float py = selectedEntity.getVertexY(selectedVertexIdx);
             float dx = (((mouseX/zoomFactor)-offsetX) - x0) - (px - x0);
             float dy = (((mouseY/zoomFactor)-offsetY) - y0) - (py - y0);
             dx = Math.round(dx/10)*10;
             dy = Math.round(dy/10)*10;
-            selectedBlock.setPosition(x0+dx/2, y0+dy/2);
-            float width  = Math.max(20,selectedBlock.getWidth()  + dx*Math.signum(px - x0));
-            float height = Math.max(20,selectedBlock.getHeight() + dy*Math.signum(py - y0));
-            selectedBlock.setSize(width, height);
+            selectedEntity.setPosition(x0+dx/2, y0+dy/2);
+            float width  = Math.max(20, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
+            float height = Math.max(20, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+            selectedEntity.setSize(width, height);
         }
-        else if (selectedBlock != null)
+        else if (selectedEntity != null)
         {  //Move block
             float x = Math.round(((mouseX-offsetX)/zoomFactor-mouseDownOffsetWithinBlockX)/10)*10;
             float y = Math.round(((mouseY-offsetY)/zoomFactor-mouseDownOffsetWithinBlockY)/10)*10;
-            if (selectedBlock.getWidth() % 20 != 0)  x+=5;
-            if (selectedBlock.getHeight() % 20 != 0) y+=5;
-            selectedBlock.setPosition(x, y);
+            if (selectedEntity.getWidth() % 20 != 0)  x+=5;
+            if (selectedEntity.getHeight() % 20 != 0) y+=5;
+            selectedEntity.setPosition(x, y);
         }
         else
         {   //Drag world
@@ -284,12 +287,21 @@ public class LevelBuilder  extends Application {
         renderAll();
 
         if (event.isSecondaryButtonDown()) {
-            if (selectedBlock != null)
+            if (selectedEntity != null)
             {
                 menuBlock.hide();
-                if (selectedBlock.isLiquid()) menuItemWater.setSelected(true);
-                else menuItemStone.setSelected(true);
-                menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
+                if (selectedEntity instanceof Block)
+                {
+                    if (((Block) selectedEntity).isLiquid()) menuItemWater.setSelected(true);
+                    else menuItemStone.setSelected(true);
+                    menuCameraZoom.hide();
+                    menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
+
+                }
+                else if (selectedEntity instanceof CameraZone) {
+                    menuMaterial.hide();
+                    menuCameraZoom.show(canvas, event.getScreenX(), event.getScreenY());
+                }
             }
             else
             {
@@ -300,10 +312,10 @@ public class LevelBuilder  extends Application {
         else {
             menuBlock.hide();
             menuMaterial.hide();
-            if (selectedBlock != null)
+            if (selectedEntity != null)
             {
-                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedBlock.getX();
-                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedBlock.getY();
+                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedEntity.getX();
+                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
             }
         }
     }
@@ -311,26 +323,34 @@ public class LevelBuilder  extends Application {
 
 
     private void menuEvent(ActionEvent e) {
-        //System.out.println("menu event "+e.getSource());
-        //float x = Math.round((lastMouseX-offsetX)/10)*10;
-        //float y = Math.round((lastMouseY-offsetY)/10)*10;
         float x = Math.round(((mouseDownX/zoomFactor)-offsetX)/10)*10;
         float y = Math.round(((mouseDownY/zoomFactor)-offsetY)/10)*10;
         MenuItem item = (MenuItem)e.getSource();
 
         if (item == menuItemStone)
         {
-            if (selectedBlock != null) selectedBlock.setLiquid(false);
+            if ((selectedEntity != null) && (selectedEntity instanceof Block))
+            {
+                ((Block) selectedEntity).setLiquid(false);
+            }
         }
         else if (item == menuItemWater)
         {
-            if (selectedBlock != null) selectedBlock.setLiquid(true);
+            if ((selectedEntity != null) && (selectedEntity instanceof Block))
+            {
+                ((Block) selectedEntity).setLiquid(true);
+            }
         }
         else if (item == menuItemDelete)
         {
-            if (selectedBlock != null) blockList.remove(selectedBlock);
-            selectedBlock = null;
+            if (selectedEntity != null) entityList.remove(selectedEntity);
+            selectedEntity = null;
             selectedVertexIdx = -1;
+        }
+        else if (item == menuItemAddCameraZone)
+        {
+            CameraZone zone = new CameraZone(x, y, 500, 300, 100);
+            entityList.add(0,zone);
         }
         else
         {
@@ -340,7 +360,7 @@ public class LevelBuilder  extends Application {
                 if (text.endsWith(shape.getText()))
                 {
                     Block block = new Block(x, y, 100, 100, shape, null);
-                    blockList.add(block);
+                    entityList.add(block);
                     break;
                 }
             }
@@ -351,30 +371,6 @@ public class LevelBuilder  extends Application {
     private void renderAll() {
         int width  = (int)(canvas.getWidth()/zoomFactor);
         int height = (int)(canvas.getHeight()/zoomFactor);
-
-        /*
-        int xStart = offsetX % 50;
-        if (offsetX < 0) xStart = 50 + xStart;
-        for (int x = xStart; x < width; x += 50)
-        {
-            for (int y = 0; y < height; y += 10)
-            {
-                pixelWriter.setColor(x, y, Color.BLACK);
-            }
-        }
-        xStart = offsetX % 10;
-        if (offsetX < 0) xStart = 10 + xStart;
-        for (int y = 0; y < height; y += 50)
-        {
-            for (int x = xStart; x < width; x += 10)
-            {
-                pixelWriter.setColor(x, y, Color.BLACK);
-            }
-        }
-
-
-        gtx.drawImage(imageBaseLayer, 0, 0);
-        */
 
         gtx.clearRect(0, 0, width, height);
         gtx.setStroke(Color.BLACK);
@@ -398,11 +394,11 @@ public class LevelBuilder  extends Application {
             }
         }
 
-        for (Block block : blockList) {
+        for (Entity block : entityList) {
             render(block);
         }
     }
-    private void render(Block block) {
+    private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
         gtx.setFill(block.getColor());
 
@@ -448,12 +444,12 @@ public class LevelBuilder  extends Application {
         BufferedWriter writer = fileChooserWrite();
         if (writer == null) return;
 
-        if (blockList.isEmpty()) return;
+        if (entityList.isEmpty()) return;
         float minX = Float.MAX_VALUE;
         float minY = Float.MAX_VALUE;
         float maxX = Float.MIN_VALUE;
         float maxY = Float.MIN_VALUE;
-        for (Block block : blockList) {
+        for (Entity block : entityList) {
             if (block.getLeftEdge() < minX) minX = block.getLeftEdge();
             if (block.getTopEdge()  < minY) minY = block.getTopEdge();
             if (block.getRightEdge()  > maxX) maxX = block.getRightEdge();
@@ -463,18 +459,18 @@ public class LevelBuilder  extends Application {
         float centerY = (minY + maxY)/2;
         float scale = 1.0f/50.0f;
 
-        try
-        {
+        try {
             writer.write("Center,"+centerX+","+centerY+",  Scale,"+scale+"\n");
-            for (Block block : blockList)
-            {
-                //float x = (block.getX() - centerX) * scale;
-                //float y = (block.getY() - centerY) * scale;
-                //float width = block.getWidth() * scale;
-                writer.write(block.getShape() + ", "+block.getX()+","+block.getY()+","+
-                        block.getWidth()+","+ block.getHeight()+","+block.isLiquid()+"\n");
-
-                //Block block = new Block(x, y, 100, 100, shape, null);
+            for (Entity entity : entityList) {
+                String type = "";
+                if (entity instanceof Block) {
+                    type = entity.getShape() + ","+((Block)entity).isLiquid();
+                }
+                else if (entity instanceof CameraZone) {
+                    type =  "CameraZone," + ((CameraZone)entity).getZoom();
+                }
+                writer.write(type+","+entity.getX()+","+entity.getY()+","+
+                        entity.getWidth()+","+ entity.getHeight()+"\n");
             }
 
             writer.close();
@@ -501,7 +497,7 @@ public class LevelBuilder  extends Application {
         BufferedReader reader = fileChooserRead();
         if (reader == null) return;
 
-        blockList.clear();
+        entityList.clear();
         offsetX=0;
         offsetY=0;
         try
@@ -511,20 +507,29 @@ public class LevelBuilder  extends Application {
             while (line != null) {
                 String[] data = line.split(",");
 
+                Entity entity = null;
                 if (data.length != 6) {
                     System.out.println("Error Reading Line: ["+line+"]");
                     throw new IOException("each record must have 6 fields");
                 }
-                Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                float x = Float.valueOf(data[1]);
-                float y = Float.valueOf(data[2]);
-                float width = Float.valueOf(data[3]);
-                float height = Float.valueOf(data[4]);
-                boolean isLiquid = Boolean.valueOf(data[5]);
 
-                Block block = new Block(x, y, width, height, shape, null);
-                block.setLiquid(isLiquid);
-                blockList.add(block);
+                float x = Float.valueOf(data[2]);
+                float y = Float.valueOf(data[3]);
+                float width = Float.valueOf(data[4]);
+                float height = Float.valueOf(data[5]);
+
+                if (data[0].equals("CameraZone")) {
+                    float zoom = Float.valueOf(data[1]);
+                    entity = new CameraZone(x, y, width, height, zoom);
+                }
+                else {
+                    boolean isLiquid = Boolean.valueOf(data[1]);
+                    Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                    entity = new Block(x, y, width, height, shape, null);
+                    ((Block)entity).setLiquid(isLiquid);
+                }
+
+                entityList.add(entity);
 
                 line = reader.readLine();
             }
@@ -550,6 +555,7 @@ public class LevelBuilder  extends Application {
 
             String line = reader.readLine();
             String[] data = line.split(",");
+
             float centerX = Float.valueOf(data[1]);
             float centerY = Float.valueOf(data[2]);
             float scale = Float.valueOf(data[4]);
@@ -562,16 +568,25 @@ public class LevelBuilder  extends Application {
                     System.out.println("Error Reading Line: ["+line+"]");
                     throw new IOException("each record must have 6 fields");
                 }
-                Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                float x = (Float.valueOf(data[1]) - centerX)*scale;
-                float y = (Float.valueOf(data[2]) - centerY)*scale;
-                float width = Float.valueOf(data[3])*scale;
-                float height = Float.valueOf(data[4])*scale;
-                boolean isLiquid = Boolean.valueOf(data[5]);
 
-                Block block = new Block(x, y, width, height, shape, null);
-                block.setLiquid(isLiquid);
-                entityList.add(block);
+                Entity entity = null;
+                float x = (Float.valueOf(data[2]) - centerX)*scale;;
+                float y = (Float.valueOf(data[3]) - centerY)*scale;;
+                float width = Float.valueOf(data[4])*scale;
+                float height = Float.valueOf(data[5])*scale;
+
+                if (data[0].equals("CameraZone")) {
+                    float zoom = Float.valueOf(data[1]);
+                    entity = new CameraZone(x, y, width, height, zoom);
+                }
+                else {
+                    boolean isLiquid = Boolean.valueOf(data[1]);
+                    Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                    entity = new Block(x, y, width, height, shape, null);
+                    ((Block)entity).setLiquid(isLiquid);
+                }
+
+                entityList.add(entity);
 
                 line = reader.readLine();
             }

@@ -348,9 +348,8 @@ abstract public class Entity
         }
     }
 
-    //================================================================================================================
-    //
-    //================================================================================================================
+
+
     boolean withinBoundsX(Entity other)
     {
         return other.getX() - other.width / 2 <= pos.x + width / 1.999
@@ -546,6 +545,51 @@ abstract public class Entity
         {
             return getVertexY(0) + (xRatio * height);
         }
+    }
+
+    //====================================================================================================
+    // Added for use by levelBuilder.
+    // This assumes all entities are one of two convex shapes:
+    // axis aligned rectangles and axis aligned right-triangles.
+    // This method must be fast as it is called on mouse move events.
+    //====================================================================================================
+    public boolean isInside(double x, double y)
+    {
+        if (x < getLeftEdge()) return false;
+        if (x > getRightEdge()) return false;
+        if (y < getTopEdge()) return false;
+        if (y > getBottomEdge()) return false;
+        if (getShape() == ShapeEnum.RECTANGLE)
+        {
+            return true;
+        }
+
+        if (getShape() == ShapeEnum.TRIANGLE_UP_R)
+        {
+            double slopeHypotenuse = height/width;
+            double slope = ((pos.y + height/2) - y) / ((pos.x + width/2) - x);
+            if (slope < slopeHypotenuse) return true; else return false;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_UP_L)
+        {
+            double slopeHypotenuse = height/width;
+            double slope = ((pos.y + height/2) - y) / (x - (pos.x - width/2));
+            if (slope < slopeHypotenuse) return true; else return false;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_DW_R)
+        {
+            double slopeHypotenuse = height/width;
+            double slope = (y - (pos.y - height/2)) / ((pos.x + width/2) - x);
+            //System.out.println(slopeHypotenuse + "   " + slope);
+            if (slope < slopeHypotenuse) return true; else return false;
+        }
+        if (getShape() == ShapeEnum.TRIANGLE_DW_L)
+        {
+            double slopeHypotenuse = height/width;
+            double slope = (y - (pos.y - height/2)) / (x - (pos.x - width/2));
+            if (slope < slopeHypotenuse) return true; else return false;
+        }
+        return false;
     }
 
     public abstract void damage(GradeEnum amount); // TODO: include damage type
