@@ -16,6 +16,7 @@ public class CameraZone extends Entity
     }
 
     public float getZoom() { return zoom; }
+    public void setZoom(float zoom) { this.zoom = zoom; }
 
     private Color color = Color.color(1, 1, 1, 0.2);
     @Override

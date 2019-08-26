@@ -58,6 +58,10 @@ public class LevelBuilder  extends Application {
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDelete, menuItemAddCameraZone;
 
+    private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
+    private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
+
+
 
     public static void main(String[] args) {
         launch(args);
@@ -87,9 +91,23 @@ public class LevelBuilder  extends Application {
             item.setOnAction(this::menuEvent);
         }
 
+        ToggleGroup toggleGroupZoomLevel = new ToggleGroup();
+        int idx = 0;
+        for (int zoomValue : CAMERA_ZOOM_PRESETS) {
+            menuItemCameraZoom[idx] = new RadioMenuItem("Camera Zone zoom " + zoomValue);
+            menuCameraZoom.getItems().add(menuItemCameraZoom[idx]);
+            menuItemCameraZoom[idx].setToggleGroup(toggleGroupZoomLevel);
+            menuItemCameraZoom[idx].setOnAction(this::menuEvent);
+            idx++;
+        }
+        menuCameraZoom.getItems().add(new SeparatorMenuItem());
+        menuItemDelete = new MenuItem("Delete");
+        menuCameraZoom.getItems().add(menuItemDelete);
+
+
         menuItemStone = new RadioMenuItem("Stone");
         menuItemWater = new RadioMenuItem("Water");
-        menuItemDelete = new MenuItem("Delete");
+
         menuMaterial.getItems().add(menuItemStone);
         menuMaterial.getItems().add(menuItemWater);
         menuMaterial.getItems().add(new SeparatorMenuItem());
@@ -299,6 +317,13 @@ public class LevelBuilder  extends Application {
 
                 }
                 else if (selectedEntity instanceof CameraZone) {
+                    int zoom = (int)((CameraZone) selectedEntity).getZoom();
+                    int idx = 0;
+                    for (int value : CAMERA_ZOOM_PRESETS)
+                    {
+                        if (zoom == value) menuItemCameraZoom[idx].setSelected(true);
+                        idx++;
+                    }
                     menuMaterial.hide();
                     menuCameraZoom.show(canvas, event.getScreenX(), event.getScreenY());
                 }
@@ -312,6 +337,7 @@ public class LevelBuilder  extends Application {
         else {
             menuBlock.hide();
             menuMaterial.hide();
+            menuCameraZoom.hide();
             if (selectedEntity != null)
             {
                 mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedEntity.getX();
@@ -352,16 +378,24 @@ public class LevelBuilder  extends Application {
             CameraZone zone = new CameraZone(x, y, 500, 300, 100);
             entityList.add(0,zone);
         }
-        else
+        else if (selectedEntity instanceof CameraZone)
         {
             String text = item.getText();
-            for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
+            if (text.startsWith("Camera Zone"))
             {
-                if (text.endsWith(shape.getText()))
+                int value = Integer.valueOf(text.substring(text.length()-3).trim());
+                ((CameraZone) selectedEntity).setZoom(value);
+            }
+            else
+            {
+                for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
                 {
-                    Block block = new Block(x, y, 100, 100, shape, null);
-                    entityList.add(block);
-                    break;
+                    if (text.endsWith(shape.getText()))
+                    {
+                        Block block = new Block(x, y, 100, 100, shape, null);
+                        entityList.add(block);
+                        break;
+                    }
                 }
             }
         }

@@ -306,19 +306,6 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
-        //addEntity(new CameraZone(0, -1, 50F, 4F, 100));
-        //addEntity(new CameraZone(0, -3, 50F, 4F, 100));
-
-        //addEntity(new Block(0, 2, 50F, 2F, Entity.ShapeEnum.RECTANGLE, new String[]{}));
-        //addEntity(new Block(5.5F, 1F, 2F, 0.6F, Entity.ShapeEnum.RECTANGLE, new String[]{}));;
-        //addEntity(new Block(-10, 0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_UP_L, new String[]{}));
-        //addEntity(new Block(-4, -1F, 6F, 4F, Entity.ShapeEnum.TRIANGLE_UP_R, new String[]{}));
-
-        //addEntity(new Block(15, -0.5F, 6F, 1F, Entity.ShapeEnum.TRIANGLE_DW_R, new String[]{}));
-        //Block water = new Block(8F, -1.75F, 3F, 5.5F, Entity.ShapeEnum.RECTANGLE, new String[]{});
-        //water.setLiquid(true);
-        //addEntity(water);
-
         ArrayList<Entity> entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         for (Entity item : entityList)
         {
