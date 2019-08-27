@@ -36,7 +36,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class LevelBuilder  extends Application {
+public class LevelBuilder  extends Application
+{
+
+    private static final float ZOOM_MIN = 0.2f;
+    private static final float ZOOM_MAX = 2.5f;
 
     private boolean DEBUG = true;
     private Scene scene;
@@ -164,8 +168,8 @@ public class LevelBuilder  extends Application {
     private void scrollWheelEvent(ScrollEvent event) {
         double deltaY = event.getDeltaY();
         float zoom2 = zoomFactor;
-        if (deltaY < 0) zoom2 = Math.max(0.1f,zoomFactor - 0.05f);
-        else if (deltaY > 0) zoom2 = Math.min(2.5f, zoomFactor + 0.05f);
+        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,zoomFactor - 0.05f);
+        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, zoomFactor + 0.05f);
 
         if (Math.abs(zoom2 - 1.0) < 0.001) zoom2= 1.0f;
         offsetX += lastMouseX/zoom2 - lastMouseX/zoomFactor;
