@@ -38,10 +38,11 @@ import java.util.ArrayList;
 
 public class LevelBuilder  extends Application {
 
+    private boolean DEBUG = true;
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
-    private ContextMenu menuBlock, menuMaterial,  menuCameraZoom;
+    private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
     private ArrayList<Entity> entityList = new ArrayList<>();
     private float lastMouseX, lastMouseY;
     private float mouseDownX, mouseDownY;
@@ -75,19 +76,19 @@ public class LevelBuilder  extends Application {
         canvas = new Canvas(100, 60);
         gtx = canvas.getGraphicsContext2D();
 
-        menuBlock = new ContextMenu();
+        menuEntity = new ContextMenu();
         menuMaterial = new ContextMenu();
         menuCameraZoom = new ContextMenu();
 
 
         menuItemAddCameraZone = new MenuItem("Add Camera Zone");
         menuItemAddCameraZone.setOnAction(this::menuEvent);
-        menuBlock.getItems().add(menuItemAddCameraZone);
+        menuEntity.getItems().add(menuItemAddCameraZone);
 
-        menuBlock.getItems().add(new SeparatorMenuItem());
+        menuEntity.getItems().add(new SeparatorMenuItem());
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
             MenuItem item = new MenuItem("Add " + shape.getText());
-            menuBlock.getItems().add(item);
+            menuEntity.getItems().add(item);
             item.setOnAction(this::menuEvent);
         }
 
@@ -133,14 +134,15 @@ public class LevelBuilder  extends Application {
         createCanvas();
         root.getChildren().add(canvas);
 
-        gtx.clearRect(80, 180, 600, 300);
-        gtx.fillText("Right-click on canvas to add Block.\n" +
-                        "Right-click on Block to delete.\n" +
-                        "Right-click on Block to set liquid (default is solid).\n\n" +
+        gtx.clearRect(80, 180, 600, 350);
+        gtx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
+                        "Right-click on Entity to delete.\n" +
+                        "Right-click on Entity to set its Properties.\n\n" +
 
-                        "Left-click-drag on Block to move block.\n" +
-                        "Left-click-drag on Vertex of Block to resize.\n" +
-                        "Left-click-drag on canvas to scroll canvas.\n\n"+
+                        "Left-click-drag on Entity to Move.\n" +
+                        "Left-click-drag on Entity Vertex to Resize.\n\n" +
+
+                        "Middle-click-drag on canvas to scroll canvas.\n\n"+
 
                         "Mouse-wheel to zoom.\n\n"+
 
@@ -297,7 +299,8 @@ public class LevelBuilder  extends Application {
         renderAll();
     }
 
-    private void mousePressed(MouseEvent event) {
+    private void mousePressed(MouseEvent event)
+    {
         mouseDownX = (float)event.getX();
         mouseDownY = (float)event.getY();
         lastMouseX = mouseDownX;
@@ -305,19 +308,30 @@ public class LevelBuilder  extends Application {
 
         renderAll();
 
-        if (event.isSecondaryButtonDown()) {
-            if (selectedEntity != null)
+        if (event.isSecondaryButtonDown())
+        {
+            if(event.isShiftDown())
             {
-                menuBlock.hide();
+                //Show add Entity menu
+                menuMaterial.hide();
+                menuCameraZoom.hide();
+                menuEntity.show(canvas, event.getScreenX(), event.getScreenY());
+            }
+            else if (selectedEntity != null)
+            {
+                menuEntity.hide();
                 if (selectedEntity instanceof Block)
                 {
+                    //Show Menu to modify selected block
                     if (((Block) selectedEntity).isLiquid()) menuItemWater.setSelected(true);
                     else menuItemStone.setSelected(true);
                     menuCameraZoom.hide();
                     menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
 
                 }
-                else if (selectedEntity instanceof CameraZone) {
+                else if (selectedEntity instanceof CameraZone)
+                {
+                    //Show Menu to modify selected CameraZone
                     int zoom = (int)((CameraZone) selectedEntity).getZoom();
                     int idx = 0;
                     for (int value : CAMERA_ZOOM_PRESETS)
@@ -329,18 +343,15 @@ public class LevelBuilder  extends Application {
                     menuCameraZoom.show(canvas, event.getScreenX(), event.getScreenY());
                 }
             }
-            else
-            {
-                menuMaterial.hide();
-                menuBlock.show(canvas, event.getScreenX(), event.getScreenY());
-            }
         }
-        else {
-            menuBlock.hide();
+        else if (event.isPrimaryButtonDown())
+        {
+            menuEntity.hide();
             menuMaterial.hide();
             menuCameraZoom.hide();
             if (selectedEntity != null)
             {
+                //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
                 mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedEntity.getX();
                 mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
             }
@@ -349,10 +360,13 @@ public class LevelBuilder  extends Application {
 
 
 
-    private void menuEvent(ActionEvent e) {
-        float x = Math.round(((mouseDownX/zoomFactor)-offsetX)/10)*10;
-        float y = Math.round(((mouseDownY/zoomFactor)-offsetY)/10)*10;
-        MenuItem item = (MenuItem)e.getSource();
+    private void menuEvent(ActionEvent e)
+    {
+        float x = Math.round(((mouseDownX / zoomFactor) - offsetX) / 10) * 10;
+        float y = Math.round(((mouseDownY / zoomFactor) - offsetY) / 10) * 10;
+        MenuItem item = (MenuItem) e.getSource();
+        String text = item.getText();
+        if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
 
         if (item == menuItemStone)
         {
@@ -377,31 +391,31 @@ public class LevelBuilder  extends Application {
         else if (item == menuItemAddCameraZone)
         {
             CameraZone zone = new CameraZone(x, y, 500, 300, 100);
-            entityList.add(0,zone);
+            entityList.add(0, zone);
         }
         else if (selectedEntity instanceof CameraZone)
         {
-            String text = item.getText();
             if (text.startsWith("Camera Zone"))
             {
-                int value = Integer.valueOf(text.substring(text.length()-3).trim());
+                int value = Integer.valueOf(text.substring(text.length() - 3).trim());
                 ((CameraZone) selectedEntity).setZoom(value);
             }
-            else
+        }
+        else //Add entity selected in menu
+        {
+            for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
             {
-                for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
+                if (text.endsWith(shape.getText()))
                 {
-                    if (text.endsWith(shape.getText()))
-                    {
-                        Block block = new Block(x, y, 100, 100, shape, null);
-                        entityList.add(block);
-                        break;
-                    }
+                    Block block = new Block(x, y, 100, 100, shape, null);
+                    entityList.add(block);
+                    break;
                 }
             }
         }
         renderAll();
     }
+
 
     private void renderAll() {
         int width  = (int)(canvas.getWidth()/zoomFactor);
