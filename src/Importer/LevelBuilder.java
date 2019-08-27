@@ -213,9 +213,6 @@ public class LevelBuilder  extends Application
         {
             canvas.setWidth(width);
             canvas.setHeight(height);
-
-            //imageBaseLayer = new WritableImage(width, height);
-            //pixelWriter = imageBaseLayer.getPixelWriter();
         }
         renderAll();
     }
@@ -453,7 +450,8 @@ public class LevelBuilder  extends Application
     }
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
-        gtx.setFill(block.getColor());
+        if (block == selectedEntity) gtx.setFill(Color.DARKGREEN);
+        else gtx.setFill(block.getColor());
 
         if (block.getShape().isTriangle())
         {
