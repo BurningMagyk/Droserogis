@@ -61,7 +61,8 @@ public class LevelBuilder  extends Application
     private Actor player1, player2;
 
     private RadioMenuItem menuItemStone, menuItemWater;
-    private MenuItem menuItemDelete, menuItemAddCameraZone;
+    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
+    private MenuItem menuItemAddCameraZone;
 
     private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
     private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
@@ -106,8 +107,9 @@ public class LevelBuilder  extends Application
             idx++;
         }
         menuCameraZoom.getItems().add(new SeparatorMenuItem());
-        menuItemDelete = new MenuItem("Delete");
-        menuCameraZoom.getItems().add(menuItemDelete);
+        menuItemDeleteCameraZone = new MenuItem("Delete");
+        menuCameraZoom.getItems().add(menuItemDeleteCameraZone);
+        menuItemDeleteCameraZone.setOnAction(this::menuEvent);
 
 
         menuItemStone = new RadioMenuItem("Stone");
@@ -116,10 +118,11 @@ public class LevelBuilder  extends Application
         menuMaterial.getItems().add(menuItemStone);
         menuMaterial.getItems().add(menuItemWater);
         menuMaterial.getItems().add(new SeparatorMenuItem());
-        menuMaterial.getItems().add(menuItemDelete);
+        menuItemDeleteEntity = new MenuItem("Delete");
+        menuMaterial.getItems().add(menuItemDeleteEntity);
         menuItemStone.setOnAction(this::menuEvent);
         menuItemWater.setOnAction(this::menuEvent);
-        menuItemDelete.setOnAction(this::menuEvent);
+        menuItemDeleteEntity.setOnAction(this::menuEvent);
 
         ToggleGroup toggleGroupMaterial = new ToggleGroup();
         menuItemStone.setToggleGroup(toggleGroupMaterial);
@@ -307,15 +310,18 @@ public class LevelBuilder  extends Application
         lastMouseX = mouseDownX;
         lastMouseY = mouseDownY;
 
-        renderAll();
+        if (event.isMiddleButtonDown())
+        {
+            unselect();
+            return;
+        }
 
-        if (event.isSecondaryButtonDown())
+        else if (event.isSecondaryButtonDown())
         {
             if(event.isShiftDown())
             {
                 //Show add Entity menu
-                menuMaterial.hide();
-                menuCameraZoom.hide();
+                unselect();
                 menuEntity.show(canvas, event.getScreenX(), event.getScreenY());
             }
             else if (selectedEntity != null)
@@ -334,11 +340,12 @@ public class LevelBuilder  extends Application
                 {
                     //Show Menu to modify selected CameraZone
                     int zoom = (int)((CameraZone) selectedEntity).getZoom();
-                    int idx = 0;
-                    for (int value : CAMERA_ZOOM_PRESETS)
-                    {
-                        if (zoom == value) menuItemCameraZoom[idx].setSelected(true);
-                        idx++;
+                    for (int i=0; i<CAMERA_ZOOM_PRESETS.length; i++)
+                    {   if (zoom == CAMERA_ZOOM_PRESETS[i])
+                        {
+                            menuItemCameraZoom[i].setSelected(true);
+                            break;
+                        }
                     }
                     menuMaterial.hide();
                     menuCameraZoom.show(canvas, event.getScreenX(), event.getScreenY());
@@ -357,6 +364,7 @@ public class LevelBuilder  extends Application
                 mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
             }
         }
+        renderAll();
     }
 
 
@@ -374,6 +382,7 @@ public class LevelBuilder  extends Application
             if ((selectedEntity != null) && (selectedEntity instanceof Block))
             {
                 ((Block) selectedEntity).setLiquid(false);
+                unselect();
             }
         }
         else if (item == menuItemWater)
@@ -381,40 +390,54 @@ public class LevelBuilder  extends Application
             if ((selectedEntity != null) && (selectedEntity instanceof Block))
             {
                 ((Block) selectedEntity).setLiquid(true);
+                unselect();
             }
         }
-        else if (item == menuItemDelete)
+        else if ((item == menuItemDeleteEntity) || (item == menuItemDeleteCameraZone))
         {
             if (selectedEntity != null) entityList.remove(selectedEntity);
-            selectedEntity = null;
-            selectedVertexIdx = -1;
+            unselect();
         }
         else if (item == menuItemAddCameraZone)
         {
             CameraZone zone = new CameraZone(x, y, 500, 300, 100);
             entityList.add(0, zone);
+            unselect();
         }
-        else if (selectedEntity instanceof CameraZone)
+
+        else //check if selected menu item is add entity or modify camera zone
         {
-            if (text.startsWith("Camera Zone"))
-            {
-                int value = Integer.valueOf(text.substring(text.length() - 3).trim());
-                ((CameraZone) selectedEntity).setZoom(value);
-            }
-        }
-        else //Add entity selected in menu
-        {
+            boolean addedBlock = false;
             for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
             {
                 if (text.endsWith(shape.getText()))
                 {
                     Block block = new Block(x, y, 100, 100, shape, null);
                     entityList.add(block);
+                    addedBlock = true;
                     break;
+                }
+            }
+            if ((!addedBlock) && selectedEntity instanceof CameraZone)
+            {
+                if (text.startsWith("Camera Zone"))
+                {
+                    int value = Integer.valueOf(text.substring(text.length() - 3).trim());
+                    ((CameraZone) selectedEntity).setZoom(value);
                 }
             }
         }
         renderAll();
+    }
+
+
+    private void unselect()
+    {
+        menuMaterial.hide();
+        menuCameraZoom.hide();
+        menuEntity.hide();
+        selectedEntity = null;
+        selectedVertexIdx = -1;
     }
 
 
