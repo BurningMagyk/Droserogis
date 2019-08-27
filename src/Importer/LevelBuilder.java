@@ -262,7 +262,13 @@ public class LevelBuilder  extends Application {
 
         if (event.isSecondaryButtonDown()) return;
 
-        if (selectedVertexIdx >= 0)
+        if (event.isMiddleButtonDown())
+        {
+            //Drag world
+            offsetX += (mouseX - lastMouseX);
+            offsetY += (mouseY - lastMouseY);
+        }
+        else if (selectedVertexIdx >= 0)
         {   //Resize block
             float x0 = selectedEntity.getX();
             float y0 = selectedEntity.getY();
@@ -284,11 +290,6 @@ public class LevelBuilder  extends Application {
             if (selectedEntity.getWidth() % 20 != 0)  x+=5;
             if (selectedEntity.getHeight() % 20 != 0) y+=5;
             selectedEntity.setPosition(x, y);
-        }
-        else
-        {   //Drag world
-            offsetX += (mouseX - lastMouseX);
-            offsetY += (mouseY - lastMouseY);
         }
 
         lastMouseX = mouseX;
