@@ -67,7 +67,7 @@ public class LevelBuilder  extends Application
     private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
     private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
 
-
+    private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
 
     public static void main(String[] args) {
         launch(args);
@@ -236,6 +236,7 @@ public class LevelBuilder  extends Application
         lastMouseY = mouseY;
 
         Entity lastSelectedEntity = selectedEntity;
+        int lastSelectedVertexIdx = selectedVertexIdx;
         selectedVertexIdx = -1;
         selectedEntity = null;
 
@@ -245,7 +246,7 @@ public class LevelBuilder  extends Application
             int vertexIdx = entity.getVertexNear(x, y);
             if (vertexIdx >= 0)
             {
-                scene.setCursor(Cursor.NE_RESIZE);
+                if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
                 selectedVertexIdx = vertexIdx;
                 selectedEntity = entity;
                 break;
@@ -253,7 +254,7 @@ public class LevelBuilder  extends Application
 
             else if (entity.isInside(x, y))
             {
-                scene.setCursor(Cursor.HAND);
+                if (lastSelectedEntity == null || lastSelectedVertexIdx > 0) scene.setCursor(Cursor.HAND);
                 selectedVertexIdx = -1;
                 selectedEntity = entity;
                 break;
@@ -483,7 +484,11 @@ public class LevelBuilder  extends Application
     }
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
-        if (block == selectedEntity) gtx.setFill(Color.DARKGREEN);
+        if (block == selectedEntity)
+        {
+            if (block instanceof Block) gtx.setFill(Color.DARKGREEN);
+            else gtx.setFill(lightTranslucentGreen);
+        }
         else gtx.setFill(block.getColor());
 
         if (block.getShape().isTriangle())
