@@ -235,30 +235,40 @@ public class LevelBuilder  extends Application
         lastMouseX = mouseX;
         lastMouseY = mouseY;
 
-        for(int i = entityList.size() - 1; i >= 0; i--) {
+        Entity lastSelectedEntity = selectedEntity;
+        selectedVertexIdx = -1;
+        selectedEntity = null;
+
+        for(int i = entityList.size() - 1; i >= 0; i--)
+        {
             Entity entity = entityList.get(i);
             int vertexIdx = entity.getVertexNear(x, y);
             if (vertexIdx >= 0)
             {
                 scene.setCursor(Cursor.NE_RESIZE);
-                selectedEntity = entity;
                 selectedVertexIdx = vertexIdx;
-                return;
+                selectedEntity = entity;
+                break;
             }
 
-            if (entity.isInside(x, y)) {
+            else if (entity.isInside(x, y))
+            {
                 scene.setCursor(Cursor.HAND);
-                selectedEntity = entity;
                 selectedVertexIdx = -1;
-                return;
+                selectedEntity = entity;
+                break;
             }
         }
-        if (selectedVertexIdx >= 0 || selectedEntity != null)
+
+        if (selectedEntity == null && lastSelectedEntity != null)
         {
             scene.setCursor(Cursor.CROSSHAIR);
-            selectedVertexIdx = -1;
-            selectedEntity = null;
         }
+        if (selectedEntity != lastSelectedEntity)
+        {
+            renderAll();
+        }
+        return;
     }
 
 
