@@ -264,49 +264,49 @@ public class CharacterStat
 
     /***************************** Ability Score Chart Access *****************************/
 
-    private float strength(float base, float offset)
+    private float strength(float base)
     {
-        return (STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base) + offset;
+        return STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base;
     }
-    private float stamina(float base, float offset)
+    private float stamina(float base)
     {
-        return (STAMINA[grades[Ability.STAMINA.ordinal()].ordinal()] * base) + offset;
+        return STAMINA[grades[Ability.STAMINA.ordinal()].ordinal()] * base;
     }
-    private float dexterity(float base, float offset)
+    private float dexterity(float base)
     {
-        return (DEXTERITY[grades[Ability.DEXTERITY.ordinal()].ordinal()] * base) + offset;
+        return DEXTERITY[grades[Ability.DEXTERITY.ordinal()].ordinal()] * base;
     }
-    private float agility(float base, float offset)
+    private float agility(float base)
     {
-        return (AGILITY[grades[Ability.AGILITY.ordinal()].ordinal()] * base) + offset;
+        return AGILITY[grades[Ability.AGILITY.ordinal()].ordinal()] * base;
     }
-    private float constitution(float base, float offset)
+    private float constitution(float base)
     {
-        return (CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base) + offset;
+        return CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base;
     }
-    private float vitality(float base, float offset)
+    private float vitality(float base)
     {
-        return (VITALITY[grades[Ability.VITALITY.ordinal()].ordinal()] * base) + offset;
+        return VITALITY[grades[Ability.VITALITY.ordinal()].ordinal()] * base;
     }
-    private float wisdom(float base, float offset)
+    private float wisdom(float base)
     {
-        return (WISDOM[grades[Ability.WISDOM.ordinal()].ordinal()] * base) + offset;
+        return WISDOM[grades[Ability.WISDOM.ordinal()].ordinal()] * base;
     }
-    private float will(float base, float offset)
+    private float will(float base)
     {
-        return (WILL[grades[Ability.WILL.ordinal()].ordinal()] * base) + offset;
+        return WILL[grades[Ability.WILL.ordinal()].ordinal()] * base;
     }
-    private float intelligence(float base, float offset)
+    private float intelligence(float base)
     {
-        return (INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base) + offset;
+        return INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base;
     }
-    private float knowledge(float base, float offset)
+    private float knowledge(float base)
     {
-        return (KNOWLEDGE[grades[Ability.KNOWLEDGE.ordinal()].ordinal()] * base) + offset;
+        return KNOWLEDGE[grades[Ability.KNOWLEDGE.ordinal()].ordinal()] * base;
     }
-    private float presence(float base, float offset)
+    private float presence(float base)
     {
-        return (PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base) + offset;
+        return PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base;
     }
 
     public float agility(GradeEnum grade) { return AGILITY[grade.ordinal()]; }
@@ -318,43 +318,43 @@ public class CharacterStat
     //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
 
     public float airSpeed() { return 0.2F; }
-    public float swimSpeed() { return agility(3F, 0); }
-    public float crawlSpeed() { return agility(0.05F, 0); }
-    public float walkSpeed() { return agility(0.04F, 0); }
-    public float runSpeed() { return agility(0.08F, 0); }
-    public float lowerSprintSpeed() { return agility(0.10F, 0); }
-    public float sprintSpeed() { return agility(0.13F, 0); }
-    public float rushSpeed() { return agility(0.3F, 0); }
+    public float swimSpeed() { return agility(3F); }
+    public float crawlSpeed() { return 0.02F; } // agility
+    public float walkSpeed() { return 0.03F; } // agility
+    public float runSpeed() { return 0.06F; } // agility
+    public float lowerSprintSpeed() { return 0.05F; } // agility
+    public float sprintSpeed() { return 0.09F; } // agility
+    public float rushSpeed() { return agility(0.3F); }
 
-    public float maxClimbSpeed() { return agility(1F, 0); }
-    public float maxStickSpeed() { return agility(1.5F, 0); }
-    public float maxSlideSpeed() { return agility(0.3F, 0); }
-    public float maxLowerGroundSpeed() { return agility(0.15F, 0); }
-    public float maxGroundSpeed() { return agility(0.25F, 0); }
-    public float maxTotalSpeed() { return agility(5F, 0); }
+    public float maxClimbSpeed() { return agility(1F); }
+    public float maxStickSpeed() { return agility(1.5F); }
+    public float maxSlideSpeed() { return agility(0.3F); }
+    public float maxLowerGroundSpeed() { return agility(0.15F); }
+    public float maxGroundSpeed() { return agility(0.25F); }
+    public float maxTotalSpeed() { return agility(5F); }
 
-    public float airAccel() { return agility(0.1F, 0); }
-    public float swimAccel() { return agility(0.3F, 0); }
-    public float crawlAccel() { return agility(0.3F, 0); }
-    public float climbAccel() { return agility(0.3F, 0); }
-    public float runAccel() { return agility(0.4F, 0); }
+    public float airAccel() { return agility(0.1F); }
+    public float swimAccel() { return agility(0.3F); }
+    public float crawlAccel() { return agility(0.3F); }
+    public float climbAccel() { return agility(0.3F); }
+    public float runAccel() { return agility(0.4F); }
 
-    public float jumpVel() { return strength(0.4F, 0); }
+    public float jumpVel() { return strength(0.4F); }
 
-    public float climbLedgeTime() { return agility(1, 0); }
+    public float climbLedgeTime() { return agility(1); }
     public float[] stairRecoverTime() { return new float[]
-            { agility(0.45F, 0), dexterity(0.4F, 0), stamina(0.5F, 0) }; }
-    public float dashRecoverTime() { return agility(1, 0); }
-    public float minTumbleTime() { return agility(1F, 0); }
+            { agility(0.45F), dexterity(0.4F), stamina(0.5F) }; }
+    public float dashRecoverTime() { return agility(1); }
+    public float minTumbleTime() { return agility(1F); }
 
-    public float proneRecoverTime() { return constitution(1, 0); }
-    public float staggerRecoverTime() { return strength(2, 0); }
-    public float staggerParryMod() { return strength(2, 0); }
-    public float staggerBlockMod() { return constitution(0.5F, 0); }
+    public float proneRecoverTime() { return constitution(1); }
+    public float staggerRecoverTime() { return strength(2); }
+    public float staggerParryMod() { return strength(2); }
+    public float staggerBlockMod() { return constitution(0.5F); }
 
-    public float[] landingThresh() { return new float[] { agility(0.5F, 0), agility(1, 0) }; }
+    public float[] landingThresh() { return new float[] { agility(0.5F), agility(1) }; }
 
-    public float friction() { return agility(0.5F, 0); }
+    public float friction() { return agility(0.5F); }
 
-    public int maxCommandChain() { return (int) intelligence(3, 0); }
+    public int maxCommandChain() { return (int) intelligence(3); }
 }

@@ -175,8 +175,7 @@ public class Actor extends Item
 
             float accel, topSpeed;
             MoveType moveType = getMoveType();
-            if (state == State.CROUCH || state == State.CRAWL
-                    || state == State.SLIDE)
+            if (state.isLow())
             {
                 accel = moveType == MoveType.STILL ? 0 : crawlAccel;
                 topSpeed = getTopSpeed(moveType, true);

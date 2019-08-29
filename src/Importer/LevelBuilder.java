@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class LevelBuilder  extends Application
 {
 
-    private static final float ZOOM_MIN = 0.2f;
+    private static final float ZOOM_MIN = 0.4f;
     private static final float ZOOM_MAX = 2.5f;
 
     private boolean DEBUG = true;
