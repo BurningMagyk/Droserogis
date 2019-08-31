@@ -4,6 +4,7 @@ import Gameplay.Actor;
 import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entity;
+import Gameplay.EntityCollection;
 import Gameplay.Item;
 import Util.GradeEnum;
 import Util.Print;
@@ -89,7 +90,7 @@ public abstract class Weapon extends Item
     }
 
     @Override
-    protected void update(ArrayList<Entity> entities, float deltaSec)
+    protected void update(EntityCollection<Entity> entities, float deltaSec)
     {
         applyInflictions();
         if (ballistic)

@@ -1,8 +1,12 @@
 package Importer;
 import Gameplay.CameraZone;
+import Gameplay.Characters.CharacterStat;
 import Gameplay.Entity;
 import Gameplay.Block;
 import Gameplay.Actor;
+import Gameplay.EntityCollection;
+import Gameplay.Weapons.Sword;
+import Gameplay.Weapons.WeaponStat;
 import Util.Vec2;
 
 import javafx.application.Application;
@@ -57,8 +61,6 @@ public class LevelBuilder  extends Application
     private int offsetX=0;
     private int offsetY=0;
     private float zoomFactor = 1.0f;
-
-    private Actor player1, player2;
 
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
@@ -635,12 +637,12 @@ public class LevelBuilder  extends Application
 
     //============================================================================================
     //============================================================================================
-    public static ArrayList<Entity> loadLevel(String path)
+    public static EntityCollection<Entity> loadLevel(String path)
     {
         try
         {
             BufferedReader reader = new BufferedReader(new FileReader(path));
-            ArrayList<Entity> entityList = new ArrayList<>();
+            EntityCollection<Entity> entityList = new EntityCollection();
 
             String line = reader.readLine();
             String[] data = line.split(",");
@@ -680,6 +682,49 @@ public class LevelBuilder  extends Application
                 line = reader.readLine();
             }
             reader.close();
+
+            CharacterStat player1Stat = new CharacterStat(
+                    "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+            WeaponStat player1NaturalStat = new WeaponStat("C",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+            Actor player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .4f, .8f, 1F,
+                    new String[]{ }); //SPRITES
+            player1.spriteIndex = 0;
+
+            WeaponStat swordStat = new WeaponStat("C",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+            Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
+            player1.equip(sword);
+            //System.out.println("LevelBuilder: adding player1");
+            entityList.add(player1);
+            entityList.add(sword);
+
+
+            CharacterStat player2Stat = new CharacterStat(
+                    "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+            WeaponStat player2NaturalStat = new WeaponStat("C",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+            Actor player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F, new String[]{});
+
+            Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
+            player2.equip(sword2);
+            entityList.add(player2);
+            entityList.add(sword2);
+
+
+
+
+
             return entityList;
         } catch (Exception e)
         {

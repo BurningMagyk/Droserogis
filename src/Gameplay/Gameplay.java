@@ -36,10 +36,8 @@ public class Gameplay implements Reactor
 
     private final Gamepad[] GAMEPADS;
 
-    private ArrayList<Entity> entities;
-    private ArrayList<Item> items;
+    private EntityCollection<Entity> entities = new EntityCollection();
 
-    private Actor player1, player2;
     private long lastUpdateTime = -1;
 
     private float cameraPosX, cameraPosY, cameraPosLerp = 0.05F,
@@ -53,9 +51,6 @@ public class Gameplay implements Reactor
         this.viewHeight = (int) context.getCanvas().getHeight();
 
         GAMEPADS = gamepads;
-
-        entities = new ArrayList<>();
-        items = new ArrayList<>();
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -99,11 +94,11 @@ public class Gameplay implements Reactor
         // triggerContacts() sets every entity's flags correctly only if they've all been reset
         for (Entity entity : entities) entity.resetFlags();
 
-        for (Item item : items) { item.update(entities, deltaSec); }
+        for (Item item : entities.getItemList()) { item.update(entities, deltaSec); }
 
-        for (Item item : items)
+        for (Item item : entities.getItemList())
         {
-            if (item instanceof Weapon) ((Weapon) item).update(items);
+            if (item instanceof Weapon) ((Weapon) item).update(entities.getItemList());
         }
 
         /* Center the camera on the player
@@ -111,8 +106,9 @@ public class Gameplay implements Reactor
         //cameraPosX = player1.getPosition().x;
         //cameraPosY = player1.getPosition().y;
 
+        Actor player1 = entities.getPlayer(0);
         moveCamera(player1.getPosition().x, player1.getPosition().y,
-                player1.getZoom(entities), player1.getTopSpeed(), player1.shouldVertCam());
+                player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam());
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
@@ -135,87 +131,87 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.ENTER && pressed)
         {
-            player1.debug();
+            entities.getPlayer(0).debug();
         }
         else if (code == KeyCode.LEFT)// && pressed)
         {
             //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
-            player2.pressLeft(pressed);
+            entities.getPlayer(1).pressLeft(pressed);
         }
         else if (code == KeyCode.RIGHT)// && pressed)
         {
             //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
-            player2.pressRight(pressed);
+            entities.getPlayer(1).pressRight(pressed);
         }
         else if (code == KeyCode.UP)// && pressed)
         {
             //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
-            player2.pressUp(pressed);
+            entities.getPlayer(1).pressUp(pressed);
         }
         else if (code == KeyCode.DOWN)// && pressed)
         {
             //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
-            player2.pressDown(pressed);
+            entities.getPlayer(1).pressDown(pressed);
         }
         else if (code == KeyCode.NUMPAD0)
         {
-            player2.pressJump(pressed);
+            entities.getPlayer(1).pressJump(pressed);
         }
         else if (code == KeyCode.A)
         {
-            player1.pressLeft(pressed);
+            entities.getPlayer(0).pressLeft(pressed);
         }
         else if (code == KeyCode.D)
         {
-            player1.pressRight(pressed);
+            entities.getPlayer(0).pressRight(pressed);
         }
         else if (code == KeyCode.J)
         {
-            player1.pressJump(pressed);
+            entities.getPlayer(0).pressJump(pressed);
         }
         else if (code == KeyCode.W)
         {
-            player1.pressUp(pressed);
+            entities.getPlayer(0).pressUp(pressed);
         }
         else if (code == KeyCode.S)
         {
-            player1.pressDown(pressed);
+            entities.getPlayer(0).pressDown(pressed);
         }
         else if (code == KeyCode.SHIFT)
         {
-            player1.pressShift(pressed);
+            entities.getPlayer(0).pressShift(pressed);
         }
         else if (code == KeyCode.K)
         {
-            player1.pressAttack(pressed, Actor.ATTACK_KEY_1);
+            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_1);
         }
         else if (code == KeyCode.L)
         {
-            player1.pressAttack(pressed, Actor.ATTACK_KEY_2);
+            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_2);
         }
         else if (code == KeyCode.SEMICOLON)
         {
-            player1.pressAttack(pressed, Actor.ATTACK_KEY_3);
+            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
         else if (code == KeyCode.U)
         {
-            player1.pressAttackMod(pressed);
+            entities.getPlayer(0).pressAttackMod(pressed);
         }
         else if (code == KeyCode.N)
         {
-            player2.pressJump(pressed);
+            entities.getPlayer(1).pressJump(pressed);
         }
         else if (code == KeyCode.M)
         {
-            player2.pressAttack(pressed, Actor.ATTACK_KEY_1);
+            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
         }
         else if (code == KeyCode.COMMA)
         {
-            player2.pressAttack(pressed, Actor.ATTACK_KEY_2);
+            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
         }
         else if (code == KeyCode.PERIOD)
         {
-            player2.pressAttack(pressed, Actor.ATTACK_KEY_3);
+            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
         }
     }
 
@@ -227,8 +223,8 @@ public class Gameplay implements Reactor
 
     private void queryGamepads()
     {
-        //GAMEPADS[0].query(player1);
-        GAMEPADS[0].query(player2);
+        //GAMEPADS[0].query(entities.getPlayer(0));
+        GAMEPADS[0].query(entities.getPlayer(1));
     }
 
     /**
@@ -306,50 +302,8 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
-        ArrayList<Entity> entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+        entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         //ArrayList<Entity> entityList = LevelBuilder.loadLevel("D:/Games/Hermano Test Levels/01.csv");
-        for (Entity item : entityList)
-        {
-            addEntity(item);
-        }
-
-        CharacterStat player1Stat = new CharacterStat(
-                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-        WeaponStat player1NaturalStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .4f, .8f, 1F,
-                new String[]{ }); //SPRITES
-        player1.spriteIndex = 0;
-
-        WeaponStat swordStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
-        player1.equip(sword);
-        addEntity(player1);
-        addEntity(sword);
-
-        CharacterStat player2Stat = new CharacterStat(
-            "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-        WeaponStat player2NaturalStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F, new String[]{});
-
-        Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
-        player2.equip(sword2);
-        //addEntity(player2);
-        addEntity(sword2);
-
-        //addEntity(new Item(1F, -5F, .5f, .5f));
     }
 
     /**
@@ -374,35 +328,7 @@ public class Gameplay implements Reactor
         cameraOffsetY = viewHeight / 2F / cameraZoom;
     }
 
-    /**
-     * Checks to make sure duplicates aren't being added.
-     * Also adds the entity to a list of items if it's an Item or Actor.
-     */
-    private void addEntity(Entity entity)
-    {
-        if (entity instanceof Item)
-        {
-            if (items.contains(entity))
-            {
-                Print.red("Error: Attempted to add duplicate Item");
-                return;
-            }
-            else
-            {
-                if (entity instanceof Actor)
-                {
-                    items.add((Actor) entity);
-                    for (Entity ent : ((Actor) entity).getItems())
-                        addEntity(ent);
-                }
-                else items.add((Item) entity);
-            }
-        }
 
-        if (entities.contains(entity))
-            Print.red("Error: Attempted to add duplicate Entity");
-        else entities.add(entity);
-    }
 
     /**
      * Canvas is cleared at the beginning of every frame.
