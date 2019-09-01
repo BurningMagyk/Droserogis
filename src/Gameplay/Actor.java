@@ -505,6 +505,8 @@ public class Actor extends Item
             if (dirHoriz == -1
                     || (getVelocityX() >  0           && dirHoriz == LEFT )
                     || (getVelocityX() <  0           && dirHoriz == RIGHT)
+                    || (getVelocityX() > sprintSpeed)
+                    || (getVelocityX() < -sprintSpeed)
                     || (getVelocityX() >  runSpeed && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] > 0)
                     || (getVelocityX() < -runSpeed && conditions[Condition.NEGATE_SPRINT_LEFT .ordinal()] > 0)
                     || (getVelocityX() >  walkSpeed   && conditions[Condition.NEGATE_RUN_RIGHT   .ordinal()] > 0)
@@ -512,8 +514,8 @@ public class Actor extends Item
                     || (getVelocityX() >  0           && conditions[Condition.NEGATE_WALK_RIGHT  .ordinal()] > 0)
                     || (getVelocityX() <  0           && conditions[Condition.NEGATE_WALK_LEFT   .ordinal()] > 0)
                     || state == State.SLIDE
-                    || conditions[Condition.NEGATE_ACTIVITY.ordinal()] > 0
-                    || conditions[Condition.NEGATE_STABILITY.ordinal()] > 0)
+                    || has(Condition.NEGATE_ACTIVITY)
+                    || has(Condition.NEGATE_STABILITY))
             {
                 frictionX = touchEntity[DOWN].getFriction() * getFriction();
                 if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])

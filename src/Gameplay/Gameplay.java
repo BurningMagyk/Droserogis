@@ -303,7 +303,7 @@ public class Gameplay implements Reactor
     private void buildLevels()
     {
         entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
-        //ArrayList<Entity> entityList = LevelBuilder.loadLevel("D:/Games/Hermano Test Levels/01.csv");
+        //entities = LevelBuilder.loadLevel("D:/Games/Hermano Test Levels/01.csv");
     }
 
     /**
