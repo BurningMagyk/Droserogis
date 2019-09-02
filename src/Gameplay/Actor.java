@@ -502,17 +502,28 @@ public class Actor extends Item
         float frictionX = 0, frictionY = 0;
         if (state.isGrounded())
         {
+            boolean exceedSprint, exceedRunL, exceedRunR, exceedWalkL, exceedWalkR;
+            if (state.isLow())
+            {
+                exceedSprint = getVelocityX() > lowerSprintSpeed || getVelocityX() < -lowerSprintSpeed;
+                exceedRunR = getVelocityX() > crawlSpeed; exceedRunL = getVelocityX() < -crawlSpeed;
+                exceedWalkR = getVelocityX() > crawlSpeed; exceedWalkL = getVelocityX() < -crawlSpeed;
+            }
+            else
+            {
+                exceedSprint = getVelocityX() > sprintSpeed || getVelocityX() < -sprintSpeed;
+                exceedRunR = getVelocityX() > runSpeed; exceedRunL = getVelocityX() < -runSpeed;
+                exceedWalkR = getVelocityX() > walkSpeed; exceedWalkL = getVelocityX() < -walkSpeed;
+            }
+
             if (dirHoriz == -1
-                    || (getVelocityX() >  0           && dirHoriz == LEFT )
-                    || (getVelocityX() <  0           && dirHoriz == RIGHT)
-                    || (getVelocityX() > sprintSpeed)
-                    || (getVelocityX() < -sprintSpeed)
-                    || (getVelocityX() >  runSpeed && conditions[Condition.NEGATE_SPRINT_RIGHT.ordinal()] > 0)
-                    || (getVelocityX() < -runSpeed && conditions[Condition.NEGATE_SPRINT_LEFT .ordinal()] > 0)
-                    || (getVelocityX() >  walkSpeed   && conditions[Condition.NEGATE_RUN_RIGHT   .ordinal()] > 0)
-                    || (getVelocityX() < -walkSpeed   && conditions[Condition.NEGATE_RUN_LEFT    .ordinal()] > 0)
-                    || (getVelocityX() >  0           && conditions[Condition.NEGATE_WALK_RIGHT  .ordinal()] > 0)
-                    || (getVelocityX() <  0           && conditions[Condition.NEGATE_WALK_LEFT   .ordinal()] > 0)
+                    || exceedSprint
+                    || (exceedRunR && has(Condition.NEGATE_SPRINT_RIGHT))
+                    || (exceedRunL && has(Condition.NEGATE_SPRINT_LEFT))
+                    || (exceedWalkR && has(Condition.NEGATE_RUN_RIGHT))
+                    || (exceedWalkL && has(Condition.NEGATE_RUN_LEFT))
+                    || (getVelocityX() > 0  && (dirHoriz == LEFT || has(Condition.NEGATE_WALK_RIGHT)))
+                    || (getVelocityX() < 0  && (dirHoriz == RIGHT || has(Condition.NEGATE_WALK_LEFT)))
                     || state == State.SLIDE
                     || has(Condition.NEGATE_ACTIVITY)
                     || has(Condition.NEGATE_STABILITY))
