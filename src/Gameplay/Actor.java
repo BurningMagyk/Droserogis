@@ -329,9 +329,10 @@ public class Actor extends Item
                 {
                     addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
                     float xPos = touchEntity[_dirHoriz].getPosition().x
-                            + (((touchEntity[_dirHoriz].getWidth() / 2) - (getWidth() / 2)) * _dirHoriz == LEFT ? 1 : -1);
+                            + ((touchEntity[_dirHoriz].getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
                     float yPos = touchEntity[_dirHoriz].getPosition().y
                             - (touchEntity[_dirHoriz].getHeight() / 2) - (getHeight() / 2);
+                    Print.blue(_dirHoriz);
                     setPosition(new Vec2(xPos, yPos));
                 }
             }
