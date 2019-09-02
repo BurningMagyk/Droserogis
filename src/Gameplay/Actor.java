@@ -65,12 +65,12 @@ public class Actor extends Item
     @Override
     public Color getColor()
     {
-        //return state.getColor();
-        if (has(Condition.NEGATE_ACTIVITY)) return Color.RED;
+        return state.getColor();
+        /*if (has(Condition.NEGATE_ACTIVITY)) return Color.RED;
         if (has(Condition.NEGATE_STABILITY)) return Color.ORANGE;
         if (!canWalk()) return Color.GOLD;
         if (!canRun()) return Color.GREEN;
-        return Color.CORNFLOWERBLUE;
+        return Color.CORNFLOWERBLUE;*/
     }
 
     public Actor(CharacterStat charStat, WeaponStat naturalStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
@@ -115,8 +115,10 @@ public class Actor extends Item
             if (touchLateSurface[DOWN] != null && touchLateSurface[DOWN].valid())
             {
                 float lateVelY = touchLateSurface[DOWN].getLateVel().y;
-                setVelocityY(touchLateSurface[DOWN].getShape().getDirs()[UP]
-                        ? -jumpVel + lateVelY : -jumpVel - slopeJumpBuffer + lateVelY);
+                if (canJump()) {
+                    setVelocityY(touchLateSurface[DOWN].getShape().getDirs()[UP]
+                            ? -jumpVel + lateVelY : -jumpVel - slopeJumpBuffer + lateVelY);
+                }
                 pressedJumpTime = 0F;
             }
             else if (touchLateSurface[LEFT] != null && touchLateSurface[LEFT].valid())
@@ -124,19 +126,23 @@ public class Actor extends Item
                 Vec2 lateVel = touchLateSurface[LEFT].getLateVel();
                 if (dirHoriz == RIGHT)
                 {
-                    setVelocityX(jumpVel * 0.70712F + lateVel.x); // sin(45)
-                    setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    if (canJump()) {
+                        setVelocityX(jumpVel * 0.70712F + lateVel.x); // sin(45)
+                        setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == UP)
                 {
-                    setVelocityX(jumpVel * 0.34202F + lateVel.x); // sin(20)
-                    setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    if (canJump()) {
+                        setVelocityX(jumpVel * 0.34202F + lateVel.x); // sin(20)
+                        setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == DOWN)
                 {
-                    setVelocityX(jumpVel + lateVel.x);
+                    if (canJump()) setVelocityX(jumpVel + lateVel.x);
                     pressedJumpTime = 0;
                 }
             }
@@ -145,19 +151,23 @@ public class Actor extends Item
                 Vec2 lateVel = touchLateSurface[RIGHT].getLateVel();
                 if (dirHoriz == LEFT)
                 {
-                    setVelocityX(-jumpVel * 0.70712F + lateVel.x); // sin(45)
-                    setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    if (canJump()) {
+                        setVelocityX(-jumpVel * 0.70712F + lateVel.x); // sin(45)
+                        setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == UP)
                 {
-                    setVelocityX(-jumpVel * 0.34202F + lateVel.x); // sin(20)
-                    setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    if (canJump()) {
+                        setVelocityX(-jumpVel * 0.34202F + lateVel.x); // sin(20)
+                        setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == DOWN)
                 {
-                    setVelocityX(-jumpVel + lateVel.x);
+                    if (canJump()) setVelocityX(-jumpVel + lateVel.x);
                     pressedJumpTime = 0F;
                 }
             }
@@ -236,8 +246,10 @@ public class Actor extends Item
 
             if (pressedJumpTime > 0)
             {
-                addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
-                        ? -jumpVel : -jumpVel - slopeJumpBuffer);
+                if (canJump()) {
+                    addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
+                            ? -jumpVel : -jumpVel - slopeJumpBuffer);
+                }
                 pressedJumpSurface = touchEntity[DOWN];
                 pressedJumpTime = 0F;
             }
@@ -269,19 +281,23 @@ public class Actor extends Item
                 {
                     if (dirHoriz == RIGHT)
                     {
-                        addVelocityX(jumpVel * 0.70712F); // sin(45)
-                        addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        if (canJump()) {
+                            addVelocityX(jumpVel * 0.70712F); // sin(45)
+                            addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == UP)
                     {
-                        addVelocityX(jumpVel * 0.34202F); // sin(20)
-                        addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        if (canJump()) {
+                            addVelocityX(jumpVel * 0.34202F); // sin(20)
+                            addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == DOWN)
                     {
-                        addVelocityX(jumpVel);
+                        if (canJump()) addVelocityX(jumpVel);
                         pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[LEFT];
@@ -290,19 +306,23 @@ public class Actor extends Item
                 {
                     if (dirHoriz == LEFT)
                     {
-                        addVelocityX(-jumpVel * 0.70712F); // sin(45)
-                        addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        if (canJump()) {
+                            addVelocityX(-jumpVel * 0.70712F); // sin(45)
+                            addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                        }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == UP)
                     {
-                        addVelocityX(-jumpVel * 0.34202F); // sin(20)
-                        addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        if (canJump()) {
+                            addVelocityX(-jumpVel * 0.34202F); // sin(20)
+                            addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                        }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == DOWN)
                     {
-                        addVelocityX(-jumpVel);
+                        if (canJump()) addVelocityX(-jumpVel);
                         pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[RIGHT];
@@ -332,7 +352,6 @@ public class Actor extends Item
                             + ((touchEntity[_dirHoriz].getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
                     float yPos = touchEntity[_dirHoriz].getPosition().y
                             - (touchEntity[_dirHoriz].getHeight() / 2) - (getHeight() / 2);
-                    Print.blue(_dirHoriz);
                     setPosition(new Vec2(xPos, yPos));
                 }
             }
@@ -363,7 +382,7 @@ public class Actor extends Item
                 && !touchEntity[DOWN].getShape().getDirs()[UP]
                 && dirHoriz != -1) {
             //gravity = WEAK_GRAVITY;
-            gravity = REDUCED_GRAVITY;
+            //gravity = REDUCED_GRAVITY;
         }
         /* When starting to fall, they lose reduced/strong gravity */
         else if (getVelocityY() >= 0)
@@ -810,8 +829,8 @@ public class Actor extends Item
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
         {
-            if (getVelocityY() < 0) return State.WALL_CLIMB;
-            return State.WALL_STICK;
+            if (getVelocityY() < 0) return getVelocityY() > -maxClimbSpeed ? State.WALL_CLIMB : State.RISE;
+            return getVelocityY() < maxClimbSpeed ? State.WALL_STICK : State.FALL;
         }
         else
         {

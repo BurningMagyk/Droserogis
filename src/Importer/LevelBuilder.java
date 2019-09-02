@@ -690,7 +690,7 @@ public class LevelBuilder  extends Application
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-            Actor player1 = new Actor(player1Stat, player1NaturalStat,1F, -3F, .4f, .8f, 1F,
+            Actor player1 = new Actor(player1Stat, player1NaturalStat,-5F, -3F, .4f, .8f, 1F,
                     new String[]{ }); //SPRITES
             player1.spriteIndex = 0;
 
@@ -714,9 +714,9 @@ public class LevelBuilder  extends Application
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                     "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-            Actor player2 = new Actor(player2Stat, player2NaturalStat,1F, -5F, .35f, .7f, 1F, new String[]{});
+            Actor player2 = new Actor(player2Stat, player2NaturalStat,-6F, -5F, .35f, .7f, 1F, new String[]{});
 
-            Sword sword2 = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
+            Sword sword2 = new Sword(swordStat,-1, -4, 0.45F, 0.075F, 0.1F, new String[]{});
             player2.equip(sword2);
             entityList.add(player2);
             entityList.add(sword2);
