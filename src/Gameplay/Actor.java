@@ -780,7 +780,7 @@ public class Actor extends Item
                 /* Width and height are switched */
                 setHeight(ORIGINAL_WIDTH);
                 setWidth(ORIGINAL_HEIGHT);
-                return State.CROUCH;
+                return State.SLIDE;
             }
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))

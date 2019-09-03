@@ -17,7 +17,7 @@ public abstract class Item extends Entity
 
     float slopeJumpBuffer = 0.1F;
 
-    float gravity = 1;
+    float gravity = 0.75F;
 
     float airDrag = 0.25F;
     float waterDrag = 10F;

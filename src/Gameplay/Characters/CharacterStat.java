@@ -324,37 +324,37 @@ public class CharacterStat
     public float runSpeed() { return 0.06F; } // agility
     public float lowerSprintSpeed() { return 0.07F; } // agility
     public float sprintSpeed() { return 0.11F; } // agility
-    public float rushSpeed() { return agility(0.3F); } // agility
+    public float rushSpeed() { return agility(0.18F); } // agility
 
     public float maxClimbSpeed() { return 0.3F; } // agility + dexterity
     public float maxStickSpeed() { return 0.05F; } // agility + dexterity
     public float maxSlideSpeed() { return 0.4F; } // agility + dexterity
-    public float maxLowerGroundSpeed() { return 0.08F; } // agility + dexterity
-    public float maxGroundSpeed() { return 0.15F; } // agility + dexterity
+    public float maxLowerGroundSpeed() { return 0.1F; } // agility + dexterity
+    public float maxGroundSpeed() { return 0.2F; } // agility + dexterity
     public float maxTotalSpeed() { return 3F; } // none
 
     public float airAccel() { return 0.1F; } // dexterity
     public float swimAccel() { return 0.3F; } // agility
-    public float crawlAccel() { return agility(0.3F); } // agility
+    public float crawlAccel() { return 0.15F; } // agility
     public float climbAccel() { return 0.1F; } // agility
-    public float runAccel() { return agility(0.4F); } // agility
+    public float runAccel() { return 0.2F; } // agility
 
-    public float jumpVel() { return 0.25F; } // strength
+    public float jumpVel() { return 0.2F; } // strength + agility
 
-    public float climbLedgeTime() { return agility(1); } // agility
+    public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]
-            { agility(0.45F), dexterity(0.4F), stamina(0.5F) }; }
-    public float dashRecoverTime() { return agility(1); } // agility
-    public float minTumbleTime() { return agility(1F); } // agility
+            { agility(0.25F), dexterity(0.2F), stamina(0.5F) }; }
+    public float dashRecoverTime() { return 0.5F; } // agility
+    public float minTumbleTime() { return 1F; } // agility
 
-    public float proneRecoverTime() { return constitution(1); } // constitution
-    public float staggerRecoverTime() { return strength(2); } // strength
-    public float staggerParryMod() { return strength(2); } // strength
-    public float staggerBlockMod() { return constitution(0.5F); } // strength
+    public float proneRecoverTime() { return 0.85F; } // constitution
+    public float staggerRecoverTime() { return 1; } // strength
+    public float staggerParryMod() { return 1.5F; } // strength
+    public float staggerBlockMod() { return 0.5F; } // strength
 
-    public float[] landingThresh() { return new float[] { agility(0.5F), agility(1) }; }
+    public float[] landingThresh() { return new float[] { agility(0.4F), agility(0.8F) }; }
 
-    public float friction() { return agility(0.5F); } // agility
+    public float friction() { return 0.35F; } // agility
 
-    public int maxCommandChain() { return (int) intelligence(3); } // intelligence
+    public int maxCommandChain() { return (int) 2; } // intelligence
 }
