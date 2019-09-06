@@ -9,7 +9,10 @@ import java.util.ArrayList;
 
 public abstract class Item extends Entity
 {
-    protected float mass;
+    //protected float mass;  TODO: robin: I (joel) thinks this is a bug since mass in also defined in Entity
+    //                        this might make a difference in gameplay as when I was getting the mass in LevelBuilder
+    //                        to write the value to a file, actors (with a mass of 1) and swords (with a mass of .1) were
+    //                        were returning getMass() == 5.
     private int hitPoints;
 
     /* The entities that are in contact from each of 4 directions */
@@ -34,7 +37,7 @@ public abstract class Item extends Entity
     protected Item(float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, spritePaths);
-        this.mass = mass;
+        this.setMass(mass);
 
         // TODO: get this value from Characters or Weapon
         hitPoints = 10;

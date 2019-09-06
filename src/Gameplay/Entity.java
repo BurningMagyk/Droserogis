@@ -266,8 +266,8 @@ abstract public class Entity
     float getFriction() { return friction; }
     void setFriction(float friction) { this.friction = friction; }
 
-    float getMass() { return mass; }
-    void setMass(float mass) { this.mass = mass; }
+    public float getMass() { return mass; }
+    public void setMass(float mass) { this.mass = mass; }
 
     public ShapeEnum getShape() { return shape; }
 

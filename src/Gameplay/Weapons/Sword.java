@@ -186,7 +186,7 @@ public class Sword extends Weapon
     @Override
     Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
     {
-        return new Vec2(dir.getHoriz().getSign() * mass, dir.getVert().getSign() * mass);
+        return new Vec2(dir.getHoriz().getSign() * getMass(), dir.getVert().getSign() * getMass());
     }
 
     @Override

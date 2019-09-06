@@ -178,7 +178,7 @@ public class Actor extends Item
             /* If the entity being stood on is an upward-slope triangle */
             if (!touchEntity[DOWN].getShape().getDirs()[UP])
             {
-                float slopeAccel = gravity * mass;
+                float slopeAccel = gravity * getMass();
                 if (state == State.CROUCH || state == State.CRAWL) slopeAccel /= 2;
                 setAcceleration(touchEntity[DOWN].applySlopeY(slopeAccel));
             }
@@ -1287,8 +1287,6 @@ public class Actor extends Item
         return true;
     }
 
-    public float getMass() { return mass; }
-
     private class LateSurface
     {
         private Entity entity;
@@ -1459,12 +1457,12 @@ public class Actor extends Item
         airAccel = charStat.airAccel();
         swimAccel = charStat.swimAccel();
         crawlAccel = charStat.crawlAccel();
-        climbAccel = charStat.climbAccel() / mass;
+        climbAccel = charStat.climbAccel() / getMass();
         runAccel = charStat.runAccel();
 
-        jumpVel = charStat.jumpVel() / mass;
+        jumpVel = charStat.jumpVel() / getMass();
 
-        climbLedgeTime = charStat.climbLedgeTime() / mass;
+        climbLedgeTime = charStat.climbLedgeTime() / getMass();
         stairRecoverTime = charStat.stairRecoverTime();
         dashRecoverTime = charStat.dashRecoverTime();
         minTumbleTime = charStat.minTumbleTime();

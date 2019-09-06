@@ -6,6 +6,7 @@ import Gameplay.Block;
 import Gameplay.Actor;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Sword;
+import Gameplay.Weapons.Weapon;
 import Gameplay.Weapons.WeaponStat;
 import Util.Vec2;
 
@@ -51,7 +52,8 @@ public class LevelBuilder  extends Application
     private Canvas canvas;
     private GraphicsContext gtx;
     private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
-    private ArrayList<Entity> entityList = new ArrayList<>();
+    //private ArrayList<Entity> entityList = new ArrayList<>();
+    private EntityCollection<Entity> entityList = new EntityCollection();
     private float lastMouseX, lastMouseY;
     private float mouseDownX, mouseDownY;
     private float mouseDownOffsetWithinBlockX, mouseDownOffsetWithinBlockY;
@@ -61,6 +63,8 @@ public class LevelBuilder  extends Application
     private int offsetX=0;
     private int offsetY=0;
     private float zoomFactor = 1.0f;
+
+    private static float scale = 1f/50f;
 
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
@@ -414,7 +418,7 @@ public class LevelBuilder  extends Application
         else if (item == menuItemAddCameraZone)
         {
             CameraZone zone = new CameraZone(x, y, 500, 300, 100);
-            entityList.add(0, zone);
+            entityList.add(zone);
             unselect();
         }
 
@@ -507,17 +511,40 @@ public class LevelBuilder  extends Application
         }
         else if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
-
             Vec2 pos = block.getPosition();
             float x = offsetX + pos.x - block.getWidth() / 2;
             float y = offsetY + pos.y - block.getHeight() / 2;
-            gtx.fillRect(
-                    x, y, block.getWidth(), block.getHeight());
-
+            gtx.fillRect(x, y, block.getWidth(), block.getHeight());
         }
     }
 
 
+    private static Actor createPlayer(float x, float y, float width, float height, float mass)
+    {
+        CharacterStat player1Stat = new CharacterStat(
+                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+        WeaponStat player1NaturalStat = new WeaponStat("C",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+        Actor player = new Actor(player1Stat, player1NaturalStat,x, y, width, height, mass, null); //SPRITES
+        return player;
+    }
+
+
+
+    private static Sword createSword(float x, float y, float width, float height, float mass)
+    {
+        WeaponStat swordStat = new WeaponStat("C",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+        Sword sword = new Sword(swordStat,x, y, width, height, mass, null);
+        return sword;
+    }
 
 
     //============================================================================================
@@ -536,32 +563,49 @@ public class LevelBuilder  extends Application
         if (writer == null) return;
 
         if (entityList.isEmpty()) return;
-        float minX = Float.MAX_VALUE;
-        float minY = Float.MAX_VALUE;
-        float maxX = Float.MIN_VALUE;
-        float maxY = Float.MIN_VALUE;
-        for (Entity block : entityList) {
-            if (block.getLeftEdge() < minX) minX = block.getLeftEdge();
-            if (block.getTopEdge()  < minY) minY = block.getTopEdge();
-            if (block.getRightEdge()  > maxX) maxX = block.getRightEdge();
-            if (block.getBottomEdge() > maxY) maxY = block.getBottomEdge();
-        }
-        float centerX = (minX + maxX)/2;
-        float centerY = (minY + maxY)/2;
-        float scale = 1.0f/50.0f;
 
-        try {
-            writer.write("Center,"+centerX+","+centerY+",  Scale,"+scale+"\n");
-            for (Entity entity : entityList) {
+        try
+        {
+            writer.write("Type,CenterX,CenterY,Width,Height,Liquid / Mass / Zoom,parent\n");
+            for (Entity entity : entityList)
+            {
+                int x = Math.round(entity.getX());
+                int y = Math.round(entity.getY());
+                int w = Math.round(entity.getWidth());
+                int h = Math.round(entity.getHeight());
+                String stats = x + "," + y + "," + w + "," + h;
                 String type = "";
-                if (entity instanceof Block) {
-                    type = entity.getShape() + ","+((Block)entity).isLiquid();
+                if (entity instanceof Block)
+                {
+                    type = entity.getShape().toString();
+                    stats += ","+((Block)entity).isLiquid();
                 }
-                else if (entity instanceof CameraZone) {
-                    type =  "CameraZone," + ((CameraZone)entity).getZoom();
+                else if (entity instanceof CameraZone)
+                {
+                    type =  "CameraZone";
+                    stats += ","+((CameraZone)entity).getZoom();
                 }
-                writer.write(type+","+entity.getX()+","+entity.getY()+","+
-                        entity.getWidth()+","+ entity.getHeight()+"\n");
+                else if (entity instanceof Actor)
+                {
+                    type =  "Player";
+                    stats += ","+entity.getMass();
+                }
+                else if (entity instanceof Sword)
+                {
+                    type =  "Sword";
+                    Actor actor = ((Sword)entity).getActor();
+                    int playerIdx = -1;
+                    for (int i=0; i<entityList.getPlayerCount(); i++)
+                    {
+                        if (actor == entityList.getPlayer(i))
+                        {
+                            playerIdx = i;
+                            break;
+                        }
+                    }
+                    stats += ","+entity.getMass() + ","+playerIdx;
+                }
+                writer.write(type+","+stats+"\n");
             }
 
             writer.close();
@@ -585,52 +629,37 @@ public class LevelBuilder  extends Application
     private void loadFile()
     {
         System.out.println("LevelBuilder.loadFile()");
-        BufferedReader reader = fileChooserRead();
-        if (reader == null) return;
+        scale = 1;
 
-        entityList.clear();
-        offsetX=0;
-        offsetY=0;
-        try
+        String path = fileChooserOpenGetPath();
+        entityList = loadLevel(path);
+
+        //Center the view of all entities
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+
+        for (Entity entity : entityList)
         {
-            reader.readLine();  //do not need center or scale.
-            String line = reader.readLine();
-            while (line != null) {
-                String[] data = line.split(",");
-
-                Entity entity = null;
-                if (data.length != 6) {
-                    System.out.println("Error Reading Line: ["+line+"]");
-                    throw new IOException("each record must have 6 fields");
-                }
-
-                float x = Float.valueOf(data[2]);
-                float y = Float.valueOf(data[3]);
-                float width = Float.valueOf(data[4]);
-                float height = Float.valueOf(data[5]);
-
-                if (data[0].equals("CameraZone")) {
-                    float zoom = Float.valueOf(data[1]);
-                    entity = new CameraZone(x, y, width, height, zoom);
-                }
-                else {
-                    boolean isLiquid = Boolean.valueOf(data[1]);
-                    Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                    entity = new Block(x, y, width, height, shape, null);
-                    ((Block)entity).setLiquid(isLiquid);
-                }
-
-                entityList.add(entity);
-
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            if (entity.getLeftEdge() < minX) minX = (int)entity.getLeftEdge();
+            if (entity.getTopEdge()  < minY) minY = (int)entity.getTopEdge();
+            if (entity.getRightEdge()  > maxX) maxX = (int)entity.getRightEdge();
+            if (entity.getBottomEdge() > maxY) maxY = (int)entity.getBottomEdge();
         }
+
+        int width  = (int)canvas.getWidth();
+        int height = (int)canvas.getHeight();
+        offsetX=(width+maxX+minX)/2;
+        offsetY=(height+maxY+minY)/2;
+
+        System.out.println("     X:["+minX + " -> " + maxX + "]");
+        System.out.println("     Y:["+minY + " -> " + maxY + "]");
+
+        System.out.println("     offset: " + offsetX + ", " + offsetY);
+
         renderAll();
+
     }
 
 
@@ -644,31 +673,42 @@ public class LevelBuilder  extends Application
             BufferedReader reader = new BufferedReader(new FileReader(path));
             EntityCollection<Entity> entityList = new EntityCollection();
 
-            String line = reader.readLine();
-            String[] data = line.split(",");
-
-            float centerX = Float.valueOf(data[1]);
-            float centerY = Float.valueOf(data[2]);
-            float scale = Float.valueOf(data[4]);
-
+            String line = reader.readLine(); //header line
             line = reader.readLine();
             while (line != null) {
-                data = line.split(",");
+                String[] data = line.split(",");
 
-                if (data.length != 6) {
+                if (data.length < 6)
+                {
                     System.out.println("Error Reading Line: ["+line+"]");
-                    throw new IOException("each record must have 6 fields");
+                    throw new IOException("each record must have at least 6 fields");
                 }
 
                 Entity entity = null;
-                float x = (Float.valueOf(data[2]) - centerX)*scale;;
-                float y = (Float.valueOf(data[3]) - centerY)*scale;;
-                float width = Float.valueOf(data[4])*scale;
-                float height = Float.valueOf(data[5])*scale;
+                float x = (Float.valueOf(data[1]))*scale;
+                float y = (Float.valueOf(data[2]))*scale;
+                float width = Float.valueOf(data[3])*scale;
+                float height = Float.valueOf(data[4])*scale;
 
-                if (data[0].equals("CameraZone")) {
-                    float zoom = Float.valueOf(data[1]);
+                if (data[0].equals("CameraZone"))
+                {
+                    float zoom = Float.valueOf(data[5]);
                     entity = new CameraZone(x, y, width, height, zoom);
+                }
+                else if (data[0].equals("Player"))
+                {
+                    float mass = Float.valueOf(data[5]);
+                    entity = createPlayer(x, y, width, height, mass);
+                }
+                else if (data[0].equals("Sword"))
+                {
+                    float mass = Float.valueOf(data[5]);
+                    int parent = Integer.valueOf(data[6]);
+                    entity = createSword(x, y, width, height, mass);
+                    if (parent >= 0)
+                    {
+                        entityList.getPlayer(parent).equip((Weapon)entity);
+                    }
                 }
                 else {
                     boolean isLiquid = Boolean.valueOf(data[1]);
@@ -682,48 +722,6 @@ public class LevelBuilder  extends Application
                 line = reader.readLine();
             }
             reader.close();
-
-            CharacterStat player1Stat = new CharacterStat(
-                    "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-            WeaponStat player1NaturalStat = new WeaponStat("C",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-            Actor player1 = new Actor(player1Stat, player1NaturalStat,-5F, -3F, .4f, .8f, 1F,
-                    new String[]{ }); //SPRITES
-            player1.spriteIndex = 0;
-
-            WeaponStat swordStat = new WeaponStat("C",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-            Sword sword = new Sword(swordStat,0, -4, 0.45F, 0.075F, 0.1F, new String[]{});
-            player1.equip(sword);
-            //System.out.println("LevelBuilder: adding player1");
-            entityList.add(player1);
-            entityList.add(sword);
-
-
-            CharacterStat player2Stat = new CharacterStat(
-                    "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-            WeaponStat player2NaturalStat = new WeaponStat("C",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                    "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-            Actor player2 = new Actor(player2Stat, player2NaturalStat,-6F, -5F, .35f, .7f, 1F, new String[]{});
-
-            Sword sword2 = new Sword(swordStat,-1, -4, 0.45F, 0.075F, 0.1F, new String[]{});
-            player2.equip(sword2);
-            entityList.add(player2);
-            entityList.add(sword2);
-
-
-
-
 
             return entityList;
         } catch (Exception e)
@@ -785,32 +783,19 @@ public class LevelBuilder  extends Application
     // successfully created.
     // Otherwise, an error dialog is displayed and the method returns false.
     //============================================================================================
-    private static BufferedReader fileChooserRead()
+    private static String fileChooserOpenGetPath()
     {
         System.out.println("LevelBuilder.fileChooserRead()");
-        BufferedReader reader = null;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Hermano Level File");
         fileChooser.setInitialDirectory(new File("Resources/Levels"));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV", "*.csv"));
         File selectedFile = fileChooser.showOpenDialog(null);
+
         if (selectedFile != null)
         {
-            try
-            {
-                reader = new BufferedReader(new FileReader(selectedFile));
-            }
-            catch (IOException e)
-            {
-                /*Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("File Error");
-                alert.setHeaderText("IO Exception:");
-                alert.setContentText(e.getMessage());
-                alert.showAndWait();*/
-                return null;
-            }
+            return selectedFile.getAbsolutePath();
         }
-        return reader;
+        return null;
     }
-
 }

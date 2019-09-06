@@ -14,26 +14,41 @@ import java.util.Iterator;
 public class EntityCollection<Entity> extends AbstractCollection<Entity>
 {
     private ArrayList<Block> blockList = new ArrayList<>();
-    private ArrayList<Item> itemList = new ArrayList<>();     //For now, this list contains both items and players.
+    private ArrayList<Item> itemList = new ArrayList<>();
     private ArrayList<Actor> monsterList = new ArrayList<>();
+    private ArrayList<Actor> playerList = new ArrayList<>();
     private ArrayList<CameraZone> cameraZoneList = new ArrayList<>();
 
-    private ArrayList<Actor> playerList = new ArrayList<>();
+    // dynamicItems is a list of copies of pointers to Entities that move (players, monsters and items).
+    private ArrayList<Item> dynamicItems = new ArrayList<>();
 
     // physicsItems is a list of copies of pointers to Entities that are involved in physics.
     //    Currently, that is all items except for CameraZones.
-    // Special effects may also at some point be Entities that do not have physics.
+    // Special effects may also be Entities that do not have physics.
     private ArrayList<Entity> physicsItems = new ArrayList<>();
 
     private ArrayList[] collectionList =
     {
-            cameraZoneList, monsterList, itemList, blockList
+            cameraZoneList, blockList, monsterList, playerList, itemList
     };
 
     private int totalSize = 0;
 
-    @Override public int size(){
+    @Override public int size()
+    {
         return totalSize;
+    }
+
+    @Override public void clear()
+    {
+        blockList.clear();
+        itemList.clear();
+        monsterList.clear();
+        cameraZoneList.clear();
+        playerList.clear();
+        dynamicItems.clear();
+        physicsItems.clear();
+        totalSize = 0;
     }
     @Override public Iterator<Entity> iterator()
     {
@@ -62,9 +77,13 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         };
     }
 
+    public ArrayList<Actor> getPlayerList() {return playerList;}
 
-    //public Iterator<Item> getItemIterator() {return itemList.iterator();}
     public ArrayList<Item> getItemList() {return itemList;}
+
+    public ArrayList<Item> getDynamicItems() {return dynamicItems;}
+
+    public int getPlayerCount() {return playerList.size();}
 
 
     //=================================================================================================================
@@ -80,12 +99,13 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         {
             //System.out.print("Actor");
             playerList.add((Actor) entity);
-            itemList.add((Actor) entity);
+            dynamicItems.add((Actor) entity);
             physicsItems.add(entity);
         }
         else if (entity instanceof Item)
         {
             itemList.add((Item) entity);
+            dynamicItems.add((Item) entity);
             physicsItems.add(entity);
         }
         else if (entity instanceof Block)
@@ -96,7 +116,6 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         else if (entity instanceof CameraZone)
         {
             cameraZoneList.add((CameraZone) entity);
-            physicsItems.add(entity);
         }
         //System.out.println(")");
         return true;
@@ -105,5 +124,37 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
     public Actor getPlayer(int i) { return playerList.get(i);}
 
     public ArrayList<CameraZone> getCameraZoneList() { return cameraZoneList;}
+
+    public Entity get(int idx)
+    {
+        if (idx >= totalSize)
+        {
+            throw new IllegalArgumentException("EntityCollection.get(" + idx + ") out of bounds: totalSize=" + totalSize);
+        }
+
+        //Find the correct list
+        int i = idx;
+        for (int collectionIdx = 0; collectionIdx < collectionList.length; collectionIdx++)
+        {
+
+            //System.out.println("collectionList["+collectionIdx+"].size()="+ collectionList[collectionIdx].size() + ",  i="+i);
+            if (i < collectionList[collectionIdx].size())
+            {
+                return (Entity) collectionList[collectionIdx].get(i);
+            }
+            i -= collectionList[collectionIdx].size();
+        }
+
+        System.out.println("cameraZoneList.size()="+cameraZoneList.size());
+        System.out.println("blockList.size()="+blockList.size());
+        System.out.println("itemList.size()="+itemList.size());
+        System.out.println("monsterList.size()="+monsterList.size());
+        System.out.println("playerList.size()="+playerList.size());
+
+        System.out.println("dynamicItems.size()="+dynamicItems.size());
+        System.out.println("physicsItems.size()="+physicsItems.size());
+
+        throw new IllegalArgumentException("EntityCollection.get(" + idx + ") List corrupted: totalSize=" + totalSize);
+    }
 }
 

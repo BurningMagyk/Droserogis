@@ -239,6 +239,8 @@ public abstract class Weapon extends Item
         }
     }
 
+    public Actor getActor() {return actor;}
+
     public Weapon equip(Actor actor, CharacterStat charStat)
     {
         setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
