@@ -241,17 +241,21 @@ public abstract class Weapon extends Item
 
     public Actor getActor() {return actor;}
 
+    public void moveToParent()
+    {
+        float x = actor.getX();
+        float y = actor.getY()-actor.getHeight()/5f;
+        setPosition(x,y);
+    }
+
     public Weapon equip(Actor actor, CharacterStat charStat)
     {
         setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
         orient.set(defaultOrient.copy());
-
         setWeaponStats(charStat);
-        float x = actor.getX();
-        float y = actor.getY()-actor.getHeight()/5f;
-        setPosition(x,y);
         this.actor = actor;
         ballistic = false;
+        moveToParent();
         return this;
     }
     public Weapon unequip(float theta, Vec2 posOffset)

@@ -4,7 +4,9 @@ import Gameplay.Characters.CharacterStat;
 import Gameplay.Entity;
 import Gameplay.Block;
 import Gameplay.Actor;
+import Gameplay.Item;
 import Gameplay.EntityCollection;
+import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
 import Gameplay.Weapons.WeaponStat;
@@ -249,6 +251,10 @@ public class LevelBuilder  extends Application
         for(int i = entityList.size() - 1; i >= 0; i--)
         {
             Entity entity = entityList.get(i);
+            if (entity instanceof Weapon)
+            {
+                if (((Weapon)entity).getActor() != null) continue;
+            }
             int vertexIdx = entity.getVertexNear(x, y);
             if (vertexIdx >= 0)
             {
@@ -313,6 +319,19 @@ public class LevelBuilder  extends Application
             if (selectedEntity.getWidth() % 20 != 0)  x+=5;
             if (selectedEntity.getHeight() % 20 != 0) y+=5;
             selectedEntity.setPosition(x, y);
+
+            if (selectedEntity instanceof Actor)
+            {
+                Actor actor = ((Actor)selectedEntity);
+                for (Weapon weapon : actor.getWeapons())
+                {
+                    if (weapon != null)
+                    {
+                        if (weapon instanceof Natural) continue;
+                        weapon.moveToParent();
+                    }
+                }
+            }
         }
 
         lastMouseX = mouseX;
@@ -492,8 +511,8 @@ public class LevelBuilder  extends Application
         //System.out.println("    render() "+block.getShape());
         if (block == selectedEntity)
         {
-            if (block instanceof Block) gtx.setFill(Color.DARKGREEN);
-            else gtx.setFill(lightTranslucentGreen);
+            if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
+            else gtx.setFill(Color.DARKGREEN);
         }
         else gtx.setFill(block.getColor());
 

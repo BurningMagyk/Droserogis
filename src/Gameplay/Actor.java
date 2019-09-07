@@ -86,11 +86,9 @@ public class Actor extends Item
         weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this, null);
     }
 
-    Item[] getItems()
+    public Weapon[] getWeapons()
     {
-        Item[] items = new Item[1];
-        items[0] = weapons[0];
-        return items;
+        return weapons;
     }
 
     protected void update(EntityCollection<Entity> entities, float deltaSec)
@@ -602,8 +600,7 @@ public class Actor extends Item
     {
         for (Weapon weapon : weapons)
         {
-            if (weapon != null)
-                weapon.updatePosition(p, getVelocity(), getDims(), getWeaponFace());
+            if (weapon != null) weapon.updatePosition(p, getVelocity(), getDims(), getWeaponFace());
         }
         super.setPosition(p);
     }
