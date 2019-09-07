@@ -86,7 +86,6 @@ abstract public class Entity
 
     private boolean triggered = false;
     private float friction = 0.5F;
-    private float mass = 5;
 
     public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
     {
@@ -265,9 +264,6 @@ abstract public class Entity
 
     float getFriction() { return friction; }
     void setFriction(float friction) { this.friction = friction; }
-
-    public float getMass() { return mass; }
-    public void setMass(float mass) { this.mass = mass; }
 
     public ShapeEnum getShape() { return shape; }
 

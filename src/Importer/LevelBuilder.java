@@ -588,12 +588,13 @@ public class LevelBuilder  extends Application
                 else if (entity instanceof Actor)
                 {
                     type =  "Player";
-                    stats += ","+entity.getMass();
+                    stats += ","+((Actor)entity).getMass();
                 }
                 else if (entity instanceof Sword)
                 {
+                    Sword sword = ((Sword)entity);
                     type =  "Sword";
-                    Actor actor = ((Sword)entity).getActor();
+                    Actor actor = sword.getActor();
                     int playerIdx = -1;
                     for (int i=0; i<entityList.getPlayerCount(); i++)
                     {
@@ -603,7 +604,7 @@ public class LevelBuilder  extends Application
                             break;
                         }
                     }
-                    stats += ","+entity.getMass() + ","+playerIdx;
+                    stats += ","+sword.getMass() + ","+playerIdx;
                 }
                 writer.write(type+","+stats+"\n");
             }

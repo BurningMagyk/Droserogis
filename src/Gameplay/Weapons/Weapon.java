@@ -247,7 +247,9 @@ public abstract class Weapon extends Item
         orient.set(defaultOrient.copy());
 
         setWeaponStats(charStat);
-
+        float x = actor.getX();
+        float y = actor.getY()-actor.getHeight()/5f;
+        setPosition(x,y);
         this.actor = actor;
         ballistic = false;
         return this;
