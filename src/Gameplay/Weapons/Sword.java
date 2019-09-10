@@ -3,9 +3,7 @@ package Gameplay.Weapons;
 import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
-import javafx.scene.image.Image;
 
 public class Sword extends Weapon
 {
@@ -14,6 +12,158 @@ public class Sword extends Weapon
             SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD, SWING_UP_BACKWARD,
             SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE,
             SWING_LUNGE_UNTERHAU, THROW;
+
+    private static final String[] SPRITE_PATHS = null;
+    private static final float SWORD_WIDTH = 23 * SPRITE_TO_WORLD_SCALE;
+    private static final float SWORD_HEIGHT = 4 * SPRITE_TO_WORLD_SCALE;
+    private static final float SWORD_MASS = 0.1f;
+
+    private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
+    private Tick[][] thrustJourneys, stabJourneys, swingJourneys;
+
+    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
+
+
+    public Sword(float xPos, float yPos)
+    {
+        //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
+        super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
+
+        WeaponStat swordStat = new WeaponStat("C",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+
+        setWeaponStats(swordStat);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                CONDITIONS                                               ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+        ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
+
+        ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+        ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+
+        ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+
+        ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+
+        /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN, SWING, SWING_UNTERHAU,
+           SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD */
+        basicCycle = new ConditionAppCycle(
+                FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
+
+        /* STAB, STAB_UNTERHAU */
+        a_Cycle = new ConditionAppCycle(
+                FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
+
+        /* SWING_UNTERHAU_CROUCH */
+        b_Cycle = new ConditionAppCycle(
+                FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_RUN, NEGATE_WALK__LONG);
+
+        /* THRUST_LUNGE, SWING_LUNGE */
+        lungeCycle = new ConditionAppCycle(
+                FORCE_DASH, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                                JOURNEYS                                                 ///
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        thrustJourneys = new Tick[][] {
+                new Tick[] { /* THRUST */
+                        new Tick(0.06F, 0.8F, -0.2F, 0F),
+                        new Tick(0.10F, 1.4F, -0.2F, 0F),
+                        new Tick(0.16F, 2F, -0.2F, 0F) },
+                new Tick[] { /* THRUST_UP */
+                        new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2),
+                        new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2),
+                        new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2) },
+                null /* THRUST_DOWN */,
+                new Tick[] { /* THRUST_DIAG_UP */
+                        new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4),
+                        new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4),
+                        new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4) },
+                null, /* THRUST_DIAG_DOWN */
+                null  /* THRUST_LUNGE */
+        };
+
+        thrustJourneys[2] = new Tick[thrustJourneys[1].length];
+        for (int i = 0; i < thrustJourneys[1].length; i++)
+        {
+            Tick tickCopy = thrustJourneys[1][i].getMirrorCopy(false, true);
+            tickCopy.getOrient().addTheta((float) Math.PI / 2);
+            thrustJourneys[2][i] = tickCopy;
+        }
+        thrustJourneys[4] = new Tick[thrustJourneys[3].length];
+        for (int i = 0; i < thrustJourneys[3].length; i++)
+            thrustJourneys[4][i] = thrustJourneys[3][i].getMirrorCopy(false, true);
+        thrustJourneys[5] = new Tick[thrustJourneys[0].length];
+        for (int i = 0; i < thrustJourneys[0].length; i++)
+            thrustJourneys[5][i] = thrustJourneys[0][i].getMirrorCopy(false, false);
+
+        stabJourneys = new Tick[][] {
+                new Tick[] { /* STAB */
+                        new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2),
+                        new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2),
+                        new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2) },
+                new Tick[] { /* STAP_UNTERHAU */
+                        new Tick(0.04F, 1.3F, 0F, (float) -Math.PI/2),
+                        new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2),
+                        new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2) }
+        };
+
+        swingJourneys = new Tick[][] {
+                new Tick[] { /* SWING */
+                        new Tick(0.04F, 1.05F, -0.7F, -0.8F),
+                        new Tick(0.08F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.12F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.16F, 1.4F, 0.2F, 0.2F) },
+                new Tick[] { /* SWING_UNTERHAU (+ _CROUCH) */
+                        new Tick(0.04F, 1.4F, 0.2F, 0.2F),
+                        new Tick(0.08F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.12F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.16F, 1.05F, -0.7F, -0.8F) },
+                new Tick[] { /* SWING_UP_FORWARD */
+                        new Tick(0.04F,  -0.8F,-0.6F, -2F),
+                        new Tick(0.08F,  -0.2F,-0.85F, -1.5F),
+                        new Tick(0.12F,  0.4F,-0.85F, -1F),
+                        new Tick(0.16F,  1.05F,-0.7F, -0.5F) },
+                new Tick[] { /* SWING_UP_BACKWARD */
+                        new Tick(0.04F,  1.05F,-0.7F, -0.5F),
+                        new Tick(0.08F,  0.4F,-0.85F, -1F),
+                        new Tick(0.12F,  -0.2F,-0.85F, -1.5F),
+                        new Tick(0.16F,  -0.8F,-0.6F, -2F) },
+                null /* SWING_DOWN_FORWARD */,
+                null /* SWING_DOWN_FORWARD */,
+                null /* SWING_LUNGE */ ,
+                null /* SWING_LUNGE_UNTERHAU */
+        };
+
+        swingJourneys[4] = new Tick[swingJourneys[2].length];
+        for (int i = 0; i < swingJourneys[4].length; i++)
+            swingJourneys[4][i] = swingJourneys[2][i].getMirrorCopy(false, true);
+        swingJourneys[5] = new Tick[swingJourneys[3].length];
+        for (int i = 0; i < swingJourneys[5].length; i++)
+            swingJourneys[5][i] = swingJourneys[3][i].getMirrorCopy(false, true);
+
+        swingJourneys[6] = new Tick[swingJourneys[2].length + swingJourneys[0].length];
+        for (int i = 0; i < swingJourneys[2].length; i++)
+            swingJourneys[6][i] = swingJourneys[2][i].getTimeModdedCopy(0, 0.75F);
+        float timeAdd_6 = swingJourneys[2][swingJourneys[2].length - 1].totalSec;
+        for (int i = swingJourneys[2].length; i < swingJourneys[6].length; i++)
+            swingJourneys[6][i] = swingJourneys[0][i - swingJourneys[2].length].getTimeModdedCopy(timeAdd_6, 0.75F);
+        swingJourneys[7] = new Tick[swingJourneys[4].length + swingJourneys[1].length];
+        for (int i = 0; i < swingJourneys[4].length; i++)
+            swingJourneys[7][i] = swingJourneys[4][i].getTimeModdedCopy(0, 0.75F);
+        float timeAdd_7 = swingJourneys[4][swingJourneys[4].length - 1].totalSec;
+        for (int i = swingJourneys[4].length; i < swingJourneys[7].length; i++)
+            swingJourneys[7][i] = swingJourneys[1][i - swingJourneys[4].length].getTimeModdedCopy(timeAdd_7, 0.75F);
+    }
+
 
     @Override
     Operation getOperation(Command command, Operation currentOp)
@@ -198,140 +348,9 @@ public class Sword extends Weapon
         return new Orient(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
     }
 
-    public Sword(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
-    {
-        super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
 
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///                                                CONDITIONS                                               ///
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
-        ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
 
-        ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
-        ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
-
-        ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
-
-        ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
-
-        /* THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN, SWING, SWING_UNTERHAU,
-           SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD */
-        basicCycle = new ConditionAppCycle(
-                FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
-
-        /* STAB, STAB_UNTERHAU */
-        a_Cycle = new ConditionAppCycle(
-                FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
-
-        /* SWING_UNTERHAU_CROUCH */
-        b_Cycle = new ConditionAppCycle(
-                FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_RUN, NEGATE_WALK__LONG);
-
-        /* THRUST_LUNGE, SWING_LUNGE */
-        lungeCycle = new ConditionAppCycle(
-                FORCE_DASH, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///                                                JOURNEYS                                                 ///
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        thrustJourneys = new Tick[][] {
-                new Tick[] { /* THRUST */
-                        new Tick(0.06F, 0.8F, -0.2F, 0F),
-                        new Tick(0.10F, 1.4F, -0.2F, 0F),
-                        new Tick(0.16F, 2F, -0.2F, 0F) },
-                new Tick[] { /* THRUST_UP */
-                        new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2),
-                        new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2),
-                        new Tick(0.16F, 0.4F, -1F, (float) -Math.PI/2) },
-                null /* THRUST_DOWN */,
-                new Tick[] { /* THRUST_DIAG_UP */
-                        new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4),
-                        new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4),
-                        new Tick(0.16F, 1.6F, -0.85F, (float) -Math.PI/4) },
-                null, /* THRUST_DIAG_DOWN */
-                null  /* THRUST_LUNGE */
-        };
-
-        thrustJourneys[2] = new Tick[thrustJourneys[1].length];
-        for (int i = 0; i < thrustJourneys[1].length; i++)
-        {
-            Tick tickCopy = thrustJourneys[1][i].getMirrorCopy(false, true);
-            tickCopy.getOrient().addTheta((float) Math.PI / 2);
-            thrustJourneys[2][i] = tickCopy;
-        }
-        thrustJourneys[4] = new Tick[thrustJourneys[3].length];
-        for (int i = 0; i < thrustJourneys[3].length; i++)
-            thrustJourneys[4][i] = thrustJourneys[3][i].getMirrorCopy(false, true);
-        thrustJourneys[5] = new Tick[thrustJourneys[0].length];
-        for (int i = 0; i < thrustJourneys[0].length; i++)
-            thrustJourneys[5][i] = thrustJourneys[0][i].getMirrorCopy(false, false);
-
-        stabJourneys = new Tick[][] {
-                new Tick[] { /* STAB */
-                        new Tick(0.04F, 1.1F, -0.6F, (float) Math.PI/2),
-                        new Tick(0.08F, 1.1F, -0.1F, (float) Math.PI/2),
-                        new Tick(0.12F, 1.1F, 0.4F, (float) Math.PI/2) },
-                new Tick[] { /* STAP_UNTERHAU */
-                        new Tick(0.04F, 1.3F, 0F, (float) -Math.PI/2),
-                        new Tick(0.08F, 1.3F, -0.5F, (float) -Math.PI/2),
-                        new Tick(0.12F, 1.3F, -1F, (float) -Math.PI/2) }
-        };
-
-        swingJourneys = new Tick[][] {
-                new Tick[] { /* SWING */
-                        new Tick(0.04F, 1.05F, -0.7F, -0.8F),
-                        new Tick(0.08F, 1.4F, -0.4F, -0.4F),
-                        new Tick(0.12F, 1.5F, -0.1F, -0.1F),
-                        new Tick(0.16F, 1.4F, 0.2F, 0.2F) },
-                new Tick[] { /* SWING_UNTERHAU (+ _CROUCH) */
-                        new Tick(0.04F, 1.4F, 0.2F, 0.2F),
-                        new Tick(0.08F, 1.5F, -0.1F, -0.1F),
-                        new Tick(0.12F, 1.4F, -0.4F, -0.4F),
-                        new Tick(0.16F, 1.05F, -0.7F, -0.8F) },
-                new Tick[] { /* SWING_UP_FORWARD */
-                        new Tick(0.04F,  -0.8F,-0.6F, -2F),
-                        new Tick(0.08F,  -0.2F,-0.85F, -1.5F),
-                        new Tick(0.12F,  0.4F,-0.85F, -1F),
-                        new Tick(0.16F,  1.05F,-0.7F, -0.5F) },
-                new Tick[] { /* SWING_UP_BACKWARD */
-                        new Tick(0.04F,  1.05F,-0.7F, -0.5F),
-                        new Tick(0.08F,  0.4F,-0.85F, -1F),
-                        new Tick(0.12F,  -0.2F,-0.85F, -1.5F),
-                        new Tick(0.16F,  -0.8F,-0.6F, -2F) },
-                null /* SWING_DOWN_FORWARD */,
-                null /* SWING_DOWN_FORWARD */,
-                null /* SWING_LUNGE */ ,
-                null /* SWING_LUNGE_UNTERHAU */
-        };
-
-        swingJourneys[4] = new Tick[swingJourneys[2].length];
-        for (int i = 0; i < swingJourneys[4].length; i++)
-            swingJourneys[4][i] = swingJourneys[2][i].getMirrorCopy(false, true);
-        swingJourneys[5] = new Tick[swingJourneys[3].length];
-        for (int i = 0; i < swingJourneys[5].length; i++)
-            swingJourneys[5][i] = swingJourneys[3][i].getMirrorCopy(false, true);
-
-        swingJourneys[6] = new Tick[swingJourneys[2].length + swingJourneys[0].length];
-        for (int i = 0; i < swingJourneys[2].length; i++)
-            swingJourneys[6][i] = swingJourneys[2][i].getTimeModdedCopy(0, 0.75F);
-        float timeAdd_6 = swingJourneys[2][swingJourneys[2].length - 1].totalSec;
-        for (int i = swingJourneys[2].length; i < swingJourneys[6].length; i++)
-            swingJourneys[6][i] = swingJourneys[0][i - swingJourneys[2].length].getTimeModdedCopy(timeAdd_6, 0.75F);
-        swingJourneys[7] = new Tick[swingJourneys[4].length + swingJourneys[1].length];
-        for (int i = 0; i < swingJourneys[4].length; i++)
-            swingJourneys[7][i] = swingJourneys[4][i].getTimeModdedCopy(0, 0.75F);
-        float timeAdd_7 = swingJourneys[4][swingJourneys[4].length - 1].totalSec;
-        for (int i = swingJourneys[4].length; i < swingJourneys[7].length; i++)
-            swingJourneys[7][i] = swingJourneys[1][i - swingJourneys[4].length].getTimeModdedCopy(timeAdd_7, 0.75F);
-    }
-
-    private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
-    private Tick[][] thrustJourneys, stabJourneys, swingJourneys;
-
-    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
 
     @Override
     void setup()

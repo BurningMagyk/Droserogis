@@ -30,12 +30,46 @@ public abstract class Weapon extends Item
     private Orient defaultOrient = getDefaultOrient();
     private Orient orient = defaultOrient.copy();
 
-    public void test() { Print.yellow("orient: " + orient.theta); }
-
     Actor actor;
     private boolean ballistic = true;
     private LinkedList<Command> commandQueue = new LinkedList<>();
     Operation currentOp;
+
+    /*=======================================================================*/
+    /* Variables that are set by the weapon's stats                          */
+    /*=======================================================================*/
+    private WeaponStat weaponStat;
+    /* Minimum damage grade needed to disrupt this weapon in a clash */
+    private GradeEnum disruptThresh;
+
+    /* Percentage of condition time that gets applied to the wielder by ConditionApp */
+    private float conditionMod = 1;
+
+    /* Damage rating that attacks do */
+    GradeEnum[] damages;
+
+    /* How far the attacks throw/fire */
+    float[] ranges;
+
+    /* Speed during execution */
+    float[] speeds;
+
+    /* Speed needed to make a critical hit */
+    float[] critThreshSpeeds;
+
+    /* Speeds during warmup and cooldown */
+    Vec2[] waits;
+
+    //Weapon(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
+    Weapon(float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
+    {
+        super(xPos, yPos, width, height, mass, spritePaths);
+
+        for (int i = 0; i < shapeCorners_Rotated.length; i++)
+        { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
+    }
+
+    public void test() { Print.yellow("orient: " + orient.theta); }
 
     @Override
     public Color getColor()
@@ -52,15 +86,6 @@ public abstract class Weapon extends Item
     }
 
     abstract Orient getDefaultOrient();
-    Weapon(WeaponStat weaponStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
-    {
-        super(xPos, yPos, width, height, mass, spritePaths);
-
-        this.weaponStat = weaponStat;
-
-        for (int i = 0; i < shapeCorners_Rotated.length; i++)
-        { shapeCorners_Rotated[i] = shapeCorners_notRotated[i].clone(); }
-    }
 
     private void runCurrentOp(float deltaSec)
     {
@@ -248,11 +273,25 @@ public abstract class Weapon extends Item
         setPosition(x,y);
     }
 
-    public Weapon equip(Actor actor, CharacterStat charStat)
+    public Weapon equip(Actor actor)
     {
         setTheta(defaultOrient.getTheta(), actor.getWeaponFace());
         orient.set(defaultOrient.copy());
-        setWeaponStats(charStat);
+        //setWeaponStats(charStat);
+
+        CharacterStat charStat = actor.getCharacterStat();
+        weaponStat.setCharStat(charStat);
+
+        disruptThresh = weaponStat.disruptThresh();
+        conditionMod = weaponStat.conditionMod();
+        damages = weaponStat.damages();
+        ranges = weaponStat.ranges();
+        speeds = weaponStat.speeds();
+        critThreshSpeeds = weaponStat.critThreshSpeeds();
+        waits = weaponStat.waits();
+
+        setup();
+
         this.actor = actor;
         ballistic = false;
         moveToParent();
@@ -1135,49 +1174,24 @@ public abstract class Weapon extends Item
         inflictions.add(infliction);
     }
 
-    /*=======================================================================*/
-    /* Variables that are set by the weapon's stats                          */
-    /*=======================================================================*/
-
-    /* Minimum damage grade needed to disrupt this weapon in a clash */
-    private GradeEnum disruptThresh;
-
-    /* Percentage of condition time that gets applied to the wielder by ConditionApp */
-    private float conditionMod = 1;
-
-    /* Damage rating that attacks do */
-    GradeEnum[] damages;
-
-    /* How far the attacks throw/fire */
-    float[] ranges;
-
-    /* Speed during execution */
-    float[] speeds;
-
-    /* Speed needed to make a critical hit */
-    float[] critThreshSpeeds;
-
-    /* Speeds during warmup and cooldown */
-    Vec2[] waits;
-
-    public void setWeaponStats(CharacterStat charStat)
+    public void setWeaponStats(WeaponStat weaponStat)
+    //public void setWeaponStats(WeaponStat weaponStat, CharacterStat charStat)
     {
-        weaponStat.setCharStat(charStat);
+        this.weaponStat = weaponStat;
+        //weaponStat.setCharStat(charStat);
 
-        disruptThresh = weaponStat.disruptThresh();
-        conditionMod = weaponStat.conditionMod();
-        damages = weaponStat.damages();
-        ranges = weaponStat.ranges();
-        speeds = weaponStat.speeds();
-        critThreshSpeeds = weaponStat.critThreshSpeeds();
-        waits = weaponStat.waits();
-
-        setup();
+        //disruptThresh = weaponStat.disruptThresh();
+        //conditionMod = weaponStat.conditionMod();
+        //damages = weaponStat.damages();
+        //ranges = weaponStat.ranges();
+        //speeds = weaponStat.speeds();
+        //critThreshSpeeds = weaponStat.critThreshSpeeds();
+        //waits = weaponStat.waits();
+//
+        //setup();
     }
 
     abstract void setup();
-
-    private WeaponStat weaponStat;
 
     /*
      * (If two actors are equally powered)

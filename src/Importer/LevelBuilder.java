@@ -1,16 +1,21 @@
 package Importer;
-import Gameplay.CameraZone;
-import Gameplay.Characters.CharacterStat;
-import Gameplay.Entity;
-import Gameplay.Block;
+
 import Gameplay.Actor;
-import Gameplay.Item;
+import Gameplay.Block;
+import Gameplay.CameraZone;
+import Gameplay.Entity;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
-import Gameplay.Weapons.WeaponStat;
 import Util.Vec2;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.beans.Observable;
@@ -18,6 +23,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -34,14 +40,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-
 
 public class LevelBuilder  extends Application
 {
@@ -53,8 +51,7 @@ public class LevelBuilder  extends Application
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
-    private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
-    //private ArrayList<Entity> entityList = new ArrayList<>();
+
     private EntityCollection<Entity> entityList = new EntityCollection();
     private float lastMouseX, lastMouseY;
     private float mouseDownX, mouseDownY;
@@ -66,10 +63,10 @@ public class LevelBuilder  extends Application
     private int offsetY=0;
     private float zoomFactor = 1.0f;
 
-    private static float scale = 1f/50f;
-
+    private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
+
     private MenuItem menuItemAddCameraZone;
 
     private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
@@ -93,10 +90,20 @@ public class LevelBuilder  extends Application
         menuMaterial = new ContextMenu();
         menuCameraZoom = new ContextMenu();
 
+        Menu menuAddPlayer = new Menu("Add Player");
+        menuAddPlayer.setOnAction(this::menuEvent);
+        menuEntity.getItems().add(menuAddPlayer);
+        for (Actor.EnumType actorType : Actor.EnumType.values()) {
+            MenuItem item = new MenuItem(actorType.name());
+            menuAddPlayer.getItems().add(item);
+            item.setOnAction(this::menuEvent);
+        }
 
-        menuItemAddCameraZone = new MenuItem("Add Camera Zone");
-        menuItemAddCameraZone.setOnAction(this::menuEvent);
-        menuEntity.getItems().add(menuItemAddCameraZone);
+        Menu menuAddMonster = new Menu("Add Monster");
+        menuAddMonster.setOnAction(this::menuEvent);
+        menuEntity.getItems().add(menuAddMonster);
+        menuAddMonster.setDisable(true);
+
 
         menuEntity.getItems().add(new SeparatorMenuItem());
         for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
@@ -104,6 +111,10 @@ public class LevelBuilder  extends Application
             menuEntity.getItems().add(item);
             item.setOnAction(this::menuEvent);
         }
+        menuEntity.getItems().add(new SeparatorMenuItem());
+        menuItemAddCameraZone = new MenuItem("Add Camera Zone");
+        menuItemAddCameraZone.setOnAction(this::menuEvent);
+        menuEntity.getItems().add(menuItemAddCameraZone);
 
         ToggleGroup toggleGroupZoomLevel = new ToggleGroup();
         int idx = 0;
@@ -251,21 +262,25 @@ public class LevelBuilder  extends Application
         for(int i = entityList.size() - 1; i >= 0; i--)
         {
             Entity entity = entityList.get(i);
-            if (entity instanceof Weapon)
+
+            if (!(entity instanceof Weapon) && !(entity instanceof Actor))
             {
-                if (((Weapon)entity).getActor() != null) continue;
-            }
-            int vertexIdx = entity.getVertexNear(x, y);
-            if (vertexIdx >= 0)
-            {
-                if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
-                selectedVertexIdx = vertexIdx;
-                selectedEntity = entity;
-                break;
+                int vertexIdx = entity.getVertexNear(x, y);
+                if (vertexIdx >= 0)
+                {
+                    if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
+                    selectedVertexIdx = vertexIdx;
+                    selectedEntity = entity;
+                    break;
+                }
             }
 
-            else if (entity.isInside(x, y))
+            if (entity.isInside(x, y))
             {
+                if (entity instanceof Weapon)
+                {
+                    if (((Weapon)entity).getActor() != null) continue;
+                }
                 if (lastSelectedEntity == null || lastSelectedVertexIdx > 0) scene.setCursor(Cursor.HAND);
                 selectedVertexIdx = -1;
                 selectedEntity = entity;
@@ -421,6 +436,7 @@ public class LevelBuilder  extends Application
                 unselect();
             }
         }
+
         else if (item == menuItemWater)
         {
             if ((selectedEntity != null) && (selectedEntity instanceof Block))
@@ -429,11 +445,13 @@ public class LevelBuilder  extends Application
                 unselect();
             }
         }
+
         else if ((item == menuItemDeleteEntity) || (item == menuItemDeleteCameraZone))
         {
             if (selectedEntity != null) entityList.remove(selectedEntity);
             unselect();
         }
+
         else if (item == menuItemAddCameraZone)
         {
             CameraZone zone = new CameraZone(x, y, 500, 300, 100);
@@ -443,18 +461,42 @@ public class LevelBuilder  extends Application
 
         else //check if selected menu item is add entity or modify camera zone
         {
-            boolean addedBlock = false;
+            boolean addedEntity = false;
             for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
             {
                 if (text.endsWith(shape.getText()))
                 {
                     Block block = new Block(x, y, 100, 100, shape, null);
                     entityList.add(block);
-                    addedBlock = true;
+                    addedEntity = true;
                     break;
                 }
             }
-            if ((!addedBlock) && selectedEntity instanceof CameraZone)
+            if (!addedEntity)
+            {
+                for (Actor.EnumType actorType : Actor.EnumType.values())
+                {
+                    //System.out.println("    test=["+text +"]      actorType.name()=["+actorType.name()+"]");
+                    if (text.equals(actorType.name()))
+                    {
+                        //System.out.println("    New Actor at: "+x +", "+y);
+                        Actor actor = new Actor(x, y, actorType);
+                        actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+                        actor.setPosition(x, y);
+
+                        Sword sword = new Sword(x, y);
+                        sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+                        sword.setPosition(x, y);
+                        actor.equip(sword);
+
+                        entityList.add(actor);
+                        entityList.add(sword);
+                        addedEntity = true;
+                        break;
+                    }
+                }
+            }
+            if ((!addedEntity) && selectedEntity instanceof CameraZone)
             {
                 if (text.startsWith("Camera Zone"))
                 {
@@ -538,33 +580,6 @@ public class LevelBuilder  extends Application
     }
 
 
-    private static Actor createPlayer(float x, float y, float width, float height, float mass)
-    {
-        CharacterStat player1Stat = new CharacterStat(
-                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-        WeaponStat player1NaturalStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        Actor player = new Actor(player1Stat, player1NaturalStat,x, y, width, height, mass, null); //SPRITES
-        return player;
-    }
-
-
-
-    private static Sword createSword(float x, float y, float width, float height, float mass)
-    {
-        WeaponStat swordStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
-        Sword sword = new Sword(swordStat,x, y, width, height, mass, null);
-        return sword;
-    }
-
 
     //============================================================================================
     //                               saveFile()
@@ -585,29 +600,29 @@ public class LevelBuilder  extends Application
 
         try
         {
-            writer.write("Type,CenterX,CenterY,Width,Height,Liquid / Mass / Zoom,parent\n");
+            writer.write("Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom\n");
             for (Entity entity : entityList)
             {
                 int x = Math.round(entity.getX());
                 int y = Math.round(entity.getY());
                 int w = Math.round(entity.getWidth());
                 int h = Math.round(entity.getHeight());
-                String stats = x + "," + y + "," + w + "," + h;
+                String stats = x + "," + y;
                 String type = "";
                 if (entity instanceof Block)
                 {
                     type = entity.getShape().toString();
-                    stats += ","+((Block)entity).isLiquid();
+                    stats += "," + w + "," + h + ","+((Block)entity).isLiquid();
                 }
                 else if (entity instanceof CameraZone)
                 {
                     type =  "CameraZone";
-                    stats += ","+((CameraZone)entity).getZoom();
+                    stats += "," + w + "," + h + ","+((CameraZone)entity).getZoom();
                 }
                 else if (entity instanceof Actor)
                 {
                     type =  "Player";
-                    stats += ","+((Actor)entity).getMass();
+                    stats += ","+((Actor)entity).getActorType();
                 }
                 else if (entity instanceof Sword)
                 {
@@ -623,7 +638,7 @@ public class LevelBuilder  extends Application
                             break;
                         }
                     }
-                    stats += ","+sword.getMass() + ","+playerIdx;
+                    stats += "," + playerIdx;
                 }
                 writer.write(type+","+stats+"\n");
             }
@@ -649,9 +664,9 @@ public class LevelBuilder  extends Application
     private void loadFile()
     {
         System.out.println("LevelBuilder.loadFile()");
-        scale = 1;
 
         String path = fileChooserOpenGetPath();
+        if (path == null) return;
         entityList = loadLevel(path);
 
         //Center the view of all entities
@@ -662,6 +677,9 @@ public class LevelBuilder  extends Application
 
         for (Entity entity : entityList)
         {
+            entity.setSize(entity.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, entity.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+            entity.setPosition(entity.getX()/Entity.SPRITE_TO_WORLD_SCALE, entity.getY()/Entity.SPRITE_TO_WORLD_SCALE);
+
             if (entity.getLeftEdge() < minX) minX = (int)entity.getLeftEdge();
             if (entity.getTopEdge()  < minY) minY = (int)entity.getTopEdge();
             if (entity.getRightEdge()  > maxX) maxX = (int)entity.getRightEdge();
@@ -673,10 +691,10 @@ public class LevelBuilder  extends Application
         offsetX=(width+maxX+minX)/2;
         offsetY=(height+maxY+minY)/2;
 
-        System.out.println("     X:["+minX + " -> " + maxX + "]");
-        System.out.println("     Y:["+minY + " -> " + maxY + "]");
+        if (DEBUG) System.out.println("     X:["+minX + " -> " + maxX + "]");
+        if (DEBUG) System.out.println("     Y:["+minY + " -> " + maxY + "]");
 
-        System.out.println("     offset: " + offsetX + ", " + offsetY);
+        if (DEBUG) System.out.println("     offset: " + offsetX + ", " + offsetY);
 
         renderAll();
 
@@ -698,41 +716,62 @@ public class LevelBuilder  extends Application
             while (line != null) {
                 String[] data = line.split(",");
 
-                if (data.length < 6)
+                if (data.length < 4)
                 {
                     System.out.println("Error Reading Line: ["+line+"]");
-                    throw new IOException("each record must have at least 6 fields");
+                    throw new IOException("Each record must have at least 4 fields.");
                 }
 
                 Entity entity = null;
-                float x = (Float.valueOf(data[1]))*scale;
-                float y = (Float.valueOf(data[2]))*scale;
-                float width = Float.valueOf(data[3])*scale;
-                float height = Float.valueOf(data[4])*scale;
+                float x = (Float.valueOf(data[1]))*Entity.SPRITE_TO_WORLD_SCALE;
+                float y = (Float.valueOf(data[2]))*Entity.SPRITE_TO_WORLD_SCALE;
 
                 if (data[0].equals("CameraZone"))
                 {
+                    if (data.length != 6)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("CameraZone record must have 6 fields.");
+                    }
+                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     float zoom = Float.valueOf(data[5]);
                     entity = new CameraZone(x, y, width, height, zoom);
                 }
                 else if (data[0].equals("Player"))
                 {
-                    float mass = Float.valueOf(data[5]);
-                    entity = createPlayer(x, y, width, height, mass);
+                    if (data.length != 4)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("Player record must have 4 fields.");
+                    }
+                    Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
+                    entity = new Actor(x, y, actorType);
                 }
                 else if (data[0].equals("Sword"))
                 {
-                    float mass = Float.valueOf(data[5]);
-                    int parent = Integer.valueOf(data[6]);
-                    entity = createSword(x, y, width, height, mass);
+                    if (data.length != 4)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("Weapon record must have 4 fields.");
+                    }
+                    int parent = Integer.valueOf(data[3]);
+                    entity = new Sword(x, y);
                     if (parent >= 0)
                     {
-                        entityList.getPlayer(parent).equip((Weapon)entity);
+                        entityList.getPlayer(parent).equip((Sword)entity);
                     }
                 }
                 else {
-                    boolean isLiquid = Boolean.valueOf(data[1]);
+                    if (data.length != 6)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("Block record must have 5 fields.");
+                    }
+                    boolean isLiquid = Boolean.valueOf(data[5]);
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, shape, null);
                     ((Block)entity).setLiquid(isLiquid);
                 }

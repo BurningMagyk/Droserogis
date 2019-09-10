@@ -1,11 +1,11 @@
-Type,CenterX,CenterY,Width,Height,Liquid / Mass / Zoom,parent
-RECTANGLE,0,140,2370,110,false
-RECTANGLE,-90,0,50,170,false
-TRIANGLE_UP_R,290,-55,610,280,false
-RECTANGLE,-40,-55,50,280,false
-RECTANGLE,1170,40,30,90,false
-RECTANGLE,-800,85,70,20,false
-Player,-250,-150,20,40,1.0
-Player,-300,-250,18,35,1.0
-Sword,0,-200,23,4,0.1,0
-Sword,-50,-200,23,4,0.1,1
+Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom
+RECTANGLE,25,145,2370,110,false
+RECTANGLE,-85,5,50,170,false
+TRIANGLE_UP_R,295,-50,610,280,false
+RECTANGLE,-35,-50,50,280,false
+RECTANGLE,1195,45,30,90,false
+RECTANGLE,-795,80,70,20,false
+Player,-250,-150,Igon
+Player,-300,-250,Zuzen
+Sword,-250,-158,0
+Sword,-300,-257,1

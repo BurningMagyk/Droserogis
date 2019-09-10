@@ -5,7 +5,6 @@ import Gameplay.Weapons.*;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -23,6 +22,84 @@ import java.util.ArrayList;
  */
 public class Actor extends Item
 {
+    public enum EnumType
+    {
+        Igon
+                {
+                    public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
+                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
+                    public float mass() {return 1;}
+                    public String[] spritePaths() {return null;}
+                    public CharacterStat createPlayerStat()
+                    {
+                        return new CharacterStat(
+                                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+                    }
+                    public WeaponStat createNaturalWeaponStat()
+                    {
+                        return new WeaponStat("C",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                    }
+                    public float naturalWeaponMass() {return mass() * 0.1f;}
+                },
+        Lyra
+                {
+                    public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
+                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
+                    public float mass() {return 1;}
+                    public String[] spritePaths() {return null;}
+                    public CharacterStat createPlayerStat()
+                    {
+                        return new CharacterStat(
+                                "D-", "D", "B-", "C", "D+", "E", "C-", "C+", "C+", "D", "A-");
+                    }
+                    public WeaponStat createNaturalWeaponStat()
+                    {
+                        return new WeaponStat("C",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                    }
+                    public float naturalWeaponMass() {return mass() * 0.1f;}
+                },
+        Zuzen
+                {
+                    public float width()  {return 18 * SPRITE_TO_WORLD_SCALE;}
+                    public float height() {return 35 * SPRITE_TO_WORLD_SCALE;}
+                    public float mass() {return 0.79f;}
+                    public String[] spritePaths() {return null;}
+                    public CharacterStat createPlayerStat()
+                    {
+                        return new CharacterStat(
+                                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
+                    }
+                    public WeaponStat createNaturalWeaponStat()
+                    {
+                        return new WeaponStat("C",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
+                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                    }
+                    public float naturalWeaponMass() {return mass() * 0.1f;}
+                };
+
+
+        public abstract float width();
+        public abstract float height();
+        public abstract float mass();
+        public abstract String[] spritePaths();
+        public abstract CharacterStat createPlayerStat();
+        public abstract WeaponStat createNaturalWeaponStat();
+        public abstract float naturalWeaponMass();
+    }
+
+    private EnumType actorType;
+
     private final float
             NORMAL_GRAVITY = gravity,
             REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
@@ -30,6 +107,8 @@ public class Actor extends Item
             GREATER_GRAVITY = NORMAL_GRAVITY / 0.5F;
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
+
+    private CharacterStat charStat;
 
     // TODO: these values need to be balanced for MVP
     private float[] STAGGER_MAG_MOD = new float[] { 1.25F, 1.5F, 1.75F };
@@ -62,6 +141,25 @@ public class Actor extends Item
     public Weapon[] weapons = new Weapon[2];
     private float[] conditions = new float[Condition.values().length];
 
+
+    public Actor(float xPos, float yPos, EnumType type)
+    {
+        super(xPos, yPos, type.width(), type.height(), type.mass(), type.spritePaths());
+
+        ORIGINAL_WIDTH = type.width();
+        ORIGINAL_HEIGHT = type.height();
+
+        this.actorType = type;
+        this.charStat = type.createPlayerStat();
+        System.out.println("Actor("+type+")"+this.charStat);
+        setCharacterStats();
+
+        //weapons[0] = new Natural(type.createNaturalWeaponStat(), charStat, xPos, yPos, 0.2F, 0.1F, type.mass() * 0.1F, this, null);
+        weapons[0] = new Natural(this, xPos, yPos);
+    }
+
+    public EnumType getActorType() { return actorType;}
+
     @Override
     public Color getColor()
     {
@@ -73,23 +171,12 @@ public class Actor extends Item
         return Color.CORNFLOWERBLUE;*/
     }
 
-    public Actor(CharacterStat charStat, WeaponStat naturalStat, float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
-    {
-        super(xPos, yPos, width, height, mass, spritePaths);
-
-        ORIGINAL_WIDTH = width;
-        ORIGINAL_HEIGHT = height;
-
-        this.charStat = charStat;
-        setCharacterStats();
-
-        weapons[0] = new Natural(naturalStat, charStat, xPos, yPos, 0.2F, 0.1F, mass * 0.1F, this, null);
-    }
-
     public Weapon[] getWeapons()
     {
         return weapons;
     }
+
+    public CharacterStat getCharacterStat() { return charStat;}
 
     protected void update(EntityCollection<Entity> entities, float deltaSec)
     {
@@ -878,7 +965,7 @@ public class Actor extends Item
 
     public void equip(Weapon weapon)
     {
-        weapons[1] = weapon.equip(this, charStat);
+        weapons[1] = weapon.equip(this);
     }
 
     //===============================================================================================================
@@ -1478,6 +1565,4 @@ public class Actor extends Item
 
         maxCommandChain = charStat.maxCommandChain();
     }
-
-    private CharacterStat charStat;
 }

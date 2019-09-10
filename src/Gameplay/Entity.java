@@ -12,6 +12,8 @@ import static Menus.Main.IMPORTER;
 
 abstract public class Entity
 {
+    public static final float SPRITE_TO_WORLD_SCALE = 1f/50f;
+
     static final int UP = 0;
     static final int RIGHT = 1;
     static final int DOWN = 2;
