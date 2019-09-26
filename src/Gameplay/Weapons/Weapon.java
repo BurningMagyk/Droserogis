@@ -108,7 +108,7 @@ public abstract class Weapon extends Item
                 if (currentOp != null)
                 {
                     currentOp.start();
-                    runCurrentOp(deltaSec);
+                    if (!(currentOp instanceof HoldableMelee)) runCurrentOp(deltaSec);
                 }
             }
         }

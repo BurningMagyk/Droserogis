@@ -1363,6 +1363,7 @@ public class Actor extends Item
     public void inflict(Infliction infliction)
     {
         inflictions.add(infliction);
+        Print.yellow("Actor: " + infliction + " added");
     }
 
     boolean setTriggered(boolean triggered)
