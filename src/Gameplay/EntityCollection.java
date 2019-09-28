@@ -100,6 +100,7 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
             //System.out.print("Actor");
             playerList.add((Actor) entity);
             dynamicItems.add((Actor) entity);
+            add((Entity) ((Actor) entity).getWeapons()[0]);
             physicsItems.add(entity);
         }
         else if (entity instanceof Item)

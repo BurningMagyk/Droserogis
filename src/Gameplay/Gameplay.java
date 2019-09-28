@@ -2,6 +2,7 @@ package Gameplay;
 
 import Gameplay.Characters.CharacterStat;
 import Gameplay.Block;
+import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
 import Gameplay.Weapons.WeaponStat;
