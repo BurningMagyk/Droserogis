@@ -321,8 +321,8 @@ public class Gameplay implements Reactor
         else cameraPosX += (posX - cameraPosX) * _camPosLerp;
         if (updateVert)
         {
-            if (Math.abs(cameraPosY - posY) < _camPosLerp / 10) cameraPosY = posY;
-            else cameraPosY += (posY - cameraPosY) * _camPosLerp;
+            if (Math.abs(cameraPosY - posY) < _camPosLerp / 5) cameraPosY = posY;
+            else cameraPosY += (posY - cameraPosY) * _camPosLerp * 2;
         }
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
