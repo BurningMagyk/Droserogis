@@ -374,7 +374,7 @@ public class Actor extends Item
                     {
                         if (canJump()) {
                             addVelocityX(jumpVel * 0.70712F); // sin(45)
-                            addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                            addToVelocityY(-jumpVel * 0.70712F, 2,false); // cos(45)
                             fromWall = true;
                         }
                         pressedJumpTime = 0F;
@@ -383,7 +383,7 @@ public class Actor extends Item
                     {
                         if (canJump()) {
                             addVelocityX(jumpVel * 0.34202F); // sin(20)
-                            addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                            addToVelocityY(-jumpVel * 0.93969F, 2,false); // cos(20)
                             fromWall = true;
                         }
                         pressedJumpTime = 0F;
@@ -405,7 +405,7 @@ public class Actor extends Item
                     {
                         if (canJump()) {
                             addVelocityX(-jumpVel * 0.70712F); // sin(45)
-                            addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                            addToVelocityY(-jumpVel * 0.70712F, 2,false); // cos(45)
                             fromWall = true;
                         }
                         pressedJumpTime = 0F;
@@ -414,7 +414,7 @@ public class Actor extends Item
                     {
                         if (canJump()) {
                             addVelocityX(-jumpVel * 0.34202F); // sin(20)
-                            addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                            addToVelocityY(-jumpVel * 0.93969F, 2,false); // cos(20)
                             fromWall = true;
                         }
                         pressedJumpTime = 0F;

@@ -216,6 +216,14 @@ abstract public class Entity
     void addVelocity(float x, float y) { velocity.add(new Vec2(x, y)); }
     void addVelocityX(float x) { velocity.x += x; }
     void addVelocityY(float y) { velocity.y += y; }
+    void addToVelocityY(float y, int allow, boolean positive)
+    {
+        if (positive && y * allow > velocity.y)
+            velocity.y = Math.min(y * allow, velocity.y + y);
+        else if (!positive && y * allow < velocity.y)
+            velocity.y = Math.max(y * allow, velocity.y + y);
+        else velocity.y += y;
+    }
 
     Vec2 getAcceleration() {return new Vec2(acceleration);}
     float getAccelerationX() {return acceleration.x;}
