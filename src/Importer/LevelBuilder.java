@@ -47,7 +47,7 @@ public class LevelBuilder  extends Application
     private static final float ZOOM_MIN = 0.4f;
     private static final float ZOOM_MAX = 2.5f;
 
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private Scene scene;
     private Canvas canvas;
     private GraphicsContext gtx;
@@ -551,6 +551,7 @@ public class LevelBuilder  extends Application
     }
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
+        if (block instanceof Natural) return;
         if (block == selectedEntity)
         {
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
@@ -592,7 +593,7 @@ public class LevelBuilder  extends Application
     //============================================================================================
     private void saveFile()
     {
-        System.out.println("LevelBuilder.saveFile()");
+        System.out.println("LevelBuilder.saveFile()!");
         BufferedWriter writer = fileChooserWrite();
         if (writer == null) return;
 
@@ -603,6 +604,8 @@ public class LevelBuilder  extends Application
             writer.write("Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom\n");
             for (Entity entity : entityList)
             {
+                if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
+                if (entity instanceof Natural) continue;
                 int x = Math.round(entity.getX());
                 int y = Math.round(entity.getY());
                 int w = Math.round(entity.getWidth());
@@ -639,6 +642,12 @@ public class LevelBuilder  extends Application
                         }
                     }
                     stats += "," + playerIdx;
+                }
+                else
+                {
+                    System.out.println("************ERROR**************");
+                    System.out.println("     LevelBuilder attempting to save file with unknown type:");
+                    System.out.println("     "+entity);
                 }
                 writer.write(type+","+stats+"\n");
             }

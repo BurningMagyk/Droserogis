@@ -127,10 +127,13 @@ public class Actor extends Item
 
     private class PrevGround
     {
-        Entity ground = null; float xPos;
-        float getTopEdge() { return ground.getTopEdge(xPos); }
+        Entity ground = null; float pos;
+        float getTopEdge() { return ground.getTopEdge(pos); }
     }
     private PrevGround prevGround = new PrevGround();
+
+    private boolean fromWall = false;
+    private float fromGround = getY();
 
     private boolean
             pressingLeft = false, pressingRight = false,
@@ -313,7 +316,7 @@ public class Actor extends Item
             }
 
             /* Going up stairs */
-            float stairTopEdge = touchEntity[DOWN].getTopEdge(prevGround.xPos);
+            float stairTopEdge = touchEntity[DOWN].getTopEdge(prevGround.pos);
             if (prevGround.ground != null && prevGround.ground != touchEntity[DOWN]
                     && prevGround.getTopEdge() > stairTopEdge)
             {
@@ -328,6 +331,9 @@ public class Actor extends Item
                 }
                 else addCondition(stairRecoverTime[2], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT, Condition.FORCE_CROUCH);
             }
+
+            fromWall = false;
+            fromGround = getY();
 
             if (pressedJumpTime > 0)
             {
@@ -369,6 +375,7 @@ public class Actor extends Item
                         if (canJump()) {
                             addVelocityX(jumpVel * 0.70712F); // sin(45)
                             addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                            fromWall = true;
                         }
                         pressedJumpTime = 0F;
                     }
@@ -377,12 +384,17 @@ public class Actor extends Item
                         if (canJump()) {
                             addVelocityX(jumpVel * 0.34202F); // sin(20)
                             addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                            fromWall = true;
                         }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == DOWN)
                     {
-                        if (canJump()) addVelocityX(jumpVel);
+                        if (canJump())
+                        {
+                            addVelocityX(jumpVel);
+                            fromWall = true;
+                        }
                         pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[LEFT];
@@ -394,6 +406,7 @@ public class Actor extends Item
                         if (canJump()) {
                             addVelocityX(-jumpVel * 0.70712F); // sin(45)
                             addVelocityY(-jumpVel * 0.70712F); // cos(45)
+                            fromWall = true;
                         }
                         pressedJumpTime = 0F;
                     }
@@ -402,12 +415,17 @@ public class Actor extends Item
                         if (canJump()) {
                             addVelocityX(-jumpVel * 0.34202F); // sin(20)
                             addVelocityY(-jumpVel * 0.93969F); // cos(20)
+                            fromWall = true;
                         }
                         pressedJumpTime = 0F;
                     }
                     else if (dirVert == DOWN)
                     {
-                        if (canJump()) addVelocityX(-jumpVel);
+                        if (canJump())
+                        {
+                            addVelocityX(-jumpVel);
+                            fromWall = true;
+                        }
                         pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[RIGHT];
@@ -501,7 +519,7 @@ public class Actor extends Item
         }
 
         prevGround.ground = touchEntity[DOWN];
-        prevGround.xPos = getX();
+        prevGround.pos = getX();
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)
@@ -1029,7 +1047,8 @@ public class Actor extends Item
 
     boolean shouldVertCam()
     {
-        return state.isGrounded() || state.isOnWall() || state == State.SWIM;
+        return state.isGrounded() || state.isOnWall() || state == State.SWIM
+                || fromWall || getY() - getHeight() > fromGround;
     }
 
     public int getSpeedRating()
@@ -1376,7 +1395,7 @@ public class Actor extends Item
     {
         private Entity entity;
         private Vec2 lateVel;
-        private float duration = 0.2F; // TODO: decide this value
+        private float duration = 0.15F; // TODO: decide this value
 
         LateSurface(Entity entity, Vec2 lateVel)
         {
