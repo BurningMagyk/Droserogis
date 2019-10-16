@@ -6,7 +6,7 @@ import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Natural;
-import Gameplay.Weapons.Sword;
+import Gameplay.Weapons.WeaponAttacks;
 import Gameplay.Weapons.Weapon;
 import Util.Vec2;
 
@@ -484,7 +484,7 @@ public class LevelBuilder  extends Application
                         actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         actor.setPosition(x, y);
 
-                        Sword sword = new Sword(x, y);
+                        WeaponAttacks sword = new WeaponAttacks(x, y);
                         sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         sword.setPosition(x, y);
                         actor.equip(sword);
@@ -627,10 +627,10 @@ public class LevelBuilder  extends Application
                     type =  "Player";
                     stats += ","+((Actor)entity).getActorType();
                 }
-                else if (entity instanceof Sword)
+                else if (entity instanceof WeaponAttacks)
                 {
-                    Sword sword = ((Sword)entity);
-                    type =  "Sword";
+                    WeaponAttacks sword = ((WeaponAttacks)entity);
+                    type =  "WeaponAttacks";
                     Actor actor = sword.getActor();
                     int playerIdx = -1;
                     for (int i=0; i<entityList.getPlayerCount(); i++)
@@ -757,7 +757,7 @@ public class LevelBuilder  extends Application
                     Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
                     entity = new Actor(x, y, actorType);
                 }
-                else if (data[0].equals("Sword"))
+                else if (data[0].equals("WeaponAttacks"))
                 {
                     if (data.length != 4)
                     {
@@ -765,10 +765,10 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    entity = new Sword(x, y);
+                    entity = new WeaponAttacks(x, y);
                     if (parent >= 0)
                     {
-                        entityList.getPlayer(parent).equip((Sword)entity);
+                        entityList.getPlayer(parent).equip((WeaponAttacks)entity);
                     }
                 }
                 else {

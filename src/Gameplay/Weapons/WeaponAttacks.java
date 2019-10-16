@@ -5,7 +5,7 @@ import Gameplay.DirEnum;
 import Util.GradeEnum;
 import Util.Vec2;
 
-public class Sword extends Weapon
+public class WeaponAttacks extends Weapon
 {
     private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
             THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
@@ -24,7 +24,7 @@ public class Sword extends Weapon
     private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
 
 
-    public Sword(float xPos, float yPos)
+    public WeaponAttacks(float xPos, float yPos)
     {
         //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
@@ -308,12 +308,12 @@ public class Sword extends Weapon
                 {
                     if (otherOp.isDisruptive())
                     {
-                        disrupt(damage);//Print.green("Sword: Interrupted us");
+                        disrupt(damage);//Print.green("WeaponAttacks: Interrupted us");
                         return true;
                     }
-                    else return false;//Print.green("Sword: Uninterrupted");
+                    else return false;//Print.green("WeaponAttacks: Uninterrupted");
                 }
-                else return false;//Print.green("Sword: Uninterrupted");
+                else return false;//Print.green("WeaponAttacks: Uninterrupted");
             }
             else // if (currentOp.isDisruptive())
             {
@@ -321,12 +321,12 @@ public class Sword extends Weapon
                 {
                     if (otherOp.isDisruptive())
                     {
-                        disrupt(damage);//Print.green("Sword: Interrupted us, interrupted them");
+                        disrupt(damage);//Print.green("WeaponAttacks: Interrupted us, interrupted them");
                         return true;
                     }
-                    else return false;//Print.green("Sword: Interrupted them");
+                    else return false;//Print.green("WeaponAttacks: Interrupted them");
                 }
-                else return false;//Print.green("Sword: Uninterrupted");
+                else return false;//Print.green("WeaponAttacks: Uninterrupted");
             }
         }
 

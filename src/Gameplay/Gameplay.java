@@ -1,31 +1,21 @@
 package Gameplay;
 
-import Gameplay.Characters.CharacterStat;
-import Gameplay.Block;
-import Gameplay.Weapons.Natural;
-import Gameplay.Weapons.Sword;
 import Gameplay.Weapons.Weapon;
-import Gameplay.Weapons.WeaponStat;
 import Importer.LevelBuilder;
 import Importer.ImageResource;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
-import Util.Print;
 import Util.Reactor;
 import Util.Vec2;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import org.lwjgl.glfw.GLFWGamepadState;
-
-import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
