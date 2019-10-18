@@ -1,0 +1,11 @@
+Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom
+RECTANGLE,25,145,2370,110,false
+RECTANGLE,-85,5,50,170,false
+TRIANGLE_UP_R,295,-50,610,280,false
+RECTANGLE,-35,-50,50,280,false
+RECTANGLE,1195,45,30,90,false
+RECTANGLE,-795,80,70,20,false
+Player,-250,-150,Igon
+Player,-300,-250,Zuzen
+WeaponAttacks,-250,-158,0
+WeaponAttacks,-300,-257,1
