@@ -11,5 +11,5 @@ RECTANGLE,-565,-475,30,150,false
 RECTANGLE,-415,-675,30,150,false
 Player,-250,-150,Igon
 Player,-300,-250,Zuzen
-Sword,-250,-158,0
-Sword,-300,-257,1
+WeaponAttacks,-250,-158,0
+WeaponAttacks,-300,-257,1
