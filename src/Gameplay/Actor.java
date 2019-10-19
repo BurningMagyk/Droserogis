@@ -29,7 +29,7 @@ public class Actor extends Item
                     public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
                     public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
                     public float mass() {return 1;}
-                    public String[] spritePaths() {return null;}
+                    public String[] spritePaths() {return new String[]{"super_neckbeard.png"};}
                     public CharacterStat createPlayerStat()
                     {
                         return new CharacterStat(

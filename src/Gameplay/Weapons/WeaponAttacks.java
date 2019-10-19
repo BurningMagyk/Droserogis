@@ -24,7 +24,7 @@ public class WeaponAttacks extends Weapon
     private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
 
 
-    public WeaponAttacks(float xPos, float yPos, WeaponTypeEnum[] weaponTraits)
+    public WeaponAttacks(float xPos, float yPos, WeaponTraitEnum[] weaponTraits)
     {
         //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
