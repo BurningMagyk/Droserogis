@@ -32,22 +32,50 @@ public enum WeaponTraitEnum
 
     static
     {
-        final WeaponTraitEnum[] SWORD = {
+        final WeaponTraitEnum[] _SWORD = {
                 WeaponTraitEnum.MORDHAU, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
                 WeaponTraitEnum.THROW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY };
-        final WeaponTraitEnum[] SHORT_SWORD = concatTraits(SWORD, WeaponTraitEnum.SWING);
-        final WeaponTraitEnum[] LONG_SWORD = concatTraits(SWORD, WeaponTraitEnum.SWING);
-        final WeaponTraitEnum[] GREATSWORD = concatTraits(SWORD, WeaponTraitEnum.SWING);
-        final WeaponTraitEnum[] SCIMITAR = concatTraits(SWORD, WeaponTraitEnum.SWING);
-        final WeaponTraitEnum[] RAPIER = concatTraits(SWORD, WeaponTraitEnum.QUICK, WeaponTraitEnum.THRUST,
+        final WeaponTraitEnum[] SHORT_SWORD = concatTraits(_SWORD, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] LONG_SWORD = concatTraits(_SWORD, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] GREATSWORD = concatTraits(_SWORD, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] SCIMITAR = concatTraits(_SWORD, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] RAPIER = concatTraits(_SWORD, WeaponTraitEnum.QUICK, WeaponTraitEnum.THRUST,
                 WeaponTraitEnum.QUICK, WeaponTraitEnum.STAB);
 
-        final WeaponTraitEnum[] DAGGER = { WeaponTraitEnum.THROW };
+        final WeaponTraitEnum[] _DAGGER = { WeaponTraitEnum.THROW };
+        final WeaponTraitEnum[] DAGGER = concatTraits(_DAGGER, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB);
+        final WeaponTraitEnum[] KNIFE = concatTraits(_DAGGER, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB);
+        final WeaponTraitEnum[] THROWING_KNIFE = concatTraits(_DAGGER, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB);
+        final WeaponTraitEnum[] PARRYING_DAGGER = concatTraits(_DAGGER, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB, WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] SICKLE = concatTraits(_DAGGER, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] ROCK = concatTraits(_DAGGER, WeaponTraitEnum.SWING, WeaponTraitEnum.STAB);
 
-        final WeaponTraitEnum[] AXE = {
+        final WeaponTraitEnum[] _AXE = {
                 WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST, WeaponTraitEnum.THROW };
+        final WeaponTraitEnum[] BATTLEAXE = concatTraits(_AXE, WeaponTraitEnum.THROW, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] GREATAXE = concatTraits(_AXE, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] TROWING = concatTraits(_AXE);
+        final WeaponTraitEnum[] HATCHET = concatTraits(_AXE);
+        final WeaponTraitEnum[] PICKAXE = concatTraits(_AXE, WeaponTraitEnum.BLOCK);
 
-        final WeaponTraitEnum[] MACE = { WeaponTraitEnum.SWING };
+        final WeaponTraitEnum[] _MACE = { WeaponTraitEnum.SWING };
+        final WeaponTraitEnum[] MACE = concatTraits(_MACE, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
+                WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] FLAIL = concatTraits(_MACE, WeaponTraitEnum.INSTANT, WeaponTraitEnum.SWING);
+        final WeaponTraitEnum[] MORNING_STAR = concatTraits(_MACE, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
+                WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] SHOVEL = concatTraits(_MACE, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
+                WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] STICK = concatTraits(_MACE, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
+                WeaponTraitEnum.BLOCK);
+        final WeaponTraitEnum[] WHIP = concatTraits(_MACE, WeaponTraitEnum.GRAB);
+
+        final WeaponTraitEnum[] _POLEARM = {};
+        final WeaponTraitEnum[] SARISSA = concatTraits(_POLEARM, WeaponTraitEnum.THRUST, WeaponTraitEnum.BRACE);
 
         final WeaponTraitEnum[] BOW = { WeaponTraitEnum.SHOOT };
 
@@ -104,7 +132,6 @@ Bow - shoot
  Crossbow - block, load (permanent)
  Recurve bow - block, load
  Sling - load (permanent)
- Pebble
 
 Natural
  Fists - swing, thrust, block/parry, grab
