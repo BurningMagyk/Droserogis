@@ -117,7 +117,7 @@ public class Actor extends Item
     private int dirHoriz = -1;
     /* The horizontal direction that the player intends to face towards.
      * This does not need to keep track of vertical direction. */
-    private int dirFace = -1;
+    private int dirFace = RIGHT;
     /* The vertical direction that the player intents to move towards */
     private int dirVert = -1;
 
@@ -731,7 +731,7 @@ public class Actor extends Item
             if (state.isOnWall())
             {
                 if (pressingRight) dirFace = RIGHT;
-                else dirFace = -1;
+                else dirFace = LEFT;
             }
         }
         pressingLeft = pressed;
@@ -757,7 +757,7 @@ public class Actor extends Item
             if (state.isOnWall())
             {
                 if (pressingLeft) dirFace = LEFT;
-                else dirFace = -1;
+                else dirFace = RIGHT;
             }
         }
         pressingRight = pressed;
@@ -833,6 +833,11 @@ public class Actor extends Item
                 return DirEnum.get(RIGHT, dirVert);
             if (touchEntity[RIGHT] != null)
                 return DirEnum.get(LEFT, dirVert);
+            if (touchLateSurface[LEFT] != null)
+                return DirEnum.get(RIGHT, dirVert);
+            if (touchLateSurface[RIGHT] != null)
+                return DirEnum.get(LEFT, dirVert);
+
         }
         return DirEnum.get(dirFace < 0
                 ? dirHoriz : dirFace, dirVert);
