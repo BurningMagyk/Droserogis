@@ -7,8 +7,8 @@ public enum WeaponTraitEnum
     SWING,
     THRUST,
     STAB,
-    GRAB,
     BRACE,
+    GRAB,
 
     BLOCK,
     PARRY,

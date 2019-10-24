@@ -7,11 +7,20 @@ import Util.Vec2;
 
 public class WeaponAttacks extends Weapon
 {
-    private Operation THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
-            THRUST_DIAG_DOWN, THRUST_LUNGE, STAB, STAB_UNTERHAU, SWING,
-            SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD, SWING_UP_BACKWARD,
-            SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE,
-            SWING_LUNGE_UNTERHAU, THROW;
+    private Operation
+            THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
+            THRUST_DIAG_DOWN, THRUST_LUNGE,
+
+            STAB, STAB_UNTERHAU,
+
+            SWING, SWING_UNTERHAU, SWING_UNTERHAU_CROUCH,
+            SWING_UP_FORWARD, SWING_UP_BACKWARD,
+            SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
+            SWING_LUNGE, SWING_LUNGE_UNTERHAU,
+
+            BRACE, BRACE_UP, BRACE_UP_FORWARD,
+
+            LOAD, THROW, SHOOT;
 
     private static final String[] SPRITE_PATHS = null;
     private static final float SWORD_WIDTH = 23 * SPRITE_TO_WORLD_SCALE;
@@ -19,9 +28,9 @@ public class WeaponAttacks extends Weapon
     private static final float SWORD_MASS = 0.1f;
 
     private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
-    private Tick[][] thrustJourneys, stabJourneys, swingJourneys;
+    private Tick[][] thrustJourneys, stabJourneys, swingJourneys, braceJourneys;
 
-    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
+    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4, iBrace = 5;
 
 
     public WeaponAttacks(float xPos, float yPos, WeaponTraitEnum[] weaponTraits)
@@ -30,6 +39,7 @@ public class WeaponAttacks extends Weapon
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
 
         WeaponStat swordStat = new WeaponStat("C",
+                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
@@ -162,6 +172,18 @@ public class WeaponAttacks extends Weapon
         float timeAdd_7 = swingJourneys[4][swingJourneys[4].length - 1].totalSec;
         for (int i = swingJourneys[4].length; i < swingJourneys[7].length; i++)
             swingJourneys[7][i] = swingJourneys[1][i - swingJourneys[4].length].getTimeModdedCopy(timeAdd_7, 0.75F);
+
+        braceJourneys = new Tick[][] {
+                new Tick[] { /* BRACE */
+                        new Tick(0.06F, 0.8F, -0.2F, 0F),
+                        new Tick(0.10F, 1.4F, -0.2F, 0F) },
+                new Tick[] { /* BRACE_UP */
+                        new Tick(0.06F, 0.4F, -0.4F, (float) -Math.PI/2),
+                        new Tick(0.10F, 0.4F, -0.7F, (float) -Math.PI/2) },
+                new Tick[] { /* BRACE_DIAG_UP */
+                        new Tick(0.06F, 0.8F, -0.35F, (float) -Math.PI/4),
+                        new Tick(0.10F, 1.2F, -0.6F, (float) -Math.PI/4) }
+        };
     }
 
 
@@ -349,9 +371,6 @@ public class WeaponAttacks extends Weapon
     }
 
 
-
-
-
     @Override
     void setup()
     {
@@ -400,14 +419,22 @@ public class WeaponAttacks extends Weapon
                         damages[iStab], critThreshSpeeds[iStab],
                         false, false, statusAppCycle, null, execJourney); } }
 
-    /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
-       SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
+        /* SWING, SWING_UNTERHAU (+ _CROUCH), SWING_UP_FORWARD, SWING_UP_BACKWARD,
+           SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD, SWING_LUNGE, SWING_LUNGE_UNTERHAU, */
         class Swing extends Melee {
             Swing(Vec2 waits, DirEnum functionalDir, boolean lunge,
                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
                         damages[lunge ? iSwingLunge : iSwing], critThreshSpeeds[lunge ? iSwingLunge : iSwing],
                         true, true, statusAppCycle, null, execJourney); } }
+
+        /* BRACE, BRACE_UP, BRACE_DIAG_UP */
+        class Brace extends HoldableMelee {
+            Brace(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly,
+                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
+                super("brace", waits, functionalDir, useDirHorizFunctionaly, true, new int[]{DURING_COOLDOWN},
+                        damages[iThrust], critThreshSpeeds[iThrust],
+                        false, false, statusAppCycle, null, execJourney); } }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///                                                ATTACKS                                                  ///
@@ -432,6 +459,10 @@ public class WeaponAttacks extends Weapon
         SWING_DOWN_BACKWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[5]);
         SWING_LUNGE = new Swing(waits[iSwingLunge], DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
         SWING_LUNGE_UNTERHAU = new Swing(waits[iSwingLunge], DirEnum.UP, true, lungeCycle, swingJourneys[7]);
+
+        BRACE = new Brace(waits[iBrace], DirEnum.NONE, true, basicCycle, braceJourneys[0]);
+        BRACE_UP = new Brace(waits[iBrace], DirEnum.UP, true, basicCycle, braceJourneys[1]);
+        BRACE_UP_FORWARD = new Brace(waits[iBrace], DirEnum.UP, true, basicCycle, braceJourneys[2]);
     }
 
     @Override
