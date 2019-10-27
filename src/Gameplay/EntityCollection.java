@@ -50,6 +50,9 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         physicsItems.clear();
         totalSize = 0;
     }
+
+
+
     @Override public Iterator<Entity> iterator()
     {
         return new Iterator<Entity>()
@@ -121,6 +124,53 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         //System.out.println(")");
         return true;
     }
+
+
+
+
+    @Override public boolean remove(Object entity)
+    {
+        boolean objectExists = false;
+        if (entity instanceof Actor)
+        {
+            //System.out.print("Actor");
+            objectExists = playerList.remove(entity);
+            if (objectExists)
+            {
+                dynamicItems.remove(entity);
+                physicsItems.remove(entity);
+            }
+        }
+        else if (entity instanceof Item)
+        {
+            objectExists = itemList.remove(entity);
+            if (objectExists)
+            {
+                dynamicItems.remove(entity);
+                physicsItems.remove(entity);
+            }
+        }
+        else if (entity instanceof Block)
+        {
+            objectExists = blockList.remove(entity);
+            if (objectExists)
+            {
+                physicsItems.remove(entity);
+            }
+        }
+        else if (entity instanceof CameraZone)
+        {
+            objectExists = cameraZoneList.remove(entity);
+        }
+        if (objectExists)
+        {
+            totalSize--;
+        }
+        return objectExists;
+    }
+
+
+
 
     public Actor getPlayer(int i) { return playerList.get(i);}
 
