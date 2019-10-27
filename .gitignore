@@ -3,10 +3,6 @@
 *.flac
 *.wav
 
-# ignore all image files
-*.png
-*.jpg
-
 # ignore all font files
 *.ttf
 *.otf
