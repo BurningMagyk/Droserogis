@@ -572,11 +572,11 @@ public class LevelBuilder  extends Application
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
             else gtx.setFill(Color.DARKGREEN);
         }
-        else
+        else if (block instanceof Block)
         {
-            //gtx.setFill(block.getColor());
             gtx.setFill(blockTexturePattern);
         }
+        else gtx.setFill(block.getColor());
 
         if (block.getShape().isTriangle())
         {
