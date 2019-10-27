@@ -801,7 +801,7 @@ public class Actor extends Item
     public void debug() { Print.yellow(getVelocityX()); }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
-            ATTACK_KEY_MOD = ATTACK_KEY_3;
+            ATTACK_KEY_MOD = 4;//ATTACK_KEY_3;
     public void pressAttackMod(boolean pressed) { pressingAttack[0] = pressed; }
     public void pressAttack(boolean pressed, int attackKey)
     {

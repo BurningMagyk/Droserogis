@@ -377,7 +377,6 @@ public class Natural extends Weapon
     @Override
     public boolean easyToBlock()
     {
-        //return currentOp.getClass() != Punch.class && currentOp.getClass() != Kick.class;
         if (currentOp != null) return currentOp.isEasyToBlock();
         return true;
     }

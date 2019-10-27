@@ -277,6 +277,11 @@ public class WeaponAttacks extends Weapon
             return setOperation(SWING, command); // with normal warm-up time
         }
 
+        if (command.ATTACK_KEY == Actor.ATTACK_KEY_MOD)
+        {
+            //return setOperation()
+        }
+
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2 + Actor.ATTACK_KEY_MOD)
         {
             return setOperation(THROW, command);

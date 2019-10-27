@@ -76,10 +76,43 @@ public enum WeaponTraitEnum
 
         final WeaponTraitEnum[] _POLEARM = {};
         final WeaponTraitEnum[] SARISSA = concatTraits(_POLEARM, WeaponTraitEnum.THRUST, WeaponTraitEnum.BRACE);
+        final WeaponTraitEnum[] HALBERD = concatTraits(_POLEARM, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] GLAIVE = concatTraits(_POLEARM, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] WAR_SCYTHE = GLAIVE;
+        final WeaponTraitEnum[] SPEAR = concatTraits(_POLEARM, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB, WeaponTraitEnum.BRACE, WeaponTraitEnum.THROW, WeaponTraitEnum.BLOCK);
+        final WeaponTraitEnum[] PITCHFORK = SPEAR;
+        final WeaponTraitEnum[] QUARTERSTAFF = concatTraits(_POLEARM, WeaponTraitEnum.QUICK, WeaponTraitEnum.SWING,
+                WeaponTraitEnum.THRUST, WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] STAFF = QUARTERSTAFF, ROD = QUARTERSTAFF;
+        final WeaponTraitEnum[] LANCE = concatTraits(_POLEARM, WeaponTraitEnum.THRUST, WeaponTraitEnum.BRACE,
+                WeaponTraitEnum.BLOCK);
+        final WeaponTraitEnum[] JAVELIN = concatTraits(_POLEARM, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB, WeaponTraitEnum.THROW);
 
-        final WeaponTraitEnum[] BOW = { WeaponTraitEnum.SHOOT };
+        final WeaponTraitEnum[] _BOW = { WeaponTraitEnum.SHOOT };
+        final WeaponTraitEnum[] SHORTBOW = concatTraits(_BOW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.LOAD);
+        final WeaponTraitEnum[] LONGBOW = concatTraits(_BOW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.LOAD);
+        final WeaponTraitEnum[] WARBOW = concatTraits(_BOW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.LOAD);
+        final WeaponTraitEnum[] RECURVE_BOW = concatTraits(_BOW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.LOAD);
+        final WeaponTraitEnum[] CROSSBOW = concatTraits(_BOW, WeaponTraitEnum.BLOCK, WeaponTraitEnum.PERMANENT,
+                WeaponTraitEnum.LOAD);
+        final WeaponTraitEnum[] SLING = concatTraits(_BOW, WeaponTraitEnum.PERMANENT, WeaponTraitEnum.LOAD);
 
-
+        final WeaponTraitEnum[] _NATURAL = {};
+        final WeaponTraitEnum[] FISTS = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY, WeaponTraitEnum.GRAB);
+        final WeaponTraitEnum[] FEET = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
+                WeaponTraitEnum.STAB);
+        final WeaponTraitEnum[] CLAWS = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.BLOCK,
+                WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] TEETH = concatTraits(_NATURAL, WeaponTraitEnum.GRAB);
+        final WeaponTraitEnum[] HORNS = concatTraits(_NATURAL, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
+                WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] TAIL = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.PARRY,
+                WeaponTraitEnum.GRAB);
     }
 
 }
@@ -119,18 +152,17 @@ Polearm
  Halberd - swing, thrust, block/parry
  Glaive/war scythe - swing, thrust, block/parry
  Spear/pitchfork - swing, thrust, stab, brace, throw, block
- Quarterstaff - swing (quick), thrust, stab, block/parry
+ Quarterstaff/staff/rod - swing (quick), thrust, stab, block/parry
  Lance - thrust, brace, block
  Javelin - swing, thrust, stab, throw
- Staff/rod - swing, thrust, stab, block
  Scythe - swing, block/parry
 
 Bow - shoot
  Shortbow - block, load
  Longbow - block, load
  Warbow - block, load
- Crossbow - block, load (permanent)
  Recurve bow - block, load
+ Crossbow - block, load (permanent)
  Sling - load (permanent)
 
 Natural
