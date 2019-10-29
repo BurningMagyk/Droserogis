@@ -28,6 +28,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -36,6 +37,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
@@ -73,6 +75,12 @@ public class LevelBuilder  extends Application
     private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
 
     private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
+
+    private Image blockTexture = new Image("/Images/metalRustedTexture.png");
+    private Image backgroundTexture = new Image("/Images/metalStealWashedout.png");
+    //private ImagePattern blockTexturePattern = new ImagePattern(blockTexture, 0, 0, 512, 512, false);
+    private ImagePattern blockTexturePattern;
+    private ImagePattern backgroundTexturePattern;
 
     public static void main(String[] args) {
         launch(args);
@@ -523,7 +531,14 @@ public class LevelBuilder  extends Application
         int width  = (int)(canvas.getWidth()/zoomFactor);
         int height = (int)(canvas.getHeight()/zoomFactor);
 
-        gtx.clearRect(0, 0, width, height);
+        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 512, 512, false);
+        backgroundTexturePattern = new ImagePattern(backgroundTexture, offsetX, offsetY, 512, 512, false);
+
+
+        //gtx.clearRect(0, 0, width, height);
+        gtx.setFill(backgroundTexturePattern);
+        gtx.fillRect(0, 0, width, height);
+        gtx.setFill(Color.BLACK);
         gtx.setStroke(Color.BLACK);
         gtx.setLineWidth(1);
         int xStart = offsetX % 50;
@@ -556,6 +571,10 @@ public class LevelBuilder  extends Application
         {
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
             else gtx.setFill(Color.DARKGREEN);
+        }
+        else if (block instanceof Block)
+        {
+            gtx.setFill(blockTexturePattern);
         }
         else gtx.setFill(block.getColor());
 
