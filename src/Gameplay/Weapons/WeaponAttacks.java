@@ -3,6 +3,7 @@ package Gameplay.Weapons;
 import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class WeaponAttacks extends Weapon
@@ -297,11 +298,6 @@ public class WeaponAttacks extends Weapon
                 return setOperation((Melee) SWING_UNTERHAU, command, true); // with no warm-up time
             if (command.SPRINT) return setOperation(SWING_LUNGE, command);
             return setOperation(SWING, command); // with normal warm-up time
-        }
-
-        if (command.ATTACK_KEY == Actor.ATTACK_KEY_MOD)
-        {
-            //return setOperation()
         }
 
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2 + Actor.ATTACK_KEY_MOD)
