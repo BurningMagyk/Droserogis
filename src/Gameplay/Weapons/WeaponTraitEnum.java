@@ -1,5 +1,9 @@
 package Gameplay.Weapons;
 
+/************************************************************************
+ * ----------------------------DEPRECATED--------------------------------
+ ************************************************************************/
+
 public enum WeaponTraitEnum
 {
     MORDHAU,
@@ -19,7 +23,10 @@ public enum WeaponTraitEnum
 
     QUICK,
     INSTANT,
-    PERMANENT;
+    PERMANENT,
+    NEARBY,
+    DISABLE_UP,
+    DISABLE_DOWN;
 
     private static WeaponTraitEnum[] concatTraits(WeaponTraitEnum[] template, WeaponTraitEnum... moreTraits)
     {
@@ -29,6 +36,8 @@ public enum WeaponTraitEnum
         for (int j = 0; j < moreTraits.length; j++, i++) { out[i] = moreTraits[j]; }
         return out;
     }
+
+
 
     static
     {
@@ -106,14 +115,16 @@ public enum WeaponTraitEnum
                 WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY, WeaponTraitEnum.GRAB);
         final WeaponTraitEnum[] FEET = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.THRUST,
                 WeaponTraitEnum.STAB);
-        final WeaponTraitEnum[] CLAWS = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.BLOCK,
-                WeaponTraitEnum.PARRY);
+        final WeaponTraitEnum[] CLAWS = concatTraits(_NATURAL, WeaponTraitEnum.DISABLE_UP, WeaponTraitEnum.SWING,
+                WeaponTraitEnum.DISABLE_DOWN, WeaponTraitEnum.BLOCK, WeaponTraitEnum.PARRY);
         final WeaponTraitEnum[] TEETH = concatTraits(_NATURAL, WeaponTraitEnum.GRAB);
         final WeaponTraitEnum[] HORNS = concatTraits(_NATURAL, WeaponTraitEnum.THRUST, WeaponTraitEnum.STAB,
                 WeaponTraitEnum.PARRY);
         final WeaponTraitEnum[] TAIL = concatTraits(_NATURAL, WeaponTraitEnum.SWING, WeaponTraitEnum.PARRY,
                 WeaponTraitEnum.GRAB);
     }
+
+
 
 }
 
