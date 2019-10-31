@@ -11,19 +11,28 @@ public enum WeaponTypeEnum
     _BOW,       SHORTBOW, LONGBOW, WARBOW, RECURVE_BOW, CROSSBOW, SLING,
     _NATURAL,   FISTS, FEET, CLAWS, TEETH, HORNS, TAIL;
 
+    private final static int ALT_STANCE = 0, ALT_ATTACK = 1, ALT_SELF = 2, HOLDABLE = 3;
+
     static class Stat
     {
-        final boolean QUICK, PERSIST;
-        Stat(boolean quick, boolean persist)
+        final boolean STANCE, ATTACK, SELF, HOLD;
+        Stat(int ...args)
         {
-            // chains with its brother attack (rapier thrust, battleaxe swing)
-            QUICK = quick;
-
-            // chains with itself (flail and quarterstaff swing) or is
-            // holdable (spear thrust)
-            PERSIST = persist;
+            boolean[] var = { false, false, false, false };
+            for (int arg : args) { var[arg] = true; }
+            STANCE = var[ALT_STANCE]; // rapier thrust
+            ATTACK = var[ALT_ATTACK]; // sword/battleaxe swing
+            SELF = var[ALT_SELF]; // flail/quarterstaff swing
+            HOLD = var[HOLDABLE]; // polearm thrust
         }
-        Stat copy() { return new Stat(QUICK, PERSIST); }
+        Stat(boolean arg1, boolean arg2, boolean arg3, boolean arg4)
+        {
+            STANCE = arg1;
+            ATTACK = arg2;
+            SELF = arg3;
+            HOLD = arg4;
+        }
+        Stat copy() { return new Stat(STANCE, ATTACK, SELF, HOLD); }
     }
 
     private static void copyStat(WeaponTypeEnum typeA, WeaponTypeEnum typeB)
@@ -61,28 +70,36 @@ public enum WeaponTypeEnum
 
     static
     {
-        SHORT_SWORD.THRUST                  = new Stat(false, false);
-        SHORT_SWORD.THRUST_UP               = new Stat(false, false);
-        SHORT_SWORD.THRUST_DOWN             = new Stat(false, true);
-        SHORT_SWORD.THRUST_DIAG_UP          = new Stat(false, false);
-        SHORT_SWORD.THRUST_DIAG_DOWN        = new Stat(false, true);
-        SHORT_SWORD.THRUST_LUNGE            = new Stat(false, false);
-        SHORT_SWORD.STAB                    = new Stat(false, true);
-        SHORT_SWORD.STAB_UNTERHAU           = new Stat(false, true);
-        SHORT_SWORD.SWING                   = new Stat(true, false);
-        SHORT_SWORD.SWING_UNTERHAU          = new Stat(true, false);
-        SHORT_SWORD.SWING_UNTERHAU_CROUCH   = new Stat(true, false);
-        SHORT_SWORD.SWING_UP_FORWARD        = new Stat(true, false);
-        SHORT_SWORD.SWING_UP_BACKWARD       = new Stat(true, false);
-        SHORT_SWORD.SWING_DOWN_FORWARD      = new Stat(true, false);
-        SHORT_SWORD.SWING_DOWN_BACKWARD     = new Stat(true, false);
-        SHORT_SWORD.SWING_LUNGE             = new Stat(false, false);
-        SHORT_SWORD.SWING_LUNGE_UNTERHAU    = new Stat(false, false);
+        SHORT_SWORD.THRUST                  = new Stat();
+        SHORT_SWORD.THRUST_UP               = new Stat();
+        SHORT_SWORD.THRUST_DOWN             = new Stat(HOLDABLE);
+        SHORT_SWORD.THRUST_DIAG_UP          = new Stat();
+        SHORT_SWORD.THRUST_DIAG_DOWN        = new Stat(HOLDABLE);
+        SHORT_SWORD.THRUST_LUNGE            = new Stat();
+        SHORT_SWORD.STAB                    = new Stat(HOLDABLE);
+        SHORT_SWORD.STAB_UNTERHAU           = new Stat(HOLDABLE);
+        SHORT_SWORD.SWING                   = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_UNTERHAU          = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_UNTERHAU_CROUCH   = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_UP_FORWARD        = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_UP_BACKWARD       = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_DOWN_FORWARD      = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_DOWN_BACKWARD     = new Stat(ALT_ATTACK);
+        SHORT_SWORD.SWING_LUNGE             = new Stat();
+        SHORT_SWORD.SWING_LUNGE_UNTERHAU    = new Stat();
         SHORT_SWORD.DRAW                    = null;
         SHORT_SWORD.LOAD                    = null;
         SHORT_SWORD.SHOOT                   = null;
         copyStat(SHORT_SWORD, LONG_SWORD);
         copyStat(SHORT_SWORD, GREATSWORD);
         copyStat(SHORT_SWORD, SCIMITAR);
+        copyStat(SHORT_SWORD, RAPIER);
+        RAPIER.THRUST                       = new Stat(ALT_STANCE);
+        RAPIER.THRUST_UP                    = new Stat(ALT_STANCE);
+        RAPIER.THRUST_DOWN                  = new Stat(ALT_STANCE, HOLDABLE);
+        RAPIER.THRUST_DIAG_UP               = new Stat(ALT_STANCE);
+        RAPIER.THRUST_DIAG_DOWN             = new Stat(ALT_STANCE, HOLDABLE);
+        RAPIER.STAB                         = new Stat(ALT_STANCE, HOLDABLE);
+        RAPIER.STAB_UNTERHAU                = new Stat(ALT_STANCE, HOLDABLE);
     }
 }
