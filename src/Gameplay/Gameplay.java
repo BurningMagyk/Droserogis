@@ -231,12 +231,12 @@ public class Gameplay implements Reactor
         if (sprite != null)
         {
             /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
-            xPos = xPos - sprite.getRequestedWidth() / 2; //this is set in the Importer
+            xPos = xPos - Sprite.getRequestedWidth() / 2; //this is set in the Importer
 
             double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
-            yPos = yPos - sprite.getRequestedHeight() / 2; //this is set in the Importer
+            yPos = yPos - Sprite.getRequestedHeight() / 2; //this is set in the Importer
 
-            context.drawImage(sprite,xPos,yPos);*/
+            context.drawImage(Sprite,xPos,yPos);*/
 
             sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
                     (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,

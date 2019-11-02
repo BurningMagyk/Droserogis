@@ -82,6 +82,8 @@ public class LevelBuilder  extends Application
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
 
+    //private Image[] girlIdle = createSpriteArray("/Resources/Images/girl1/girl1-idle.png", 6,2);
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -194,6 +196,7 @@ public class LevelBuilder  extends Application
         scene.setOnKeyPressed(this::keyPressed);
         scene.setOnScroll(this::scrollWheelEvent);
     }
+
 
     private void scrollWheelEvent(ScrollEvent event) {
         double deltaY = event.getDeltaY();
