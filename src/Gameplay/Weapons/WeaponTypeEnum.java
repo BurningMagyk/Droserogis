@@ -2,14 +2,14 @@ package Gameplay.Weapons;
 
 public enum WeaponTypeEnum
 {
-    _SWORD,     SHORT_SWORD, LONG_SWORD, GREATSWORD, SCIMITAR, RAPIER,
-    _DAGGER,    DAGGER, KNIFE, THROWING_KNIFE, PARRYING_DAGGER, SICKLE, ROCK,
-    _AXE,       BATTLEAXE, GREATAXE, THROWING_AXE, HATCHET, PICKAXE,
-    _MACE,      MACE, FLAIL, MORNING_STAR, SHOVEL, STICK, WHIP,
-    _POLEARM,   SARISSA, HALBERD, GLAIVE, WAR_SCYTHE, SPEAR, PITCHFORK,
-                QUARTERSTAFF, LANCE, JAVELIN, SCYTHE,
-    _BOW,       SHORTBOW, LONGBOW, WARBOW, RECURVE_BOW, CROSSBOW, SLING,
-    _NATURAL,   FISTS, FEET, CLAWS, TEETH, HORNS, TAIL;
+    SHORT_SWORD, LONG_SWORD, GREATSWORD, SCIMITAR, RAPIER,
+    DAGGER, KNIFE, THROWING_KNIFE, PARRYING_DAGGER, SICKLE, ROCK,
+    BATTLEAXE, GREATAXE, THROWING_AXE, HATCHET, PICKAXE,
+    MACE, FLAIL, MORNING_STAR, SHOVEL, STICK, WHIP,
+    SARISSA, HALBERD, GLAIVE, WAR_SCYTHE, SPEAR, PITCHFORK,
+        QUARTERSTAFF, LANCE, JAVELIN, SCYTHE,
+    SHORTBOW, LONGBOW, WARBOW, RECURVE_BOW, CROSSBOW, SLING,
+    FISTS, FEET, CLAWS, TEETH, HORNS, TAIL;
 
     private final static int ALT_STANCE = 0, ALT_ATTACK = 1,
             ALT_SELF = 2, HOLDABLE = 3, ALT_TRAJ_A = 4, ALT_TRAJ_B = 5;
@@ -68,6 +68,8 @@ public enum WeaponTypeEnum
         typeB.DRAW                    = typeA.DRAW == null ? null : typeA.DRAW.copy();
         typeB.LOAD                    = typeA.LOAD == null ? null : typeA.LOAD.copy();
         typeB.SHOOT                   = typeA.SHOOT == null ? null : typeA.SHOOT.copy();
+        typeB.BLOCK                   = typeA.BLOCK;
+        typeB.PARRY                   = typeA.PARRY;
     }
 
     Stat
@@ -79,6 +81,7 @@ public enum WeaponTypeEnum
             SWING_LUNGE, SWING_LUNGE_UNTERHAU,
         GRAB,
         DRAW, LOAD, SHOOT;
+    boolean BLOCK, PARRY;
 
     static
     {
@@ -102,6 +105,8 @@ public enum WeaponTypeEnum
         SHORT_SWORD.DRAW                    = null;
         SHORT_SWORD.LOAD                    = null;
         SHORT_SWORD.SHOOT                   = null;
+        SHORT_SWORD.BLOCK                   = true;
+        SHORT_SWORD.PARRY                   = true;
         copyStat(SHORT_SWORD, LONG_SWORD);
         copyStat(SHORT_SWORD, GREATSWORD);
         copyStat(SHORT_SWORD, SCIMITAR);
@@ -327,6 +332,10 @@ public enum WeaponTypeEnum
         FEET.LOAD                           = null;
         FEET.SHOOT                          = null;
         copyStat(FISTS, CLAWS);
+        FISTS.THRUST                        = null;
+        FISTS.THRUST_UP                     = null;
+        FISTS.THRUST_DOWN                   = null;
+        FISTS.THRUST_DIAG_UP                = null;
         CLAWS.SWING                         = new Stat(ALT_ATTACK);
         CLAWS.SWING_UNTERHAU                = new Stat(ALT_ATTACK);
         CLAWS.SWING_UNTERHAU_CROUCH         = new Stat(ALT_ATTACK);
