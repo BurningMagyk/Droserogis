@@ -7,32 +7,42 @@ public enum WeaponTypeEnum
     _AXE,       BATTLEAXE, GREATAXE, THROWING_AXE, HATCHET, PICKAXE,
     _MACE,      MACE, FLAIL, MORNING_STAR, SHOVEL, STICK, WHIP,
     _POLEARM,   SARISSA, HALBERD, GLAIVE, WAR_SCYTHE, SPEAR, PITCHFORK,
-                QUARTERSTAFF, STAFF, LANCE, JAVELIN, SCYTHE,
+                QUARTERSTAFF, LANCE, JAVELIN, SCYTHE,
     _BOW,       SHORTBOW, LONGBOW, WARBOW, RECURVE_BOW, CROSSBOW, SLING,
     _NATURAL,   FISTS, FEET, CLAWS, TEETH, HORNS, TAIL;
 
-    private final static int ALT_STANCE = 0, ALT_ATTACK = 1, ALT_SELF = 2, HOLDABLE = 3;
+    private final static int ALT_STANCE = 0, ALT_ATTACK = 1,
+            ALT_SELF = 2, HOLDABLE = 3, ALT_TRAJ_A = 4, ALT_TRAJ_B = 5;
 
     static class Stat
     {
         final boolean STANCE, ATTACK, SELF, HOLD;
+        final int TRAJ;
         Stat(int ...args)
         {
-            boolean[] var = { false, false, false, false };
-            for (int arg : args) { var[arg] = true; }
-            STANCE = var[ALT_STANCE]; // rapier thrust
-            ATTACK = var[ALT_ATTACK]; // sword/battleaxe swing
-            SELF = var[ALT_SELF]; // flail/quarterstaff swing
-            HOLD = var[HOLDABLE]; // polearm thrust
+            boolean[] boolVars = { false, false, false, false };
+            int intVal = 0;
+            for (int arg : args)
+            {
+                if (arg <= HOLDABLE) boolVars[arg] = true;
+                else intVal = arg - ALT_TRAJ_A + 1;
+            }
+            STANCE = boolVars[ALT_STANCE]; // rapier thrust
+            ATTACK = boolVars[ALT_ATTACK]; // sword/battleaxe swing
+            SELF = boolVars[ALT_SELF]; // flail/quarterstaff swing
+            TRAJ = intVal; // fists/feet swing
+            HOLD = boolVars[HOLDABLE]; // polearm thrust
         }
-        Stat(boolean arg1, boolean arg2, boolean arg3, boolean arg4)
+        Stat(boolean arg1, boolean arg2,
+             boolean arg3, boolean arg4, int arg5)
         {
             STANCE = arg1;
             ATTACK = arg2;
             SELF = arg3;
             HOLD = arg4;
+            TRAJ = arg5;
         }
-        Stat copy() { return new Stat(STANCE, ATTACK, SELF, HOLD); }
+        Stat copy() { return new Stat(STANCE, ATTACK, SELF, HOLD, TRAJ); }
     }
 
     private static void copyStat(WeaponTypeEnum typeA, WeaponTypeEnum typeB)
@@ -54,6 +64,7 @@ public enum WeaponTypeEnum
         typeB.SWING_DOWN_BACKWARD     = typeA.SWING_DOWN_BACKWARD == null ? null : typeA.SWING_DOWN_BACKWARD.copy();
         typeB.SWING_LUNGE             = typeA.SWING_LUNGE == null ? null : typeA.SWING_LUNGE.copy();
         typeB.SWING_LUNGE_UNTERHAU    = typeA.SWING_LUNGE_UNTERHAU == null ? null : typeA.SWING_LUNGE_UNTERHAU.copy();
+        typeB.GRAB                    = typeA.GRAB == null ? null : typeA.GRAB.copy();
         typeB.DRAW                    = typeA.DRAW == null ? null : typeA.DRAW.copy();
         typeB.LOAD                    = typeA.LOAD == null ? null : typeA.LOAD.copy();
         typeB.SHOOT                   = typeA.SHOOT == null ? null : typeA.SHOOT.copy();
@@ -66,6 +77,7 @@ public enum WeaponTypeEnum
         SWING, SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD,
             SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
             SWING_LUNGE, SWING_LUNGE_UNTERHAU,
+        GRAB,
         DRAW, LOAD, SHOOT;
 
     static
@@ -93,6 +105,13 @@ public enum WeaponTypeEnum
         copyStat(SHORT_SWORD, LONG_SWORD);
         copyStat(SHORT_SWORD, GREATSWORD);
         copyStat(SHORT_SWORD, SCIMITAR);
+        SCIMITAR.SWING                      = new Stat();
+        SCIMITAR.SWING_UNTERHAU             = new Stat();
+        SCIMITAR.SWING_UNTERHAU_CROUCH      = new Stat();
+        SCIMITAR.SWING_UP_FORWARD           = new Stat();
+        SCIMITAR.SWING_UP_BACKWARD          = new Stat();
+        SCIMITAR.SWING_DOWN_FORWARD         = new Stat();
+        SCIMITAR.SWING_DOWN_BACKWARD        = new Stat();
         copyStat(SHORT_SWORD, RAPIER);
         RAPIER.THRUST                       = new Stat(ALT_STANCE);
         RAPIER.THRUST_UP                    = new Stat(ALT_STANCE);
@@ -141,7 +160,7 @@ public enum WeaponTypeEnum
         BATTLEAXE.THRUST_UP                 = new Stat();
         BATTLEAXE.THRUST_DOWN               = null;
         BATTLEAXE.THRUST_DIAG_UP            = new Stat();
-        BATTLEAXE.THRUST_DIAG_DOWN          = new Stat();
+        BATTLEAXE.THRUST_DIAG_DOWN          = null;
         BATTLEAXE.THRUST_LUNGE              = new Stat();
         BATTLEAXE.STAB                      = null;
         BATTLEAXE.STAB_UNTERHAU             = null;
@@ -158,15 +177,165 @@ public enum WeaponTypeEnum
         BATTLEAXE.LOAD                      = null;
         BATTLEAXE.SHOOT                     = null;
         copyStat(BATTLEAXE, GREATAXE);
-        GREATAXE.SWING                      = new Stat();
-        GREATAXE.SWING_UNTERHAU             = new Stat();
-        GREATAXE.SWING_UNTERHAU_CROUCH      = new Stat();
-        GREATAXE.SWING_UP_FORWARD           = new Stat();
-        GREATAXE.SWING_UP_BACKWARD          = new Stat();
-        copyStat(GREATAXE, THROWING_AXE);
-        copyStat(GREATAXE, HATCHET);
+        copyStat(BATTLEAXE, THROWING_AXE);
+        THROWING_AXE.SWING                  = new Stat();
+        THROWING_AXE.SWING_UNTERHAU         = new Stat();
+        THROWING_AXE.SWING_UNTERHAU_CROUCH  = new Stat();
+        THROWING_AXE.SWING_UP_FORWARD       = new Stat();
+        THROWING_AXE.SWING_UP_BACKWARD      = new Stat();
+        copyStat(THROWING_AXE, HATCHET);
         copyStat(BATTLEAXE, PICKAXE);
 
-        MACE.SWING                          = new Stat();
+        copyStat(SHORT_SWORD, MACE);
+        MACE.STAB                           = new Stat();
+        MACE.STAB_UNTERHAU                  = new Stat();
+        copyStat(MACE, FLAIL);
+        FLAIL.SWING                         = new Stat(ALT_SELF);
+        FLAIL.SWING_UNTERHAU                = new Stat(ALT_SELF);
+        copyStat(MACE, MORNING_STAR);
+        copyStat(SHORT_SWORD, SHOVEL);
+        copyStat(MACE, STICK);
+        WHIP.THRUST                         = null;
+        WHIP.THRUST_UP                      = null;
+        WHIP.THRUST_DOWN                    = null;
+        WHIP.THRUST_DIAG_UP                 = null;
+        WHIP.THRUST_DIAG_DOWN               = null;
+        WHIP.THRUST_LUNGE                   = null;
+        WHIP.STAB                           = null;
+        WHIP.STAB_UNTERHAU                  = null;
+        WHIP.SWING                          = new Stat(ALT_ATTACK);
+        WHIP.SWING_UNTERHAU                 = new Stat(ALT_ATTACK);
+        WHIP.SWING_UNTERHAU_CROUCH          = new Stat(ALT_ATTACK);
+        WHIP.SWING_UP_FORWARD               = new Stat(ALT_ATTACK);
+        WHIP.SWING_UP_BACKWARD              = new Stat(ALT_ATTACK);
+        WHIP.SWING_DOWN_FORWARD             = null;
+        WHIP.SWING_DOWN_BACKWARD            = null;
+        WHIP.SWING_LUNGE                    = null;
+        WHIP.SWING_LUNGE_UNTERHAU           = null;
+        WHIP.DRAW                           = null;
+        WHIP.LOAD                           = null;
+        WHIP.SHOOT                          = null;
+
+        SARISSA.THRUST                      = new Stat();
+        SARISSA.THRUST_UP                   = new Stat(HOLDABLE);
+        SARISSA.THRUST_DOWN                 = new Stat(HOLDABLE);
+        SARISSA.THRUST_DIAG_UP              = new Stat(HOLDABLE);
+        SARISSA.THRUST_DIAG_DOWN            = new Stat(HOLDABLE);
+        SARISSA.THRUST_LUNGE                = null;
+        SARISSA.STAB                        = null;
+        SARISSA.STAB_UNTERHAU               = new Stat(HOLDABLE);
+        SARISSA.SWING                       = null;
+        SARISSA.SWING_UNTERHAU              = null;
+        SARISSA.SWING_UNTERHAU_CROUCH       = null;
+        SARISSA.SWING_UP_FORWARD            = new Stat(ALT_ATTACK);
+        SARISSA.SWING_UP_BACKWARD           = new Stat(ALT_ATTACK);
+        SARISSA.SWING_DOWN_FORWARD          = null;
+        SARISSA.SWING_DOWN_BACKWARD         = null;
+        SARISSA.SWING_LUNGE                 = null;
+        SARISSA.SWING_LUNGE_UNTERHAU        = null;
+        SARISSA.DRAW                        = null;
+        SARISSA.LOAD                        = null;
+        SARISSA.SHOOT                       = null;
+        copyStat(SHORT_SWORD, HALBERD);
+        HALBERD.THRUST_UP                   = new Stat(HOLDABLE);
+        HALBERD.THRUST_DIAG_UP              = new Stat(HOLDABLE);
+        copyStat(SCIMITAR, GLAIVE);
+        GLAIVE.THRUST_UP                    = new Stat(HOLDABLE);
+        GLAIVE.THRUST_DIAG_UP               = new Stat(HOLDABLE);
+        GLAIVE.SWING                        = new Stat(ALT_SELF);
+        GLAIVE.SWING_UNTERHAU               = new Stat(ALT_SELF);
+        copyStat(GLAIVE, WAR_SCYTHE);
+        copyStat(GLAIVE, SCYTHE);
+        SCYTHE.THRUST_UP                    = new Stat();
+        SCYTHE.THRUST_DOWN                  = new Stat();
+        SCYTHE.THRUST_DIAG_UP               = new Stat();
+        SCYTHE.THRUST_DIAG_DOWN             = new Stat();
+        SCYTHE.STAB                         = new Stat();
+        SCYTHE.STAB_UNTERHAU                = new Stat();
+        copyStat(GLAIVE, SPEAR);
+        SPEAR.SWING                         = new Stat(ALT_ATTACK);
+        SPEAR.SWING_UNTERHAU                = new Stat(ALT_ATTACK);
+        SPEAR.SWING_UNTERHAU_CROUCH         = new Stat(ALT_ATTACK);
+        copyStat(SPEAR, PITCHFORK);
+        copyStat(SPEAR, QUARTERSTAFF);
+        QUARTERSTAFF.THRUST_UP              = new Stat();
+        QUARTERSTAFF.THRUST_DIAG_UP         = new Stat();
+        copyStat(SARISSA, LANCE);
+        LANCE.THRUST_UP                     = new Stat();
+        LANCE.THRUST_DIAG_UP                = new Stat();
+        LANCE.STAB_UNTERHAU                 = new Stat();
+        LANCE.SWING_UP_FORWARD              = new Stat();
+        LANCE.SWING_UP_BACKWARD             = new Stat();
+        copyStat(SPEAR, JAVELIN);
+        copyStat(WHIP, SHORTBOW);
+        SHORTBOW.SWING                      = new Stat();
+        SHORTBOW.SWING_UNTERHAU             = new Stat();
+        SHORTBOW.SWING_UNTERHAU_CROUCH      = new Stat();
+        SHORTBOW.SWING_UP_FORWARD           = new Stat();
+        SHORTBOW.SWING_UP_BACKWARD          = new Stat();
+        SHORTBOW.DRAW                       = new Stat();
+        SHORTBOW.SHOOT                      = new Stat();
+        copyStat(SHORTBOW, LONGBOW);
+        copyStat(SHORTBOW, WARBOW);
+        copyStat(SHORTBOW, RECURVE_BOW);
+        copyStat(SHORTBOW, CROSSBOW);
+        CROSSBOW.LOAD                       = new Stat();
+        copyStat(CROSSBOW, SLING);
+        SLING.SWING                         = new Stat(ALT_SELF);
+        SLING.SWING_UNTERHAU                = new Stat(ALT_SELF);
+        SLING.SWING_UP_FORWARD              = new Stat();
+        SLING.SWING_UP_BACKWARD             = new Stat();
+        SLING.DRAW                          = null;
+
+        FISTS.THRUST                        = new Stat();
+        FISTS.THRUST_UP                     = new Stat();
+        FISTS.THRUST_DOWN                   = null;
+        FISTS.THRUST_DIAG_UP                = new Stat();
+        FISTS.THRUST_DIAG_DOWN              = null;
+        FISTS.THRUST_LUNGE                  = null;
+        FISTS.STAB                          = null;
+        FISTS.STAB_UNTERHAU                 = null;
+        FISTS.SWING                         = null;
+        FISTS.SWING_UNTERHAU                = null;
+        FISTS.SWING_UNTERHAU_CROUCH         = new Stat(ALT_TRAJ_A);
+        FISTS.SWING_UP_FORWARD              = null;
+        FISTS.SWING_UP_BACKWARD             = null;
+        FISTS.SWING_DOWN_FORWARD            = null;
+        FISTS.SWING_DOWN_BACKWARD           = null;
+        FISTS.SWING_LUNGE                   = null;
+        FISTS.SWING_LUNGE_UNTERHAU          = null;
+        FISTS.DRAW                          = null;
+        FISTS.LOAD                          = null;
+        FISTS.SHOOT                         = null;
+        FEET.THRUST                         = new Stat();
+        FEET.THRUST_UP                      = null;
+        FEET.THRUST_DOWN                    = new Stat(HOLDABLE);
+        FEET.THRUST_DIAG_UP                 = new Stat();
+        FEET.THRUST_DIAG_DOWN               = new Stat(HOLDABLE);
+        FEET.THRUST_LUNGE                   = null;
+        FEET.STAB                           = new Stat(HOLDABLE);
+        FEET.STAB_UNTERHAU                  = null;
+        FEET.SWING                          = null;
+        FEET.SWING_UNTERHAU                 = new Stat(ALT_TRAJ_B);
+        FEET.SWING_UP_FORWARD               = null;
+        FEET.SWING_UP_BACKWARD              = null;
+        FEET.SWING_DOWN_FORWARD             = null;
+        FEET.SWING_DOWN_BACKWARD            = null;
+        FEET.SWING_LUNGE                    = null;
+        FEET.SWING_LUNGE_UNTERHAU           = null;
+        FEET.DRAW                           = null;
+        FEET.LOAD                           = null;
+        FEET.SHOOT                          = null;
+        copyStat(FISTS, CLAWS);
+        CLAWS.SWING                         = new Stat(ALT_ATTACK);
+        CLAWS.SWING_UNTERHAU                = new Stat(ALT_ATTACK);
+        CLAWS.SWING_UNTERHAU_CROUCH         = new Stat(ALT_ATTACK);
+        CLAWS.SWING_UP_FORWARD              = new Stat(ALT_ATTACK);
+        CLAWS.SWING_UP_BACKWARD             = new Stat(ALT_ATTACK);
+        copyStat(FISTS, HORNS);
+        HORNS.SWING_UNTERHAU_CROUCH         = new Stat(ALT_TRAJ_A);
+        HORNS.THRUST                        = new Stat(HOLDABLE);
+        HORNS.THRUST_DIAG_UP                = new Stat(HOLDABLE);
+        HORNS.THRUST_UP                     = new Stat(HOLDABLE);
     }
 }
