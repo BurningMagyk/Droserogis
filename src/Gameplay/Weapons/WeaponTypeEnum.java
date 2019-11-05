@@ -157,5 +157,16 @@ public enum WeaponTypeEnum
         BATTLEAXE.DRAW                      = null;
         BATTLEAXE.LOAD                      = null;
         BATTLEAXE.SHOOT                     = null;
+        copyStat(BATTLEAXE, GREATAXE);
+        GREATAXE.SWING                      = new Stat();
+        GREATAXE.SWING_UNTERHAU             = new Stat();
+        GREATAXE.SWING_UNTERHAU_CROUCH      = new Stat();
+        GREATAXE.SWING_UP_FORWARD           = new Stat();
+        GREATAXE.SWING_UP_BACKWARD          = new Stat();
+        copyStat(GREATAXE, THROWING_AXE);
+        copyStat(GREATAXE, HATCHET);
+        copyStat(BATTLEAXE, PICKAXE);
+
+        MACE.SWING                          = new Stat();
     }
 }
