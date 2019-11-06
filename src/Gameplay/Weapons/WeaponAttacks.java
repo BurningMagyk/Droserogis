@@ -19,8 +19,6 @@ public class WeaponAttacks extends Weapon
             SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
             SWING_LUNGE, SWING_LUNGE_UNTERHAU,
 
-            BRACE, BRACE_UP, BRACE_UP_FORWARD,
-
             LOAD, THROW, SHOOT;
 
     private static final String[] SPRITE_PATHS = null;
@@ -31,16 +29,15 @@ public class WeaponAttacks extends Weapon
     private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
     private Tick[][] thrustJourneys, stabJourneys, swingJourneys, braceJourneys;
 
-    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4, iBrace = 5;
+    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
 
 
-    public WeaponAttacks(float xPos, float yPos, WeaponTraitEnum[] weaponTraits)
+    public WeaponAttacks(float xPos, float yPos, WeaponTypeEnum weaponType)
     {
         //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
 
         WeaponStat swordStat = new WeaponStat("C",
-                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
                 "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
@@ -150,8 +147,17 @@ public class WeaponAttacks extends Weapon
                         new Tick(0.16F,  -0.8F,-0.6F, -2F) },
                 null /* SWING_DOWN_FORWARD */,
                 null /* SWING_DOWN_FORWARD */,
-                null /* SWING_LUNGE */ ,
-                null /* SWING_LUNGE_UNTERHAU */
+                null /* SWING_LUNGE */,
+                null /* SWING_LUNGE_UNTERHAU */,
+                new Tick[] { /* SWING_UNTERHAU (ALT_TRAJ_A) */
+                        new Tick(0.04F, 1.4F, 0.2F, 0.2F),
+                        new Tick(0.08F, 1.5F, -0.1F, -0.1F),
+                        new Tick(0.12F, 1.4F, -0.4F, -0.4F),
+                        new Tick(0.16F, 1.05F, -0.7F, -0.8F) },
+                new Tick[] { /* SWING_UNTERHAU (ALT_TRAJ_B) */
+                        new Tick(0.05F, 0.5F, 0.4F, 0F),
+                        new Tick(0.09F, 1.1F, 0.2F, (float) Math.PI / 4),
+                        new Tick(0.14F, 1.7F, 0F, (float) Math.PI / 2) }
         };
 
         swingJourneys[4] = new Tick[swingJourneys[2].length];
@@ -460,10 +466,6 @@ public class WeaponAttacks extends Weapon
         SWING_DOWN_BACKWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[5]);
         SWING_LUNGE = new Swing(waits[iSwingLunge], DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
         SWING_LUNGE_UNTERHAU = new Swing(waits[iSwingLunge], DirEnum.UP, true, lungeCycle, swingJourneys[7]);
-
-        BRACE = new Brace(waits[iBrace], DirEnum.NONE, true, basicCycle, braceJourneys[0]);
-        BRACE_UP = new Brace(waits[iBrace], DirEnum.UP, true, basicCycle, braceJourneys[1]);
-        BRACE_UP_FORWARD = new Brace(waits[iBrace], DirEnum.UP, true, basicCycle, braceJourneys[2]);
     }
 
     @Override
