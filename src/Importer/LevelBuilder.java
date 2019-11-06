@@ -8,6 +8,7 @@ import Gameplay.EntityCollection;
 import Gameplay.Weapons.Natural;
 import Gameplay.Weapons.WeaponAttacks;
 import Gameplay.Weapons.Weapon;
+import Util.Sprite;
 import Util.Vec2;
 
 import java.io.BufferedReader;
@@ -17,6 +18,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
@@ -41,6 +45,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 
 public class LevelBuilder  extends Application
@@ -78,11 +83,15 @@ public class LevelBuilder  extends Application
 
     private Image blockTexture = new Image("/Images/metalRustedTexture.png");
     private Image backgroundTexture = new Image("/Images/metalStealWashedout.png");
-    //private ImagePattern blockTexturePattern = new ImagePattern(blockTexture, 0, 0, 512, 512, false);
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
 
-    //private Image[] girlIdle = createSpriteArray("/Resources/Images/girl1/girl1-idle.png", 6,2);
+    private Image swordFighter = new Image("/Images/FireEmblem-Swordfighter.png");
+    //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
+
+    private Sprite swordFighterIdle = new Sprite(swordFighter, 23, 32, 52, 536, 27);
+
+    Timeline timeline;
 
     public static void main(String[] args) {
         launch(args);
@@ -195,6 +204,12 @@ public class LevelBuilder  extends Application
 
         scene.setOnKeyPressed(this::keyPressed);
         scene.setOnScroll(this::scrollWheelEvent);
+
+
+        timeline = new Timeline(new KeyFrame(
+                Duration.millis(100),
+                ae -> renderAll()));
+        timeline.setCycleCount(Animation.INDEFINITE);
     }
 
 
@@ -213,7 +228,7 @@ public class LevelBuilder  extends Application
         gtx.restore();
         gtx.save();
         gtx.scale(zoomFactor,zoomFactor);
-        renderAll();
+        //renderAll();
     }
 
     private void keyPressed(KeyEvent key)
@@ -305,7 +320,7 @@ public class LevelBuilder  extends Application
         }
         if (selectedEntity != lastSelectedEntity)
         {
-            renderAll();
+            //renderAll();
         }
         return;
     }
@@ -362,7 +377,7 @@ public class LevelBuilder  extends Application
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
-        renderAll();
+        //renderAll();
     }
 
     private void mousePressed(MouseEvent event)
@@ -426,7 +441,7 @@ public class LevelBuilder  extends Application
                 mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
             }
         }
-        renderAll();
+        //renderAll();
     }
 
 
@@ -516,7 +531,7 @@ public class LevelBuilder  extends Application
                 }
             }
         }
-        renderAll();
+        //renderAll();
     }
 
 
@@ -569,7 +584,10 @@ public class LevelBuilder  extends Application
     }
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
-        if (block instanceof Natural) return;
+        //if (block instanceof Natural) return;
+        if (block instanceof Weapon) return;
+
+        Vec2 pos = block.getPosition();
         if (block == selectedEntity)
         {
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
@@ -578,6 +596,13 @@ public class LevelBuilder  extends Application
         else if (block instanceof Block)
         {
             gtx.setFill(blockTexturePattern);
+        }
+        else if (block instanceof Actor)
+        {
+            float x = offsetX + pos.x;
+            float y = offsetY + pos.y;
+            swordFighterIdle.render(gtx, x, y);
+            return;
         }
         else gtx.setFill(block.getColor());
 
@@ -595,7 +620,6 @@ public class LevelBuilder  extends Application
         }
         else if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
         {
-            Vec2 pos = block.getPosition();
             float x = offsetX + pos.x - block.getWidth() / 2;
             float y = offsetY + pos.y - block.getHeight() / 2;
             gtx.fillRect(x, y, block.getWidth(), block.getHeight());
@@ -727,8 +751,8 @@ public class LevelBuilder  extends Application
 
         if (DEBUG) System.out.println("     offset: " + offsetX + ", " + offsetY);
 
-        renderAll();
-
+        //renderAll();
+        timeline.play();
     }
 
 
