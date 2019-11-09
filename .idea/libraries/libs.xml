@@ -9,15 +9,13 @@
       <root url="jar://$PROJECT_DIR$/libs/lwjgl.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-glfw-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-glfw-natives-windows.jar!/" />
-      <root url="file://C:/jdk-13.0.1/javafx-sdk-11.0.2/lib" />
-      <root url="file://$PROJECT_DIR$/libs" />
+      <root url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="file://$PROJECT_DIR$/libs" />
+      <root url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" />
     </SOURCES>
-    <jarDirectory url="file://C:/jdk-13.0.1/javafx-sdk-11.0.2/lib" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" />
-    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" recursive="false" />
+    <jarDirectory url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" recursive="false" type="SOURCES" />
   </library>
 </component>

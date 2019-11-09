@@ -63,7 +63,7 @@ public class Widget
         if (armed) imageArm.draw(posX, posY, width, height);
         else images[imageIndex].draw(posX, posY, width, height);
 
-        /* Update sprite */
+        /* Update Sprite */
         if (focused && !armed)
         {
             if (imageIndex < images.length - 1) imageIndex =+ framesToGo;

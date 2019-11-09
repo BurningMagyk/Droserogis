@@ -187,6 +187,8 @@ public class Natural extends Weapon
             return setOperation(KICK, command);
         }
 
+        System.out.println(WeaponTypeEnum.SHORT_SWORD.DRAW);
+
         return null;
     }
 
