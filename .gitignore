@@ -7,7 +7,8 @@
 *~
 
 # ignore uncontrolled all image files
-#*/Uncontrolled/*
+Uncontrolled/*
+*/Uncontrolled/*
 
 # ignore all font files
 *.ttf
