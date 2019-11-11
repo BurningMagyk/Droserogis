@@ -89,7 +89,7 @@ public class LevelBuilder  extends Application
     private Image swordFighter = new Image("/Image/Jacob_Idle.png");
     //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
 
-    private Sprite swordFighterIdle = new Sprite(swordFighter, 10, 100, 100, 0, 0);
+    private Sprite swordFighterIdle;
 
     Timeline timeline;
 
@@ -172,6 +172,10 @@ public class LevelBuilder  extends Application
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #999999");
 
+
+        swordFighterIdle = new Sprite(swordFighter, 10, 100, 100, 0, 0);
+
+
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
         stage.setScene(scene);
@@ -204,6 +208,7 @@ public class LevelBuilder  extends Application
 
         scene.setOnKeyPressed(this::keyPressed);
         scene.setOnScroll(this::scrollWheelEvent);
+
 
 
         timeline = new Timeline(new KeyFrame(
