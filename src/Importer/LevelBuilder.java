@@ -86,10 +86,10 @@ public class LevelBuilder  extends Application
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
 
-    private Image swordFighter = new Image("/Images/FireEmblem-Swordfighter.png");
+    private Image swordFighter = new Image("/Images/Jacob_Idle.png");
     //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
 
-    private Sprite swordFighterIdle = new Sprite(swordFighter, 23, 32, 52, 536, 27);
+    private Sprite swordFighterIdle = new Sprite(swordFighter, 9, 100, 100, 0, 0);
 
     Timeline timeline;
 
@@ -601,7 +601,7 @@ public class LevelBuilder  extends Application
         {
             float x = offsetX + pos.x;
             float y = offsetY + pos.y;
-            swordFighterIdle.render(gtx, x, y);
+            swordFighterIdle.render(gtx, x, y, block.getHeight());
             return;
         }
         else gtx.setFill(block.getColor());

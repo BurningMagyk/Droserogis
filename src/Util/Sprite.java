@@ -25,15 +25,16 @@ public class Sprite
         this.offsetY = offsetY;
     }
 
-    public void render(GraphicsContext gtx, float x, float y)
+    public void render(GraphicsContext gtx, float x, float y, float viewHeight)
     {
+        float viewWidth = (width/height)*viewHeight;
         int srcX = offsetX + (frame*width);
         int srcY = offsetY;
 
         float xx = x - width / 2;
         float yy = y - height / 2;
         //gtx.clearRect(xx, yy, width, height);
-        gtx.drawImage(image, srcX, srcY, width, height, xx, yy, width, height);
+        gtx.drawImage(image, srcX, srcY, width, height, xx, yy, viewWidth, viewHeight);
 
         frame = (frame + 1) %totalFrames;
     }
