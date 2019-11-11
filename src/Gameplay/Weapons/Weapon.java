@@ -87,7 +87,7 @@ public abstract class Weapon extends Item
 
     abstract Orient getDefaultOrient();
 
-    private void runCurrentOp(float deltaSec) // TODO: make a command for unequiping
+    private void runCurrentOp(float deltaSec) // TODO: make a command for unequipping
     {
         boolean operationDone = currentOp.run(deltaSec);
         if (operationDone)

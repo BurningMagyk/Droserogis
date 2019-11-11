@@ -95,6 +95,7 @@ public class Infliction
              * on precision, like a rapier. If critThreshSpeed is equal to zero, then it
              * can't crit depending on travel speed, like a magic wand. */
 
+            // TODO: the whole "less than zero" thing needs to be removed or redone
             double inflictorVel = inflictor.getVelocity().mag();
             if ((critThreshSpeed > 0 && inflictorVel > critThreshSpeed)
                     || (critThreshSpeed < 0 && inflictorVel > -critThreshSpeed))
