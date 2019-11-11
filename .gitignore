@@ -4,7 +4,7 @@
 *.wav
 
 # ignore uncontrolled all image files
-ImageUncontrolled/*
+*/Uncontrolled/*
 
 # ignore all font files
 *.ttf
