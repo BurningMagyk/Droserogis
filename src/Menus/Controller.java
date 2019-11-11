@@ -95,7 +95,7 @@ class Controller extends AnimationTimer
         Image cursorImage;
         ImageCursor cursor;
         InputStream input = getClass()
-                .getResourceAsStream("/Images/cursor.png");
+                .getResourceAsStream("/Uncontrolled/cursor.png");
         if (input != null)
         {
             /* This centers the window onto the image */
@@ -103,7 +103,7 @@ class Controller extends AnimationTimer
             cursor = new ImageCursor(cursorImage, 30, 30);
             scene.setCursor(cursor);
         }
-        else Print.red("\"/Images/cursor.png\" was not imported");
+        else Print.red("\"/Uncontrolled/cursor.png\" was not imported");
     }
 
     /**

@@ -81,15 +81,15 @@ public class LevelBuilder  extends Application
 
     private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
 
-    private Image blockTexture = new Image("/Images/metalRustedTexture.png");
-    private Image backgroundTexture = new Image("/Images/metalStealWashedout.png");
+    private Image blockTexture = new Image("/Image/metalRustedTexture.png");
+    private Image backgroundTexture = new Image("/Image/metalStealWashedout.png");
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
 
-    private Image swordFighter = new Image("/Images/Jacob_Idle.png");
+    private Image swordFighter = new Image("/Image/Jacob_Idle.png");
     //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
 
-    private Sprite swordFighterIdle = new Sprite(swordFighter, 9, 100, 100, 0, 0);
+    private Sprite swordFighterIdle = new Sprite(swordFighter, 10, 100, 100, 0, 0);
 
     Timeline timeline;
 
