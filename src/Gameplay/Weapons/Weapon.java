@@ -87,7 +87,7 @@ public abstract class Weapon extends Item
 
     abstract Orient getDefaultOrient();
 
-    private void runCurrentOp(float deltaSec)
+    private void runCurrentOp(float deltaSec) // TODO: make a command for unequiping
     {
         boolean operationDone = currentOp.run(deltaSec);
         if (operationDone)
@@ -304,6 +304,8 @@ public abstract class Weapon extends Item
         setTheta(0, DirEnum.NONE);
         setPosition(getPosition().add(shapeCornersOffset));
         updateCorners(new Vec2(0, 0), DirEnum.NONE);
+        commandQueue.clear();
+        currentOp = null;
         return this;
     }
 
@@ -346,7 +348,7 @@ public abstract class Weapon extends Item
         boolean isEasyToBlock();
         boolean isDisruptive();
 
-        enum State { WARMUP, EXECUTION, COOLDOWN, COUNTERED }
+        enum State { WARMUP, EXECUTION, COOLDOWN, VOID, COUNTERED }
     }
 
     class Tick
@@ -636,7 +638,7 @@ public abstract class Weapon extends Item
         boolean warmBoost = false, warmSkip = false;
         float totalSec = 0, warmBoostSec = 0;
         Command command;
-        State state = State.WARMUP;
+        State state = State.VOID;
 
         @Override
         public String getName() { return name; }
@@ -705,7 +707,7 @@ public abstract class Weapon extends Item
             }
 
             totalSec = 0;
-            state = State.WARMUP;
+            state = State.VOID;
 
             collidedItems.clear();
             clearInflictionsDealt();
@@ -866,7 +868,7 @@ public abstract class Weapon extends Item
             }
 
             totalSec = 0;
-            state = State.WARMUP;
+            state = State.VOID;
 
             collidedItems.clear();
             clearInflictionsDealt();
@@ -940,7 +942,7 @@ public abstract class Weapon extends Item
 
         float totalSec = 0;
         Command command;
-        State state = State.WARMUP;
+        State state = State.VOID;
 
         @Override
         public String getName() { return "personal contact"; }
@@ -998,7 +1000,7 @@ public abstract class Weapon extends Item
             }
 
             totalSec = 0;
-            state = State.WARMUP;
+            state = State.VOID;
 
             collidedItems.clear();
             clearInflictionsDealt();
@@ -1111,7 +1113,7 @@ public abstract class Weapon extends Item
             }
 
             totalSec = 0;
-            state = State.WARMUP;
+            state = State.VOID;
 
             collidedItems.clear();
             clearInflictionsDealt();

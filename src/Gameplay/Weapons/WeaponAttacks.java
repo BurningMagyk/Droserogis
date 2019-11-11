@@ -29,10 +29,11 @@ public class WeaponAttacks extends Weapon
     private ConditionAppCycle basicCycle, lungeCycle, a_Cycle, b_Cycle;
     private Tick[][] thrustJourneys, stabJourneys, swingJourneys, braceJourneys;
 
-    private final int iThrust = 0, iThrustLunge = 1, iStab = 2, iSwing = 3, iSwingLunge = 4;
+    // grabbing will use iThrust
+    private final int iThrust = 0, iStab = 1, iSwing = 2, iDraw = 3, iThrow = 4;
 
 
-    public WeaponAttacks(float xPos, float yPos, WeaponTypeEnum weaponType)
+    public WeaponAttacks(float xPos, float yPos, WeaponTypeEnum weaponType, WeaponStat weaponStat)
     {
         //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
@@ -197,37 +198,58 @@ public class WeaponAttacks extends Weapon
     @Override
     Operation getOperation(Command command, Operation currentOp)
     {
+        // X Button => Thrusts
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_1)
         {
+            // Air or water
             if (command.TYPE == Command.StateType.FREE)
             {
+                // Holding left or right
                 if (command.DIR.getHoriz().getSign() != 0)
                 {
+                    // Holding left-up or right-up
                     if (command.DIR.getVert() == DirEnum.UP)
                         return setOperation(THRUST_DIAG_UP, command);
+
+                    // Holding left-down or right-down
                     if (command.DIR.getVert() == DirEnum.DOWN)
                         return setOperation(THRUST_DIAG_DOWN, command);
                 }
                 if (command.DIR == DirEnum.DOWN)
                     return setOperation(THRUST_DOWN, command);
             }
+
+            // Ground
+
+            // Warming up a downward swing
             if ((currentOp == SWING && ((Melee) currentOp).state == Operation.State.WARMUP))
                 return setOperation((Melee) STAB, command, (((Melee) currentOp).totalSec)); // with reduced warm-up time
+
+            // Cooling down an upward swing or forward up-swing
             if ((currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     || (currentOp == SWING_UP_FORWARD && ((Melee) currentOp).state == Operation.State.COOLDOWN))
                 return setOperation((Melee) STAB, command, false); // with half warm-up time
+
+            // Warming up an upward swing
             if ((currentOp == SWING_UNTERHAU && ((Melee) currentOp).state == Operation.State.WARMUP)
                     || (currentOp == SWING_UNTERHAU_CROUCH && ((Melee) currentOp).state == Operation.State.WARMUP))
                 return setOperation((Melee) STAB_UNTERHAU, command, ((Melee) currentOp).totalSec); // with reduced warm-up time
+
+            // Cooling down a downward swing
             if (currentOp == SWING && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation((Melee) STAB_UNTERHAU, command, false); // with half warm-up time
+
+            // Holding up
             if (command.DIR.getVert() == DirEnum.UP)
             {
+                // Holding left-up or right-up
                 if (command.DIR.getHoriz().getSign() != 0)
                     return setOperation(THRUST_DIAG_UP, command);
                 return setOperation(THRUST_UP, command);
             }
+
+            // Warming up or cooling down a backward up-swing AND switching direction
             if (currentOp == SWING_UP_BACKWARD
                     && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
             {
@@ -236,66 +258,108 @@ public class WeaponAttacks extends Weapon
                 if (((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) STAB, command, false); // with half warm-up time
             }
+
+            // Sprinting
             if (command.SPRINT) return setOperation(THRUST_LUNGE, command);
+
+            // Idle or holding left or right or crouching
             return setOperation(THRUST, command);
         }
 
+        // Y Button => Swings
         if (command.ATTACK_KEY == Actor.ATTACK_KEY_2)
         {
+            // Crouching
             if (command.TYPE == Command.StateType.LOW)
             {
+                // Crouch-sprinting
                 if (command.SPRINT) return setOperation(SWING_LUNGE_UNTERHAU, command);
+
+                // Just crouching
                 return setOperation(SWING_UNTERHAU_CROUCH, command);
             }
+
+            // Prone or sliding
             if (command.TYPE == Command.StateType.PRONE)
             {
+                // Cooling down a forward up-swing
                 if (currentOp == SWING_UP_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_UP_BACKWARD, command, false); // with half warm-up time
+
+                // Cooling down a backward up-swing
                 if (currentOp == SWING_UP_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_UP_FORWARD, command, false); // with half warm-up time
                 return setOperation(SWING_UP_FORWARD, command); // with normal warm-up time
             }
+
+            // Holding up
             if (command.DIR == DirEnum.UP)
             {
+                // Cooling down an upward swing or upward stab
                 if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH
                         || currentOp == STAB_UNTERHAU)
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_UP_BACKWARD, command, true); // with no warm-up time
+
+                // Cooling down a forward up-swing
                 if (currentOp == SWING_UP_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_UP_BACKWARD, command, false); // with half warm-up time
+
+                // Cooling down a backward up-swing
                 if (currentOp == SWING_UP_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_UP_FORWARD, command, false); // with half warm-up time
+
+                // Not cooling down any of that stuff
                 return setOperation(SWING_UP_FORWARD, command); // with normal warm-up time
             }
+
+            // Holding down
             if (command.DIR == DirEnum.DOWN)
             {
+                // Cooling down a downward swing or downward stab
                 if ((currentOp == SWING || currentOp == STAB)
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_DOWN_BACKWARD, command, true); // with no warm-up time
+
+                // Cooling down a forward down-swing
                 if (currentOp == SWING_DOWN_FORWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_DOWN_FORWARD, command, false); // with half warm-up time
+
+                // Cooling down a backward down-swing
                 if (currentOp == SWING_DOWN_BACKWARD
                         && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                     return setOperation((Melee) SWING_DOWN_FORWARD, command, false); // with half warm-up time
+
+                // Not cooling down any of that stuff
                 return setOperation(SWING_DOWN_FORWARD, command); // with normal warm-up time
             }
+
+            // Cooling down a downward swing
             if (currentOp == SWING
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation((Melee) SWING_UNTERHAU, command, false); // with half warm-up time
+
+            // Cooling down an upward swing
             if ((currentOp == SWING_UNTERHAU || currentOp == SWING_UNTERHAU_CROUCH)
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation((Melee) SWING, command, false); // with half warm-up time
+
+            // Cooling down a forward up-swing
             if (currentOp == SWING_UP_FORWARD
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation((Melee) SWING, command, true); // with no warm-up time
+
+            // Cooling down a forward down-swing
             if (currentOp == SWING_DOWN_FORWARD
                     && ((Melee) currentOp).state == Operation.State.COOLDOWN)
                 return setOperation((Melee) SWING_UNTERHAU, command, true); // with no warm-up time
+
+            // During
             if (currentOp == SWING_UP_BACKWARD
                     && currentOp.getDir().getHoriz() != command.FACE.getHoriz())
                 return setOperation((Melee) SWING, command, true); // with no warm-up time
@@ -389,8 +453,7 @@ public class WeaponAttacks extends Weapon
         {
             for (int i = 0; i < journey.length; i++)
             {
-                if (i < 5) journey[i].setSpeed(speeds[iThrust]);
-                else journey[i].setSpeed(speeds[iThrustLunge]);
+                journey[i].setSpeed(speeds[iThrust]);
             }
         }
         for (Tick[] journey : stabJourneys)
@@ -402,8 +465,7 @@ public class WeaponAttacks extends Weapon
         {
             for (int i = 0; i < journey.length; i++)
             {
-                if (i < 6) journey[i].setSpeed(speeds[iSwing]);
-                else journey[i].setSpeed(speeds[iSwingLunge]);
+                journey[i].setSpeed(speeds[iSwing]);
             }
         }
 
@@ -416,7 +478,7 @@ public class WeaponAttacks extends Weapon
             Thrust(Vec2 waits, DirEnum functionalDir, boolean useDirHorizFunctionaly, boolean lunge,
                    ConditionAppCycle statusAppCycle, Tick[] execJourney) {
                 super("thrust", waits, functionalDir, useDirHorizFunctionaly, true, new int[]{DURING_COOLDOWN},
-                        damages[lunge ? iThrustLunge : iThrust], critThreshSpeeds[lunge ? iThrustLunge : iThrust],
+                        damages[iThrust], critThreshSpeeds[iThrust],
                         false, false, statusAppCycle, null, execJourney); } }
 
         /* THRUST_LUNGE, STAB, STAB_UNTERHAU */
@@ -431,8 +493,8 @@ public class WeaponAttacks extends Weapon
         class Swing extends Melee {
             Swing(Vec2 waits, DirEnum functionalDir, boolean lunge,
                   ConditionAppCycle statusAppCycle, Tick[] execJourney) {
-                super("swing", waits, functionalDir, true, new int[]{Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
-                        damages[lunge ? iSwingLunge : iSwing], critThreshSpeeds[lunge ? iSwingLunge : iSwing],
+                super("swing", waits, functionalDir, true, new int[]{DURING_COOLDOWN, Actor.ATTACK_KEY_1, Actor.ATTACK_KEY_2},
+                        damages[iSwing], critThreshSpeeds[iSwing],
                         true, true, statusAppCycle, null, execJourney); } }
 
         /* BRACE, BRACE_UP, BRACE_DIAG_UP */
@@ -452,7 +514,7 @@ public class WeaponAttacks extends Weapon
         THRUST_DOWN = new Thrust(waits[iThrust], DirEnum.DOWN, false, false, basicCycle, thrustJourneys[2]);
         THRUST_DIAG_UP = new Thrust(waits[iThrust], DirEnum.UP, true, false, basicCycle, thrustJourneys[3]);
         THRUST_DIAG_DOWN = new Thrust(waits[iThrust], DirEnum.DOWN, true, false, basicCycle, thrustJourneys[4]);
-        THRUST_LUNGE = new Thrust(waits[iThrustLunge], DirEnum.NONE, true, true, lungeCycle, thrustJourneys[5]);
+        THRUST_LUNGE = new Thrust(waits[iThrust], DirEnum.NONE, true, true, lungeCycle, thrustJourneys[5]);
 
         STAB = new Stab(waits[iStab], DirEnum.DOWN, a_Cycle, stabJourneys[0]);
         STAB_UNTERHAU = new Stab(waits[iStab], DirEnum.UP, a_Cycle, stabJourneys[1]);
@@ -464,8 +526,8 @@ public class WeaponAttacks extends Weapon
         SWING_UP_BACKWARD = new Swing(waits[iSwing], DirEnum.UP, false, basicCycle, swingJourneys[3]);
         SWING_DOWN_FORWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[4]);
         SWING_DOWN_BACKWARD = new Swing(waits[iSwing], DirEnum.DOWN, false, basicCycle, swingJourneys[5]);
-        SWING_LUNGE = new Swing(waits[iSwingLunge], DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
-        SWING_LUNGE_UNTERHAU = new Swing(waits[iSwingLunge], DirEnum.UP, true, lungeCycle, swingJourneys[7]);
+        SWING_LUNGE = new Swing(waits[iSwing], DirEnum.DOWN, true, lungeCycle, swingJourneys[6]);
+        SWING_LUNGE_UNTERHAU = new Swing(waits[iSwing], DirEnum.UP, true, lungeCycle, swingJourneys[7]);
     }
 
     @Override

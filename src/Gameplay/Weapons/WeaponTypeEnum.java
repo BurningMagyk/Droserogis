@@ -146,10 +146,14 @@ public enum WeaponTypeEnum
         DAGGER.DRAW                         = null;
         DAGGER.LOAD                         = null;
         DAGGER.SHOOT                        = null;
+        DAGGER.BLOCK                        = false;
+        DAGGER.PARRY                        = false;
         copyStat(DAGGER, LONG_SWORD);
         copyStat(DAGGER, KNIFE);
         copyStat(DAGGER, THROWING_KNIFE);
         copyStat(DAGGER, PARRYING_DAGGER);
+        PARRYING_DAGGER.BLOCK               = true;
+        PARRYING_DAGGER.PARRY               = true;
         copyStat(DAGGER, SICKLE);
         SICKLE.THRUST                       = null;
         SICKLE.THRUST_UP                    = null;
@@ -181,6 +185,8 @@ public enum WeaponTypeEnum
         BATTLEAXE.DRAW                      = null;
         BATTLEAXE.LOAD                      = null;
         BATTLEAXE.SHOOT                     = null;
+        BATTLEAXE.BLOCK                     = false;
+        BATTLEAXE.PARRY                     = true;
         copyStat(BATTLEAXE, GREATAXE);
         copyStat(BATTLEAXE, THROWING_AXE);
         THROWING_AXE.SWING                  = new Stat();
@@ -188,18 +194,25 @@ public enum WeaponTypeEnum
         THROWING_AXE.SWING_UNTERHAU_CROUCH  = new Stat();
         THROWING_AXE.SWING_UP_FORWARD       = new Stat();
         THROWING_AXE.SWING_UP_BACKWARD      = new Stat();
+        THROWING_AXE.PARRY                  = false;
         copyStat(THROWING_AXE, HATCHET);
         copyStat(BATTLEAXE, PICKAXE);
+        PICKAXE.BLOCK                       = true;
+        PICKAXE.PARRY                       = false;
 
         copyStat(SHORT_SWORD, MACE);
         MACE.STAB                           = new Stat();
         MACE.STAB_UNTERHAU                  = new Stat();
+        MACE.BLOCK                          = false;
+        MACE.PARRY                          = false;
         copyStat(MACE, FLAIL);
         FLAIL.SWING                         = new Stat(ALT_SELF);
         FLAIL.SWING_UNTERHAU                = new Stat(ALT_SELF);
         copyStat(MACE, MORNING_STAR);
+        MORNING_STAR.PARRY                  = true;
         copyStat(SHORT_SWORD, SHOVEL);
         copyStat(MACE, STICK);
+        STICK.BLOCK                         = true;
         WHIP.THRUST                         = null;
         WHIP.THRUST_UP                      = null;
         WHIP.THRUST_DOWN                    = null;
@@ -271,7 +284,10 @@ public enum WeaponTypeEnum
         LANCE.STAB_UNTERHAU                 = new Stat();
         LANCE.SWING_UP_FORWARD              = new Stat();
         LANCE.SWING_UP_BACKWARD             = new Stat();
+        LANCE.BLOCK                         = true;
         copyStat(SPEAR, JAVELIN);
+        JAVELIN.PARRY                       = false;
+
         copyStat(WHIP, SHORTBOW);
         SHORTBOW.SWING                      = new Stat();
         SHORTBOW.SWING_UNTERHAU             = new Stat();
@@ -280,6 +296,7 @@ public enum WeaponTypeEnum
         SHORTBOW.SWING_UP_BACKWARD          = new Stat();
         SHORTBOW.DRAW                       = new Stat();
         SHORTBOW.SHOOT                      = new Stat();
+        SHORTBOW.BLOCK                      = true;
         copyStat(SHORTBOW, LONGBOW);
         copyStat(SHORTBOW, WARBOW);
         copyStat(SHORTBOW, RECURVE_BOW);
@@ -291,6 +308,7 @@ public enum WeaponTypeEnum
         SLING.SWING_UP_FORWARD              = new Stat();
         SLING.SWING_UP_BACKWARD             = new Stat();
         SLING.DRAW                          = null;
+        SLING.BLOCK                         = false;
 
         FISTS.THRUST                        = new Stat();
         FISTS.THRUST_UP                     = new Stat();
@@ -312,6 +330,8 @@ public enum WeaponTypeEnum
         FISTS.DRAW                          = null;
         FISTS.LOAD                          = null;
         FISTS.SHOOT                         = null;
+        FISTS.BLOCK                         = true;
+        FISTS.PARRY                         = true;
         FEET.THRUST                         = new Stat();
         FEET.THRUST_UP                      = null;
         FEET.THRUST_DOWN                    = new Stat(HOLDABLE);
@@ -346,5 +366,6 @@ public enum WeaponTypeEnum
         HORNS.THRUST                        = new Stat(HOLDABLE);
         HORNS.THRUST_DIAG_UP                = new Stat(HOLDABLE);
         HORNS.THRUST_UP                     = new Stat(HOLDABLE);
+        HORNS.BLOCK                         = false;
     }
 }
