@@ -3,9 +3,12 @@
 *.flac
 *.wav
 
-# ignore all image files
-*.png
-*.jpg
+#temp vim files
+*~
+
+# ignore uncontrolled all image files
+Uncontrolled/*
+*/Uncontrolled/*
 
 # ignore all font files
 *.ttf

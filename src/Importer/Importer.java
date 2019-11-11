@@ -17,7 +17,7 @@ public class Importer
     private final ResourceComp COMP = new ResourceComp();
 
     private String fontDir = "/Fonts/";
-    private String imageDir = "/Images/";
+    private String imageDir = "/Uncontrolled/";
     private String audioDir = "/Audio/";
 
     public void setContext(GraphicsContext context)

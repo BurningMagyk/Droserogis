@@ -47,7 +47,7 @@ public enum LanguageEnum
     public int getID() { return -1; }
     public Image getFlag()
     {
-        String path = "/Images/FLAG_" + super.toString() + ".png";
+        String path = "/Uncontrolled/FLAG_" + super.toString() + ".png";
         InputStream input = getClass()
                 .getResourceAsStream(path);
         if (input == null)
