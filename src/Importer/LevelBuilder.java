@@ -93,7 +93,13 @@ public class LevelBuilder  extends Application
 
     Timeline timeline;
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
+        long heapSize = Runtime.getRuntime().totalMemory();
+        System.out.println("heapSize = "+ heapSize/1000);
+
+        long max = Runtime.getRuntime().maxMemory();
+        System.out.println("max = "+ max/1000);
         launch(args);
     }
 
