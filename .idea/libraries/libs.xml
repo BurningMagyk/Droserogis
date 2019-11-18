@@ -9,13 +9,21 @@
       <root url="jar://$PROJECT_DIR$/libs/lwjgl.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-glfw-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-glfw-natives-windows.jar!/" />
-      <root url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" />
+      <root url="file://$PROJECT_DIR$/libs" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx-swt.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.base.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.controls.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.fxml.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.graphics.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.media.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.swing.jar!/" />
+      <root url="jar://C:/Program Files/Java/javafx-sdk-12.0.1/lib/javafx.web.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" />
+      <root url="file://$PROJECT_DIR$/libs" />
     </SOURCES>
-    <jarDirectory url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" recursive="false" />
-    <jarDirectory url="file://C:/Program Files/Java/javafx-sdk-11.0.2/lib" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" type="SOURCES" />
   </library>
 </component>

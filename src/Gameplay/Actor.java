@@ -1374,7 +1374,7 @@ public class Actor extends Item
 
                 boolean deflected = inf.applyDamage(this);
                 inf.applyMomentum(this, getBlockingWeapon(), deflected);
-                inf.applyCondition(this);
+                //inf.applyCondition(this);
 
                 inf.resolve();
             }

@@ -511,10 +511,10 @@ public abstract class Weapon extends Item
         void applyFinish() { apply(2); }
         private void apply(int step)
         {
-            if (conditionApps[step] != null) conditionApps[step].apply(actor);
+            if (conditionApps[step] != null) conditionApps[step].apply(actor, conditionMod);
         }
     }
-    class ConditionApp
+    static class ConditionApp
     {
         private Actor.Condition[] conditions;
         float time;
@@ -539,10 +539,10 @@ public abstract class Weapon extends Item
         ConditionApp add(ConditionApp app) { return new ConditionApp(app, conditions); }
         ConditionApp lengthen(float newTime) { return new ConditionApp(this, newTime); }
 
-        void apply(Actor actor)
+        void apply(Actor actor, float timeMod)
         {
             for (Actor.Condition condition : conditions)
-                actor.addCondition(time * conditionMod, condition);
+                actor.addCondition(time * timeMod, condition);
         }
     }
 

@@ -1,5 +1,7 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
+
 public enum WeaponTypeEnum
 {
     SHORT_SWORD, LONG_SWORD, GREATSWORD, SCIMITAR, RAPIER,
@@ -18,6 +20,7 @@ public enum WeaponTypeEnum
     {
         final boolean STANCE, ATTACK, SELF, HOLD;
         final int TRAJ;
+        ConditionAppCycle cycle;
         Stat(int ...args)
         {
             boolean[] boolVars = { false, false, false, false };
@@ -42,7 +45,87 @@ public enum WeaponTypeEnum
             HOLD = arg4;
             TRAJ = arg5;
         }
+        void setConditionAppCycle(ConditionAppCycle cycle) { this.cycle = cycle; }
         Stat copy() { return new Stat(STANCE, ATTACK, SELF, HOLD, TRAJ); }
+    }
+
+    static class ConditionAppCycle
+    {
+        Actor actor;
+        Weapon.ConditionApp[] conditionApps = new Weapon.ConditionApp[3];
+        ConditionAppCycle(Weapon.ConditionApp start, Weapon.ConditionApp run, Weapon.ConditionApp finish)
+        {
+            conditionApps[0] = start;
+            conditionApps[1] = run;
+            conditionApps[2] = finish;
+        }
+
+        void setActor(Actor actor) { this.actor = actor; }
+        void applyStart(float timeMod) { apply(0, timeMod); }
+        void applyRun(float timeMod) { apply(1, timeMod); }
+        void applyFinish(float timeMod) { apply(2, timeMod); }
+        private void apply(int step, float timeMod)
+        {
+            if (conditionApps[step] != null) conditionApps[step].apply(actor, timeMod);
+        }
+    }
+
+    Weapon.ConditionApp FORCE_STAND = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+    //ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
+    Weapon.ConditionApp FORCE_CROUCH = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
+    Weapon.ConditionApp FORCE_DASH = new Weapon.ConditionApp(0.01F, Actor.Condition.DASH);
+
+    Weapon.ConditionApp NEGATE_RUN = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+    //ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
+    //ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
+    Weapon.ConditionApp NEGATE_WALK = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+
+    Weapon.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+    Weapon.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
+
+    Weapon.ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+    Weapon.ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+
+    Weapon.ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+
+    Weapon.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+    private ConditionAppCycle commonCycle;
+    private static void setCycle(WeaponTypeEnum type)
+    {
+        ConditionAppCycle basicCycle;
+        /*if (type == DAGGER || type == FISTS || type == HORNS)
+        {
+            type.THRUST                  = typeA.THRUST == null ? null : typeA.THRUST.copy();
+            type.THRUST_UP               = typeA.THRUST_UP == null ? null : typeA.THRUST_UP.copy();
+            type.THRUST_DOWN             = typeA.THRUST_DOWN == null ? null : typeA.THRUST_DOWN.copy();
+            type.THRUST_DIAG_UP          = typeA.THRUST_DIAG_UP == null ? null : typeA.THRUST_DIAG_UP.copy();
+            type.THRUST_DIAG_DOWN        = typeA.THRUST_DIAG_DOWN == null ? null : typeA.THRUST_DIAG_DOWN.copy();
+            type.THRUST_LUNGE            = typeA.THRUST_LUNGE == null ? null : typeA.THRUST_LUNGE.copy();
+            type.STAB                    = typeA.STAB == null ? null : typeA.STAB.copy();
+            type.STAB_UNTERHAU           = typeA.STAB_UNTERHAU == null ? null : typeA.STAB_UNTERHAU.copy();
+            type.SWING                   = typeA.SWING == null ? null : typeA.SWING.copy();
+            type.SWING_UNTERHAU          = typeA.SWING_UNTERHAU == null ? null : typeA.SWING_UNTERHAU.copy();
+            type.SWING_UNTERHAU_CROUCH   = typeA.SWING_UNTERHAU_CROUCH == null ? null : typeA.SWING_UNTERHAU_CROUCH.copy();
+            type.SWING_UP_FORWARD        = typeA.SWING_UP_FORWARD == null ? null : typeA.SWING_UP_FORWARD.copy();
+            type.SWING_UP_BACKWARD       = typeA.SWING_UP_BACKWARD == null ? null : typeA.SWING_UP_BACKWARD.copy();
+            type.SWING_DOWN_FORWARD      = typeA.SWING_DOWN_FORWARD == null ? null : typeA.SWING_DOWN_FORWARD.copy();
+            type.SWING_DOWN_BACKWARD     = typeA.SWING_DOWN_BACKWARD == null ? null : typeA.SWING_DOWN_BACKWARD.copy();
+            type.SWING_LUNGE             = typeA.SWING_LUNGE == null ? null : typeA.SWING_LUNGE.copy();
+            type.SWING_LUNGE_UNTERHAU    = typeA.SWING_LUNGE_UNTERHAU == null ? null : typeA.SWING_LUNGE_UNTERHAU.copy();
+            type.GRAB                    = typeA.GRAB == null ? null : typeA.GRAB.copy();
+            type.DRAW                    = typeA.DRAW == null ? null : typeA.DRAW.copy();
+            type.LOAD                    = typeA.LOAD == null ? null : typeA.LOAD.copy();
+            type.SHOOT                   = typeA.SHOOT == null ? null : typeA.SHOOT.copy();
+            type.BLOCK                   = typeA.BLOCK;
+            type.PARRY                   = typeA.PARRY;
+        }*/
+
+        if (type == FEET)
+        {
+            type.THRUST.setConditionAppCycle(null);
+            type.STAB.setConditionAppCycle(null);
+            type.SWING_UNTERHAU.setConditionAppCycle(null);
+        }
     }
 
     private static void copyStat(WeaponTypeEnum typeA, WeaponTypeEnum typeB)
@@ -342,6 +425,7 @@ public enum WeaponTypeEnum
         FEET.STAB_UNTERHAU                  = null;
         FEET.SWING                          = null;
         FEET.SWING_UNTERHAU                 = new Stat(ALT_TRAJ_B);
+        FEET.SWING_UNTERHAU_CROUCH          = null;
         FEET.SWING_UP_FORWARD               = null;
         FEET.SWING_UP_BACKWARD              = null;
         FEET.SWING_DOWN_FORWARD             = null;
