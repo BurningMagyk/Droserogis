@@ -70,32 +70,36 @@ public enum WeaponTypeEnum
         }
     }
 
-    Weapon.ConditionApp FORCE_STAND = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
-    //ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
-    Weapon.ConditionApp FORCE_CROUCH = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
-    Weapon.ConditionApp FORCE_DASH = new Weapon.ConditionApp(0.01F, Actor.Condition.DASH);
+    static Weapon.ConditionApp FORCE_STAND = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+    //static ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
+    static Weapon.ConditionApp FORCE_CROUCH = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
+    static Weapon.ConditionApp FORCE_DASH = new Weapon.ConditionApp(0.01F, Actor.Condition.DASH);
 
-    Weapon.ConditionApp NEGATE_RUN = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
-    //ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
-    //ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
-    Weapon.ConditionApp NEGATE_WALK = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+    static Weapon.ConditionApp NEGATE_RUN = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+    //static ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
+    //static ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
+    static Weapon.ConditionApp NEGATE_WALK = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
 
-    Weapon.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
-    Weapon.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
+    static Weapon.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+    static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
 
-    Weapon.ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
-    Weapon.ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+    static Weapon.ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+    static Weapon.ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
 
-    Weapon.ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+    static Weapon.ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
 
-    Weapon.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+    static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+
+    static ConditionAppCycle kickCycle = new ConditionAppCycle(
+        FORCE_STAND, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
+
     private ConditionAppCycle commonCycle;
     private static void setCycle(WeaponTypeEnum type)
     {
         ConditionAppCycle basicCycle;
-        /*if (type == DAGGER || type == FISTS || type == HORNS)
+        if (type == DAGGER || type == FISTS || type == HORNS)
         {
-            type.THRUST                  = typeA.THRUST == null ? null : typeA.THRUST.copy();
+            /*type.THRUST.setConditionAppCycle();
             type.THRUST_UP               = typeA.THRUST_UP == null ? null : typeA.THRUST_UP.copy();
             type.THRUST_DOWN             = typeA.THRUST_DOWN == null ? null : typeA.THRUST_DOWN.copy();
             type.THRUST_DIAG_UP          = typeA.THRUST_DIAG_UP == null ? null : typeA.THRUST_DIAG_UP.copy();
@@ -117,14 +121,14 @@ public enum WeaponTypeEnum
             type.LOAD                    = typeA.LOAD == null ? null : typeA.LOAD.copy();
             type.SHOOT                   = typeA.SHOOT == null ? null : typeA.SHOOT.copy();
             type.BLOCK                   = typeA.BLOCK;
-            type.PARRY                   = typeA.PARRY;
-        }*/
+            type.PARRY                   = typeA.PARRY;*/
+        }
 
         if (type == FEET)
         {
-            type.THRUST.setConditionAppCycle(null);
-            type.STAB.setConditionAppCycle(null);
-            type.SWING_UNTERHAU.setConditionAppCycle(null);
+            type.THRUST.setConditionAppCycle(kickCycle);
+            type.STAB.setConditionAppCycle(kickCycle);
+            type.SWING_UNTERHAU.setConditionAppCycle(kickCycle);
         }
     }
 
