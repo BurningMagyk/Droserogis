@@ -26,16 +26,63 @@ class MeleeOperation implements Weapon.Operation
         Print.blue("Operating " + getName());
     }
 
+    private boolean warmup(float deltaSec)
+    {
+        cycle.applyWarmup(1); // TODO: how to determine timeMod value
+        if (warmBoost > 0) totalSec += deltaSec;
+        if (warmJourney.check(totalSec, command.FACE))
+        {
+            totalSec = 0;
+            state = State.EXECUTION;
+            return execute();
+        }
+        return false;
+    }
+
+    private boolean execute()
+    {
+        cycle.applyExecution(1); // TODO: how to determine timeMod value
+
+        for (Weapon.Tick tick : execJourney)
+        {
+            if (tick.check(totalSec, command.FACE))
+            {
+                return cooldown();
+            }
+        }
+        totalSec = 0;
+        state = State.COOLDOWN;
+        return false;
+    }
+
+    private boolean cooldown()
+    {
+        cycle.applyCooldown(1); // TODO: how to determine timeMod
+
+        if (!coolJourney.check(totalSec, command.FACE))
+        {
+            return false;
+        }
+
+        totalSec = 0;
+        state = State.VOID;
+
+        // TODO: needs access to collidedItems and inflictionsDealt
+        //collidedItems.clear();
+        //clearInflictionsDealt();
+        return true;
+    }
+
     @Override
     public boolean run(float deltaSec)
     {
         totalSec += deltaSec;
 
-        if (state == State.WARMUP)
-        {
-            //conditionAppCycle
-        }
-        return false;
+        if (state == State.WARMUP) return warmup(deltaSec);
+        else if (state == State.EXECUTION) return execute();
+        else if (state == State.COOLDOWN) return cooldown();
+
+        return true;
     }
 
     @Override
@@ -81,6 +128,7 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private String name;
+    private WeaponTypeEnum.ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
@@ -90,9 +138,8 @@ class MeleeOperation implements Weapon.Operation
     private State state = State.VOID;
     private Command command;
     private boolean warmSkip = false;
-    private float totalSec = 0, warmBoost = 0;
+    private float totalSec = 0, warmBoost = 0; // TODO: warmBoost needs to be set somewhere
 
-    // TODO: conditionAppCycle set in WeaponTypeEnum (daggers would be different)
     // TODO: conditionAppInfliction should be integrated into damage
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
     // TODO: disruptive set universally in WeaponTypeEnum (swings true, others false)
@@ -107,6 +154,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this.name = name;
+        this.cycle = stat.cycle;
         this.waits = waits.clone();
         this.funcDir = funcDir;
         this.damage = damage;

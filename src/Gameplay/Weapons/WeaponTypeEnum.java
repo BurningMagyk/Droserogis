@@ -53,17 +53,17 @@ public enum WeaponTypeEnum
     {
         Actor actor;
         Weapon.ConditionApp[] conditionApps = new Weapon.ConditionApp[3];
-        ConditionAppCycle(Weapon.ConditionApp start, Weapon.ConditionApp run, Weapon.ConditionApp finish)
+        ConditionAppCycle(Weapon.ConditionApp warmup, Weapon.ConditionApp execution, Weapon.ConditionApp cooldown)
         {
-            conditionApps[0] = start;
-            conditionApps[1] = run;
-            conditionApps[2] = finish;
+            conditionApps[0] = warmup;
+            conditionApps[1] = execution;
+            conditionApps[2] = cooldown;
         }
 
         void setActor(Actor actor) { this.actor = actor; }
-        void applyStart(float timeMod) { apply(0, timeMod); }
-        void applyRun(float timeMod) { apply(1, timeMod); }
-        void applyFinish(float timeMod) { apply(2, timeMod); }
+        void applyWarmup(float timeMod) { apply(0, timeMod); }
+        void applyExecution(float timeMod) { apply(1, timeMod); }
+        void applyCooldown(float timeMod) { apply(2, timeMod); }
         private void apply(int step, float timeMod)
         {
             if (conditionApps[step] != null) conditionApps[step].apply(actor, timeMod);
@@ -75,11 +75,13 @@ public enum WeaponTypeEnum
     static Weapon.ConditionApp FORCE_CROUCH = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
     static Weapon.ConditionApp FORCE_DASH = new Weapon.ConditionApp(0.01F, Actor.Condition.DASH);
 
+    static Weapon.ConditionApp NEGATE_SPRINT = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_SPRINT_LEFT, Actor.Condition.NEGATE_SPRINT_RIGHT);
     static Weapon.ConditionApp NEGATE_RUN = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
     //static ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
     //static ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
     static Weapon.ConditionApp NEGATE_WALK = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
 
+    static Weapon.ConditionApp FORCE_STAND__NEGATE_SPRINT=      FORCE_STAND .add(NEGATE_SPRINT);
     static Weapon.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
     static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
 
@@ -90,39 +92,60 @@ public enum WeaponTypeEnum
 
     static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
 
-    static ConditionAppCycle kickCycle = new ConditionAppCycle(
-        FORCE_STAND, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
-
     private ConditionAppCycle commonCycle;
     private static void setCycle(WeaponTypeEnum type)
     {
-        ConditionAppCycle basicCycle;
+        ConditionAppCycle basicCycle = new ConditionAppCycle(
+                FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
+        ConditionAppCycle uppercutCycle = new ConditionAppCycle(
+                FORCE_CROUCH__NEGATE_WALK, FORCE_STAND__NEGATE_RUN, NEGATE_WALK__LONG);
+        ConditionAppCycle lungeCycle = new ConditionAppCycle(
+                FORCE_DASH, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_WALK__LONG);
+        ConditionAppCycle kickCycle = new ConditionAppCycle(
+                FORCE_STAND, FORCE_STAND__NEGATE_WALK, FORCE_STAND__NEGATE_WALK);
+
+        if (type.THRUST != null) type.THRUST.setConditionAppCycle(basicCycle);
+        if (type.THRUST_UP != null) type.THRUST_UP.setConditionAppCycle(basicCycle);
+        if (type.THRUST_DOWN != null) type.THRUST_DOWN.setConditionAppCycle(basicCycle);
+        if (type.THRUST_DIAG_UP != null) type.THRUST_DIAG_UP.setConditionAppCycle(basicCycle);
+        if (type.THRUST_DIAG_DOWN != null) type.THRUST_DIAG_DOWN.setConditionAppCycle(basicCycle);
+        if (type.THRUST_LUNGE != null) type.THRUST_LUNGE.setConditionAppCycle(lungeCycle);
+        if (type.STAB != null) type.STAB.setConditionAppCycle(kickCycle);
+        if (type.STAB_UNTERHAU != null) type.STAB_UNTERHAU.setConditionAppCycle(uppercutCycle);
+        if (type.SWING != null) type.SWING.setConditionAppCycle(basicCycle);
+        if (type.SWING_UNTERHAU != null) type.SWING_UNTERHAU.setConditionAppCycle(uppercutCycle);
+        if (type.SWING_UNTERHAU_CROUCH != null) type.SWING_UNTERHAU_CROUCH.setConditionAppCycle(uppercutCycle);
+        if (type.SWING_UP_FORWARD != null) type.SWING_UP_FORWARD.setConditionAppCycle(basicCycle);
+        if (type.SWING_UP_BACKWARD != null) type.SWING_UP_BACKWARD.setConditionAppCycle(basicCycle);
+        if (type.SWING_DOWN_FORWARD != null) type.SWING_DOWN_FORWARD.setConditionAppCycle(basicCycle);
+        if (type.SWING_DOWN_BACKWARD != null) type.SWING_DOWN_BACKWARD.setConditionAppCycle(basicCycle);
+        if (type.SWING_LUNGE != null) type.SWING_LUNGE.setConditionAppCycle(lungeCycle);
+        if (type.SWING_LUNGE_UNTERHAU != null) type.SWING_LUNGE_UNTERHAU.setConditionAppCycle(lungeCycle);
+        if (type.GRAB != null) type.GRAB.setConditionAppCycle(kickCycle);
+        if (type.DRAW != null) type.DRAW.setConditionAppCycle(basicCycle);
+        if (type.LOAD != null) type.LOAD.setConditionAppCycle(basicCycle);
+        if (type.SHOOT != null) type.SHOOT.setConditionAppCycle(basicCycle);
+
+        ConditionAppCycle nimbleCycle = new ConditionAppCycle(
+                NEGATE_SPRINT, NEGATE_SPRINT, NEGATE_SPRINT);
         if (type == DAGGER || type == FISTS || type == HORNS)
         {
-            /*type.THRUST.setConditionAppCycle();
-            type.THRUST_UP               = typeA.THRUST_UP == null ? null : typeA.THRUST_UP.copy();
-            type.THRUST_DOWN             = typeA.THRUST_DOWN == null ? null : typeA.THRUST_DOWN.copy();
-            type.THRUST_DIAG_UP          = typeA.THRUST_DIAG_UP == null ? null : typeA.THRUST_DIAG_UP.copy();
-            type.THRUST_DIAG_DOWN        = typeA.THRUST_DIAG_DOWN == null ? null : typeA.THRUST_DIAG_DOWN.copy();
-            type.THRUST_LUNGE            = typeA.THRUST_LUNGE == null ? null : typeA.THRUST_LUNGE.copy();
-            type.STAB                    = typeA.STAB == null ? null : typeA.STAB.copy();
-            type.STAB_UNTERHAU           = typeA.STAB_UNTERHAU == null ? null : typeA.STAB_UNTERHAU.copy();
-            type.SWING                   = typeA.SWING == null ? null : typeA.SWING.copy();
-            type.SWING_UNTERHAU          = typeA.SWING_UNTERHAU == null ? null : typeA.SWING_UNTERHAU.copy();
-            type.SWING_UNTERHAU_CROUCH   = typeA.SWING_UNTERHAU_CROUCH == null ? null : typeA.SWING_UNTERHAU_CROUCH.copy();
-            type.SWING_UP_FORWARD        = typeA.SWING_UP_FORWARD == null ? null : typeA.SWING_UP_FORWARD.copy();
-            type.SWING_UP_BACKWARD       = typeA.SWING_UP_BACKWARD == null ? null : typeA.SWING_UP_BACKWARD.copy();
-            type.SWING_DOWN_FORWARD      = typeA.SWING_DOWN_FORWARD == null ? null : typeA.SWING_DOWN_FORWARD.copy();
-            type.SWING_DOWN_BACKWARD     = typeA.SWING_DOWN_BACKWARD == null ? null : typeA.SWING_DOWN_BACKWARD.copy();
-            type.SWING_LUNGE             = typeA.SWING_LUNGE == null ? null : typeA.SWING_LUNGE.copy();
-            type.SWING_LUNGE_UNTERHAU    = typeA.SWING_LUNGE_UNTERHAU == null ? null : typeA.SWING_LUNGE_UNTERHAU.copy();
-            type.GRAB                    = typeA.GRAB == null ? null : typeA.GRAB.copy();
-            type.DRAW                    = typeA.DRAW == null ? null : typeA.DRAW.copy();
-            type.LOAD                    = typeA.LOAD == null ? null : typeA.LOAD.copy();
-            type.SHOOT                   = typeA.SHOOT == null ? null : typeA.SHOOT.copy();
-            type.BLOCK                   = typeA.BLOCK;
-            type.PARRY                   = typeA.PARRY;*/
+            if (type.THRUST != null)            type.THRUST.setConditionAppCycle(nimbleCycle);
+            if (type.THRUST_UP != null)         type.THRUST_UP.setConditionAppCycle(nimbleCycle);
+            if (type.THRUST_DIAG_UP != null)    type.THRUST_DIAG_UP.setConditionAppCycle(nimbleCycle);
+            if (type.STAB != null)
+                type.STAB.setConditionAppCycle(
+                        new ConditionAppCycle(NEGATE_SPRINT, NEGATE_SPRINT, FORCE_CROUCH__NEGATE_WALK));
+            if (type.STAB_UNTERHAU != null)
+                type.STAB_UNTERHAU.setConditionAppCycle(
+                        new ConditionAppCycle(NEGATE_SPRINT, FORCE_STAND__NEGATE_RUN, NEGATE_WALK));
+            if (type.SWING != null)             type.SWING.setConditionAppCycle(nimbleCycle);
+            if (type.SWING_UNTERHAU != null)    type.SWING_UNTERHAU.setConditionAppCycle(nimbleCycle);
+            if (type.SWING_UP_FORWARD != null)  type.SWING_UP_FORWARD.setConditionAppCycle(nimbleCycle);
+            if (type.SWING_UP_BACKWARD != null) type.SWING_UP_BACKWARD.setConditionAppCycle(nimbleCycle);
+            if (type.GRAB != null)              type.GRAB.setConditionAppCycle(basicCycle);
         }
+
 
         if (type == FEET)
         {
@@ -212,6 +235,11 @@ public enum WeaponTypeEnum
         RAPIER.THRUST_DIAG_DOWN             = new Stat(ALT_STANCE, HOLDABLE);
         RAPIER.STAB                         = new Stat(ALT_STANCE, HOLDABLE);
         RAPIER.STAB_UNTERHAU                = new Stat(ALT_STANCE, HOLDABLE);
+        setCycle(SHORT_SWORD);
+        setCycle(LONG_SWORD);
+        setCycle(GREATSWORD);
+        setCycle(SCIMITAR);
+        setCycle(RAPIER);
 
         DAGGER.THRUST                       = new Stat();
         DAGGER.THRUST_UP                    = new Stat();
@@ -235,7 +263,6 @@ public enum WeaponTypeEnum
         DAGGER.SHOOT                        = null;
         DAGGER.BLOCK                        = false;
         DAGGER.PARRY                        = false;
-        copyStat(DAGGER, LONG_SWORD);
         copyStat(DAGGER, KNIFE);
         copyStat(DAGGER, THROWING_KNIFE);
         copyStat(DAGGER, PARRYING_DAGGER);
@@ -251,6 +278,12 @@ public enum WeaponTypeEnum
         SICKLE.SWING_UP_FORWARD             = new Stat();
         SICKLE.SWING_UP_BACKWARD            = new Stat();
         copyStat(SICKLE, ROCK);
+        setCycle(DAGGER);
+        setCycle(KNIFE);
+        setCycle(THROWING_KNIFE);
+        setCycle(PARRYING_DAGGER);
+        setCycle(SICKLE);
+        setCycle(ROCK);
 
         BATTLEAXE.THRUST                    = new Stat();
         BATTLEAXE.THRUST_UP                 = new Stat();
@@ -286,6 +319,11 @@ public enum WeaponTypeEnum
         copyStat(BATTLEAXE, PICKAXE);
         PICKAXE.BLOCK                       = true;
         PICKAXE.PARRY                       = false;
+        setCycle(BATTLEAXE);
+        setCycle(GREATAXE);
+        setCycle(THROWING_AXE);
+        setCycle(HATCHET);
+        setCycle(PICKAXE);
 
         copyStat(SHORT_SWORD, MACE);
         MACE.STAB                           = new Stat();
@@ -320,6 +358,12 @@ public enum WeaponTypeEnum
         WHIP.DRAW                           = null;
         WHIP.LOAD                           = null;
         WHIP.SHOOT                          = null;
+        setCycle(MACE);
+        setCycle(FLAIL);
+        setCycle(MORNING_STAR);
+        setCycle(SHOVEL);
+        setCycle(STICK);
+        setCycle(WHIP);
 
         SARISSA.THRUST                      = new Stat();
         SARISSA.THRUST_UP                   = new Stat(HOLDABLE);
@@ -374,6 +418,16 @@ public enum WeaponTypeEnum
         LANCE.BLOCK                         = true;
         copyStat(SPEAR, JAVELIN);
         JAVELIN.PARRY                       = false;
+        setCycle(SARISSA);
+        setCycle(HALBERD);
+        setCycle(GLAIVE);
+        setCycle(WAR_SCYTHE);
+        setCycle(SCYTHE);
+        setCycle(SPEAR);
+        setCycle(PITCHFORK);
+        setCycle(QUARTERSTAFF);
+        setCycle(LANCE);
+        setCycle(JAVELIN);
 
         copyStat(WHIP, SHORTBOW);
         SHORTBOW.SWING                      = new Stat();
@@ -396,6 +450,12 @@ public enum WeaponTypeEnum
         SLING.SWING_UP_BACKWARD             = new Stat();
         SLING.DRAW                          = null;
         SLING.BLOCK                         = false;
+        setCycle(SHORTBOW);
+        setCycle(LONGBOW);
+        setCycle(WARBOW);
+        setCycle(RECURVE_BOW);
+        setCycle(CROSSBOW);
+        setCycle(SLING);
 
         FISTS.THRUST                        = new Stat();
         FISTS.THRUST_UP                     = new Stat();
@@ -440,10 +500,10 @@ public enum WeaponTypeEnum
         FEET.LOAD                           = null;
         FEET.SHOOT                          = null;
         copyStat(FISTS, CLAWS);
-        FISTS.THRUST                        = null;
-        FISTS.THRUST_UP                     = null;
-        FISTS.THRUST_DOWN                   = null;
-        FISTS.THRUST_DIAG_UP                = null;
+        CLAWS.THRUST                        = null;
+        CLAWS.THRUST_UP                     = null;
+        CLAWS.THRUST_DOWN                   = null;
+        CLAWS.THRUST_DIAG_UP                = null;
         CLAWS.SWING                         = new Stat(ALT_ATTACK);
         CLAWS.SWING_UNTERHAU                = new Stat(ALT_ATTACK);
         CLAWS.SWING_UNTERHAU_CROUCH         = new Stat(ALT_ATTACK);
@@ -455,5 +515,9 @@ public enum WeaponTypeEnum
         HORNS.THRUST_DIAG_UP                = new Stat(HOLDABLE);
         HORNS.THRUST_UP                     = new Stat(HOLDABLE);
         HORNS.BLOCK                         = false;
+        setCycle(FISTS);
+        setCycle(FEET);
+        setCycle(CLAWS);
+        setCycle(HORNS);
     }
 }
