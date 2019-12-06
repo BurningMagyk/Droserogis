@@ -125,6 +125,7 @@ public class Actor extends Item
 
     private LateSurface[] touchLateSurface = new LateSurface[4];
 
+    /* The only purpose of this class is for climbing stairs */
     private class PrevGround
     {
         Entity ground = null; float pos;
@@ -132,6 +133,7 @@ public class Actor extends Item
     }
     private PrevGround prevGround = new PrevGround();
 
+    /* The only purpose of these is for camera orientation */
     private boolean fromWall = false;
     private float fromGround = getY();
 
@@ -586,7 +588,7 @@ public class Actor extends Item
     {
         boolean able = !has(Condition.NEGATE_ACTIVITY) && !has(Condition.NEGATE_BLOCK);
         boolean prone = has(Condition.NEGATE_STABILITY);
-        boolean shield = false;
+        boolean shield = false; // TODO: set to true if shield is equipped
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
