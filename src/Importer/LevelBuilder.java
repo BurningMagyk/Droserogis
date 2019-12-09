@@ -6,8 +6,8 @@ import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Natural;
-import Gameplay.Weapons.WeaponAttacks;
-import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.WeaponAttacks_old;
+import Gameplay.Weapons.Weapon_old;
 import Util.Sprite;
 import Util.Vec2;
 
@@ -300,7 +300,7 @@ public class LevelBuilder  extends Application
         {
             Entity entity = entityList.get(i);
 
-            if (!(entity instanceof Weapon) && !(entity instanceof Actor))
+            if (!(entity instanceof Weapon_old) && !(entity instanceof Actor))
             {
                 int vertexIdx = entity.getVertexNear(x, y);
                 if (vertexIdx >= 0)
@@ -314,9 +314,9 @@ public class LevelBuilder  extends Application
 
             if (entity.isInside(x, y))
             {
-                if (entity instanceof Weapon)
+                if (entity instanceof Weapon_old)
                 {
-                    if (((Weapon)entity).getActor() != null) continue;
+                    if (((Weapon_old)entity).getActor() != null) continue;
                 }
                 if (lastSelectedEntity == null || lastSelectedVertexIdx > 0) scene.setCursor(Cursor.HAND);
                 selectedVertexIdx = -1;
@@ -375,7 +375,7 @@ public class LevelBuilder  extends Application
             if (selectedEntity instanceof Actor)
             {
                 Actor actor = ((Actor)selectedEntity);
-                for (Weapon weapon : actor.getWeapons())
+                for (Weapon_old weapon : actor.getWeapons())
                 {
                     if (weapon != null)
                     {
@@ -521,7 +521,7 @@ public class LevelBuilder  extends Application
                         actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         actor.setPosition(x, y);
 
-                        WeaponAttacks sword = new WeaponAttacks(x, y, null, null); // TODO: replace null with weapon traits
+                        WeaponAttacks_old sword = new WeaponAttacks_old(x, y, null, null); // TODO: replace null with weapon traits
                         sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         sword.setPosition(x, y);
                         actor.equip(sword);
@@ -596,7 +596,7 @@ public class LevelBuilder  extends Application
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
         //if (block instanceof Natural) return;
-        if (block instanceof Weapon) return;
+        if (block instanceof Weapon_old) return;
 
         Vec2 pos = block.getPosition();
         if (block == selectedEntity)
@@ -684,9 +684,9 @@ public class LevelBuilder  extends Application
                     type =  "Player";
                     stats += ","+((Actor)entity).getActorType();
                 }
-                else if (entity instanceof WeaponAttacks)
+                else if (entity instanceof WeaponAttacks_old)
                 {
-                    WeaponAttacks sword = ((WeaponAttacks)entity);
+                    WeaponAttacks_old sword = ((WeaponAttacks_old)entity);
                     type =  "WeaponAttacks";
                     Actor actor = sword.getActor();
                     int playerIdx = -1;
@@ -822,10 +822,10 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    entity = new WeaponAttacks(x, y, null, null); // TODO: replace null with weapon traits
+                    entity = new WeaponAttacks_old(x, y, null, null); // TODO: replace null with weapon traits
                     if (parent >= 0)
                     {
-                        entityList.getPlayer(parent).equip((WeaponAttacks)entity);
+                        entityList.getPlayer(parent).equip((WeaponAttacks_old)entity);
                     }
                 }
                 else {

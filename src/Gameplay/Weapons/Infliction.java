@@ -4,33 +4,47 @@ import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
 
 public class Infliction
 {
-    private Weapon source;
-    private Weapon.Operation op;
+    private static int ID_static = 0;
+    private final int ID;
+
+    private Weapon_old.Operation op;
     private Actor inflictor;
 
     private DirEnum dir;
     private GradeEnum damage;
     private float critThreshSpeed;
-    private Weapon.ConditionApp conditionApp;
+    private Weapon_old.ConditionApp conditionApp;
     // TODO: add damage-type
-    //private Vec2 weaponMomentum;
+    private Vec2 momentum;
+    private Vec2 offsetPosition;
+    private boolean easyToBlock;
 
     private boolean finished = false;
 
-    Infliction(Weapon source, Weapon.Operation op, Actor inflictor,
-               DirEnum dir, GradeEnum damage, float critThreshSpeed, Weapon.ConditionApp conditionApp)
+    static void incrementID()
     {
-        this.source = source;
+        if (ID_static == Integer.MAX_VALUE) ID_static = 0;
+        else ID_static++;
+    }
+
+    Infliction(Vec2 momentum, Weapon_old.Operation op, Actor inflictor,
+               DirEnum dir, GradeEnum damage, float critThreshSpeed, Weapon_old.ConditionApp conditionApp,
+               Vec2 offsetPosition, boolean easyToBlock)
+    {
+        ID = ID_static;
+
+        this.momentum = momentum;
         this.op = op;
         this.inflictor = inflictor;
         this.dir = dir;
         this.damage = damage;
         this.conditionApp = conditionApp;
+        this.offsetPosition = offsetPosition;
+        this.easyToBlock = easyToBlock;
 
         //float weaponMomentumMod = 0.1F; // TODO: make this value based on weapon type, attack type, and character strength
         //weaponMomentum = new Vec2(dir.getHoriz().getSign() * weaponMomentumMod, dir.getVert().getSign() * weaponMomentumMod);
@@ -39,32 +53,32 @@ public class Infliction
     void finish() { finished = true; }
     public boolean isFinished() { return finished; }
 
-    public boolean sameSource(Infliction other) { return this.source == other.source; }
+    //public boolean sameSource(Infliction other) { return this.source == other.source; }
+    public boolean sameAs(Infliction other) { return ID == other.ID; }
 
     public DirEnum getDir() { return dir; }
     public GradeEnum getDamage() { return damage; }
     //public void applyCondition(Actor other) { conditionApp.apply(other); }
-    public boolean applyCondition(Weapon other) { return other.clash(source, op, damage); }
+    public boolean applyCondition(Weapon_old other) { return false; }//other.clash(source, op, damage); }
 
     public void applyMomentum(Actor otherActor, Weapon otherWeapon, boolean deflected)
     {
         //v_after = ((m_other * v_other) + (m_this * v_this)) / (m_other + m_this)
 
         Vec2 velForThis, velForOther,
-                weaponMomentum = source.getMomentum(op, dir, otherWeapon),
                 bodyMomentum = inflictor.getVelocity().mul(inflictor.getMass()).add(otherActor.getVelocity().mul(otherActor.getMass()))
                         .div(inflictor.getMass() + otherActor.getMass());
 
         if (deflected)
         {
-            velForThis = weaponMomentum.clone().div(-2).add(bodyMomentum);
-            velForOther = weaponMomentum.clone().div(2).add(bodyMomentum);
+            velForThis = momentum.clone().div(-2).add(bodyMomentum);
+            velForOther = momentum.clone().div(2).add(bodyMomentum);
             inflictor.stagger(dir.getOpp(), (float) velForThis.mag(), true);
         }
         else
         {
             velForThis = bodyMomentum.clone();
-            velForOther = weaponMomentum.clone().add(bodyMomentum);
+            velForOther = momentum.clone().add(bodyMomentum);
         }
         otherActor.stagger(dir, (float) velForOther.mag(), false);
 
@@ -110,10 +124,10 @@ public class Infliction
              * 1 - Prone
              * 2 - Pressing up
              * 3 - Using shield */
-            if (!blockRating[0] || (!blockRating[3] && !source.easyToBlock())) other.damage(_damage);
+            if (!blockRating[0] || (!blockRating[3] && !easyToBlock)) other.damage(_damage);
             else if (blockRating[1])
             {
-                float weaponPos = source.getOffsetPosition().x, actorPos = other.getPosition().x;
+                float weaponPos = offsetPosition.x, actorPos = other.getPosition().x;
 
                 // TODO: may need to switch the !'s around
                 if (((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT)
@@ -131,11 +145,11 @@ public class Infliction
             }
             else
             {
-                float weaponPos = source.getOffsetPosition().x, actorPos = other.getPosition().x;
+                float weaponPos = offsetPosition.x, actorPos = other.getPosition().x;
                 boolean facingLeft = ((Actor) other).getWeaponFace().getHoriz() == DirEnum.LEFT;
                 if ((weaponPos <= actorPos && facingLeft) || (weaponPos >= actorPos && !facingLeft))
                 {
-                    float _weaponPos = source.getOffsetPosition().y, _actorPos = other.getPosition().y;
+                    float _weaponPos = offsetPosition.y, _actorPos = other.getPosition().y;
                     if ((_weaponPos < _actorPos && !blockRating[2]) || _weaponPos > _actorPos && blockRating[2])
                         other.damage(_damage);
                     else return true;

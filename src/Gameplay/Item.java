@@ -327,9 +327,9 @@ public abstract class Item extends Entity
     //}*/
 
     protected ArrayList<Infliction> inflictions = new ArrayList<>();
-    public boolean hasSameInfliction(Infliction other)
+    public boolean hasInfliction(Infliction other)
     {
-        for (Infliction inf : inflictions) { if (inf.sameSource(other)) return true; }
+        for (Infliction inf : inflictions) { if (inf.sameAs(other)) return true; }
         return false;
     }
 

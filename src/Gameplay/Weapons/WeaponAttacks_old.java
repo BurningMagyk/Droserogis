@@ -3,10 +3,9 @@ package Gameplay.Weapons;
 import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
 
-public class WeaponAttacks extends Weapon
+public class WeaponAttacks_old extends Weapon_old
 {
     private Operation
             THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP,
@@ -33,7 +32,7 @@ public class WeaponAttacks extends Weapon
     private final int iThrust = 0, iStab = 1, iSwing = 2, iDraw = 3, iThrow = 4;
 
 
-    public WeaponAttacks(float xPos, float yPos, WeaponTypeEnum weaponType, WeaponStat weaponStat)
+    public WeaponAttacks_old(float xPos, float yPos, WeaponTypeEnum_old weaponType, WeaponStat weaponStat)
     {
         //super(weaponStat, xPos, yPos, width, height, mass, spritePaths);
         super(xPos, yPos, SWORD_WIDTH, SWORD_HEIGHT, SWORD_MASS, SPRITE_PATHS);
@@ -389,7 +388,7 @@ public class WeaponAttacks extends Weapon
     }
 
     @Override
-    boolean clash(Weapon otherWeapon, Operation otherOp, GradeEnum damage)
+    boolean clash(Weapon_old otherWeapon, Operation otherOp, GradeEnum damage)
     {
         //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
 
@@ -427,7 +426,7 @@ public class WeaponAttacks extends Weapon
     }
 
     @Override
-    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
+    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon_old other)
     {
         return new Vec2(dir.getHoriz().getSign() * getMass(), dir.getVert().getSign() * getMass());
     }

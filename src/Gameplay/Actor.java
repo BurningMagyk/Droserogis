@@ -143,7 +143,8 @@ public class Actor extends Item
     // change to more when other attack buttons get implemented
     private boolean[] pressingAttack = new boolean[4];
 
-    public Weapon[] weapons = new Weapon[2];
+    private enum WeaponSlot { NATURAL, SECONDARY, PRIMARY }
+    public Weapon[] weapons = new Weapon[WeaponSlot.values().length];
     private float[] conditions = new float[Condition.values().length];
 
 
@@ -160,7 +161,9 @@ public class Actor extends Item
         setCharacterStats();
 
         //weapons[0] = new Natural(type.createNaturalWeaponStat(), charStat, xPos, yPos, 0.2F, 0.1F, type.mass() * 0.1F, this, null);
-        weapons[0] = new Natural(this, xPos, yPos);
+        //weapons[0] = new Natural(this, xPos, yPos);
+        weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
+                type.mass() * 0.1F, new WeaponType(new Vec2(0, 0), 0), null);
     }
 
     public EnumType getActorType() { return actorType;}
@@ -994,7 +997,7 @@ public class Actor extends Item
 
     public void equip(Weapon weapon)
     {
-        weapons[1] = weapon.equip(this);
+        //weapons[1] = weapon.equip(this);
     }
 
     //===============================================================================================================
@@ -1354,17 +1357,6 @@ public class Actor extends Item
     {
         if (inflictions.isEmpty()) return;
 
-        for (Weapon weapon : weapons)
-        {
-            if (!(weapon instanceof Natural)) continue;
-            for (int i = 0; i < inflictions.size(); i++)
-            {
-                Infliction inf = inflictions.get(i);
-                if (inf.getDamage().ordinal() != 0 && weapon.hasSameInfliction(inf))
-                    inf.cancelDamage();
-            }
-        }
-
         for (int i = 0; i < inflictions.size(); i++)
         {
             Infliction inf = inflictions.get(i);
@@ -1392,6 +1384,7 @@ public class Actor extends Item
     @Override
     public void inflict(Infliction infliction)
     {
+        if (hasInfliction(infliction)) return;
         inflictions.add(infliction);
         Print.yellow("Actor: " + infliction + " added");
     }

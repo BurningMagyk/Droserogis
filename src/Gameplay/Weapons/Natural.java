@@ -1,15 +1,12 @@
 package Gameplay.Weapons;
 
 import Gameplay.Actor;
-import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
-import javafx.scene.image.Image;
 
-public class Natural extends Weapon
+public class Natural extends Weapon_old
 {
     private Operation PUNCH, PUNCH_UP, PUNCH_DIAG, PUSH, HAYMAKER, UPPERCUT,
             SHOVE, STOMP, STOMP_FALL, KICK, KICK_ARC, KICK_AERIAL,
@@ -187,7 +184,7 @@ public class Natural extends Weapon
             return setOperation(KICK, command);
         }
 
-        System.out.println(WeaponTypeEnum.SHORT_SWORD.DRAW);
+        System.out.println(WeaponTypeEnum_old.SHORT_SWORD.DRAW);
 
         return null;
     }
@@ -196,7 +193,7 @@ public class Natural extends Weapon
     boolean isApplicable(Command command) { return true; }
 
     @Override
-    boolean clash(Weapon otherWeapon, Operation otherOp, GradeEnum damage)
+    boolean clash(Weapon_old otherWeapon, Operation otherOp, GradeEnum damage)
     {
         //Print.green(this + " clashed by " + otherWeapon + " using " + otherOp);
 
@@ -234,7 +231,7 @@ public class Natural extends Weapon
     }
 
     @Override
-    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon other)
+    Vec2 getMomentum(Operation operation, DirEnum dir, Weapon_old other)
     {
         return new Vec2(dir.getHoriz().getSign() * getMass(), dir.getVert().getSign() * getMass());
     }
@@ -313,7 +310,7 @@ public class Natural extends Weapon
                         conditionAppCycle, null); }
 
             @Override
-            public void apply(Weapon _this, Item other)
+            public void apply(Weapon_old _this, Item other)
             {
                 if (other == null)
                 {
@@ -333,7 +330,7 @@ public class Natural extends Weapon
                         conditionAppCycle, null); }
 
             @Override
-            public void apply(Weapon _this, Item other)
+            public void apply(Weapon_old _this, Item other)
             {
                 if (other == null)
                 {

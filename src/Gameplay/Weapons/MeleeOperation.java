@@ -12,17 +12,14 @@ class MeleeOperation implements Weapon.Operation
     public String getName() { return name; }
     @Override
     public DirEnum getDir() { return command.FACE; }
-    @Override
-    public void setCommand(Command command) { this.command = command; }
 
     @Override
-    public void start()
-    //public void start(Weapon.Orient orient)
+    public void start(Weapon.Orient orient)
     {
         state = warmSkip ? State.EXECUTION : State.WARMUP;
         totalSec = warmBoost;
         warmBoost = 0;
-        //warmJourney.setStart(orient);
+        warmJourney.setStart(orient);
         Print.blue("Operating " + getName());
     }
 
@@ -43,7 +40,7 @@ class MeleeOperation implements Weapon.Operation
     {
         cycle.applyExecution(1); // TODO: how to determine timeMod value
 
-        for (Weapon.Tick tick : execJourney)
+        for (Weapon_old.Tick tick : execJourney)
         {
             if (tick.check(totalSec, command.FACE))
             {
@@ -86,22 +83,14 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean mayInterrupt(Command next) {
-        return false;
-    }
-
-    @Override
-    public boolean mayApply() {
-        return false;
-    }
-
-    @Override
-    public void letGo(int attackKey) {
+    public void release(int attackKey)
+    {
 
     }
 
     @Override
-    public void apply(Weapon _this, Item other) {
+    public void apply(Item other)
+    {
 
     }
 
@@ -128,11 +117,11 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private String name;
-    private WeaponTypeEnum.ConditionAppCycle cycle;
+    private WeaponTypeEnum_old.ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
-    private Weapon.Tick[] execJourney;
+    private Weapon_old.Tick[] execJourney;
     private Weapon.Journey warmJourney, coolJourney;
 
     private State state = State.VOID;
@@ -146,11 +135,11 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(
             String name,
-            WeaponTypeEnum.Stat stat,
+            WeaponTypeEnum_old.Stat stat,
             Vec2 waits,
             DirEnum funcDir,
             GradeEnum damage,
-            Weapon.Tick[] execJourney
+            Weapon_old.Tick[] execJourney
     )
     {
         this.name = name;

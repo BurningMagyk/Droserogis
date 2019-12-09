@@ -1,12 +1,11 @@
 package Gameplay;
 
-import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.Weapon_old;
 import Importer.LevelBuilder;
 import Importer.ImageResource;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
-import Util.Print;
 import Util.Reactor;
 import Util.Vec2;
 import javafx.animation.AnimationTimer;
@@ -90,7 +89,7 @@ public class Gameplay implements Reactor
 
         for (Item item : entities.getItemList())
         {
-            if (item instanceof Weapon) ((Weapon) item).update(entities.getDynamicItems());
+            if (item instanceof Weapon_old) ((Weapon_old) item).update(entities.getDynamicItems());
         }
 
         /* Center the camera on the player
@@ -260,9 +259,9 @@ public class Gameplay implements Reactor
             }
             else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
             {
-                if (entity instanceof Weapon)
+                if (entity instanceof Weapon_old)
                 {
-                    Vec2[] c = ((Weapon) entity).getShapeCorners();
+                    Vec2[] c = ((Weapon_old) entity).getShapeCorners();
                     double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
                     double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
                     for (int i = 0; i < xCorners.length; i++)

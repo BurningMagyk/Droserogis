@@ -42,7 +42,7 @@ public class Command
         return this;
     }
 
-    void letGo(int attackKey)
+    void release(int attackKey)
     {
         if (attackKey == ATTACK_KEY
                 || attackKey == ATTACK_KEY - Actor.ATTACK_KEY_MOD)

@@ -2,7 +2,7 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 
-public enum WeaponTypeEnum
+public enum WeaponTypeEnum_old
 {
     SHORT_SWORD, LONG_SWORD, GREATSWORD, SCIMITAR, RAPIER,
     DAGGER, KNIFE, THROWING_KNIFE, PARRYING_DAGGER, SICKLE, ROCK,
@@ -52,8 +52,8 @@ public enum WeaponTypeEnum
     static class ConditionAppCycle
     {
         Actor actor;
-        Weapon.ConditionApp[] conditionApps = new Weapon.ConditionApp[3];
-        ConditionAppCycle(Weapon.ConditionApp warmup, Weapon.ConditionApp execution, Weapon.ConditionApp cooldown)
+        Weapon_old.ConditionApp[] conditionApps = new Weapon_old.ConditionApp[3];
+        ConditionAppCycle(Weapon_old.ConditionApp warmup, Weapon_old.ConditionApp execution, Weapon_old.ConditionApp cooldown)
         {
             conditionApps[0] = warmup;
             conditionApps[1] = execution;
@@ -70,30 +70,30 @@ public enum WeaponTypeEnum
         }
     }
 
-    static Weapon.ConditionApp FORCE_STAND = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
+    static Weapon_old.ConditionApp FORCE_STAND = new Weapon_old.ConditionApp(0.1F, Actor.Condition.FORCE_STAND);
     //static ConditionApp forceStand_long = new ConditionApp(forceStand, 0.4F);
-    static Weapon.ConditionApp FORCE_CROUCH = new Weapon.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
-    static Weapon.ConditionApp FORCE_DASH = new Weapon.ConditionApp(0.01F, Actor.Condition.DASH);
+    static Weapon_old.ConditionApp FORCE_CROUCH = new Weapon_old.ConditionApp(0.1F, Actor.Condition.FORCE_CROUCH);
+    static Weapon_old.ConditionApp FORCE_DASH = new Weapon_old.ConditionApp(0.01F, Actor.Condition.DASH);
 
-    static Weapon.ConditionApp NEGATE_SPRINT = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_SPRINT_LEFT, Actor.Condition.NEGATE_SPRINT_RIGHT);
-    static Weapon.ConditionApp NEGATE_RUN = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
+    static Weapon_old.ConditionApp NEGATE_SPRINT = new Weapon_old.ConditionApp(0.01F, Actor.Condition.NEGATE_SPRINT_LEFT, Actor.Condition.NEGATE_SPRINT_RIGHT);
+    static Weapon_old.ConditionApp NEGATE_RUN = new Weapon_old.ConditionApp(0.01F, Actor.Condition.NEGATE_RUN_LEFT, Actor.Condition.NEGATE_RUN_RIGHT);
     //static ConditionApp negateRun_forceStand = new ConditionApp(negateRun, Actor.Condition.FORCE_STAND);
     //static ConditionApp negateRun_forceCrouch = new ConditionApp(negateRun, Actor.Condition.FORCE_CROUCH);
-    static Weapon.ConditionApp NEGATE_WALK = new Weapon.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
+    static Weapon_old.ConditionApp NEGATE_WALK = new Weapon_old.ConditionApp(0.01F, Actor.Condition.NEGATE_WALK_LEFT, Actor.Condition.NEGATE_WALK_RIGHT);
 
-    static Weapon.ConditionApp FORCE_STAND__NEGATE_SPRINT=      FORCE_STAND .add(NEGATE_SPRINT);
-    static Weapon.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
-    static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
+    static Weapon_old.ConditionApp FORCE_STAND__NEGATE_SPRINT=      FORCE_STAND .add(NEGATE_SPRINT);
+    static Weapon_old.ConditionApp FORCE_STAND__NEGATE_RUN   =      FORCE_STAND .add(NEGATE_RUN );
+    static Weapon_old.ConditionApp FORCE_STAND__NEGATE_WALK  =      FORCE_STAND .add(NEGATE_WALK);
 
-    static Weapon.ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
-    static Weapon.ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
+    static Weapon_old.ConditionApp FORCE_CROUCH__NEGATE_RUN  =      FORCE_CROUCH.add(NEGATE_RUN );
+    static Weapon_old.ConditionApp FORCE_CROUCH__NEGATE_WALK =      FORCE_CROUCH.add(NEGATE_WALK);
 
-    static Weapon.ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
+    static Weapon_old.ConditionApp NEGATE_WALK__LONG =              NEGATE_WALK .lengthen(0.4F  );
 
-    static Weapon.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
+    static Weapon_old.ConditionApp FORCE_STAND__NEGATE_WALK__LONG = FORCE_STAND__NEGATE_WALK.lengthen(0.4F);
 
     private ConditionAppCycle commonCycle;
-    private static void setCycle(WeaponTypeEnum type)
+    private static void setCycle(WeaponTypeEnum_old type)
     {
         ConditionAppCycle basicCycle = new ConditionAppCycle(
                 FORCE_STAND, FORCE_STAND__NEGATE_RUN, FORCE_STAND__NEGATE_RUN);
@@ -155,7 +155,7 @@ public enum WeaponTypeEnum
         }
     }
 
-    private static void copyStat(WeaponTypeEnum typeA, WeaponTypeEnum typeB)
+    private static void copyStat(WeaponTypeEnum_old typeA, WeaponTypeEnum_old typeB)
     {
         typeB.THRUST                  = typeA.THRUST == null ? null : typeA.THRUST.copy();
         typeB.THRUST_UP               = typeA.THRUST_UP == null ? null : typeA.THRUST_UP.copy();
