@@ -167,6 +167,7 @@ public class Actor extends Item
         //weapons[0] = new Natural(this, xPos, yPos);
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
                 type.mass() * 0.1F, new WeaponType(new Vec2(0, 0), 0), null);
+        weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
     }
 
     public EnumType getActorType() { return actorType;}
@@ -833,6 +834,16 @@ public class Actor extends Item
             Command command = new Command(attackKey + usingAttackMod,
                     getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
 
+            int prevAttackKey = -1;
+            for (int i = weapons.length - 1; i >= 0; i--)
+            {
+                if (weapons[i] == null) continue;
+                if (pressed && pressingAttack[attackKey] != pressed)
+                {
+
+                }
+            }
+
             for (int i = weapons.length - 1; i >= 0; i--)
             {
                 if (weapons[i] == null) continue;
@@ -880,8 +891,6 @@ public class Actor extends Item
         }
         return weapons[maxRatingIndex];
     }
-
-    public int getMaxCommandChain() { return maxCommandChain; }
 
     public void changeDirFace()
     {
@@ -1554,8 +1563,6 @@ public class Actor extends Item
 
     // friction
 
-    private int maxCommandChain = 3;
-
     /* How long the player staggers */
     private float staggerRecoverTime = 2;
 
@@ -1611,7 +1618,5 @@ public class Actor extends Item
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
-
-        maxCommandChain = charStat.maxCommandChain();
     }
 }

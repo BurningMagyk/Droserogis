@@ -3,6 +3,7 @@ package Gameplay.Weapons;
 import Gameplay.*;
 import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
@@ -26,7 +27,7 @@ public class Weapon extends Item
 
     Actor actor;
     private boolean ballistic = true;
-    private LinkedList<Command> commandQueue = new LinkedList<>();
+    private Command currentCommand;
     Operation currentOp;
 
 
@@ -44,6 +45,15 @@ public class Weapon extends Item
     }
 
     public Actor getActor() { return actor; }
+
+    public void equip(Actor actor)
+    {
+        this.actor = actor;
+        ballistic = false;
+        actor.setPosition(actor.getPosition());
+
+        setTheta(DEF_ORIENT.getTheta(), actor.getWeaponFace());
+    }
 
 
     /*=======================================================================*/
@@ -143,18 +153,18 @@ public class Weapon extends Item
 
     public boolean addCommand(Command command)
     {
-        if (commandQueue.size() < actor.getMaxCommandChain() && isApplicable(command))
+        if (isApplicable(command) && currentCommand == null)
         {
-            commandQueue.addLast(command);
+            currentCommand = command;
             return true;
         }
-        return false;
+        return currentOp == null;
     }
 
     public void releaseCommand(int attackKey)
     {
         if (currentOp != null) currentOp.release(attackKey);
-        for (Command command : commandQueue) command.release(attackKey);
+        if (currentCommand != null) currentCommand.release(attackKey);
     }
 
     private boolean disrupted = false;
