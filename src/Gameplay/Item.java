@@ -1,6 +1,7 @@
 package Gameplay;
 
-import Gameplay.Weapons.Infliction;
+import Gameplay.Weapons.Inflictions.DamageInfliction;
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -46,6 +47,8 @@ public abstract class Item extends Entity
         applyInflictions();
         applyPhysics(entities, deltaSec);
     }
+
+    protected abstract void update(ArrayList<Item> items);
 
     /**
      * Location and velocity carry over from frame to frame.
@@ -315,23 +318,12 @@ public abstract class Item extends Entity
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
         // TODO: write formula for this, taking the Block's material into account
-        if (amount > 0.3) damage(GradeEnum.F);
+        if (amount > 0.3) damage(new DamageInfliction(GradeEnum.F, Infliction.InflictionType.BLUNT));
     }
 
-    /*void takeDamage(int amount)
-    {
-        if (amount == 0) return;
-        /*Print.green("Took " + amount + " point"
-                + (amount == 1 ? "" : "s") + " of damage");*/
-        //hitPoints -= amount;
-    //}*/
+    public abstract void damage(Infliction inf);
 
     protected ArrayList<Infliction> inflictions = new ArrayList<>();
-    public boolean hasInfliction(Infliction other)
-    {
-        for (Infliction inf : inflictions) { if (inf.sameAs(other)) return true; }
-        return false;
-    }
 
     public abstract void inflict(Infliction infliction);
     public abstract boolean easyToBlock();

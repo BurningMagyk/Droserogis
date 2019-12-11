@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Vec2;
 import javafx.scene.image.Image;
@@ -27,7 +28,4 @@ public class Block extends Entity
         if (isLiquid) return liquidColor;
         return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
-
-    @Override
-    public void damage(GradeEnum gradeEnum) {}
 }

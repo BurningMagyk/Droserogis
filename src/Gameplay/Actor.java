@@ -2,6 +2,8 @@ package Gameplay;
 
 import Gameplay.Characters.CharacterStat;
 import Gameplay.Weapons.*;
+import Gameplay.Weapons.Inflictions.ConditionApp;
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -146,6 +148,7 @@ public class Actor extends Item
     private enum WeaponSlot { NATURAL, SECONDARY, PRIMARY }
     public Weapon[] weapons = new Weapon[WeaponSlot.values().length];
     private float[] conditions = new float[Condition.values().length];
+    private boolean[] conditionsB = new boolean[Condition.values().length];
 
 
     public Actor(float xPos, float yPos, EnumType type)
@@ -193,6 +196,10 @@ public class Actor extends Item
         act(deltaSec);
         applyPhysics(entities, deltaSec);
         countdownCondition(deltaSec);
+    }
+    protected void update(ArrayList<Item> items)
+    {
+        /* Does nothing maybe? */
     }
 
     /**
@@ -512,6 +519,12 @@ public class Actor extends Item
             addCondition(condTime, Condition.NEGATE_STABILITY);
             addCondition(condTime, Condition.NEGATE_ATTACK);
             addCondition(condTime, Condition.NEGATE_BLOCK);
+            if (conditionsB[Condition.NEGATE_ACTIVITY.ordinal()])
+            {
+                addCondition(Condition.NEGATE_STABILITY);
+                addCondition(Condition.NEGATE_ATTACK);
+                addCondition(Condition.NEGATE_BLOCK);
+            }
         }
 
         /* FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY */
@@ -570,14 +583,14 @@ public class Actor extends Item
     }
 
     private boolean canWalk() {
-        return conditions[Condition.NEGATE_WALK_LEFT.ordinal()] == 0
-                && conditions[Condition.NEGATE_WALK_RIGHT.ordinal()] == 0;
+        return !has(Condition.NEGATE_WALK_LEFT)
+                && !has(Condition.NEGATE_WALK_RIGHT);
     }
     private boolean canRun()
     {
         return canWalk()
-                && conditions[Condition.NEGATE_RUN_LEFT.ordinal()] == 0
-                && conditions[Condition.NEGATE_RUN_RIGHT.ordinal()] == 0;
+                && !has(Condition.NEGATE_RUN_LEFT)
+                && !has(Condition.NEGATE_RUN_RIGHT);
     }
     private boolean canJump()
     {
@@ -1189,15 +1202,41 @@ public class Actor extends Item
         DASH,
         FORCE_STAND, FORCE_CROUCH
     }
+    private void addConditionApp(Infliction inf)
+    {
+        // TODO: check for immunities and resistances here using condType to cancel effect or modify .getTime()
+
+        ConditionApp condApp = inf.getConditionApp();
+        if (condApp != null)
+        {
+            if (condApp.isSinglet())
+                addCondition(condApp.getConditions());
+            else addCondition(condApp.getTime(), condApp.getConditions());
+        }
+    }
     public void addCondition(float time, Condition... conditions)
+    {
+        if (time < 0) addCondition(conditions);
+        else
+        {
+            for (Condition cond : conditions)
+            {
+                if (this.conditions[cond.ordinal()] < time)
+                    this.conditions[cond.ordinal()] = time;
+            }
+        }
+    }
+    public void addCondition(Condition... conditions)
     {
         for (Condition cond : conditions)
         {
-            if (this.conditions[cond.ordinal()] < time)
-                this.conditions[cond.ordinal()] = time;
+            conditionsB[cond.ordinal()] = true;
         }
     }
-    public boolean has(Condition condition) { return conditions[condition.ordinal()] > 0; }
+    public boolean has(Condition cond)
+    {
+        return conditionsB[cond.ordinal()] || conditions[cond.ordinal()] > 0;
+    }
 
     private boolean willTumble()
     {
@@ -1343,9 +1382,11 @@ public class Actor extends Item
     }
 
     @Override
-    public void damage(GradeEnum amount)
+    public void damage(Infliction inf)
     {
-        Print.yellow("Actor: Dealt " + amount + " damage");
+        GradeEnum damageGrade = inf.getDamage();
+        if (damageGrade != null)
+            Print.yellow("Actor: Dealt " + damageGrade + " damage of type " + inf.getType());
     }
 
     @Override
@@ -1355,36 +1396,20 @@ public class Actor extends Item
     @Override
     protected void applyInflictions()
     {
-        if (inflictions.isEmpty()) return;
-
         for (int i = 0; i < inflictions.size(); i++)
         {
             Infliction inf = inflictions.get(i);
 
-            if (!inf.isResolved())
-            {
-                /* Infliction applied here */
-                Print.yellow("Actor: " + inf);
-
-                boolean deflected = inf.applyDamage(this);
-                inf.applyMomentum(this, getBlockingWeapon(), deflected);
-                //inf.applyCondition(this);
-
-                inf.resolve();
-            }
-
-            if (inf.isFinished())
-            {
-                inflictions.remove(inf);
-                i--;
-                //Print.yellow("Actor: " + inf + " removed");
-            }
+            damage(inf);
+            addConditionApp(inf);
+            Vec2 momentum = inf.getMomentum();
+            if (momentum != null) addVelocity(momentum.div(getMass()));
         }
     }
+
     @Override
     public void inflict(Infliction infliction)
     {
-        if (hasInfliction(infliction)) return;
         inflictions.add(infliction);
         Print.yellow("Actor: " + infliction + " added");
     }

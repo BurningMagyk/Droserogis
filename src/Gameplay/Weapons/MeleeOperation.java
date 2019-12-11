@@ -2,6 +2,9 @@ package Gameplay.Weapons;
 
 import Gameplay.DirEnum;
 import Gameplay.Item;
+import Gameplay.Weapons.Inflictions.ConditionAppCycle;
+import Gameplay.Weapons.Inflictions.ConditionInfliction;
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -12,6 +15,12 @@ class MeleeOperation implements Weapon.Operation
     public String getName() { return name; }
     @Override
     public DirEnum getDir() { return command.FACE; }
+
+    private Infliction infliction, selfInfliction;
+    @Override
+    public Infliction getInfliction() { return infliction; }
+    @Override
+    public Infliction getSelfInfliction() { return selfInfliction; }
 
     @Override
     public void start(Weapon.Orient orient)
@@ -25,7 +34,9 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean warmup(float deltaSec)
     {
-        cycle.applyWarmup(1); // TODO: how to determine timeMod value
+        selfInfliction = new ConditionInfliction(
+                cycle, Infliction.InflictionType.METAL, State.WARMUP.ordinal());
+
         if (warmBoost > 0) totalSec += deltaSec;
         if (warmJourney.check(totalSec, command.FACE))
         {
@@ -38,9 +49,10 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean execute()
     {
-        cycle.applyExecution(1); // TODO: how to determine timeMod value
+        selfInfliction = new ConditionInfliction(
+                cycle, Infliction.InflictionType.METAL, State.EXECUTION.ordinal());
 
-        for (Weapon_old.Tick tick : execJourney)
+        for (Weapon.Tick tick : execJourney)
         {
             if (tick.check(totalSec, command.FACE))
             {
@@ -54,7 +66,8 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean cooldown()
     {
-        cycle.applyCooldown(1); // TODO: how to determine timeMod
+        selfInfliction = new ConditionInfliction(
+                cycle, Infliction.InflictionType.METAL, State.COOLDOWN.ordinal());
 
         if (!coolJourney.check(totalSec, command.FACE))
         {
@@ -117,11 +130,11 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private String name;
-    private WeaponTypeEnum_old.ConditionAppCycle cycle;
+    private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
-    private Weapon_old.Tick[] execJourney;
+    private Weapon.Tick[] execJourney;
     private Weapon.Journey warmJourney, coolJourney;
 
     private State state = State.VOID;
@@ -135,15 +148,15 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(
             String name,
-            WeaponTypeEnum_old.Stat stat,
+            ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
             GradeEnum damage,
-            Weapon_old.Tick[] execJourney
+            Weapon.Tick[] execJourney
     )
     {
         this.name = name;
-        this.cycle = stat.cycle;
+        this.cycle = cycle;
         this.waits = waits.clone();
         this.funcDir = funcDir;
         this.damage = damage;

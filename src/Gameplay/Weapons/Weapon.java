@@ -1,12 +1,12 @@
 package Gameplay.Weapons;
 
-import Gameplay.Actor;
-import Gameplay.DirEnum;
-import Gameplay.Item;
+import Gameplay.*;
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Weapon extends Item
@@ -42,6 +42,8 @@ public class Weapon extends Item
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
     }
+
+    public Actor getActor() { return actor; }
 
 
     /*=======================================================================*/
@@ -97,6 +99,17 @@ public class Weapon extends Item
         setPosition(p);
         setVelocity(v);
         updateCorners(dims, dir);
+    }
+
+    public Vec2[] getShapeCorners()
+    {
+        Vec2[] corners = new Vec2[shapeCorners_Rotated.length];
+        for (int i = 0; i < shapeCorners_Rotated.length; i++)
+        {
+            corners[i] = new Vec2(shapeCorners_Rotated[i].x + shapeCornersOffset.x,
+                    shapeCorners_Rotated[i].y + shapeCornersOffset.y);
+        }
+        return corners;
     }
 
 
@@ -176,9 +189,27 @@ public class Weapon extends Item
     }
 
     @Override
-    public void damage(GradeEnum amount)
+    public void damage(Infliction inf)
     {
 
+    }
+
+
+    /*=======================================================================*/
+    /*                                Loops                                  */
+    /*=======================================================================*/
+
+    @Override
+    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    {
+
+    }
+
+    @Override
+    protected void update(ArrayList<Item> items)
+    {
+        /* Current operation may inflict something to the wielder */
+        //if (currentOp != null)
     }
 
 
@@ -190,6 +221,8 @@ public class Weapon extends Item
     {
         String getName();
         DirEnum getDir();
+        Infliction getInfliction();
+        Infliction getSelfInfliction();
 
         void start(Orient orient);
         boolean run(float deltaSec);
@@ -250,6 +283,56 @@ public class Weapon extends Item
             while (theta < 0) { theta += Math.PI * 2; }
             while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
             return theta;
+        }
+    }
+
+    class Tick
+    {
+        float _sec, totalSec;
+        Orient tickOrient;
+
+        Tick(float _sec, float posX, float posY, float theta)
+        {
+            this._sec = _sec;
+            tickOrient = new Orient(new Vec2(posX, posY), reduceTheta(theta));
+        }
+
+        void setSpeed(float speed) { totalSec = _sec * speed; }
+
+        boolean check(float totalSec, DirEnum dir)
+        {
+            if (totalSec < this.totalSec)
+            {
+                orient.setX(tickOrient.getX());
+                orient.setY(tickOrient.getY());
+                setTheta(tickOrient.getTheta(), dir);
+                return true;
+            }
+            return false;
+        }
+
+        Orient getOrient() { return tickOrient; }
+
+        Tick getMirrorCopy(boolean horiz, boolean vert)
+        {
+            return new Tick(totalSec,
+                    (horiz ? -1 : 1) * tickOrient.getX(),
+                    (vert ? -1 : 1) * tickOrient.getY(),
+                    tickOrient.getTheta()
+                            - (horiz ^ vert ? (float) Math.PI / 2 : 0));
+        }
+
+        Tick getRotatedCopy(boolean up)
+        {
+            return new Tick(totalSec, tickOrient.getX(), tickOrient.getY(),
+                    tickOrient.getTheta() + (float) (Math.PI / 2.0));
+        }
+
+        Tick getTimeModdedCopy(float add, float mult)
+        {
+            return new Tick((totalSec + add) * mult,
+                    tickOrient.getX(), tickOrient.getY(),
+                    tickOrient.getTheta());
         }
     }
 

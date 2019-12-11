@@ -1,8 +1,5 @@
 package Gameplay;
 
-import Util.GradeEnum;
-import Util.Vec2;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class CameraZone extends Entity
@@ -29,7 +26,4 @@ public class CameraZone extends Entity
                 Math.min(actor.getX() - w - getLeftEdge(), getRightEdge() - actor.getX() - w),
                 Math.min(actor.getY() - h - getTopEdge(), getBottomEdge() - actor.getY() - h));
     }
-
-    @Override
-    public void damage(GradeEnum amount) {}
 }

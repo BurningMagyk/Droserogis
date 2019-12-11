@@ -1,6 +1,6 @@
 package Gameplay;
 
-import Gameplay.Weapons.Weapon_old;
+import Gameplay.Weapons.Weapon;
 import Importer.LevelBuilder;
 import Importer.ImageResource;
 import Menus.Gamepad;
@@ -87,10 +87,7 @@ public class Gameplay implements Reactor
 
         for (Item item : entities.getDynamicItems()) { item.update(entities, deltaSec); }
 
-        for (Item item : entities.getItemList())
-        {
-            if (item instanceof Weapon_old) ((Weapon_old) item).update(entities.getDynamicItems());
-        }
+        for (Item item : entities.getItemList()) { item.update(entities.getDynamicItems()); }
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
@@ -259,9 +256,9 @@ public class Gameplay implements Reactor
             }
             else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
             {
-                if (entity instanceof Weapon_old)
+                if (entity instanceof Weapon)
                 {
-                    Vec2[] c = ((Weapon_old) entity).getShapeCorners();
+                    Vec2[] c = ((Weapon) entity).getShapeCorners();
                     double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
                     double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
                     for (int i = 0; i < xCorners.length; i++)

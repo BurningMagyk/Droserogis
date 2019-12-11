@@ -5,9 +5,8 @@ import Gameplay.Block;
 import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.EntityCollection;
-import Gameplay.Weapons.Natural;
-import Gameplay.Weapons.WeaponAttacks_old;
-import Gameplay.Weapons.Weapon_old;
+import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.WeaponType;
 import Util.Sprite;
 import Util.Vec2;
 
@@ -300,7 +299,7 @@ public class LevelBuilder  extends Application
         {
             Entity entity = entityList.get(i);
 
-            if (!(entity instanceof Weapon_old) && !(entity instanceof Actor))
+            if (!(entity instanceof Weapon) && !(entity instanceof Actor))
             {
                 int vertexIdx = entity.getVertexNear(x, y);
                 if (vertexIdx >= 0)
@@ -314,9 +313,9 @@ public class LevelBuilder  extends Application
 
             if (entity.isInside(x, y))
             {
-                if (entity instanceof Weapon_old)
+                if (entity instanceof Weapon)
                 {
-                    if (((Weapon_old)entity).getActor() != null) continue;
+                    if (((Weapon)entity).getActor() != null) continue;
                 }
                 if (lastSelectedEntity == null || lastSelectedVertexIdx > 0) scene.setCursor(Cursor.HAND);
                 selectedVertexIdx = -1;
@@ -375,12 +374,12 @@ public class LevelBuilder  extends Application
             if (selectedEntity instanceof Actor)
             {
                 Actor actor = ((Actor)selectedEntity);
-                for (Weapon_old weapon : actor.getWeapons())
+                Weapon[] weapons = actor.getWeapons();
+                for (int i = 0; i < weapons.length; i++)
                 {
-                    if (weapon != null)
+                    if (weapons[i] != null && i > 0)
                     {
-                        if (weapon instanceof Natural) continue;
-                        weapon.moveToParent();
+                        weapons[i].setPosition(actor.getX(), actor.getY()/* - actor.getHeight() / 5F*/);
                     }
                 }
             }
@@ -521,7 +520,8 @@ public class LevelBuilder  extends Application
                         actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         actor.setPosition(x, y);
 
-                        WeaponAttacks_old sword = new WeaponAttacks_old(x, y, null, null); // TODO: replace null with weapon traits
+                        WeaponType testWeaponType = new WeaponType(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
+                        Weapon sword = new Weapon(x, y, 2F, 10F, 1F, testWeaponType, null); // TODO: replace null with weapon traits
                         sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         sword.setPosition(x, y);
                         actor.equip(sword);
@@ -596,7 +596,7 @@ public class LevelBuilder  extends Application
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
         //if (block instanceof Natural) return;
-        if (block instanceof Weapon_old) return;
+        if (block instanceof Weapon) return;
 
         Vec2 pos = block.getPosition();
         if (block == selectedEntity)
@@ -662,7 +662,7 @@ public class LevelBuilder  extends Application
             for (Entity entity : entityList)
             {
                 if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
-                if (entity instanceof Natural) continue;
+                //if (entity instanceof Natural) continue; // TODO: was this needed?
                 int x = Math.round(entity.getX());
                 int y = Math.round(entity.getY());
                 int w = Math.round(entity.getWidth());
@@ -684,9 +684,9 @@ public class LevelBuilder  extends Application
                     type =  "Player";
                     stats += ","+((Actor)entity).getActorType();
                 }
-                else if (entity instanceof WeaponAttacks_old)
+                else if (entity instanceof Weapon)
                 {
-                    WeaponAttacks_old sword = ((WeaponAttacks_old)entity);
+                    Weapon sword = ((Weapon)entity);
                     type =  "WeaponAttacks";
                     Actor actor = sword.getActor();
                     int playerIdx = -1;
@@ -822,10 +822,11 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    entity = new WeaponAttacks_old(x, y, null, null); // TODO: replace null with weapon traits
+                    WeaponType testWeaponType = new WeaponType(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
+                    entity = new Weapon(x, y, 2F, 10F, 1F, testWeaponType, null); // TODO: replace null with weapon traits
                     if (parent >= 0)
                     {
-                        entityList.getPlayer(parent).equip((WeaponAttacks_old)entity);
+                        entityList.getPlayer(parent).equip((Weapon)entity);
                     }
                 }
                 else {

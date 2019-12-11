@@ -1,5 +1,6 @@
 package Gameplay;
 
+import Gameplay.Weapons.Inflictions.Infliction;
 import Importer.ImageResource;
 import Menus.Main;
 import Util.GradeEnum;
@@ -597,8 +598,6 @@ abstract public class Entity
         }
         return false;
     }
-
-    public abstract void damage(GradeEnum amount); // TODO: include damage type
 
     public int spriteIndex = 0;
     ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
