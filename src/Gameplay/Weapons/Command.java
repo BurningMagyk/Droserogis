@@ -6,14 +6,11 @@ import Util.Vec2;
 
 public class Command
 {
-    final int ATTACK_KEY;
-    final DirEnum FACE;
-    final DirEnum DIR;
+    private final int ATTACK_KEY, PREV_KEY;
+    final DirEnum FACE, DIR;
 
-    StateType TYPE;
-    boolean SPRINT;
-
-    boolean hold = true;
+    private StateType TYPE;
+    private boolean SPRINT, hold = true;
 
     enum StateType
     {
@@ -23,6 +20,14 @@ public class Command
     public Command(int attackKey, DirEnum face, DirEnum dir)
     {
         ATTACK_KEY = attackKey;
+        PREV_KEY = -1;
+        FACE = face;
+        DIR = dir;
+    }
+    private Command(int attackKey, int prevKey, DirEnum face, DirEnum dir)
+    {
+        ATTACK_KEY = attackKey;
+        PREV_KEY = prevKey;
         FACE = face;
         DIR = dir;
     }
@@ -40,6 +45,11 @@ public class Command
         SPRINT = state.isSprint();
 
         return this;
+    }
+
+    Command merge(Command command)
+    {
+        return new Command(command.ATTACK_KEY, ATTACK_KEY, FACE, DIR);
     }
 
     void release(int attackKey)

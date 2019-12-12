@@ -146,19 +146,43 @@ public class Weapon extends Item
     /*                             Application                               */
     /*=======================================================================*/
 
-    private boolean isApplicable(Command command)
+    private Operation getOperation(Command command) { return null; }
+
+    public Command mayInterrupt(Command command)
     {
-        return true; // TODO: go through every operation available
+        if (currentOp != null && currentOp.getState() == Operation.State.WARMUP)
+            return currentCommand.merge(command);
+        return null;
     }
 
-    public boolean addCommand(Command command)
+    private void setOperation(Operation newOp, Command command, float warmBoost)
     {
-        if (isApplicable(command) && currentCommand == null)
+        currentCommand = command;
+        currentOp = newOp;
+        currentOp.start(orient, warmBoost);
+    }
+
+    public boolean addCommand(Command command, boolean combo)
+    {
+        Operation newOp = getOperation(command);
+
+        if (newOp != null)
         {
-            currentCommand = command;
+            if (currentOp != null)
+            {
+                if (currentOp.getState() != Operation.State.EXECUTION
+                        && (currentOp.getState() != Operation.State.WARMUP || combo))
+                {
+                    float boost = currentOp.interrupt(command);
+                    setOperation(newOp, command, boost);
+                }
+                else currentCommand = command;
+            }
+            else setOperation(newOp, command, 0);
+
             return true;
         }
-        return currentOp == null;
+        return false;
     }
 
     public void releaseCommand(int attackKey)
@@ -233,8 +257,10 @@ public class Weapon extends Item
         DirEnum getDir();
         Infliction getInfliction();
         Infliction getSelfInfliction();
+        State getState();
+        float interrupt(Command command);
 
-        void start(Orient orient);
+        void start(Orient orient, float warmBoost);
         boolean run(float deltaSec);
         void release(int attackKey);
         void apply(Item other);
@@ -397,5 +423,7 @@ public class Weapon extends Item
                             end.getY() - start.getY()),
                     (float) thetaDistance);
         }
+
+        float getTotalTime() { return totalTime; }
     }
 }

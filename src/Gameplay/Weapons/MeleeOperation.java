@@ -21,23 +21,31 @@ class MeleeOperation implements Weapon.Operation
     public Infliction getInfliction() { return infliction; }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
+    @Override
+    public State getState() { return this.state; }
+    @Override
+    public float interrupt(Command command)
+    {
+        // TODO: also cancel the operation
+        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) return totalSec;
+        else if (state == State.EXECUTION) return 0; // don't expect to interrupt during exec
+        return coolJourney.getTotalTime(); // after cooldown
+    }
 
     @Override
-    public void start(Weapon.Orient orient)
+    public void start(Weapon.Orient orient, float warmBoost)
     {
-        state = warmSkip ? State.EXECUTION : State.WARMUP;
+        state = State.WARMUP;
         totalSec = warmBoost;
-        warmBoost = 0;
         warmJourney.setStart(orient);
         Print.blue("Operating " + getName());
     }
 
-    private boolean warmup(float deltaSec)
+    private boolean warmup()
     {
         selfInfliction = new ConditionInfliction(
                 cycle, Infliction.InflictionType.METAL, State.WARMUP.ordinal());
 
-        if (warmBoost > 0) totalSec += deltaSec;
         if (warmJourney.check(totalSec, command.FACE))
         {
             totalSec = 0;
@@ -88,7 +96,7 @@ class MeleeOperation implements Weapon.Operation
     {
         totalSec += deltaSec;
 
-        if (state == State.WARMUP) return warmup(deltaSec);
+        if (state == State.WARMUP) return warmup();
         else if (state == State.EXECUTION) return execute();
         else if (state == State.COOLDOWN) return cooldown();
 
@@ -117,6 +125,11 @@ class MeleeOperation implements Weapon.Operation
         return false;
     }
 
+    private boolean proceedsTo(Command command)
+    {
+        return true;
+    }
+
     enum MeleeEnum
     {
         THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN,
@@ -139,10 +152,8 @@ class MeleeOperation implements Weapon.Operation
 
     private State state = State.VOID;
     private Command command;
-    private boolean warmSkip = false;
-    private float totalSec = 0, warmBoost = 0; // TODO: warmBoost needs to be set somewhere
+    private float totalSec = 0;
 
-    // TODO: conditionAppInfliction should be integrated into damage
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
     // TODO: disruptive set universally in WeaponTypeEnum (swings true, others false)
 

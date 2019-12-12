@@ -834,25 +834,25 @@ public class Actor extends Item
             Command command = new Command(attackKey + usingAttackMod,
                     getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
 
-            int prevAttackKey = -1;
-            for (int i = weapons.length - 1; i >= 0; i--)
-            {
-                if (weapons[i] == null) continue;
-                if (pressed && pressingAttack[attackKey] != pressed)
-                {
+//            int prevAttackKey = -1;
+//            for (int i = weapons.length - 1; i >= 0; i--)
+//            {
+//                if (weapons[i] == null) continue;
+//                if (pressed && pressingAttack[attackKey] != pressed)
+//                {
+//
+//                }
+//            }
 
-                }
-            }
-
-            for (int i = weapons.length - 1; i >= 0; i--)
-            {
-                if (weapons[i] == null) continue;
-                if (!pressed) weapons[i].releaseCommand(attackKey);
-                else if (pressingAttack[attackKey] != pressed)
-                {
-                    if (weapons[i].addCommand(command)) break;
-                }
-            }
+//            for (int i = weapons.length - 1; i >= 0; i--)
+//            {
+//                if (weapons[i] == null) continue;
+//                if (!pressed) weapons[i].releaseCommand(attackKey);
+//                else if (pressingAttack[attackKey] != pressed)
+//                {
+//                    if (weapons[i].addCommand(command)) break;
+//                }
+//            }
         }
 
         pressingAttack[attackKey] = pressed;
