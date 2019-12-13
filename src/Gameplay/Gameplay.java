@@ -212,7 +212,7 @@ public class Gameplay implements Reactor
     private void queryGamepads()
     {
         //GAMEPADS[0].query(entities.getPlayer(0));
-        GAMEPADS[0].query(entities.getPlayer(1));
+        //GAMEPADS[0].query(entities.getPlayer(1));
     }
 
     /**
@@ -290,8 +290,15 @@ public class Gameplay implements Reactor
      */
     private void buildLevels()
     {
-        entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+        //entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         //entities = LevelBuilder.loadLevel("D:/Games/Hermano Test Levels/01.csv");
+
+        Actor testActor = new Actor(0, 0, Actor.EnumType.Lyra);
+        entities.add(testActor);
+
+        Block testBlock = new Block(0, 5, 30, 3,
+                Entity.ShapeEnum.RECTANGLE, null);
+        entities.add(testBlock);
     }
 
     /**

@@ -7,12 +7,12 @@ public class ConditionApp
     final Actor.Condition[] conds;
     final float time;
 
-    ConditionApp(float time, Actor.Condition... conds)
+    public ConditionApp(float time, Actor.Condition... conds)
     {
         this.conds = conds;
         this.time = time;
     }
-    ConditionApp(Actor.Condition... conds)
+    public ConditionApp(Actor.Condition... conds)
     {
         this.conds = conds;
         this.time = -1;

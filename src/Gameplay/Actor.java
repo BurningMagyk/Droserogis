@@ -826,33 +826,68 @@ public class Actor extends Item
         pressingAttack[0] = pressed;
         pressAttack(pressed, 0);
     }
+
     public void pressAttack(boolean pressed, int attackKey)
     {
-        if (!has(Condition.NEGATE_ATTACK) || !pressed)
+        if (!pressed)
+        {
+            /* If releasing a key */
+            for (int i = 0; i < weapons.length; i++)
+            {
+                if (weapons[i] == null) continue;
+                weapons[i].releaseCommand(attackKey);
+            }
+        }
+        /* If holding down so long that the key listener spams signals */
+        else if (!has(Condition.NEGATE_ATTACK) && !pressingAttack[attackKey])
         {
             int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
             Command command = new Command(attackKey + usingAttackMod,
                     getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
 
-//            int prevAttackKey = -1;
-//            for (int i = weapons.length - 1; i >= 0; i--)
-//            {
-//                if (weapons[i] == null) continue;
-//                if (pressed && pressingAttack[attackKey] != pressed)
-//                {
-//
-//                }
-//            }
+            /* Find a warming weapon and its command, see if it makes a combo */
+            Command combo = null;
+            for (int i = weapons.length - 1; i >= 0; i--)
+            {
+                if (weapons[i] == null) continue;
+                combo = weapons[i].mayInterrupt(command);
+                if (combo != null) break;
+            }
 
-//            for (int i = weapons.length - 1; i >= 0; i--)
-//            {
-//                if (weapons[i] == null) continue;
-//                if (!pressed) weapons[i].releaseCommand(attackKey);
-//                else if (pressingAttack[attackKey] != pressed)
-//                {
-//                    if (weapons[i].addCommand(command)) break;
-//                }
-//            }
+            /* If there was a combo, see if it works */
+            boolean comboSuccess = false;
+            if (combo != null)
+            {
+                for (int i = weapons.length - 1; i >= 0; i--)
+                {
+                    if (weapons[i] == null) continue;
+                    comboSuccess = weapons[i].addCommand(combo, true, false);
+                    if (comboSuccess) break;
+                }
+            }
+
+            /* If there was no combo or the combo failed, see if the command
+             * works as a chain */
+            boolean chainSuccess = false;
+            if (combo == null || !comboSuccess)
+            {
+                for (int i = weapons.length - 1; i >= 0; i--)
+                {
+                    if (weapons[i] == null) continue;
+                    chainSuccess = weapons[i].addCommand(combo, false, true);
+                    if (chainSuccess) break;
+                }
+            }
+
+            /* If the chain failed, see if it works the normal way  */
+            if (!chainSuccess)
+            {
+                for (int i = weapons.length - 1; i >= 0; i--)
+                {
+                    if (weapons[i] == null) continue;
+                    if (weapons[i].addCommand(command, false, false)) break;
+                }
+            }
         }
 
         pressingAttack[attackKey] = pressed;

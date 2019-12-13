@@ -4,7 +4,7 @@ public class ConditionAppCycle
 {
     private final ConditionApp warm, exec, cool;
 
-    ConditionAppCycle(ConditionApp warm, ConditionApp exec, ConditionApp cool)
+    public ConditionAppCycle(ConditionApp warm, ConditionApp exec, ConditionApp cool)
     {
         this.warm = warm;
         this.exec = exec;

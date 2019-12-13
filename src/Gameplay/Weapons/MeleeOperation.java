@@ -14,7 +14,7 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public String getName() { return name; }
     @Override
-    public DirEnum getDir() { return command.FACE; }
+    public DirEnum getDir() { return face; }
 
     private Infliction infliction, selfInfliction;
     @Override
@@ -33,11 +33,14 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public void start(Weapon.Orient orient, float warmBoost)
+    public void start(Orient defOrient, DirEnum face, float warmBoost)
     {
         state = State.WARMUP;
+        this.face = face;
         totalSec = warmBoost;
-        warmJourney.setStart(orient);
+
+        warmJourney = new Journey(defOrient, execJourney[0].getOrient(), waits.x);
+
         Print.blue("Operating " + getName());
     }
 
@@ -46,7 +49,7 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new ConditionInfliction(
                 cycle, Infliction.InflictionType.METAL, State.WARMUP.ordinal());
 
-        if (warmJourney.check(totalSec, command.FACE))
+        if (warmJourney.check(totalSec, face))
         {
             totalSec = 0;
             state = State.EXECUTION;
@@ -62,14 +65,19 @@ class MeleeOperation implements Weapon.Operation
 
         for (Weapon.Tick tick : execJourney)
         {
-            if (tick.check(totalSec, command.FACE))
+            if (tick.check(totalSec, face))
             {
-                return cooldown();
+                return false;
             }
         }
         totalSec = 0;
         state = State.COOLDOWN;
-        return false;
+        if (coolJourney == null)
+        {
+            coolJourney = warmJourney.makeCoolJourney(
+                execJourney[execJourney.length - 1].getOrient(), waits.y);
+        }
+        return cooldown();
     }
 
     private boolean cooldown()
@@ -77,7 +85,7 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new ConditionInfliction(
                 cycle, Infliction.InflictionType.METAL, State.COOLDOWN.ordinal());
 
-        if (!coolJourney.check(totalSec, command.FACE))
+        if (!coolJourney.check(totalSec, face))
         {
             return false;
         }
@@ -148,10 +156,11 @@ class MeleeOperation implements Weapon.Operation
     private DirEnum funcDir;
     private GradeEnum damage;
     private Weapon.Tick[] execJourney;
-    private Weapon.Journey warmJourney, coolJourney;
+    private Journey warmJourney, coolJourney;
+
+    private DirEnum face;
 
     private State state = State.VOID;
-    private Command command;
     private float totalSec = 0;
 
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
