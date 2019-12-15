@@ -76,11 +76,8 @@ class MeleeOperation implements Weapon.Operation
         }
         totalSec = 0;
         state = State.COOLDOWN;
-        if (coolJourney == null)
-        {
-            coolJourney = warmJourney.makeCoolJourney(
+        coolJourney = warmJourney.makeCoolJourney(
                 execJourney[execJourney.length - 1].getOrient(), waits.y);
-        }
         return cooldown();
     }
 

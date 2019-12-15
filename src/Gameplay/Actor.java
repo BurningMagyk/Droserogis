@@ -167,7 +167,7 @@ public class Actor extends Item
         //weapons[0] = new Natural(this, xPos, yPos);
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
                 type.mass() * 0.1F, new WeaponType(
-                        new Vec2(0.75F, 0.25F), (float )-Math.PI / 4F), null);
+                        new Vec2(0.75F, 0.25F), (float )Math.PI * 3 / 4), null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
     }
 

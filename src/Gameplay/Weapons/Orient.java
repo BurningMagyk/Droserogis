@@ -29,7 +29,7 @@ public class Orient
 
     void reduceTheta()
     {
-        theta = reduceTheta(theta);
+        theta = Weapon.reduceTheta(theta);
     }
 
     Orient copy()
@@ -42,12 +42,5 @@ public class Orient
     float getMagnitude()
     {
         return (float) Math.sqrt(pos.x * pos.x + pos.y * pos.y);
-    }
-
-    private float reduceTheta(float theta)
-    {
-        while (theta < 0) { theta += Math.PI * 2; }
-        while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
-        return theta;
     }
 }

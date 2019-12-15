@@ -21,22 +21,27 @@ public class Journey
 
         /* All this mess here is just for making sure it rotates in the
          * correct direction. */
-        double endMinimal = Math.min(end.getTheta(), (Math.PI * 2) - end.getTheta());
-        double startMinimal = Math.min(start.getTheta(), (Math.PI * 2) - start.getTheta());
-        double thetaDistance;
-        if (Math.abs(end.getTheta() - start.getTheta()) < endMinimal + startMinimal)
-            thetaDistance = end.getTheta() - start.getTheta();
-        else thetaDistance = (endMinimal + startMinimal) * start.getTheta() > end.getTheta() ? 1 : -1;
+//        double endMinimal = Math.min(end.getTheta(), (Math.PI * 2) - end.getTheta());
+//        double startMinimal = Math.min(start.getTheta(), (Math.PI * 2) - start.getTheta());
+//        double thetaDistance;
+//        if (Math.abs(end.getTheta() - start.getTheta()) < endMinimal + startMinimal)
+//            thetaDistance = end.getTheta() - start.getTheta();
+//        else thetaDistance = (endMinimal + startMinimal) * start.getTheta() > end.getTheta() ? 1 : -1;
+        float thetaDistance = end.getTheta() - start.getTheta();
 
         distance = new Orient(
                 new Vec2(end.getX() - start.getX(),
                         end.getY() - start.getY()),
                 (float) thetaDistance);
+
+        Print.blue("start: " + start.getTheta() / Math.PI);
+        Print.blue("end: " + end.getTheta() / Math.PI);
+        Print.blue(distance.getTheta() / Math.PI);
     }
 
-    Journey makeCoolJourney(Orient start, float _time)
+    Journey makeCoolJourney(Orient start, float time)
     {
-        return new Journey(start, this.start, _time);
+        return new Journey(start, this.start, time);
     }
 
     Orient getOrient() { return result.copy(); }

@@ -18,9 +18,9 @@ public class Weapon extends Item
     private Vec2 shapeCornersOffset = getPosition();
     private final Vec2[] SHAPE_CORNERS = {
             new Vec2(-getWidth() / 2, -getHeight() / 2),
-            new Vec2(+getWidth() / 2, -getHeight() / 2),
-            new Vec2(+getWidth() / 2, +getHeight() / 2),
-            new Vec2(-getWidth() / 2, +getHeight() / 2)};
+            new Vec2(getWidth() / 2, -getHeight() / 2),
+            new Vec2(getWidth() / 2, getHeight() / 2),
+            new Vec2(-getWidth() / 2, getHeight() / 2)};
     private Vec2[] shapeCorners_Rotated = new Vec2[4];
 
     private final Orient DEF_ORIENT;
@@ -78,10 +78,10 @@ public class Weapon extends Item
         for (Vec2 wieldDim : shapeCorners_Rotated) { wieldDim.rotate(); }
     }
 
-    private float reduceTheta(float theta)
+    static float reduceTheta(float theta)
     {
-        while (theta < 0) { theta += Math.PI * 2; }
-        while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
+        while (theta < 0) { theta += Math.PI; }
+        while (theta >= Math.PI) { theta -= Math.PI; }
         return theta;
     }
 
@@ -103,7 +103,6 @@ public class Weapon extends Item
 
         if (dirFace != dir && currentOp == null)
         {
-            //setTheta(orient.getTheta(), dir);
             updateCornersOffset();
             dirFace = dir;
         }
@@ -289,7 +288,6 @@ public class Weapon extends Item
                 dirOp = currentOp.getDir();
             }
         }
-        //setTheta(orient.getTheta(), DirEnum.RIGHT);
         updateCorners();
     }
 
@@ -327,56 +325,6 @@ public class Weapon extends Item
         enum State { WARMUP, EXECUTION, COOLDOWN, VOID }
     }
 
-//    class Orient
-//    {
-//        private Vec2 pos;
-//        private float theta;
-//
-//        Orient(Vec2 pos, float theta)
-//        {
-//            this.pos = new Vec2(pos.x, pos.y);
-//            this.theta = theta;
-//        }
-//        Orient(float[] args) { this(new Vec2(args[0], args[1]), args[2]); }
-//
-//        float getX() { return pos.x; } void setX(float x) { pos.x = x; }
-//        float getY() { return pos.y; } void setY(float y) { pos.y = y; }
-//        float getTheta() { return theta; }
-//        void setTheta(float theta) { this.theta = theta; }
-//        void addTheta(float theta) { this.theta += theta; }
-//
-//        void set(Orient orient)
-//        {
-//            pos.x = orient.getX();
-//            pos.y = orient.getY();
-//            theta = orient.getTheta();
-//        }
-//
-//        void _reduceTheta()
-//        {
-//            theta = reduceTheta(theta);
-//        }
-//
-//        Orient copy()
-//        {
-//            return new Orient(new Vec2(pos.x, pos.y), theta);
-//        }
-//
-//        Orient copyOppHoriz() { return new Orient(new Vec2(-pos.x,  pos.y), theta - (float) Math.PI / 2); }
-//
-//        float getMagnitude()
-//        {
-//            return (float) Math.sqrt(pos.x * pos.x + pos.y * pos.y);
-//        }
-//
-//        private float reduceTheta(float theta)
-//        {
-//            while (theta < 0) { theta += Math.PI * 2; }
-//            while (theta >= Math.PI * 2) { theta -= Math.PI * 2; }
-//            return theta;
-//        }
-//    }
-
     class Tick
     {
         float sec;
@@ -392,9 +340,6 @@ public class Weapon extends Item
         {
             if (totalSec < this.sec)
             {
-//                orient.setX(tickOrient.getX());
-//                orient.setY(tickOrient.getY());
-//                setTheta(tickOrient.getTheta(), dir);
                 return true;
             }
             return false;
@@ -424,58 +369,4 @@ public class Weapon extends Item
                     tickOrient.getTheta());
         }
     }
-
-//    class Journey
-//    {
-//        private Orient start, end, distance;
-//        private float _time, totalTime;
-//
-//        Journey(Orient end, float _time)
-//        {
-//            end._reduceTheta();
-//            this.end = end;
-//            this._time = _time;
-//        }
-//
-//        void setSpeed(float speed) { totalTime = _time * speed; }
-//
-//        boolean check(float time, DirEnum dir)
-//        {
-//            float ratio = time / totalTime;
-//            if (ratio >= 1.0)
-//            {
-//                orient.set(end);
-//                setTheta(orient.getTheta(), dir);
-//                return true;
-//            }
-//            orient.setX(start.getX() + (distance.getX() * ratio));
-//            orient.setY(start.getY() + (distance.getY() * ratio));
-//            setTheta(start.getTheta() + (distance.getTheta() * ratio), dir);
-//            return false;
-//        }
-//
-//        /** Called every time an Operation starts so that the weapon moves
-//         * directly from the position its Operation was called at. */
-//        void setStart(Orient start)
-//        {
-//            start._reduceTheta();
-//            this.start = start.copy();
-//
-//            /* All this mess here is just for making sure it rotates in the
-//             * correct direction. */
-//            double endMinimal = Math.min(end.getTheta(), (Math.PI * 2) - end.getTheta());
-//            double startMinimal = Math.min(start.getTheta(), (Math.PI * 2) - start.getTheta());
-//            double thetaDistance;
-//            if (Math.abs(end.getTheta() - start.getTheta()) < endMinimal + startMinimal)
-//                thetaDistance = end.getTheta() - start.getTheta();
-//            else thetaDistance = (endMinimal + startMinimal) * start.getTheta() > end.getTheta() ? 1 : -1;
-//
-//            distance = new Orient(
-//                    new Vec2(end.getX() - start.getX(),
-//                            end.getY() - start.getY()),
-//                    (float) thetaDistance);
-//        }
-//
-//        float getTotalTime() { return totalTime; }
-//    }
 }
