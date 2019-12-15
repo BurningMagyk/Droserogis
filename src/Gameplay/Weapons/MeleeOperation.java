@@ -102,6 +102,7 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public boolean run(float deltaSec)
     {
+        Print.blue("deltaSec: " + deltaSec);
         totalSec += deltaSec;
 
         if (state == State.WARMUP) return warmup();

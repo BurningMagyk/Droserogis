@@ -1,6 +1,7 @@
 package Gameplay.Weapons;
 
 import Gameplay.DirEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class Journey
@@ -8,7 +9,7 @@ public class Journey
     private Orient start, end, distance, result;
     private float _time, totalTime;
 
-    Journey(Orient start, Orient end, float _time)
+    Journey(Orient start, Orient end, float totalTime)
     {
         result = start.copy();
         start._reduceTheta();
@@ -16,7 +17,7 @@ public class Journey
 
         end._reduceTheta();
         this.end = end;
-        this._time = _time;
+        this.totalTime = totalTime;
 
         /* All this mess here is just for making sure it rotates in the
          * correct direction. */
@@ -39,8 +40,6 @@ public class Journey
     }
 
     Orient getResultOrient() { return result; }
-
-    void setSpeed(float speed) { totalTime = _time * speed; }
 
     boolean check(float time, DirEnum dir)
     {

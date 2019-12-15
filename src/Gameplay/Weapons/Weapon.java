@@ -185,6 +185,7 @@ public class Weapon extends Item
                 {
                     if (currentState != Operation.State.EXECUTION)
                     {
+                        Print.blue("Combo op \"" + newOp.getName() + "\" set");
                         float boost = currentOp.interrupt(command);
                         setOperation(newOp, command, boost);
                         return true;
@@ -194,6 +195,7 @@ public class Weapon extends Item
                 {
                     if (currentState.ordinal() >= Operation.State.COOLDOWN.ordinal())
                     {
+                        Print.blue("Chain op \"" + newOp.getName() + "\" set");
                         float boost = currentOp.interrupt(command);
                         setOperation(newOp, command, boost);
                         return true;
@@ -203,6 +205,7 @@ public class Weapon extends Item
                 {
                     if (currentState != Operation.State.WARMUP)
                     {
+                        Print.blue("Command \"" + command + "\" set");
                         currentCommand = command;
                         return true;
                     }
@@ -210,6 +213,7 @@ public class Weapon extends Item
             }
             else if (!chain)
             {
+                Print.blue("Normal op \"" + newOp.getName() + "\" set");
                 setOperation(newOp, command, 0);
                 return true;
             }
@@ -268,7 +272,14 @@ public class Weapon extends Item
     @Override
     protected void update(EntityCollection<Entity> entities, float deltaSec)
     {
-
+        if (currentOp != null)
+        {
+            if (currentOp.run(deltaSec))
+            {
+                Print.blue("Finished " + currentOp.getName());
+                currentOp = null;
+            }
+        }
     }
 
     @Override
