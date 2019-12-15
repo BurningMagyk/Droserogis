@@ -22,7 +22,9 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
-    public State getState() { return this.state; }
+    public State getState() { return state; }
+    @Override
+    public Orient getOrient() { return orient; }
     @Override
     public float interrupt(Command command)
     {
@@ -33,13 +35,13 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public void start(Orient defOrient, DirEnum face, float warmBoost)
+    public void start(Orient startOrient, DirEnum face, float warmBoost)
     {
         state = State.WARMUP;
         this.face = face;
         totalSec = warmBoost;
 
-        warmJourney = new Journey(defOrient, execJourney[0].getOrient(), waits.x);
+        warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
         Print.blue("Operating " + getName());
     }
@@ -55,6 +57,7 @@ class MeleeOperation implements Weapon.Operation
             state = State.EXECUTION;
             return execute();
         }
+        orient = warmJourney.getOrient();
         return false;
     }
 
@@ -67,6 +70,7 @@ class MeleeOperation implements Weapon.Operation
         {
             if (tick.check(totalSec, face))
             {
+                orient = tick.getOrient();
                 return false;
             }
         }
@@ -87,9 +91,10 @@ class MeleeOperation implements Weapon.Operation
 
         if (!coolJourney.check(totalSec, face))
         {
+            orient = coolJourney.getOrient();
             return false;
         }
-
+        orient = coolJourney.getOrient();
         totalSec = 0;
         state = State.VOID;
 
@@ -102,7 +107,6 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public boolean run(float deltaSec)
     {
-        Print.blue("deltaSec: " + deltaSec);
         totalSec += deltaSec;
 
         if (state == State.WARMUP) return warmup();
@@ -162,6 +166,7 @@ class MeleeOperation implements Weapon.Operation
     private DirEnum face;
 
     private State state = State.VOID;
+    private Orient orient;
     private float totalSec = 0;
 
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)

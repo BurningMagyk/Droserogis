@@ -166,7 +166,8 @@ public class Actor extends Item
         //weapons[0] = new Natural(type.createNaturalWeaponStat(), charStat, xPos, yPos, 0.2F, 0.1F, type.mass() * 0.1F, this, null);
         //weapons[0] = new Natural(this, xPos, yPos);
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                type.mass() * 0.1F, new WeaponType(new Vec2(0, 0), 0), null);
+                type.mass() * 0.1F, new WeaponType(
+                        new Vec2(0.75F, 0.25F), (float )-Math.PI / 4F), null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
     }
 
@@ -874,7 +875,7 @@ public class Actor extends Item
                 for (int i = weapons.length - 1; i >= 0; i--)
                 {
                     if (weapons[i] == null) continue;
-                    chainSuccess = weapons[i].addCommand(combo, false, true);
+                    chainSuccess = weapons[i].addCommand(command, false, true);
                     if (chainSuccess) break;
                 }
             }

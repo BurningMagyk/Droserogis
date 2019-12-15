@@ -27,7 +27,7 @@ public class Orient
         theta = orient.getTheta();
     }
 
-    void _reduceTheta()
+    void reduceTheta()
     {
         theta = reduceTheta(theta);
     }

@@ -7,15 +7,15 @@ import Util.Vec2;
 public class Journey
 {
     private Orient start, end, distance, result;
-    private float _time, totalTime;
+    private float totalTime;
 
     Journey(Orient start, Orient end, float totalTime)
     {
         result = start.copy();
-        start._reduceTheta();
+        start.reduceTheta();
         this.start = start.copy();
 
-        end._reduceTheta();
+        end.reduceTheta();
         this.end = end;
         this.totalTime = totalTime;
 
@@ -39,7 +39,7 @@ public class Journey
         return new Journey(start, this.start, _time);
     }
 
-    Orient getResultOrient() { return result; }
+    Orient getOrient() { return result.copy(); }
 
     boolean check(float time, DirEnum dir)
     {

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class Weapon extends Item
 {
-    private DirEnum dirFace = DirEnum.RIGHT;
+    private DirEnum dirFace = DirEnum.RIGHT, dirOp = DirEnum.RIGHT;
 
     private Vec2 shapeCornersOffset = getPosition();
     private final Vec2[] SHAPE_CORNERS = {
@@ -53,7 +53,9 @@ public class Weapon extends Item
         ballistic = false;
         actor.setPosition(actor.getPosition());
 
-        setTheta(DEF_ORIENT.getTheta(), actor.getWeaponFace());
+        orient = DEF_ORIENT.copy();
+        dirOp = actor.getWeaponFace();
+        updateCorners();
     }
 
 
@@ -61,7 +63,7 @@ public class Weapon extends Item
     /*                               Polygons                                */
     /*=======================================================================*/
 
-    public void setTheta(float theta, DirEnum opDir)
+    public void updateCorners()
     {
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         {
@@ -69,10 +71,11 @@ public class Weapon extends Item
             shapeCorners_Rotated[i].y = SHAPE_CORNERS[i].y;
         }
 
-        Vec2.setTheta(opDir.getHoriz().getSign() * theta);
+        float dirSign = currentOp == null
+                ? dirFace.getHoriz().getSign() : dirOp.getHoriz().getSign();
+        Vec2.setTheta(dirSign * orient.getTheta());
 
         for (Vec2 wieldDim : shapeCorners_Rotated) { wieldDim.rotate(); }
-        orient.setTheta(reduceTheta(theta));
     }
 
     private float reduceTheta(float theta)
@@ -82,11 +85,11 @@ public class Weapon extends Item
         return theta;
     }
 
-    private void updateCorners()
+    private void updateCornersOffset()
     {
         shapeCornersOffset = getPosition().clone();
     }
-    private void updateCorners(Vec2 dims, DirEnum dir)
+    private void updateCornersOffset(Vec2 dims, DirEnum dir)
     {
         if (dir != DirEnum.UP && dir != DirEnum.DOWN)
         {
@@ -100,7 +103,8 @@ public class Weapon extends Item
 
         if (dirFace != dir && currentOp == null)
         {
-            setTheta(orient.getTheta(), dir);
+            //setTheta(orient.getTheta(), dir);
+            updateCornersOffset();
             dirFace = dir;
         }
     }
@@ -109,7 +113,7 @@ public class Weapon extends Item
     {
         setPosition(p);
         setVelocity(v);
-        updateCorners(dims, dir);
+        updateCornersOffset(dims, dir);
     }
 
 
@@ -151,7 +155,7 @@ public class Weapon extends Item
     private ConditionApp testCond = new ConditionApp(null);
     private ConditionAppCycle testCycle = new ConditionAppCycle(testCond, testCond, testCond);
     private Vec2 testWaits = new Vec2(3, 3);
-    private Tick[] testExecJourney = new Tick[]{new Tick(1, 0, 0, 0)};
+    private Tick[] testExecJourney = new Tick[]{new Tick(1, 1, 0, 0)};
     private Operation testOp = new MeleeOperation(
             "Test Op", testCycle, testWaits, null, GradeEnum.F, testExecJourney);
 
@@ -276,10 +280,17 @@ public class Weapon extends Item
         {
             if (currentOp.run(deltaSec))
             {
-                Print.blue("Finished " + currentOp.getName());
+                Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;
             }
+            else
+            {
+                orient = currentOp.getOrient();
+                dirOp = currentOp.getDir();
+            }
         }
+        //setTheta(orient.getTheta(), DirEnum.RIGHT);
+        updateCorners();
     }
 
     @Override
@@ -301,6 +312,7 @@ public class Weapon extends Item
         Infliction getInfliction();
         Infliction getSelfInfliction();
         State getState();
+        Orient getOrient();
         float interrupt(Command command);
 
         void start(Orient orient, DirEnum face, float warmBoost);
@@ -367,34 +379,32 @@ public class Weapon extends Item
 
     class Tick
     {
-        float _sec, totalSec;
+        float sec;
         Orient tickOrient;
 
-        Tick(float _sec, float posX, float posY, float theta)
+        Tick(float sec, float posX, float posY, float theta)
         {
-            this._sec = _sec;
+            this.sec = sec;
             tickOrient = new Orient(new Vec2(posX, posY), reduceTheta(theta));
         }
 
-        void setSpeed(float speed) { totalSec = _sec * speed; }
-
         boolean check(float totalSec, DirEnum dir)
         {
-            if (totalSec < this.totalSec)
+            if (totalSec < this.sec)
             {
-                orient.setX(tickOrient.getX());
-                orient.setY(tickOrient.getY());
-                setTheta(tickOrient.getTheta(), dir);
+//                orient.setX(tickOrient.getX());
+//                orient.setY(tickOrient.getY());
+//                setTheta(tickOrient.getTheta(), dir);
                 return true;
             }
             return false;
         }
 
-        Orient getOrient() { return tickOrient; }
+        Orient getOrient() { return tickOrient.copy(); }
 
         Tick getMirrorCopy(boolean horiz, boolean vert)
         {
-            return new Tick(totalSec,
+            return new Tick(sec,
                     (horiz ? -1 : 1) * tickOrient.getX(),
                     (vert ? -1 : 1) * tickOrient.getY(),
                     tickOrient.getTheta()
@@ -403,13 +413,13 @@ public class Weapon extends Item
 
         Tick getRotatedCopy(boolean up)
         {
-            return new Tick(totalSec, tickOrient.getX(), tickOrient.getY(),
+            return new Tick(sec, tickOrient.getX(), tickOrient.getY(),
                     tickOrient.getTheta() + (float) (Math.PI / 2.0));
         }
 
         Tick getTimeModdedCopy(float add, float mult)
         {
-            return new Tick((totalSec + add) * mult,
+            return new Tick((sec + add) * mult,
                     tickOrient.getX(), tickOrient.getY(),
                     tickOrient.getTheta());
         }
