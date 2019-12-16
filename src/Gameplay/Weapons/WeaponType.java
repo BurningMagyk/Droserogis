@@ -12,4 +12,6 @@ public class WeaponType
     }
 
     float[] getDefaultOrient() { return DEF_ORIENT; }
+
+    MeleeOperation[] getMeleeOps() { return null; }
 }

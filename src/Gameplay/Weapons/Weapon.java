@@ -30,7 +30,7 @@ public class Weapon extends Item
     private boolean ballistic = true;
     private Command currentCommand;
     Operation currentOp;
-
+    private final MeleeOperation[] meleeOps;
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
@@ -43,6 +43,8 @@ public class Weapon extends Item
 
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
+
+        meleeOps = weaponType.getMeleeOps();
     }
 
     public Actor getActor() { return actor; }
