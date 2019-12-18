@@ -43,6 +43,8 @@ class MeleeOperation implements Weapon.Operation
 
         return warmBoost;
     }
+    @Override
+    public MeleeEnum getNext(Command command) { return null; }
 
     @Override
     public void start(Orient startOrient, float warmBoost, Command command)
@@ -51,8 +53,6 @@ class MeleeOperation implements Weapon.Operation
         totalSec = warmBoost;
         this.face = command.FACE;
         this.attackKey = command.ATTACK_KEY;
-
-        Print.yellow("totalSec: " + totalSec);
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
@@ -79,7 +79,7 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new ConditionInfliction(
                 cycle, Infliction.InflictionType.METAL, State.EXECUTION.ordinal());
 
-        for (Weapon.Tick tick : execJourney)
+        for (Tick tick : execJourney)
         {
             if (tick.check(totalSec, face))
             {
@@ -170,7 +170,7 @@ class MeleeOperation implements Weapon.Operation
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
-    private Weapon.Tick[] execJourney;
+    private Tick[] execJourney;
     private Journey warmJourney, coolJourney;
 
     private DirEnum face;
@@ -189,7 +189,7 @@ class MeleeOperation implements Weapon.Operation
             Vec2 waits,
             DirEnum funcDir,
             GradeEnum damage,
-            Weapon.Tick[] execJourney
+            Tick[] execJourney
     )
     {
         this.name = name;
@@ -199,4 +199,6 @@ class MeleeOperation implements Weapon.Operation
         this.damage = damage;
         this.execJourney = execJourney;
     }
+
+
 }

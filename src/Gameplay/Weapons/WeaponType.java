@@ -1,5 +1,8 @@
 package Gameplay.Weapons;
 
+import Gameplay.Weapons.Inflictions.ConditionApp;
+import Gameplay.Weapons.Inflictions.ConditionAppCycle;
+import Util.GradeEnum;
 import Util.Vec2;
 
 public class WeaponType
@@ -13,5 +16,16 @@ public class WeaponType
 
     float[] getDefaultOrient() { return DEF_ORIENT; }
 
-    MeleeOperation[] getMeleeOps() { return null; }
+    MeleeOperation[] getMeleeOps()
+    {
+        /* For testing */
+        ConditionApp testCond = new ConditionApp(null);
+        ConditionAppCycle testCycle = new ConditionAppCycle(testCond, testCond, testCond);
+        Vec2 testWaits = new Vec2(3, 3);
+        Tick[] testExecJourney = new Tick[]{new Tick(1, 1, 0, 0)};
+        MeleeOperation testOp = new MeleeOperation(
+                "Test Op", testCycle, testWaits, null, GradeEnum.F, testExecJourney);
+
+        return new MeleeOperation[] { testOp };
+    }
 }

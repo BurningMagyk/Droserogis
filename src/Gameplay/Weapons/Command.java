@@ -52,4 +52,6 @@ public class Command
     {
         return new Command(command.ATTACK_KEY, ATTACK_KEY, FACE, DIR);
     }
+
+    MeleeOperation.MeleeEnum getEnum() { return MeleeOperation.MeleeEnum.THRUST; } // for testing
 }
