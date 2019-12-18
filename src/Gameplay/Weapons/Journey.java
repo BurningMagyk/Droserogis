@@ -33,10 +33,6 @@ public class Journey
                 new Vec2(end.getX() - start.getX(),
                         end.getY() - start.getY()),
                 (float) thetaDistance);
-
-        Print.blue("start: " + start.getTheta() / Math.PI);
-        Print.blue("end: " + end.getTheta() / Math.PI);
-        Print.blue(distance.getTheta() / Math.PI);
     }
 
     Journey makeCoolJourney(Orient start, float time)

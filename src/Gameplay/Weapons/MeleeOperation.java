@@ -28,22 +28,35 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public float interrupt(Command command)
     {
-        // TODO: also cancel the operation
-        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) return totalSec;
-        else if (state == State.EXECUTION) return 0; // don't expect to interrupt during exec
-        return coolJourney.getTotalTime(); // after cooldown
+        float warmBoost;
+
+        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) warmBoost = totalSec;
+        else if (state == State.EXECUTION) warmBoost = -1; // don't expect to interrupt during exec
+        else warmBoost = coolJourney.getTotalTime(); // during or after cooldown
+
+        if (warmBoost >= 0)
+        {
+            totalSec = 0;
+            state = State.VOID;
+            attackKey = -1;
+        }
+
+        return warmBoost;
     }
 
     @Override
-    public void start(Orient startOrient, DirEnum face, float warmBoost)
+    public void start(Orient startOrient, float warmBoost, Command command)
     {
         state = State.WARMUP;
-        this.face = face;
         totalSec = warmBoost;
+        this.face = command.FACE;
+        this.attackKey = command.ATTACK_KEY;
+
+        Print.yellow("totalSec: " + totalSec);
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
-        Print.blue("Operating " + getName());
+        Print.blue("Operating \"" + getName() + "\"");
     }
 
     private boolean warmup()
@@ -51,7 +64,7 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new ConditionInfliction(
                 cycle, Infliction.InflictionType.METAL, State.WARMUP.ordinal());
 
-        if (warmJourney.check(totalSec, face))
+        if (warmJourney.check(totalSec, face) && attackKey == -1)
         {
             totalSec = 0;
             state = State.EXECUTION;
@@ -116,7 +129,7 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public void release(int attackKey)
     {
-
+        if (attackKey == this.attackKey) this.attackKey = -1;
     }
 
     @Override
@@ -161,6 +174,7 @@ class MeleeOperation implements Weapon.Operation
     private Journey warmJourney, coolJourney;
 
     private DirEnum face;
+    private int attackKey = -1;
 
     private State state = State.VOID;
     private Orient orient;

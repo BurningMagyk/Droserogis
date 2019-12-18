@@ -6,11 +6,12 @@ import Util.Vec2;
 
 public class Command
 {
-    private final int ATTACK_KEY, PREV_KEY;
+    private final int PREV_KEY;
+    final int ATTACK_KEY;
     final DirEnum FACE, DIR;
 
     private StateType TYPE;
-    private boolean SPRINT, hold = true;
+    private boolean SPRINT;
 
     enum StateType
     {
@@ -50,12 +51,5 @@ public class Command
     Command merge(Command command)
     {
         return new Command(command.ATTACK_KEY, ATTACK_KEY, FACE, DIR);
-    }
-
-    void release(int attackKey)
-    {
-        if (attackKey == ATTACK_KEY
-                || attackKey == ATTACK_KEY - Actor.ATTACK_KEY_MOD)
-            hold = false;
     }
 }

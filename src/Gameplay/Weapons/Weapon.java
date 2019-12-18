@@ -173,7 +173,7 @@ public class Weapon extends Item
     {
         currentCommand = command;
         currentOp = newOp;
-        currentOp.start(orient, command.FACE, warmBoost);
+        currentOp.start(DEF_ORIENT, warmBoost, command);
     }
 
     public boolean addCommand(Command command, boolean combo, boolean chain)
@@ -229,7 +229,6 @@ public class Weapon extends Item
     public void releaseCommand(int attackKey)
     {
         if (currentOp != null) currentOp.release(attackKey);
-        if (currentCommand != null) currentCommand.release(attackKey);
     }
 
     private boolean disrupted = false;
@@ -315,7 +314,7 @@ public class Weapon extends Item
         Orient getOrient();
         float interrupt(Command command);
 
-        void start(Orient orient, DirEnum face, float warmBoost);
+        void start(Orient orient, float warmBoost, Command command);
         boolean run(float deltaSec);
         void release(int attackKey);
         void apply(Item other);
