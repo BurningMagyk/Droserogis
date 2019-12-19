@@ -28,20 +28,17 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public float interrupt(Command command)
     {
-        float warmBoost;
+        float boost;
 
-        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) warmBoost = totalSec;
-        else if (state == State.EXECUTION) warmBoost = -1; // don't expect to interrupt during exec
-        else warmBoost = coolJourney.getTotalTime(); // during or after cooldown
+        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) boost = totalSec;
+        else if (state == State.EXECUTION) boost = 0; // don't expect to interrupt during exec
+        else boost = coolJourney.getTotalTime(); // during or after cooldown
 
-        if (warmBoost >= 0)
-        {
-            totalSec = 0;
-            state = State.VOID;
-            attackKey = -1;
-        }
+        totalSec = 0;
+        state = State.VOID;
+        attackKey = -1;
 
-        return warmBoost;
+        return boost;
     }
     @Override
     public MeleeEnum getNext(Command command) { return null; }

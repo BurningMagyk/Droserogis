@@ -229,10 +229,9 @@ public class Weapon extends Item
         if (currentOp != null) currentOp.release(attackKey);
     }
 
-    private boolean disrupted = false;
     public void disrupt()
     {
-        disrupted = true;
+        if (currentOp != null) currentOp.interrupt(null);
         orient.set(DEF_ORIENT.copy());
     }
 
