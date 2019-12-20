@@ -594,11 +594,14 @@ public class Actor extends Item
                 && !has(Condition.NEGATE_RUN_LEFT)
                 && !has(Condition.NEGATE_RUN_RIGHT);
     }
+    private boolean canStand()
+    {
+        return !has(Condition.NEGATE_ACTIVITY)
+                && !has(Condition.NEGATE_STABILITY);
+    }
     private boolean canJump()
     {
-        return canWalk()
-                && !has(Condition.NEGATE_ACTIVITY)
-                && !has(Condition.NEGATE_STABILITY)
+        return canWalk() && canStand()
                 && !has(Condition.FORCE_CROUCH);
     }
 
@@ -844,14 +847,14 @@ public class Actor extends Item
         {
             int usingAttackMod = pressingAttack[0] ? ATTACK_KEY_MOD : 0;
             Command command = new Command(attackKey + usingAttackMod,
-                    getWeaponFace(), DirEnum.get(dirHoriz, dirVert));
+                    getWeaponFace(), DirEnum.get(dirHoriz, dirVert), state, canStand());
 
             /* Find a warming weapon and its command, see if it makes a combo */
             Command combo = null;
             for (int i = weapons.length - 1; i >= 0; i--)
             {
                 if (weapons[i] == null) continue;
-                combo = weapons[i].mayInterrupt(command);
+                combo = weapons[i].mayInterrupt(command, state, canStand());
                 if (combo != null) break;
             }
 

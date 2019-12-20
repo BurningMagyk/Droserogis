@@ -155,15 +155,15 @@ public class Weapon extends Item
     private Operation getOperation(Command command)
     {
         MeleeOperation.MeleeEnum nextMelee = null;
-        if (currentOp != null) nextMelee = currentOp.getNext(command);
+        if (currentOp != null) nextMelee = currentOp.getNext(command.ENUM);
         if (nextMelee != null) return meleeOps[nextMelee.ordinal()];
-        return meleeOps[command.getEnum().ordinal()];
+        return meleeOps[command.ENUM.ordinal()];
     }
 
-    public Command mayInterrupt(Command command)
+    public Command mayInterrupt(Command command, Actor.State state, boolean canStand)
     {
         if (currentOp != null && currentOp.getState() == Operation.State.WARMUP)
-            return currentCommand.merge(command);
+            return currentCommand.merge(command, state, canStand);
         return null;
     }
 
@@ -310,7 +310,7 @@ public class Weapon extends Item
         State getState();
         Orient getOrient();
         float interrupt(Command command);
-        MeleeOperation.MeleeEnum getNext(Command command);
+        MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum);
 
         void start(Orient orient, float warmBoost, Command command);
         boolean run(float deltaSec);

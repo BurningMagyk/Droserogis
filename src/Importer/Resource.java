@@ -6,13 +6,7 @@ abstract class Resource
 {
     final String path;
 
-    Resource(String path)
-    {
-        this.path = path;
-    }
+    Resource(String path) { this.path = path; }
 
-    void printFailure()
-    {
-        Print.red("\"" + path + "\" was not imported");
-    }
+    void printFailure() { Print.red("\"" + path + "\" was not imported"); }
 }

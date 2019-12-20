@@ -41,7 +41,14 @@ class MeleeOperation implements Weapon.Operation
         return boost;
     }
     @Override
-    public MeleeEnum getNext(Command command) { return null; }
+    public MeleeEnum getNext(MeleeEnum meleeEnum)
+    {
+        for (int i = 0; i < next[0].length; i++)
+        {
+            if (next[0][i] == meleeEnum) return next[1][i];
+        }
+        return null;
+    }
 
     @Override
     public void start(Orient startOrient, float warmBoost, Command command)
@@ -152,17 +159,20 @@ class MeleeOperation implements Weapon.Operation
 
     enum MeleeEnum
     {
-        THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN,
-        THRUST_LUNGE,
+        THRUST, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN, THRUST_UNTERHAU,
+        LUNGE,
         STAB, STAB_UNTERHAU,
-        SWING, SWING_UNTERHAU, SWING_UNTERHAU_CROUCH, SWING_UP_FORWARD,
-        SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
-        SWING_LUNGE, SWING_LUNGE_UNTERHAU,
-        GRAB,
+        SWING, SWING_UNTERHAU, SWING_UNTERHAU_C, SWING_AERIAL, SWING_PRONE,
+        SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
+        SHOVE,
+        GRAB, GRAB_UP, GRAB_ALT, POUNCE, TACKLE,
+        TOSS, THROW, THROW_UP, THROW_UP_DIAG, THROW_DOWN, DROP,
+        INTERRACT,
         DRAW, LOAD, SHOOT;
     }
 
     private String name;
+    private MeleeEnum[][] next;
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
@@ -182,6 +192,7 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(
             String name,
+            MeleeEnum[][] next,
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
@@ -190,6 +201,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this.name = name;
+        this.next = next;
         this.cycle = cycle;
         this.waits = waits.clone();
         this.funcDir = funcDir;
