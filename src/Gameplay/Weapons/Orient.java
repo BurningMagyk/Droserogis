@@ -12,10 +12,11 @@ public class Orient
         this.pos = new Vec2(pos.x, pos.y);
         this.theta = theta;
     }
-    Orient(float[] args) { this(new Vec2(args[0], args[1]), args[2]); }
+    Orient(Orient orient) { this(orient.getPos(), orient.getTheta()); }
 
     float getX() { return pos.x; } void setX(float x) { pos.x = x; }
     float getY() { return pos.y; } void setY(float y) { pos.y = y; }
+    private Vec2 getPos() { return pos; }
     float getTheta() { return theta; }
     void setTheta(float theta) { this.theta = theta; }
     void addTheta(float theta) { this.theta += theta; }

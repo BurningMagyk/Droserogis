@@ -166,7 +166,7 @@ class MeleeOperation implements Weapon.Operation
         SWING_UP_FORWARD, SWING_UP_BACKWARD, SWING_DOWN_FORWARD, SWING_DOWN_BACKWARD,
         SHOVE,
         GRAB, GRAB_UP, GRAB_ALT, POUNCE, TACKLE,
-        TOSS, THROW, THROW_UP, THROW_UP_DIAG, THROW_DOWN, DROP,
+        TOSS, THROW, THROW_UP, THROW_UP_DIAG, THROW_DOWN, THROW_DOWN_DIAG, DROP,
         INTERRACT,
         DRAW, LOAD, SHOOT;
     }
@@ -203,7 +203,7 @@ class MeleeOperation implements Weapon.Operation
         this.name = name;
         this.next = next;
         this.cycle = cycle;
-        this.waits = waits.clone();
+        this.waits = waits.copy();
         this.funcDir = funcDir;
         this.damage = damage;
         this.execJourney = execJourney;

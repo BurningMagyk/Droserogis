@@ -39,7 +39,7 @@ public class Weapon extends Item
         super(xPos, yPos, width, height, mass, spritePaths);
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
-        { shapeCorners_Rotated[i] = SHAPE_CORNERS[i].clone(); }
+        { shapeCorners_Rotated[i] = SHAPE_CORNERS[i].copy(); }
 
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
@@ -89,7 +89,7 @@ public class Weapon extends Item
 
     private void updateCornersOffset()
     {
-        shapeCornersOffset = getPosition().clone();
+        shapeCornersOffset = getPosition().copy();
     }
     private void updateCornersOffset(Vec2 dims, DirEnum dir)
     {

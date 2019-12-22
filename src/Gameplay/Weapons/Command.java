@@ -2,7 +2,8 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 import Gameplay.DirEnum;
-import Util.Vec2;
+
+import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
 
 public class Command
 {
@@ -45,30 +46,97 @@ public class Command
         {
             if (ATTACK_KEY == 1)
             {
-
+                if (PREV_KEY == 2)
+                {
+                    if (down) return SWING_DOWN_BACKWARD;
+                    return SWING_UP_BACKWARD;
+                }
+                if (up)
+                {
+                    if (forward) return THRUST_DIAG_UP;
+                    return THRUST_UP;
+                }
+                if (down)
+                {
+                    if (forward) return THRUST_DIAG_DOWN;
+                    return THRUST_DOWN;
+                }
+                return THRUST;
             }
             if (ATTACK_KEY == 2)
             {
-
+                if (PREV_KEY == 3)
+                {
+                    if (up) return GRAB_UP;
+                    if (down) return POUNCE;
+                    return GRAB;
+                }
+                if (up) return SWING_UP_FORWARD;
+                if (down) return SWING_DOWN_FORWARD;
+                return SWING_AERIAL;
             }
             if (ATTACK_KEY == 3)
             {
-
+                if (PREV_KEY == 2)
+                {
+                    if (up)
+                    {
+                        if (forward) return THROW_UP_DIAG;
+                        return THROW_UP;
+                    }
+                    if (down)
+                    {
+                        if (forward) return THROW_DOWN_DIAG;
+                        return THROW_DOWN;
+                    }
+                    if (forward) return THROW;
+                    return TOSS;
+                }
+                return INTERRACT;
             }
         }
         if (state == Actor.State.SLIDE || !canStand)
         {
             if (ATTACK_KEY == 1)
             {
-
+                if (PREV_KEY == 2)
+                {
+                    if (down) return THRUST;
+                    return THRUST_UP;
+                }
+                if (up)
+                {
+                    if (forward) return THRUST_DIAG_UP;
+                    return THRUST_UP;
+                }
+                if (down) return THRUST;
+                if (forward) return THRUST_DIAG_UP;
+                return THRUST;
             }
             if (ATTACK_KEY == 2)
             {
-
+                if (PREV_KEY == 3)
+                {
+                    if (up) return GRAB_UP;
+                    if (down) return GRAB_ALT;
+                    return GRAB;
+                }
+                return SWING_PRONE;
             }
             if (ATTACK_KEY == 3)
             {
-
+                if (PREV_KEY == 2)
+                {
+                    if (up)
+                    {
+                        if (forward) return THROW_UP_DIAG;
+                        return THROW_UP;
+                    }
+                    if (down) return TOSS;
+                    if (forward) return THROW_UP_DIAG;
+                    return TOSS;
+                }
+                return INTERRACT;
             }
         }
 
@@ -77,22 +145,51 @@ public class Command
 
         if (ATTACK_KEY == 1)
         {
-            if (sprint) return MeleeOperation.MeleeEnum.LUNGE;
+            if (PREV_KEY == 2)
+            {
+                if (down) return STAB_UNTERHAU;
+                return STAB;
+            }
+            if (sprint) return LUNGE;
+            if (up)
+            {
+                if (forward) return THRUST_DIAG_UP;
+                return THRUST_UP;
+            }
+            if (down) return THRUST_UNTERHAU;
+            return THRUST;
         }
         if (ATTACK_KEY == 2)
         {
-            if (sprint) return MeleeOperation.MeleeEnum.SHOVE;
+            if (PREV_KEY == 3)
+            {
+                if (sprint) return TACKLE;
+                if (up) return GRAB_UP;
+                return GRAB;
+            }
+            if (sprint) return SHOVE;
+            if (up) return SWING_UP_FORWARD;
+            if (down) return SWING_UNTERHAU_C;
+            return SWING;
         }
         if (ATTACK_KEY == 3)
         {
-            if (PREV_KEY == 1)
+            if (PREV_KEY == 2)
             {
-                if (sprint) return MeleeOperation.MeleeEnum.TACKLE;
+                if (up)
+                {
+                    if (forward) return THROW_UP_DIAG;
+                    return THROW_UP;
+                }
+                if (down) return DROP;
+                if (forward) return THROW;
+                return TOSS;
             }
+            return INTERRACT;
         }
 
         // for debugging
-        return MeleeOperation.MeleeEnum.THRUST;
+        return THRUST;
     }
 
 //    Command setStats(Actor.State state, boolean canStand)

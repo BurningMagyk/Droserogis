@@ -10,6 +10,7 @@ public class ConditionAppCycle
         this.exec = exec;
         this.cool = cool;
     }
+    public ConditionAppCycle(ConditionApp app) { this(app, app, app); }
 
     ConditionApp getWarm() { return warm; }
     ConditionApp getExec() { return exec; }
