@@ -157,6 +157,7 @@ public class Weapon extends Item
         MeleeOperation.MeleeEnum nextMelee = null;
         if (currentOp != null) nextMelee = currentOp.getNext(command.ENUM);
         if (nextMelee != null) return meleeOps[nextMelee.ordinal()];
+        Print.blue(command.ENUM);
         return meleeOps[command.ENUM.ordinal()];
     }
 

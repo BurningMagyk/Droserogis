@@ -38,7 +38,7 @@ public class Command
 
     private MeleeOperation.MeleeEnum getEnum(Actor.State state, boolean canStand)
     {
-        boolean forward = DIR.getHoriz() == DirEnum.NONE,
+        boolean forward = DIR.getHoriz() != DirEnum.NONE,
                 up = DIR.getVert() == DirEnum.UP,
                 down = DIR.getVert() == DirEnum.DOWN;
 

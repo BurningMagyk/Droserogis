@@ -520,8 +520,7 @@ public class LevelBuilder  extends Application
                         actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         actor.setPosition(x, y);
 
-                        WeaponType testWeaponType = new WeaponType(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
-                        Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, testWeaponType, null); // TODO: replace null with weapon traits
+                        Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
                         sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         sword.setPosition(x, y);
                         actor.equip(sword);
@@ -822,8 +821,7 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    WeaponType testWeaponType = new WeaponType(new Vec2(1F, -0.2F), (float) (-Math.PI / 4F));
-                    entity = new Weapon(x, y, 0.1F, 0.5F, 1F, testWeaponType, null); // TODO: replace null with weapon traits
+                    entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
                     if (parent >= 0)
                     {
                         entityList.getPlayer(parent).equip((Weapon)entity);
