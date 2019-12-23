@@ -209,5 +209,29 @@ class MeleeOperation implements Weapon.Operation
         this.execJourney = execJourney;
     }
 
+    MeleeOperation(String name, MeleeOperation op)
+    {
+        this(name, op.next, op.cycle, op.waits.copy(),
+                op.funcDir, op.damage, op.execJourney);
+    }
 
+    MeleeOperation(
+            String name,
+            MeleeOperation op,
+            MeleeEnum[][] next
+    )
+    {
+        this(name, next, op.cycle, op.waits.copy(),
+                op.funcDir, op.damage, op.execJourney);
+    }
+
+    MeleeOperation(
+            String name,
+            MeleeOperation op,
+            ConditionAppCycle cycle
+    )
+    {
+        this(name, op.next, cycle, op.waits.copy(),
+                op.funcDir, op.damage, op.execJourney);
+    }
 }

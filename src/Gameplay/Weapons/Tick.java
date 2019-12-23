@@ -8,6 +8,11 @@ public class Tick
     float sec;
     Orient tickOrient;
 
+    Tick(float sec, Orient tickOrient)
+    {
+        this.sec = sec;
+        this.tickOrient = tickOrient.copy();
+    }
     Tick(float sec, float posX, float posY, float theta)
     {
         this.sec = sec;
@@ -33,6 +38,8 @@ public class Tick
                 tickOrient.getTheta()
                         - (horiz ^ vert ? (float) Math.PI / 2 : 0));
     }
+
+    Tick getCopy(float totalSec) { return new Tick(totalSec, tickOrient); }
 
     Tick getRotatedCopy(boolean up)
     {

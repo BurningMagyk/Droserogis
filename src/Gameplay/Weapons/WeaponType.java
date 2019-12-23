@@ -24,23 +24,53 @@ public class WeaponType
     Orient getDefaultOrient() { return DEF_ORIENT; }
     MeleeOperation[] getMeleeOps() { return MELEE_OPS; }
 
+    private static Tick[] reverse(Tick[] ticks)
+    {
+        Tick[] newTicks = new Tick[ticks.length];
+        for (int i = 0; i < ticks.length; i++)
+        {
+            newTicks[ticks.length - i - 1]
+                    = ticks[i].getCopy(ticks[ticks.length - i - 1].sec);
+        }
+        return newTicks;
+    }
+    private static Tick[] mirrorVert(Tick[] ticks)
+    {
+        Tick[] newTicks = new Tick[ticks.length];
+        for (int i = 0; i < ticks.length; i++)
+        {
+            newTicks[i] = ticks[i].getMirrorCopy(false, true);
+        }
+        return newTicks;
+    }
+
     private final static float PI2 = (float) Math.PI / 2;
     private final static float PI4 = (float) Math.PI / 4;
 
     private final static MeleeOperation.MeleeEnum[][] EMPTY__NEXT = {{}};
     private final static MeleeOperation.MeleeEnum[][] UNTERHAU_SWING__NEXT = {
             {SWING}, {SWING_UNTERHAU}};
+    private final static MeleeOperation.MeleeEnum[][] PRONE_SWING__NEXT = {
+            {SWING_PRONE}, {SWING_UP_BACKWARD}};
+    private final static MeleeOperation.MeleeEnum[][] BACK_SWING_UP__NEXT = {
+            {SWING_UP_FORWARD}, {SWING_UP_BACKWARD}};
+    private final static MeleeOperation.MeleeEnum[][] BACK_SWING_DOWN__NEXT = {
+            {SWING_DOWN_FORWARD}, {SWING_DOWN_BACKWARD}};
 
     private final static ConditionApp FORCE_WALK__FORCE_STAND = new ConditionApp(
             NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT, FORCE_STAND);
     private final static ConditionApp LUNGE_END_CONDITION = new ConditionApp(
             NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, NEGATE_ATTACK, NEGATE_BLOCK);
+    private final static ConditionApp FORCE_STILL__FORCE_STAND = new ConditionApp(
+            NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, FORCE_STAND);
 
     private final static ConditionAppCycle STANDARD_CYCLE = new ConditionAppCycle(FORCE_WALK__FORCE_STAND);
     private final static ConditionAppCycle LUNGE_CYCLE = new ConditionAppCycle(
             new ConditionApp(FORCE_STAND), new ConditionApp(DASH), LUNGE_END_CONDITION);
+    private final static ConditionAppCycle STAB_CYCLE = new ConditionAppCycle(FORCE_STILL__FORCE_STAND);
 
-    private final static Vec2 SWORD__THRUST_WIATS = new Vec2(2, 2);
+    private final static Vec2 SWORD__THRUST_WIATS = new Vec2(2, 2),
+        SWORD__SWING_WAITS = new Vec2(1.5F, 1.5F);
 
     private final static Tick[] SWORD__THRUST__EXEC = new Tick[] {
             new Tick(0.25F, 0.75F, -0.1F, 0),
@@ -105,10 +135,77 @@ public class WeaponType
             "Lunge", EMPTY__NEXT, LUNGE_CYCLE, SWORD__THRUST_WIATS,
             DirEnum.RIGHT, GradeEnum.F, SWORD__LUNGE__EXEC);
 
+    private final static Tick[] SWORD__STAB__EXEC = new Tick[] {
+            new Tick(0.25F, 1, 0F, PI2),
+            new Tick(0.5F, 1, 0.25F, PI2),
+            new Tick(0.75F, 1, 0.5F, PI2),
+            new Tick(1, 1, 0.75F, PI2) };
+    private final static MeleeOperation SWORD__STAB = new MeleeOperation(
+            "Stab", UNTERHAU_SWING__NEXT, STAB_CYCLE, SWORD__THRUST_WIATS,
+            DirEnum.DOWN, GradeEnum.F, SWORD__STAB__EXEC);
+
+    private final static Tick[] SWORD__STAB_UNTERHAU__EXEC = new Tick[] {
+            new Tick(0.25F, 1, 0.75F, PI2),
+            new Tick(0.5F, 1, 0.5F, PI2),
+            new Tick(0.75F, 1, 0.25F, PI2),
+            new Tick(1, 1, 0F, PI2) };
+    private final static MeleeOperation SWORD__STAB_UNTERHAU = new MeleeOperation(
+            "Stab unterhau", EMPTY__NEXT, STAB_CYCLE, SWORD__THRUST_WIATS,
+            DirEnum.UP, GradeEnum.F, SWORD__STAB_UNTERHAU__EXEC);
+
+    private final static Tick[] SWORD__SWING__EXEC = new Tick[] {
+            new Tick(0.04F, 1.05F, -0.7F, -0.8F),
+            new Tick(0.08F, 1.4F, -0.4F, -0.4F),
+            new Tick(0.12F, 1.5F, -0.1F, -0.1F),
+            new Tick(0.16F, 1.4F, 0.2F, 0.2F) };
+    private final static MeleeOperation SWORD__SWING = new MeleeOperation(
+            "Swing", UNTERHAU_SWING__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.DOWNRIGHT, GradeEnum.F, SWORD__SWING__EXEC);
+
+    private final static Tick[] SWORD__SWING_UNTERHAU__EXEC = reverse(SWORD__SWING__EXEC);
+    private final static MeleeOperation SWORD__SWING_UNTERHAU = new MeleeOperation(
+            "Swing unterhau", EMPTY__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.UPRIGHT, GradeEnum.F, SWORD__SWING_UNTERHAU__EXEC);
+    private final static MeleeOperation SWORD__SWING_UNTERHAU_C = new MeleeOperation(
+            "Swing unterhau c", SWORD__SWING_UNTERHAU, STAB_CYCLE);
+
+    private final static MeleeOperation SWORD__SWING_AERIAL = new MeleeOperation(
+            "Swing aerial", SWORD__SWING);
+
+    private final static Tick[] SWORD__SWING_UP_FORWARD__EXEC = {
+            new Tick(0.04F,  -0.8F,-0.6F, -2F),
+            new Tick(0.08F,  -0.2F,-0.85F, -1.5F),
+            new Tick(0.12F,  0.4F,-0.85F, -1F),
+            new Tick(0.16F,  1.05F,-0.7F, -0.5F) };
+    private final static MeleeOperation SWORD__SWING_UP_FORWARD = new MeleeOperation(
+            "Swing up forward", BACK_SWING_UP__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.UPRIGHT, GradeEnum.F, SWORD__SWING_UP_FORWARD__EXEC);
+    private final static MeleeOperation SWORD__SWING_PRONE = new MeleeOperation(
+            "Swing prone", SWORD__SWING_UP_FORWARD, PRONE_SWING__NEXT);
+    private final static Tick[] SWORD__SWING_UP_BACKWARD__EXEC = reverse(SWORD__SWING_UP_FORWARD__EXEC);
+    private final static MeleeOperation SWORD__SWING_UP_BACKWARD = new MeleeOperation(
+            "Swing up backward", EMPTY__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.UPLEFT, GradeEnum.F, SWORD__SWING_UP_BACKWARD__EXEC);
+    private final static Tick[] SWORD__SWING_DOWN_FORWARD__EXEC = mirrorVert(SWORD__SWING_UP_FORWARD__EXEC);
+    private final static MeleeOperation SWORD__SWING_DOWN_FORWARD = new MeleeOperation(
+            "Swing down forward", BACK_SWING_DOWN__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.DOWNRIGHT, GradeEnum.F, SWORD__SWING_DOWN_FORWARD__EXEC);
+    private final static Tick[] SWORD__SWING_DOWN_BACKWARD__EXEC = mirrorVert(SWORD__SWING_UP_BACKWARD__EXEC);
+    private final static MeleeOperation SWORD__SWING_DOWN_BACKWARD = new MeleeOperation(
+            "Swing down backward", EMPTY__NEXT, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            DirEnum.DOWNLEFT, GradeEnum.F, SWORD__SWING_DOWN_BACKWARD__EXEC);
+
     public final static WeaponType SWORD = new WeaponType(
             new Orient(new Vec2(0.8F, 0.1F), -PI4),
             SWORD__THRUST, SWORD__THRUST_UNTERHAU,
             SWORD__THRUST_UP, SWORD__THRUST_DOWN,
             SWORD__THRUST_DIAG_UP, SWORD__THRUST_DIAG_DOWN,
-            SWORD__LUNGE);
+            SWORD__LUNGE, SWORD__STAB, SWORD__STAB_UNTERHAU,
+            SWORD__SWING, SWORD__SWING_UNTERHAU, SWORD__SWING_UNTERHAU_C,
+            SWORD__SWING_AERIAL, SWORD__SWING_PRONE,
+            SWORD__SWING_UP_FORWARD, SWORD__SWING_UP_BACKWARD,
+            SWORD__SWING_DOWN_FORWARD, SWORD__SWING_DOWN_BACKWARD,
+            null, null, null, null, null, null
+
+            );
 }
