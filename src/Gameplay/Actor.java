@@ -29,7 +29,7 @@ public class Actor extends Item
         Igon
                 {
                     public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
-                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
+                    public float height() {return 60 * SPRITE_TO_WORLD_SCALE;}
                     public float mass() {return 1;}
                     public String[] spritePaths() {return new String[]{"super_neckbeard.png"};}
                     public CharacterStat createPlayerStat()
@@ -912,6 +912,11 @@ public class Actor extends Item
         }
         return DirEnum.get(dirFace < 0
                 ? dirHoriz : dirFace, dirVert);
+    }
+
+    public float getWeaponWidthRatio()
+    {
+        return getHeight() / getWidth();
     }
 
     private Weapon getBlockingWeapon()

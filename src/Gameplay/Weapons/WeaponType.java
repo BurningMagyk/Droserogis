@@ -196,7 +196,7 @@ public class WeaponType
             DirEnum.DOWNLEFT, GradeEnum.F, SWORD__SWING_DOWN_BACKWARD__EXEC);
 
     public final static WeaponType SWORD = new WeaponType(
-            new Orient(new Vec2(0.8F, 0.1F), -PI4),
+            new Orient(new Vec2(0.4F, 0.1F), -PI4),
             SWORD__THRUST, SWORD__THRUST_UNTERHAU,
             SWORD__THRUST_UP, SWORD__THRUST_DOWN,
             SWORD__THRUST_DIAG_UP, SWORD__THRUST_DIAG_DOWN,

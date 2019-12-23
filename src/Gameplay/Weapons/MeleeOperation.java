@@ -24,7 +24,7 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public State getState() { return state; }
     @Override
-    public Orient getOrient() { return orient; }
+    public Orient getOrient() { return orient.copy(); }
     @Override
     public float interrupt(Command command)
     {

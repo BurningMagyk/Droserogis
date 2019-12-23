@@ -96,7 +96,7 @@ public class Weapon extends Item
         if (dir != DirEnum.UP && dir != DirEnum.DOWN)
         {
             shapeCornersOffset = new Vec2(
-                    getPosition().x + dims.x * orient.getX()
+                    getPosition().x + dims.x * orient.getX() * actor.getWeaponWidthRatio()
                             * (currentOp == null || currentOp.getDir() == null
                             ? dir.getHoriz().getSign()
                             : currentOp.getDir().getHoriz().getSign()),
