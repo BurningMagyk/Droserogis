@@ -67,7 +67,11 @@ public class Command
             {
                 if (PREV_KEY == 3)
                 {
-                    if (up) return GRAB_UP;
+                    if (up)
+                    {
+                        if (forward) return GRAB_DIAG_UP;
+                        return GRAB_UP;
+                    }
                     if (down) return POUNCE;
                     return GRAB;
                 }
@@ -92,7 +96,7 @@ public class Command
                     if (forward) return THROW;
                     return TOSS;
                 }
-                return INTERRACT;
+                return INTERACT;
             }
         }
         if (state == Actor.State.SLIDE || !canStand)
@@ -136,7 +140,7 @@ public class Command
                     if (forward) return THROW_UP_DIAG;
                     return TOSS;
                 }
-                return INTERRACT;
+                return INTERACT;
             }
         }
 
@@ -164,7 +168,11 @@ public class Command
             if (PREV_KEY == 3)
             {
                 if (sprint) return TACKLE;
-                if (up) return GRAB_UP;
+                if (up)
+                {
+                    if (forward) return GRAB_DIAG_UP;
+                    return GRAB_UP;
+                }
                 return GRAB;
             }
             if (sprint) return SHOVE;
@@ -185,7 +193,7 @@ public class Command
                 if (forward) return THROW;
                 return TOSS;
             }
-            return INTERRACT;
+            return INTERACT;
         }
 
         // for debugging

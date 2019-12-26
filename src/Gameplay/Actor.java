@@ -165,9 +165,14 @@ public class Actor extends Item
 
         //weapons[0] = new Natural(type.createNaturalWeaponStat(), charStat, xPos, yPos, 0.2F, 0.1F, type.mass() * 0.1F, this, null);
         //weapons[0] = new Natural(this, xPos, yPos);
-        weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                type.mass() * 0.1F, WeaponType.SWORD, null);
+
+        weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.1F, 0.1F,
+                type.mass() * 0.1F, WeaponType.NATURAL, null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
+
+        weapons[WeaponSlot.PRIMARY.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
+                type.mass() * 0.1F, WeaponType.SWORD, null);
+        weapons[WeaponSlot.PRIMARY.ordinal()].equip(this);
     }
 
     public EnumType getActorType() { return actorType;}
@@ -848,6 +853,8 @@ public class Actor extends Item
             Command command = new Command(attackKey + usingAttackMod,
                     getWeaponFace(), DirEnum.get(dirHoriz, dirVert), state, canStand());
 
+            int succeedingWeaponIdx = -1;
+
             /* Find a warming weapon and its command, see if it makes a combo */
             Command combo = null;
             for (int i = weapons.length - 1; i >= 0; i--)
@@ -865,7 +872,7 @@ public class Actor extends Item
                 {
                     if (weapons[i] == null) continue;
                     comboSuccess = weapons[i].addCommand(combo, true, false);
-                    if (comboSuccess) break;
+                    if (comboSuccess) { succeedingWeaponIdx = i; break; }
                 }
             }
 
@@ -878,17 +885,41 @@ public class Actor extends Item
                 {
                     if (weapons[i] == null) continue;
                     chainSuccess = weapons[i].addCommand(command, false, true);
-                    if (chainSuccess) break;
+                    if (chainSuccess) { succeedingWeaponIdx = i; break; }
                 }
             }
 
-            /* If the chain failed, see if it works the normal way  */
+            /* If the chain failed and there is not current operation,
+             * see if it works the normal way  */
             if (!chainSuccess)
             {
+                boolean hasActiveOp = false;
                 for (int i = weapons.length - 1; i >= 0; i--)
                 {
                     if (weapons[i] == null) continue;
-                    if (weapons[i].addCommand(command, false, false)) break;
+                    if (weapons[i].currentOpActive())
+                    {
+                        hasActiveOp = true;
+                        break;
+                    }
+                }
+
+                if (!hasActiveOp)
+                {
+                    for (int i = weapons.length - 1; i >= 0; i--)
+                    {
+                        if (weapons[i] == null) continue;
+                        if (weapons[i].addCommand(command, false, false)) break;
+                    }
+                }
+            }
+
+            if (succeedingWeaponIdx >= 0)
+            {
+                for (int i = 0; i < weapons.length; i++)
+                {
+                    if (i != succeedingWeaponIdx && weapons[i] != null)
+                        weapons[i].interrupt();
                 }
             }
         }

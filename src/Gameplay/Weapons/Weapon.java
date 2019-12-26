@@ -30,7 +30,7 @@ public class Weapon extends Item
     private boolean ballistic = true;
     private Command currentCommand;
     Operation currentOp;
-    private final MeleeOperation[] meleeOps;
+    private final Operation[] ops;
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
@@ -44,7 +44,7 @@ public class Weapon extends Item
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
 
-        meleeOps = weaponType.getMeleeOps();
+        ops = weaponType.getOps();
     }
 
     public Actor getActor() { return actor; }
@@ -53,7 +53,7 @@ public class Weapon extends Item
     {
         this.actor = actor;
         ballistic = false;
-        actor.setPosition(actor.getPosition());
+        setPosition(actor.getPosition());
 
         orient = DEF_ORIENT.copy();
         dirOp = actor.getWeaponFace();
@@ -156,10 +156,11 @@ public class Weapon extends Item
     {
         MeleeOperation.MeleeEnum nextMelee = null;
         if (currentOp != null) nextMelee = currentOp.getNext(command.ENUM);
-        if (nextMelee != null) return meleeOps[nextMelee.ordinal()];
-        Print.blue(command.ENUM);
-        return meleeOps[command.ENUM.ordinal()];
+        if (nextMelee != null) return ops[nextMelee.ordinal()];
+        return ops[command.ENUM.ordinal()];
     }
+
+    public boolean currentOpActive() { return currentOp != null; }
 
     public Command mayInterrupt(Command command, Actor.State state, boolean canStand)
     {
@@ -235,6 +236,16 @@ public class Weapon extends Item
         if (currentOp != null) currentOp.interrupt(null);
         orient.set(DEF_ORIENT.copy());
     }
+    public void interrupt()
+    {
+        if (currentOp != null) currentOp.interrupt(null);
+        currentOp = null;
+    }
+    public void interrupt(RushOperation.RushFinish rushFinish)
+    {
+        if (currentOp != null && currentOp instanceof RushOperation)
+            ((RushOperation) currentOp).interrupt(rushFinish);
+    }
 
     @Override
     protected void applyInflictions()
@@ -283,7 +294,8 @@ public class Weapon extends Item
             }
             else
             {
-                orient = currentOp.getOrient();
+                if (currentOp instanceof RushOperation) orient = DEF_ORIENT;
+                else orient = currentOp.getOrient();
                 dirOp = currentOp.getDir();
             }
         }

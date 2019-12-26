@@ -2,9 +2,12 @@ package Gameplay.Weapons;
 
 import Gameplay.Actor;
 import Gameplay.DirEnum;
+import Gameplay.Item;
 import Gameplay.Weapons.Inflictions.ConditionApp;
 import Gameplay.Weapons.Inflictions.ConditionAppCycle;
+import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
@@ -13,16 +16,16 @@ import static Gameplay.Actor.Condition.*;
 public class WeaponType
 {
     private final Orient DEF_ORIENT;
-    private final MeleeOperation[] MELEE_OPS;
+    private final Weapon.Operation[] OPS;
 
-    WeaponType(Orient orient, MeleeOperation ...ops)
+    WeaponType(Orient orient, Weapon.Operation...ops)
     {
         DEF_ORIENT = orient.copy();
-        MELEE_OPS = ops;
+        OPS = ops;
     }
 
     Orient getDefaultOrient() { return DEF_ORIENT; }
-    MeleeOperation[] getMeleeOps() { return MELEE_OPS; }
+    Weapon.Operation[] getOps() { return OPS; }
 
     private static Tick[] reverse(Tick[] ticks)
     {
@@ -71,6 +74,7 @@ public class WeaponType
 
     private final static Vec2 NATURAL__PUNCH_WAITS = new Vec2(1, 1),
         NATURAL__KICK_WAITS = new Vec2(1.5F, 1.5F),
+        NATURAL__RUSH_WAITS = new Vec2(0.1F, 0.1F),
         NATURAL__GRAB_WAITS = new Vec2(1F, 3F);
 
     private final static Tick[] NATURAL__PUNCH__EXEC = new Tick[] {
@@ -152,6 +156,10 @@ public class WeaponType
             "Kick straight", EMPTY__NEXT, STANDARD_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.LEFT, GradeEnum.F, NATURAL__KICK_PRONE__EXEC);
 
+    private final static RushOperation NATURAL__SHOVE = new RushOperation(
+            "Shove", EMPTY__NEXT, LUNGE_CYCLE, NATURAL__RUSH_WAITS,
+            DirEnum.RIGHT, GradeEnum.F);
+
     private final static MeleeOperation NATURAL__GRAB = new MeleeOperation(
             "Grab", EMPTY__NEXT, STANDARD_CYCLE, NATURAL__GRAB_WAITS,
             DirEnum.NONE, GradeEnum.F, NATURAL__PUNCH__EXEC);
@@ -168,6 +176,32 @@ public class WeaponType
             "Grab alt", EMPTY__NEXT, STAB_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.LEFT, GradeEnum.F, NATURAL__KICK_PRONE__EXEC);
 
+    private static class InteractOperation implements Weapon.Operation
+    {
+        private State state = State.VOID;
+        private Orient orient = new Orient(new Vec2(0, 0), 0);
+        public String getName() { return "Interact"; }
+        public DirEnum getDir() { return DirEnum.NONE; }
+        public Infliction getInfliction() { return null; }
+        public Infliction getSelfInfliction() { return null; }
+        public State getState() { return state; }
+        public Orient getOrient() { return orient; }
+        public float interrupt(Command command) { state = State.VOID; return 0; }
+        public MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum) { return null; }
+        public void start(Orient orient, float warmBoost, Command command) {
+            state = State.WARMUP;
+            Print.blue("Operating \"" + getName() + "\""); }
+        public boolean run(float deltaSec) {
+            if (state == State.EXECUTION) {
+                interrupt(null);
+                return true; }
+            return false; }
+        public void release(int attackKey) { if (attackKey == 3) state = State.EXECUTION; }
+        public void apply(Item other) { }
+        public boolean isEasyToBlock() { return false; }
+        public boolean isDisruptive() { return false; }
+    }
+
     public final static WeaponType NATURAL = new WeaponType(
             new Orient(new Vec2(0.2F, -0.1F), PI2),
             NATURAL__PUNCH, NATURAL__UPPERCUT,
@@ -178,10 +212,11 @@ public class WeaponType
             NATURAL__KICK_DIAG_DOWN, NATURAL__KICK_PRONE,
             NATURAL__KICK_STRAIGHT, NATURAL__KICK_STRAIGHT,
             null /*STOMP_FALL*/, null /*STOMP_FALL*/,
-            null /*SHOVE*/, NATURAL__GRAB, NATURAL__GRAB_UP,
+            NATURAL__SHOVE, NATURAL__GRAB, NATURAL__GRAB_UP,
             NATURAL__GRAB_DIAG_UP, NATURAL__GRAB_ALT,
-            null/*POUNCE*/, null/*TACKLE*/,
-            null, null, null, null, null, null, null // empty ops (throwing)
+            null /*POUNCE*/, null /*TACKLE*/,
+            null, null, null, null, null, null, null, // empty ops (throwing)
+            new InteractOperation()
     );
 
     private final static Vec2 SWORD__THRUST_WAITS = new Vec2(2, 2),
@@ -320,7 +355,8 @@ public class WeaponType
             SWORD__SWING_AERIAL, SWORD__SWING_PRONE,
             SWORD__SWING_UP_FORWARD, SWORD__SWING_UP_BACKWARD,
             SWORD__SWING_DOWN_FORWARD, SWORD__SWING_DOWN_BACKWARD,
-            null, null, null, null, null, null
-
+            null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, // empty ops (throwing)
+            null // INTERACT
             );
 }

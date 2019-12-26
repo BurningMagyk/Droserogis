@@ -7,6 +7,8 @@ package Gameplay;
 // TODO: At least one difference between them is that players have input devices (controllers) while monsters have AI.
 
 
+import Gameplay.Weapons.Weapon;
+
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -103,7 +105,10 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
             //System.out.print("Actor");
             playerList.add((Actor) entity);
             dynamicItems.add((Actor) entity);
-            add((Entity) ((Actor) entity).getWeapons()[0]);
+            for (Weapon weapon : ((Actor) entity).getWeapons())
+            {
+                if (weapon != null) add((Entity) weapon);
+            }
             physicsItems.add(entity);
         }
         else if (entity instanceof Item)
