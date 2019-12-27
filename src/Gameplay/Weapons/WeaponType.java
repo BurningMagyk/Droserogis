@@ -62,15 +62,27 @@ public class WeaponType
 
     private final static ConditionApp FORCE_WALK__FORCE_STAND = new ConditionApp(
             NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT, FORCE_STAND);
-    private final static ConditionApp LUNGE_END_CONDITION = new ConditionApp(
-            NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, NEGATE_ATTACK, NEGATE_BLOCK);
+    private final static ConditionApp
+            LUNGE_START_CONDITION = new ConditionApp(
+                    FORCE_STAND, DASH),
+            LUNGE_END_CONDITION = new ConditionApp(
+                    NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, NEGATE_ATTACK, NEGATE_BLOCK);
     private final static ConditionApp FORCE_STILL__FORCE_STAND = new ConditionApp(
             NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, FORCE_STAND);
+    private final static ConditionApp FORCE_STILL__FORCE_CROUCH = new ConditionApp(
+            NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, FORCE_CROUCH);
 
     private final static ConditionAppCycle STANDARD_CYCLE = new ConditionAppCycle(FORCE_WALK__FORCE_STAND);
     private final static ConditionAppCycle LUNGE_CYCLE = new ConditionAppCycle(
-            new ConditionApp(FORCE_STAND), new ConditionApp(DASH), LUNGE_END_CONDITION);
+            LUNGE_START_CONDITION, new ConditionApp(FORCE_STAND), LUNGE_END_CONDITION);
     private final static ConditionAppCycle STAB_CYCLE = new ConditionAppCycle(FORCE_STILL__FORCE_STAND);
+    private final static ConditionAppCycle STOMP_FALL_CYCLE = new ConditionAppCycle(FORCE_STILL__FORCE_CROUCH);
+    private final static ConditionAppCycle POUNCE_CYCLE = new ConditionAppCycle(
+            new ConditionApp(FORCE_CROUCH), new ConditionApp(NEGATE_ACTIVITY), new ConditionApp(FORCE_CROUCH));
+    private final static ConditionAppCycle PUSH_CYCLE = new ConditionAppCycle(
+            new ConditionApp(DASH), new ConditionApp(FORCE_STAND), new ConditionApp(FORCE_STAND));
+    private final static ConditionAppCycle TACKLE_CYCLE = new ConditionAppCycle(
+            new ConditionApp(DASH), null, new ConditionApp(FORCE_CROUCH));
 
     private final static Vec2 NATURAL__PUNCH_WAITS = new Vec2(1, 1),
         NATURAL__KICK_WAITS = new Vec2(1.5F, 1.5F),
@@ -156,6 +168,10 @@ public class WeaponType
             "Kick straight", EMPTY__NEXT, STANDARD_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.LEFT, GradeEnum.F, NATURAL__KICK_PRONE__EXEC);
 
+    private final static RushOperation NATURAL__STOMP_FALL = new RushOperation(
+            "Stomp fall", UNTERHAU_SWING__NEXT, STOMP_FALL_CYCLE, NATURAL__RUSH_WAITS,
+            DirEnum.DOWN, GradeEnum.F);
+
     private final static RushOperation NATURAL__SHOVE = new RushOperation(
             "Shove", EMPTY__NEXT, LUNGE_CYCLE, NATURAL__RUSH_WAITS,
             DirEnum.RIGHT, GradeEnum.F);
@@ -175,6 +191,18 @@ public class WeaponType
     private final static MeleeOperation NATURAL__GRAB_ALT = new MeleeOperation(
             "Grab alt", EMPTY__NEXT, STAB_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.LEFT, GradeEnum.F, NATURAL__KICK_PRONE__EXEC);
+
+    private final static RushOperation NATURAL__POUNCE = new RushOperation(
+            "Pounce", EMPTY__NEXT, POUNCE_CYCLE, NATURAL__RUSH_WAITS,
+            DirEnum.DOWNRIGHT, GradeEnum.F);
+
+    private final static RushOperation NATURAL__PUSH = new RushOperation(
+            "Push", EMPTY__NEXT, PUSH_CYCLE, NATURAL__RUSH_WAITS,
+            DirEnum.RIGHT, GradeEnum.F);
+
+    private final static RushOperation NATURAL__TACKLE = new RushOperation(
+            "Tackle", EMPTY__NEXT, TACKLE_CYCLE, NATURAL__RUSH_WAITS,
+            DirEnum.RIGHT, GradeEnum.F);
 
     private static class InteractOperation implements Weapon.Operation
     {
@@ -205,16 +233,16 @@ public class WeaponType
     public final static WeaponType NATURAL = new WeaponType(
             new Orient(new Vec2(0.2F, -0.1F), PI2),
             NATURAL__PUNCH, NATURAL__UPPERCUT,
-            NATURAL__PUNCH_UP, null /*NATURAL__POUNCE*/,
-            NATURAL__PUNCH_DIAG_UP, null /*NATURAL__POUNCE*/,
-            null /*NATURAL__PUSH*/, NATURAL__STOMP, NATURAL__UPPERCUT,
+            NATURAL__PUNCH_UP, NATURAL__POUNCE,
+            NATURAL__PUNCH_DIAG_UP, NATURAL__POUNCE,
+            NATURAL__PUSH, NATURAL__STOMP, NATURAL__UPPERCUT,
             NATURAL__KICK_ARC, NATURAL__UPPERCUT, NATURAL__UPPERCUT,
             NATURAL__KICK_DIAG_DOWN, NATURAL__KICK_PRONE,
             NATURAL__KICK_STRAIGHT, NATURAL__KICK_STRAIGHT,
-            null /*STOMP_FALL*/, null /*STOMP_FALL*/,
+            NATURAL__STOMP_FALL, NATURAL__STOMP_FALL,
             NATURAL__SHOVE, NATURAL__GRAB, NATURAL__GRAB_UP,
             NATURAL__GRAB_DIAG_UP, NATURAL__GRAB_ALT,
-            null /*POUNCE*/, null /*TACKLE*/,
+            NATURAL__POUNCE, NATURAL__TACKLE,
             null, null, null, null, null, null, null, // empty ops (throwing)
             new InteractOperation()
     );

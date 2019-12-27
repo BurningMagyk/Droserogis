@@ -133,7 +133,8 @@ public class RushOperation implements Weapon.Operation
 
     enum RushFinish
     {
-        HIT_FLOOR, HIT_WALL, HIT_WATER, HIT_TARGET, MAKE_LOW, STAGGER
+        HIT_FLOOR, HIT_WALL, HIT_WATER, HIT_TARGET,
+        MAKE_LOW, LOSE_SPRINT, STAGGER
     }
 
     private String name;

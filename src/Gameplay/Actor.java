@@ -540,6 +540,12 @@ public class Actor extends Item
             addCondition(condTime, Condition.FORCE_CROUCH);
             addCondition(condTime, Condition.NEGATE_WALK_LEFT);
             addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
+            if (conditionsB[Condition.NEGATE_STABILITY.ordinal()])
+            {
+                addCondition(Condition.FORCE_CROUCH);
+                addCondition(Condition.NEGATE_WALK_LEFT);
+                addCondition(Condition.NEGATE_WALK_RIGHT);
+            }
         }
 
         prevGround.ground = touchEntity[DOWN];
