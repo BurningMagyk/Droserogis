@@ -131,7 +131,7 @@ public class RushOperation implements Weapon.Operation
         return true;
     }
 
-    enum RushFinish
+    public enum RushFinish
     {
         HIT_FLOOR, HIT_WALL, HIT_WATER, HIT_TARGET,
         MAKE_LOW, LOSE_SPRINT, STAGGER

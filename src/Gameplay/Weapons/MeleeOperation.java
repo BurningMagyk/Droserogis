@@ -157,6 +157,16 @@ class MeleeOperation implements Weapon.Operation
         return true;
     }
 
+    Orient[] getTickOrients()
+    {
+        Orient[] tickOrients = new Orient[execJourney.length];
+        for (int i = 0; i < execJourney.length; i++)
+        {
+            tickOrients[i] = execJourney[i].getOrient();
+        }
+        return tickOrients;
+    }
+
     enum MeleeEnum
     {
         THRUST, THRUST_UNTERHAU, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN,

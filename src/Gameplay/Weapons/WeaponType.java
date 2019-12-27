@@ -170,11 +170,14 @@ public class WeaponType
 
     private final static RushOperation NATURAL__STOMP_FALL = new RushOperation(
             "Stomp fall", UNTERHAU_SWING__NEXT, STOMP_FALL_CYCLE, NATURAL__RUSH_WAITS,
-            DirEnum.DOWN, GradeEnum.F);
+            DirEnum.DOWN, GradeEnum.F,
+            RushOperation.RushFinish.HIT_FLOOR, RushOperation.RushFinish.HIT_WATER);
 
     private final static RushOperation NATURAL__SHOVE = new RushOperation(
             "Shove", EMPTY__NEXT, LUNGE_CYCLE, NATURAL__RUSH_WAITS,
-            DirEnum.RIGHT, GradeEnum.F);
+            DirEnum.RIGHT, GradeEnum.F,
+            RushOperation.RushFinish.HIT_WALL, RushOperation.RushFinish.HIT_WATER,
+            RushOperation.RushFinish.LOSE_SPRINT);
 
     private final static MeleeOperation NATURAL__GRAB = new MeleeOperation(
             "Grab", EMPTY__NEXT, STANDARD_CYCLE, NATURAL__GRAB_WAITS,
@@ -194,15 +197,24 @@ public class WeaponType
 
     private final static RushOperation NATURAL__POUNCE = new RushOperation(
             "Pounce", EMPTY__NEXT, POUNCE_CYCLE, NATURAL__RUSH_WAITS,
-            DirEnum.DOWNRIGHT, GradeEnum.F);
+            DirEnum.DOWNRIGHT, GradeEnum.F,
+            RushOperation.RushFinish.HIT_FLOOR, RushOperation.RushFinish.HIT_WATER,
+            RushOperation.RushFinish.HIT_WALL, RushOperation.RushFinish.HIT_TARGET,
+            RushOperation.RushFinish.STAGGER);
 
     private final static RushOperation NATURAL__PUSH = new RushOperation(
             "Push", EMPTY__NEXT, PUSH_CYCLE, NATURAL__RUSH_WAITS,
-            DirEnum.RIGHT, GradeEnum.F);
+            DirEnum.RIGHT, GradeEnum.F,
+            RushOperation.RushFinish.HIT_WALL, RushOperation.RushFinish.HIT_WATER,
+            RushOperation.RushFinish.HIT_TARGET, RushOperation.RushFinish.MAKE_LOW,
+            RushOperation.RushFinish.STAGGER);
 
     private final static RushOperation NATURAL__TACKLE = new RushOperation(
             "Tackle", EMPTY__NEXT, TACKLE_CYCLE, NATURAL__RUSH_WAITS,
-            DirEnum.RIGHT, GradeEnum.F);
+            DirEnum.RIGHT, GradeEnum.F,
+            RushOperation.RushFinish.HIT_WALL, RushOperation.RushFinish.HIT_WATER,
+            RushOperation.RushFinish.HIT_TARGET, RushOperation.RushFinish.LOSE_SPRINT,
+            RushOperation.RushFinish.STAGGER);
 
     private static class InteractOperation implements Weapon.Operation
     {

@@ -119,6 +119,40 @@ public class Weapon extends Item
 
 
     /*=======================================================================*/
+    /*                               Clashing                                */
+    /*=======================================================================*/
+
+    private Vec2[] getExecShapeCorners(Orient execOrient)
+    {
+        return new Vec2[]{};
+    }
+    // TODO: set up these values once when currentOp first changes
+    private Vec2[] getClashShapeCorners()
+    {
+        // TODO: use rect if ballistic or idle
+        if (currentOp != null && currentOp instanceof MeleeOperation)
+        {
+            if (currentOp.getState() != Operation.State.EXECUTION)
+            {
+                Orient[] tickOrients = ((MeleeOperation) currentOp).getTickOrients();
+                Vec2[] verts = new Vec2[tickOrients.length * 4];
+                for (int i = 0; i < tickOrients.length; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        verts[i * 4 + j] = new Vec2(
+                                tickOrients[i].getX(), tickOrients[i].getY());
+                    }
+                }
+                return verts;
+            }
+            return getShapeCorners();
+        }
+        return null;
+    }
+
+
+    /*=======================================================================*/
     /*                               Drawing                                 */
     /*=======================================================================*/
 
@@ -300,6 +334,14 @@ public class Weapon extends Item
             }
         }
         updateCorners();
+    }
+
+    public void updateClashes(ArrayList<Weapon> weapons)
+    {
+        for (Weapon weapon : weapons)
+        {
+
+        }
     }
 
     @Override

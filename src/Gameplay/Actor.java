@@ -163,16 +163,13 @@ public class Actor extends Item
         System.out.println("Actor("+type+")"+this.charStat);
         setCharacterStats();
 
-        //weapons[0] = new Natural(type.createNaturalWeaponStat(), charStat, xPos, yPos, 0.2F, 0.1F, type.mass() * 0.1F, this, null);
-        //weapons[0] = new Natural(this, xPos, yPos);
-
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.1F, 0.1F,
                 type.mass() * 0.1F, WeaponType.NATURAL, null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
 
-        weapons[WeaponSlot.PRIMARY.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                type.mass() * 0.1F, WeaponType.SWORD, null);
-        weapons[WeaponSlot.PRIMARY.ordinal()].equip(this);
+//        weapons[WeaponSlot.PRIMARY.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
+//                type.mass() * 0.1F, WeaponType.SWORD, null);
+//        weapons[WeaponSlot.PRIMARY.ordinal()].equip(this);
     }
 
     public EnumType getActorType() { return actorType;}
@@ -214,6 +211,7 @@ public class Actor extends Item
     private void act(float deltaSec)
     {
         float vx = getVelocityX(), vy = getVelocityY();
+        if (Math.abs(vx) <= runSpeed) interruptRushes(RushOperation.RushFinish.LOSE_SPRINT);
 
         /* Late surfaces acts wacky when not airborne. */
         if (pressedJumpTime > 0 && state.isAirborne())
@@ -730,6 +728,10 @@ public class Actor extends Item
                 && !touchEntity[DOWN].getShape().getDirs()[UP])
             setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
 
+        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isTriangle())
+                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isTriangle()))
+            interruptRushes(RushOperation.RushFinish.HIT_WALL);
+
         return contactVel;
     }
 
@@ -932,6 +934,13 @@ public class Actor extends Item
 
         pressingAttack[attackKey] = pressed;
     }
+    private void interruptRushes(RushOperation.RushFinish rushFinish)
+    {
+        for (int i = 0; i < weapons.length; i++)
+        {
+            if (weapons[i] != null) weapons[i].interrupt(rushFinish);
+        }
+    }
 
     public DirEnum getWeaponFace()
     {
@@ -1090,6 +1099,12 @@ public class Actor extends Item
         if (state == State.CROUCH) setFriction(GREATER_FRICTION);
         else if (state == State.SLIDE) setFriction(REDUCED_FRICTION);
         else setFriction(NORMAL_FRICTION);
+
+        /* Interrupt rushes here */
+        if (state.isGrounded()) interruptRushes(RushOperation.RushFinish.HIT_FLOOR);
+        else if (state.isOnWall()) interruptRushes(RushOperation.RushFinish.HIT_WALL);
+        else if (state == State.SWIM) interruptRushes(RushOperation.RushFinish.HIT_WATER);
+        if (state.isLow()) interruptRushes(RushOperation.RushFinish.MAKE_LOW);
 
         //Print.blue(this.state + " -> " + state);
 
@@ -1440,7 +1455,10 @@ public class Actor extends Item
             }
         }
 
+
         for (Weapon weapon : weapons) { weapon.disrupt(); }
+        // TODO: decide what magnitude causes these effects
+        if (mag > walkSpeed) interruptRushes(RushOperation.RushFinish.STAGGER);
     }
 
     /* Called when player's attack is parried */
@@ -1454,6 +1472,9 @@ public class Actor extends Item
 
         addCondition(staggerRecoverTime * staggerParryMod * gradeInflucence,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
+
+        if (grade.ordinal() >= GradeEnum.F.ordinal()) // TODO: decide actual value of this
+            interruptRushes(RushOperation.RushFinish.STAGGER);
     }
 
     /* Called when player lands too hard */
@@ -1468,6 +1489,7 @@ public class Actor extends Item
                 amount > landingThresh[1] ? Condition.NEGATE_ACTIVITY : !canWalk()
                         ? Condition.NEGATE_STABILITY : Condition.FORCE_CROUCH);
         pressedJumpTime = 0F;
+        interruptRushes(RushOperation.RushFinish.STAGGER);
     }
 
     @Override

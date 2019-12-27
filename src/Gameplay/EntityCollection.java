@@ -19,6 +19,8 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
     private ArrayList<Item> itemList = new ArrayList<>();
     private ArrayList<Actor> monsterList = new ArrayList<>();
     private ArrayList<Actor> playerList = new ArrayList<>();
+    private ArrayList<Weapon> weaponList = new ArrayList<>();
+    private ArrayList<Item> nonWeaponItems = new ArrayList<>();
     private ArrayList<CameraZone> cameraZoneList = new ArrayList<>();
 
     // dynamicItems is a list of copies of pointers to Entities that move (players, monsters and items).
@@ -86,6 +88,9 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
 
     public ArrayList<Item> getItemList() {return itemList;}
 
+    public ArrayList<Weapon> getWeaponList() {return weaponList;}
+    public ArrayList<Item> getNonWeaponItems() {return nonWeaponItems;}
+
     public ArrayList<Item> getDynamicItems() {return dynamicItems;}
 
     public int getPlayerCount() {return playerList.size();}
@@ -105,6 +110,7 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
             //System.out.print("Actor");
             playerList.add((Actor) entity);
             dynamicItems.add((Actor) entity);
+            nonWeaponItems.add((Actor) entity);
             for (Weapon weapon : ((Actor) entity).getWeapons())
             {
                 if (weapon != null) add((Entity) weapon);
@@ -116,6 +122,8 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
             itemList.add((Item) entity);
             dynamicItems.add((Item) entity);
             physicsItems.add(entity);
+            if (entity instanceof Weapon) weaponList.add((Weapon) entity);
+            else nonWeaponItems.add((Item) entity);
         }
         else if (entity instanceof Block)
         {

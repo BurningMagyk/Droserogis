@@ -87,7 +87,9 @@ public class Gameplay implements Reactor
 
         for (Item item : entities.getDynamicItems()) { item.update(entities, deltaSec); }
 
-        for (Item item : entities.getItemList()) { item.update(entities.getDynamicItems()); }
+        for (Weapon weapon : entities.getWeaponList()) { weapon.updateClashes(entities.getWeaponList()); }
+
+        for (Item item : entities.getItemList()) { item.update(entities.getNonWeaponItems()); }
 
         /* Center the camera on the player
          * TODO: Make the camera move ahead of the player's headed direction */
