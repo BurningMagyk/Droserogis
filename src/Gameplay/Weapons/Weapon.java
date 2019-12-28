@@ -5,6 +5,7 @@ import Gameplay.Weapons.Inflictions.ConditionApp;
 import Gameplay.Weapons.Inflictions.ConditionAppCycle;
 import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
+import Util.PolygonIntersection;
 import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
@@ -27,7 +28,7 @@ public class Weapon extends Item
     private Orient orient;
 
     Actor actor;
-    private boolean ballistic = true;
+    private boolean ballistic = false, idle = true;
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
@@ -53,6 +54,7 @@ public class Weapon extends Item
     {
         this.actor = actor;
         ballistic = false;
+        idle = false;
         setPosition(actor.getPosition());
 
         orient = DEF_ORIENT.copy();
@@ -122,31 +124,49 @@ public class Weapon extends Item
     /*                               Clashing                                */
     /*=======================================================================*/
 
-    private Vec2[] getExecShapeCorners(Orient execOrient)
+    private Vec2[][] getClashShapeCorners()
     {
-        return new Vec2[]{};
-    }
-    // TODO: set up these values once when currentOp first changes
-    private Vec2[] getClashShapeCorners()
-    {
-        // TODO: use rect if ballistic or idle
+        if (idle) return null;
+
         if (currentOp != null && currentOp instanceof MeleeOperation)
         {
-            if (currentOp.getState() != Operation.State.EXECUTION)
+            if (currentOp.getState() == Operation.State.EXECUTION)
             {
                 Orient[] tickOrients = ((MeleeOperation) currentOp).getTickOrients();
-                Vec2[] verts = new Vec2[tickOrients.length * 4];
+                Vec2[][] verts = new Vec2[tickOrients.length * 2 - 1][4];
                 for (int i = 0; i < tickOrients.length; i++)
                 {
+                    Vec2[] shapeCorners = new Vec2[4];
                     for (int j = 0; j < 4; j++)
                     {
-                        verts[i * 4 + j] = new Vec2(
-                                tickOrients[i].getX(), tickOrients[i].getY());
+                        shapeCorners[j] = new Vec2(SHAPE_CORNERS[j]);
                     }
+
+                    Vec2.setTheta(dirOp.getHoriz().getSign() * tickOrients[i].getTheta());
+                    for (Vec2 wieldDim : shapeCorners)
+                    {
+                        wieldDim.rotate();
+                        wieldDim.add(shapeCornersOffset);
+                    }
+
+                    for (int j = 0; j < 4; j++)
+                    {
+                        verts[i][j] = shapeCorners[j];
+                    }
+                }
+                for (int i = 0; i < tickOrients.length - 1; i++)
+                {
+                    verts[i + tickOrients.length] = new Vec2[] {
+                            verts[i + 1][1], verts[i + 1][0],
+                            verts[i][3], verts[i][2] };
                 }
                 return verts;
             }
-            return getShapeCorners();
+            return new Vec2[][] {getShapeCorners()};
+        }
+        else if (ballistic)
+        {
+            return new Vec2[][] {getShapeCorners()};
         }
         return null;
     }
@@ -195,6 +215,8 @@ public class Weapon extends Item
     }
 
     public boolean currentOpActive() { return currentOp != null; }
+    private boolean currentOpExec() { return currentOp != null
+            && currentOp.getState() == Operation.State.EXECUTION; }
 
     public Command mayInterrupt(Command command, Actor.State state, boolean canStand)
     {
@@ -336,11 +358,26 @@ public class Weapon extends Item
         updateCorners();
     }
 
-    public void updateClashes(ArrayList<Weapon> weapons)
+    public void updateClashes(ArrayList<Weapon> otherWeapons)
     {
-        for (Weapon weapon : weapons)
-        {
+        Vec2[][] clashShapeCorners = getClashShapeCorners();
+        if (clashShapeCorners == null) return;
 
+        for (Weapon otherWeapon : otherWeapons)
+        {
+            if (otherWeapon == this || otherWeapon.idle
+                    || (!currentOpExec() && !otherWeapon.currentOpExec())) continue;
+
+            Vec2[] otherPolygon = otherWeapon.getShapeCorners();
+            for (Vec2[] polygon : clashShapeCorners)
+            {
+                if (PolygonIntersection.isIntersect(polygon, otherPolygon))
+                {
+                    // TODO: inflict other
+                    Print.blue(this + " clashed with " + otherWeapon);
+                    break;
+                }
+            }
         }
     }
 

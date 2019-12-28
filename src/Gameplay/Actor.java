@@ -163,7 +163,7 @@ public class Actor extends Item
         System.out.println("Actor("+type+")"+this.charStat);
         setCharacterStats();
 
-        weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.1F, 0.1F,
+        weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
                 type.mass() * 0.1F, WeaponType.NATURAL, null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
 

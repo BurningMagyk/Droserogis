@@ -243,7 +243,7 @@ public class WeaponType
     }
 
     public final static WeaponType NATURAL = new WeaponType(
-            new Orient(new Vec2(0.2F, -0.1F), PI2),
+            new Orient(new Vec2(0.2F, -0.1F), 0),
             NATURAL__PUNCH, NATURAL__UPPERCUT,
             NATURAL__PUNCH_UP, NATURAL__POUNCE,
             NATURAL__PUNCH_DIAG_UP, NATURAL__POUNCE,
