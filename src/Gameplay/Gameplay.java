@@ -260,6 +260,24 @@ public class Gameplay implements Reactor
             {
                 if (entity instanceof Weapon)
                 {
+                    Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
+                    if (cc != null)
+                    {
+                        context.setFill(Color.rgb(120, 170, 170));
+                        for (int j = 0; j < cc.length; j++)
+                        {
+                            double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
+                            double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
+                            for (int i = 0; i < xxCorners.length; i++)
+                            {
+                                xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                                yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                            }
+                            context.fillPolygon(xxCorners, yyCorners, 4);
+                        }
+                    }
+
+                    context.setFill(entity.getColor());
                     Vec2[] c = ((Weapon) entity).getShapeCorners();
                     double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
                     double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};

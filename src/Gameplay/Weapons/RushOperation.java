@@ -13,7 +13,7 @@ public class RushOperation implements Weapon.Operation
     @Override
     public String getName() { return name; }
     @Override
-    public DirEnum getDir() { return funcDir; }
+    public DirEnum getDir() { return face; }
 
     private Infliction infliction, selfInfliction;
     @Override
@@ -70,8 +70,8 @@ public class RushOperation implements Weapon.Operation
     {
         state = State.WARMUP;
         totalSec = warmBoost;
-        this.face = command.FACE;
-        this.attackKey = command.ATTACK_KEY;
+        face = command.FACE;
+        attackKey = command.ATTACK_KEY;
     }
 
     @Override

@@ -55,8 +55,8 @@ class MeleeOperation implements Weapon.Operation
     {
         state = State.WARMUP;
         totalSec = warmBoost;
-        this.face = command.FACE;
-        this.attackKey = command.ATTACK_KEY;
+        face = command.FACE;
+        attackKey = command.ATTACK_KEY;
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 

@@ -26,6 +26,7 @@ public class Weapon extends Item
 
     private final Orient DEF_ORIENT;
     private Orient orient;
+    private Vec2 actorDims;
 
     Actor actor;
     private boolean ballistic = false, idle = true;
@@ -75,7 +76,7 @@ public class Weapon extends Item
             shapeCorners_Rotated[i].y = SHAPE_CORNERS[i].y;
         }
 
-        float dirSign = currentOp == null
+        float dirSign = (currentOp == null)
                 ? dirFace.getHoriz().getSign() : dirOp.getHoriz().getSign();
         Vec2.setTheta(dirSign * orient.getTheta());
 
@@ -116,6 +117,7 @@ public class Weapon extends Item
     {
         setPosition(p);
         setVelocity(v);
+        actorDims = dims;
         updateCornersOffset(dims, dir);
     }
 
@@ -124,7 +126,7 @@ public class Weapon extends Item
     /*                               Clashing                                */
     /*=======================================================================*/
 
-    private Vec2[][] getClashShapeCorners()
+    public Vec2[][] getClashShapeCorners()
     {
         if (idle) return null;
 
@@ -146,7 +148,13 @@ public class Weapon extends Item
                     for (Vec2 wieldDim : shapeCorners)
                     {
                         wieldDim.rotate();
-                        wieldDim.add(shapeCornersOffset);
+
+                        Vec2 cornersOffset = new Vec2(
+                                getPosition().x + actorDims.x * tickOrients[i].getX() * actor.getWeaponWidthRatio()
+                                        * currentOp.getDir().getHoriz().getSign(),
+                                getPosition().y + actorDims.y * tickOrients[i].getY());
+
+                        wieldDim.add(cornersOffset);
                     }
 
                     for (int j = 0; j < 4; j++)
@@ -355,6 +363,7 @@ public class Weapon extends Item
                 dirOp = currentOp.getDir();
             }
         }
+        else orient = DEF_ORIENT;
         updateCorners();
     }
 
