@@ -26,7 +26,6 @@ public class Weapon extends Item
 
     private final Orient DEF_ORIENT;
     private Orient orient;
-    private Vec2 actorDims;
 
     Actor actor;
     private boolean ballistic = false, idle = true;
@@ -117,7 +116,6 @@ public class Weapon extends Item
     {
         setPosition(p);
         setVelocity(v);
-        actorDims = dims;
         updateCornersOffset(dims, dir);
     }
 
@@ -150,9 +148,9 @@ public class Weapon extends Item
                         wieldDim.rotate();
 
                         Vec2 cornersOffset = new Vec2(
-                                getPosition().x + actorDims.x * tickOrients[i].getX() * actor.getWeaponWidthRatio()
+                                getPosition().x + actor.getWidth() * tickOrients[i].getX() * actor.getWeaponWidthRatio()
                                         * currentOp.getDir().getHoriz().getSign(),
-                                getPosition().y + actorDims.y * tickOrients[i].getY());
+                                getPosition().y + actor.getHeight() * tickOrients[i].getY());
 
                         wieldDim.add(cornersOffset);
                     }

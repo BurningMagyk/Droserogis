@@ -28,11 +28,10 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public float interrupt(Command command)
     {
-        float boost;
+        float boost = 0;
 
-        if (state == State.WARMUP || (state == State.COOLDOWN && proceedsTo(command))) boost = totalSec;
-        else if (state == State.EXECUTION) boost = 0; // don't expect to interrupt during exec
-        else boost = coolJourney.getTotalTime(); // during or after cooldown
+        if (state == State.WARMUP || (state.ordinal() >= State.COOLDOWN.ordinal()
+                && proceedsTo(command))) boost = totalSec;
 
         totalSec = 0;
         state = State.VOID;
@@ -154,7 +153,12 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean proceedsTo(Command command)
     {
-        return true;
+        if (proceeds == null) return false;
+        for (MeleeEnum proceed : proceeds)
+        {
+            if (command.ENUM == proceed) return true;
+        }
+        return false;
     }
 
     Orient[] getTickOrients()
@@ -183,6 +187,7 @@ class MeleeOperation implements Weapon.Operation
 
     private String name;
     private MeleeEnum[][] next;
+    private MeleeEnum[] proceeds;
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
@@ -203,6 +208,7 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(
             String name,
             MeleeEnum[][] next,
+            MeleeEnum[] proceeds,
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
@@ -212,6 +218,7 @@ class MeleeOperation implements Weapon.Operation
     {
         this.name = name;
         this.next = next;
+        this.proceeds = proceeds;
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
@@ -221,7 +228,7 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(String name, MeleeOperation op)
     {
-        this(name, op.next, op.cycle, op.waits.copy(),
+        this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
                 op.funcDir, op.damage, op.execJourney);
     }
 
@@ -231,7 +238,7 @@ class MeleeOperation implements Weapon.Operation
             MeleeEnum[][] next
     )
     {
-        this(name, next, op.cycle, op.waits.copy(),
+        this(name, next, op.proceeds, op.cycle, op.waits.copy(),
                 op.funcDir, op.damage, op.execJourney);
     }
 
@@ -241,7 +248,7 @@ class MeleeOperation implements Weapon.Operation
             ConditionAppCycle cycle
     )
     {
-        this(name, op.next, cycle, op.waits.copy(),
+        this(name, op.next, op.proceeds, cycle, op.waits.copy(),
                 op.funcDir, op.damage, op.execJourney);
     }
 }
