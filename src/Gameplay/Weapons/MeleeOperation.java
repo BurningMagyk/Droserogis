@@ -65,7 +65,7 @@ class MeleeOperation implements Weapon.Operation
     private boolean warmup()
     {
         selfInfliction = new ConditionInfliction(
-                cycle, Infliction.InflictionType.METAL, State.WARMUP.ordinal());
+                cycle, State.WARMUP.ordinal(), Infliction.InflictionType.METAL);
 
         if (warmJourney.check(totalSec, face) && attackKey == -1)
         {
@@ -80,7 +80,7 @@ class MeleeOperation implements Weapon.Operation
     private boolean execute()
     {
         selfInfliction = new ConditionInfliction(
-                cycle, Infliction.InflictionType.METAL, State.EXECUTION.ordinal());
+                cycle,  State.EXECUTION.ordinal(), Infliction.InflictionType.METAL);
 
         for (Tick tick : execJourney)
         {
@@ -100,7 +100,7 @@ class MeleeOperation implements Weapon.Operation
     private boolean cooldown()
     {
         selfInfliction = new ConditionInfliction(
-                cycle, Infliction.InflictionType.METAL, State.COOLDOWN.ordinal());
+                cycle, State.COOLDOWN.ordinal(), Infliction.InflictionType.METAL);
 
         if (!coolJourney.check(totalSec, face))
         {
@@ -169,6 +169,13 @@ class MeleeOperation implements Weapon.Operation
             tickOrients[i] = execJourney[i].getOrient();
         }
         return tickOrients;
+    }
+
+    public Weapon.Operation copy()
+    {
+        return new MeleeOperation(
+                name, next, proceeds, cycle,
+                waits, funcDir, damage, execJourney);
     }
 
     enum MeleeEnum

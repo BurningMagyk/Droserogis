@@ -200,10 +200,6 @@ public class Actor extends Item
         applyPhysics(entities, deltaSec);
         countdownCondition(deltaSec);
     }
-    protected void update(ArrayList<Item> items)
-    {
-        /* Does nothing maybe? */
-    }
 
     /**
      * Called every frame to update the Actor's will.
@@ -1456,7 +1452,7 @@ public class Actor extends Item
         }
 
 
-        for (Weapon weapon : weapons) { weapon.disrupt(); }
+        for (Weapon weapon : weapons) { weapon.interrupt(); }
         // TODO: decide what magnitude causes these effects
         if (mag > walkSpeed) interruptRushes(RushOperation.RushFinish.STAGGER);
     }
@@ -1497,7 +1493,7 @@ public class Actor extends Item
     {
         GradeEnum damageGrade = inf.getDamage();
         if (damageGrade != null)
-            Print.yellow("Actor: Dealt " + damageGrade + " damage of type " + inf.getType());
+            Print.yellow("Actor: Dealt " + damageGrade + " damage of type " + inf.getTypes()[0]);
     }
 
     @Override
@@ -1516,12 +1512,14 @@ public class Actor extends Item
             Vec2 momentum = inf.getMomentum();
             if (momentum != null) addVelocity(momentum.div(getMass()));
         }
+
+        inflictions.clear();
     }
 
     @Override
     public void inflict(Infliction infliction)
     {
-        inflictions.add(infliction);
+        if (infliction != null) inflictions.add(infliction);
         Print.yellow("Actor: " + infliction + " added");
     }
 

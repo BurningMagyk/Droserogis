@@ -12,7 +12,7 @@ public interface Infliction
         AIR, WATER, EARTH, FIRE, COLD, LIGHTNING, METAL
     }
 
-    InflictionType getType();
+    InflictionType[] getTypes();
 
     GradeEnum getDamage();
 

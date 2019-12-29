@@ -32,6 +32,7 @@ public class Weapon extends Item
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
+    private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
@@ -293,32 +294,40 @@ public class Weapon extends Item
         if (currentOp != null) currentOp.release(attackKey);
     }
 
-    public void disrupt()
-    {
-        if (currentOp != null) currentOp.interrupt(null);
-        orient.set(DEF_ORIENT.copy());
-    }
     public void interrupt()
     {
         if (currentOp != null) currentOp.interrupt(null);
-        currentOp = null;
     }
     public void interrupt(RushOperation.RushFinish rushFinish)
     {
         if (currentOp != null && currentOp instanceof RushOperation)
             ((RushOperation) currentOp).interrupt(rushFinish);
     }
+    private void interrupt(Vec2 speed)
+    {
+        Print.blue("Interrupt at speed " + speed);
+    }
 
     @Override
     protected void applyInflictions()
     {
+        for (int i = 0; i < inflictions.size(); i++)
+        {
+            Infliction inf = inflictions.get(i);
 
+            damage(inf);
+            Vec2 momentum = inf.getMomentum();
+            if (momentum != null) interrupt(momentum.div(getMass()));
+        }
+
+        inflictions.clear();
     }
 
     @Override
     public void inflict(Infliction infliction)
     {
-
+        if (infliction != null) inflictions.add(infliction);
+        Print.yellow("Weapon: " + infliction + " added");
     }
 
     @Override
@@ -347,12 +356,16 @@ public class Weapon extends Item
     @Override
     protected void update(EntityCollection<Entity> entities, float deltaSec)
     {
+        applyInflictions();
+
         if (currentOp != null)
         {
             if (currentOp.run(deltaSec))
             {
                 Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;
+                orient = DEF_ORIENT.copy();
+                collidedItems.clear();
             }
             else
             {
@@ -360,19 +373,22 @@ public class Weapon extends Item
                 else orient = currentOp.getOrient();
                 dirOp = currentOp.getDir();
             }
+
+            updateClashes(entities.getWeaponList());
         }
-        else orient = DEF_ORIENT;
+        else orient = DEF_ORIENT.copy();
         updateCorners();
     }
 
-    public void updateClashes(ArrayList<Weapon> otherWeapons)
+    private void updateClashes(ArrayList<Weapon> otherWeapons)
     {
         Vec2[][] clashShapeCorners = getClashShapeCorners();
         if (clashShapeCorners == null) return;
 
         for (Weapon otherWeapon : otherWeapons)
         {
-            if (otherWeapon == this || otherWeapon.idle
+            if (otherWeapon == this || otherWeapon.idle || otherWeapon.currentOp == null
+                    || collidedItems.contains(otherWeapon)
                     || (!currentOpExec() && !otherWeapon.currentOpExec())) continue;
 
             Vec2[] otherPolygon = otherWeapon.getShapeCorners();
@@ -380,7 +396,8 @@ public class Weapon extends Item
             {
                 if (PolygonIntersection.isIntersect(polygon, otherPolygon))
                 {
-                    // TODO: inflict other
+                    collidedItems.add(otherWeapon);
+                    otherWeapon.inflict(currentOp.getInfliction());
                     Print.blue(this + " clashed with " + otherWeapon);
                     break;
                 }
@@ -388,11 +405,24 @@ public class Weapon extends Item
         }
     }
 
-    @Override
-    protected void update(ArrayList<Item> items)
+    public void update(ArrayList<Item> items)
     {
+        /* Apply inflictions from clashes earlier this frame */
+        applyInflictions();
+
         /* Current operation may inflict something to the wielder */
-        //if (currentOp != null)
+        if (currentOpExec())
+        {
+            for (Item item : items)
+            {
+                if (item != actor && !collidedItems.contains(item)
+                        && PolygonIntersection.isIntersect(getShapeCorners(), item))
+                {
+                    item.inflict(currentOp.getInfliction());
+                    collidedItems.add(item);
+                }
+            }
+        }
     }
 
 
@@ -419,6 +449,8 @@ public class Weapon extends Item
         /* For clashing */
         boolean isEasyToBlock();
         boolean isDisruptive();
+
+        Operation copy();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, VOID }
     }

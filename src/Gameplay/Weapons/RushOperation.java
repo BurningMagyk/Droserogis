@@ -93,7 +93,7 @@ public class RushOperation implements Weapon.Operation
         }
 
         selfInfliction = new ConditionInfliction(
-                cycle, Infliction.InflictionType.METAL, state.ordinal());
+                cycle, state.ordinal(), Infliction.InflictionType.METAL);
 
         if (state == State.COOLDOWN)
         {
@@ -129,6 +129,13 @@ public class RushOperation implements Weapon.Operation
     private boolean proceedsTo(Command command)
     {
         return true;
+    }
+
+    @Override
+    public Weapon.Operation copy()
+    {
+        return new RushOperation(name, next, cycle,
+                waits, funcDir, damage, finishes);
     }
 
     public enum RushFinish

@@ -6,16 +6,16 @@ import Util.Vec2;
 public class DamageInfliction implements Infliction
 {
     final GradeEnum grade;
-    final InflictionType type;
+    final InflictionType[] types;
 
-    public DamageInfliction(GradeEnum grade, InflictionType type)
+    public DamageInfliction(GradeEnum grade, InflictionType ...types)
     {
         this.grade = grade;
-        this.type = type;
+        this.types = types;
     }
 
     @Override
-    public InflictionType getType() { return type; }
+    public InflictionType[] getTypes() { return types; }
 
     @Override
     public GradeEnum getDamage() { return grade; }

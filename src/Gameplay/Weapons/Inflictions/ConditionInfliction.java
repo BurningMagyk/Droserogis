@@ -6,19 +6,19 @@ import Util.Vec2;
 public class ConditionInfliction implements Infliction
 {
     final ConditionApp conditionApp;
-    final InflictionType type;
+    final InflictionType[] types;
 
-    public ConditionInfliction(ConditionAppCycle cycle, InflictionType type, int operationState)
+    public ConditionInfliction(ConditionAppCycle cycle, int operationState, InflictionType ...types)
     {
         if (operationState == 0) conditionApp = cycle.getWarm();
         else if (operationState == 1) conditionApp = cycle.getExec();
         else conditionApp = cycle.getCool();
 
-        this.type = type;
+        this.types = types;
     }
 
     @Override
-    public InflictionType getType() { return type; }
+    public InflictionType[] getTypes() { return types; }
 
     @Override
     public GradeEnum getDamage() { return null; }

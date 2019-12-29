@@ -25,7 +25,15 @@ public class WeaponType
     }
 
     Orient getDefaultOrient() { return DEF_ORIENT; }
-    Weapon.Operation[] getOps() { return OPS; }
+    Weapon.Operation[] getOps()
+    {
+        Weapon.Operation[] opsCopy = new Weapon.Operation[OPS.length];
+        for (int i = 0; i < OPS.length; i++)
+        {
+            opsCopy[i] = OPS[i] == null ? null : OPS[i].copy();
+        }
+        return opsCopy;
+    }
 
     private static Tick[] reverse(Tick[] ticks)
     {
@@ -257,6 +265,7 @@ public class WeaponType
         public void apply(Item other) { }
         public boolean isEasyToBlock() { return false; }
         public boolean isDisruptive() { return false; }
+        public Weapon.Operation copy() { return null; } // never used
     }
 
     public final static WeaponType NATURAL = new WeaponType(

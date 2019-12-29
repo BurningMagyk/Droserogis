@@ -48,8 +48,6 @@ public abstract class Item extends Entity
         applyPhysics(entities, deltaSec);
     }
 
-    protected abstract void update(ArrayList<Item> items);
-
     /**
      * Location and velocity carry over from frame to frame.
      * Acceleration, however exists only when there is a force.
@@ -312,9 +310,6 @@ public abstract class Item extends Entity
     /* Only called for damage caused by colliding with Blocks */
     void damage(float amount)
     {
-        if (this instanceof Actor)
-            ((Actor) this).stagger(amount);
-
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
         // TODO: write formula for this, taking the Block's material into account
