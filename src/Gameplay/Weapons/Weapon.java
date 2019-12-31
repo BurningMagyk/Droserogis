@@ -1,10 +1,6 @@
 package Gameplay.Weapons;
 
 import Gameplay.*;
-import Gameplay.Weapons.Inflictions.ConditionApp;
-import Gameplay.Weapons.Inflictions.ConditionAppCycle;
-import Gameplay.Weapons.Inflictions.Infliction;
-import Util.GradeEnum;
 import Util.PolygonIntersection;
 import Util.Print;
 import Util.Vec2;

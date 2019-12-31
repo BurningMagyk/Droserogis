@@ -1,4 +1,4 @@
-package Gameplay.Weapons.Inflictions;
+package Gameplay.Weapons;
 
 import Gameplay.Actor;
 

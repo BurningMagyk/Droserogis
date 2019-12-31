@@ -2,9 +2,6 @@ package Gameplay.Weapons;
 
 import Gameplay.DirEnum;
 import Gameplay.Item;
-import Gameplay.Weapons.Inflictions.ConditionAppCycle;
-import Gameplay.Weapons.Inflictions.ConditionInfliction;
-import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Vec2;
 
@@ -92,7 +89,7 @@ public class RushOperation implements Weapon.Operation
             if (attackKey == -1) state = State.COOLDOWN;
         }
 
-        selfInfliction = new ConditionInfliction(
+        selfInfliction = new Infliction(
                 cycle, state.ordinal(), Infliction.InflictionType.METAL);
 
         if (state == State.COOLDOWN)

@@ -1,7 +1,6 @@
 package Gameplay;
 
-import Gameplay.Weapons.Inflictions.DamageInfliction;
-import Gameplay.Weapons.Inflictions.Infliction;
+import Gameplay.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -313,7 +312,7 @@ public abstract class Item extends Entity
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
         // TODO: write formula for this, taking the Block's material into account
-        if (amount > 0.3) damage(new DamageInfliction(GradeEnum.F, Infliction.InflictionType.BLUNT));
+        if (amount > 0.3) damage(new Infliction(GradeEnum.F, Infliction.InflictionType.BLUNT));
     }
 
     public abstract void damage(Infliction inf);

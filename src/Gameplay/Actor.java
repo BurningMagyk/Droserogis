@@ -2,8 +2,8 @@ package Gameplay;
 
 import Gameplay.Characters.CharacterStat;
 import Gameplay.Weapons.*;
-import Gameplay.Weapons.Inflictions.ConditionApp;
-import Gameplay.Weapons.Inflictions.Infliction;
+import Gameplay.Weapons.ConditionApp;
+import Gameplay.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;

@@ -1,6 +1,5 @@
 package Gameplay;
 
-import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Vec2;
 import javafx.scene.image.Image;

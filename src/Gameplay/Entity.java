@@ -1,6 +1,5 @@
 package Gameplay;
 
-import Gameplay.Weapons.Inflictions.Infliction;
 import Importer.ImageResource;
 import Menus.Main;
 import Util.GradeEnum;

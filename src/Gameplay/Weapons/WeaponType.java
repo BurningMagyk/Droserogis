@@ -1,11 +1,7 @@
 package Gameplay.Weapons;
 
-import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Gameplay.Item;
-import Gameplay.Weapons.Inflictions.ConditionApp;
-import Gameplay.Weapons.Inflictions.ConditionAppCycle;
-import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;

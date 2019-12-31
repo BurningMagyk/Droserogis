@@ -1,6 +1,7 @@
 package Gameplay;
 
 import Util.Print;
+import Util.Vec2;
 
 public enum DirEnum
 {
@@ -15,6 +16,7 @@ public enum DirEnum
                     if (other.getHoriz() == LEFT) return UPLEFT;
                     if (other.getHoriz() == RIGHT) return UPRIGHT;
                     return UP; }
+                public Vec2 unit() { return new Vec2(0, -1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return _this.getY() > other.getY(); }
                 public float getCollisionSpeed(Item _this, Item other)
@@ -38,6 +40,7 @@ public enum DirEnum
                     if (other.getHoriz() == LEFT) return DOWNLEFT;
                     if (other.getHoriz() == RIGHT) return DOWNRIGHT;
                     return DOWN; }
+                public Vec2 unit() { return new Vec2(0, 1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return _this.getY() < other.getY(); }
                 public float getCollisionSpeed(Item _this, Item other)
@@ -61,6 +64,7 @@ public enum DirEnum
                     if (other.getVert() == UP) return UPLEFT;
                     if (other.getVert() == DOWN) return DOWNLEFT;
                     return LEFT; }
+                public Vec2 unit() { return new Vec2(-1, 0); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return _this.getX() > other.getX(); }
                 public float getCollisionSpeed(Item _this, Item other)
@@ -84,6 +88,7 @@ public enum DirEnum
                     if (other.getVert() == UP) return UPRIGHT;
                     if (other.getVert() == DOWN) return DOWNRIGHT;
                     return RIGHT; }
+                public Vec2 unit() { return new Vec2(1, 0); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return _this.getX() < other.getX(); }
                 public float getCollisionSpeed(Item _this, Item other)
@@ -102,6 +107,7 @@ public enum DirEnum
                 public DirEnum getVert() { return UP; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
                 public boolean isOpp(DirEnum other) { return UP.isOpp(other) || LEFT.isOpp(other); }
+                public Vec2 unit() { return new Vec2(-1, -1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -117,6 +123,7 @@ public enum DirEnum
                 public DirEnum getVert() { return UP; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
                 public boolean isOpp(DirEnum other) { return UP.isOpp(other) || RIGHT.isOpp(other); }
+                public Vec2 unit() { return new Vec2(1, -1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -132,6 +139,7 @@ public enum DirEnum
                 public DirEnum getVert() { return DOWN; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
                 public boolean isOpp(DirEnum other) { return DOWN.isOpp(other) || LEFT.isOpp(other); }
+                public Vec2 unit() { return new Vec2(-1, 1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -147,6 +155,7 @@ public enum DirEnum
                 public DirEnum getVert() { return DOWN; }
                 public DirEnum getOpp() { return getHoriz().getOpp().add(getVert().getOpp()); }
                 public boolean isOpp(DirEnum other) { return DOWN.isOpp(other) || RIGHT.isOpp(other); }
+                public Vec2 unit() { return new Vec2(1, 1); }
                 public boolean getCollisionPos(Item _this, Item other) {
                     return getHoriz().getCollisionPos(_this, other)
                             || getVert().getCollisionPos(_this, other); }
@@ -183,6 +192,7 @@ public enum DirEnum
     public DirEnum getOpp() { return NONE; }
     public boolean isOpp(DirEnum other) { return false; }
     public DirEnum add(DirEnum other) { return NONE; }
+    public Vec2 unit() { return new Vec2(0, 0); }
 
     public boolean getCollisionPos(Item _this, Item other) { return false; }
     public float getCollisionSpeed(Item _this, Item other) { return 0; }

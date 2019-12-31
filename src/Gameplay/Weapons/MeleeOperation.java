@@ -2,9 +2,6 @@ package Gameplay.Weapons;
 
 import Gameplay.DirEnum;
 import Gameplay.Item;
-import Gameplay.Weapons.Inflictions.ConditionAppCycle;
-import Gameplay.Weapons.Inflictions.ConditionInfliction;
-import Gameplay.Weapons.Inflictions.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -64,7 +61,7 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean warmup()
     {
-        selfInfliction = new ConditionInfliction(
+        selfInfliction = new Infliction(
                 cycle, State.WARMUP.ordinal(), Infliction.InflictionType.METAL);
 
         if (warmJourney.check(totalSec, face) && attackKey == -1)
@@ -79,7 +76,7 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean execute()
     {
-        selfInfliction = new ConditionInfliction(
+        selfInfliction = new Infliction(
                 cycle,  State.EXECUTION.ordinal(), Infliction.InflictionType.METAL);
 
         for (Tick tick : execJourney)
@@ -99,7 +96,7 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean cooldown()
     {
-        selfInfliction = new ConditionInfliction(
+        selfInfliction = new Infliction(
                 cycle, State.COOLDOWN.ordinal(), Infliction.InflictionType.METAL);
 
         if (!coolJourney.check(totalSec, face))
