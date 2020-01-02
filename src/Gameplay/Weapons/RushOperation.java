@@ -1,8 +1,10 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class RushOperation implements Weapon.Operation
@@ -12,9 +14,16 @@ public class RushOperation implements Weapon.Operation
     @Override
     public DirEnum getDir() { return face; }
 
-    private Infliction infliction, selfInfliction;
+    private Infliction selfInfliction;
+    private float speedMod = 0;
     @Override
-    public Infliction getInfliction() { return infliction; }
+    public Infliction getInfliction(Actor actor, float mass)
+    {
+        DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
+                ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
+        return new Infliction(damage, conditionApp, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+                infDir, speedMod, mass, actor.getRushInfTypes());
+    }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
 
@@ -72,9 +81,10 @@ public class RushOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean run(float deltaSec)
+    public boolean run(float speedMod, float deltaSec)
     {
-        totalSec += deltaSec;
+        this.speedMod = speedMod;
+        totalSec += deltaSec * speedMod;
 
         if (state == State.WARMUP)
         {
@@ -120,19 +130,16 @@ public class RushOperation implements Weapon.Operation
     @Override
     public boolean isEasyToBlock() { return false; }
 
-    @Override
-    public boolean isDisruptive() { return false; }
-
     private boolean proceedsTo(Command command)
     {
-        return true;
+        return false;
     }
 
     @Override
     public Weapon.Operation copy()
     {
         return new RushOperation(name, next, cycle,
-                waits, funcDir, damage, finishes);
+                waits, funcDir, damage, conditionApp, finishes);
     }
 
     public enum RushFinish
@@ -147,6 +154,7 @@ public class RushOperation implements Weapon.Operation
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
+    private ConditionApp conditionApp;
     private RushFinish[] finishes;
 
     private DirEnum face;
@@ -162,6 +170,7 @@ public class RushOperation implements Weapon.Operation
             Vec2 waits,
             DirEnum funcDir,
             GradeEnum damage,
+            ConditionApp conditionApp,
             RushFinish ...finishes
     )
     {
@@ -171,6 +180,7 @@ public class RushOperation implements Weapon.Operation
         this.waits = waits.copy();
         this.funcDir = funcDir;
         this.damage = damage;
+        this.conditionApp = conditionApp;
         this.finishes = finishes;
     }
 }

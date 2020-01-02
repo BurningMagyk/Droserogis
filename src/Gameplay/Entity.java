@@ -78,7 +78,7 @@ abstract public class Entity
     private Vec2 velocity = new Vec2(Vec2.ZERO);
     private Vec2 acceleration = new Vec2(Vec2.ZERO);
 
-    private float width, height;
+    private float width, height, defWidth, defHeight;
     private double sinTheta, cosTheta;
     private Vec2 normal = null;
     private Vec2[] vertexList;
@@ -115,6 +115,8 @@ abstract public class Entity
     {
         this.width = width;
         this.height = height;
+        defWidth = width;
+        defHeight = height;
 
         //For a triangle, the given (xPos,yPos) is the center of the hypotenuse.
         //  This is done to make it easy to align objects in level building. However, the center of the hypotenuse would NOT
@@ -173,6 +175,8 @@ abstract public class Entity
 
     public float getWidth() { return width; }
     public float getHeight() { return height; }
+    public float getDefWidth() { return defWidth; }
+    public float getDefHeight() { return defHeight; }
     public Vec2 getDims() { return new Vec2(width, height); }
 
     void setWidth(float width) { this.width = width; }

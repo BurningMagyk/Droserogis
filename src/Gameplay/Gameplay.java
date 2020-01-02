@@ -85,6 +85,8 @@ public class Gameplay implements Reactor
         // triggerContacts() sets every entity's flags correctly only if they've all been reset
         for (Entity entity : entities) entity.resetFlags();
 
+        for (Weapon weapon : entities.getWeaponList()) weapon.applyInflictions();
+
         for (Item item : entities.getDynamicItems()) item.update(entities, deltaSec);
 
         for (Weapon weapon : entities.getWeaponList()) weapon.update(entities.getDynamicItems());

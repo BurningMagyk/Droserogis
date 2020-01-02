@@ -1,5 +1,6 @@
 package Gameplay.Weapons;
 
+import Gameplay.Actor;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
@@ -13,9 +14,15 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public DirEnum getDir() { return face; }
 
-    private Infliction infliction, selfInfliction;
+    private Infliction selfInfliction;
+    private float speedMod = 0;
     @Override
-    public Infliction getInfliction() { return infliction; }
+    public Infliction getInfliction(Actor actor, float mass)
+    {
+        DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
+                ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
+        return new Infliction(damage, conditionApp, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+                infDir, speedMod, mass, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
@@ -115,9 +122,10 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean run(float deltaSec)
+    public boolean run(float speedMod, float deltaSec)
     {
-        totalSec += deltaSec;
+        this.speedMod = speedMod;
+        totalSec += deltaSec * speedMod;
 
         if (state == State.WARMUP) return warmup();
         else if (state == State.EXECUTION) return execute();
@@ -140,11 +148,6 @@ class MeleeOperation implements Weapon.Operation
 
     @Override
     public boolean isEasyToBlock() {
-        return false;
-    }
-
-    @Override
-    public boolean isDisruptive() {
         return false;
     }
 
@@ -172,7 +175,8 @@ class MeleeOperation implements Weapon.Operation
     {
         return new MeleeOperation(
                 name, next, proceeds, cycle,
-                waits, funcDir, damage, execJourney);
+                waits, funcDir, damage, conditionApp, execJourney,
+                infTypes);
     }
 
     enum MeleeEnum
@@ -196,8 +200,10 @@ class MeleeOperation implements Weapon.Operation
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
+    private ConditionApp conditionApp;
     private Tick[] execJourney;
     private Journey warmJourney, coolJourney;
+    private Infliction.InflictionType[] infTypes;
 
     private DirEnum face;
     private int attackKey = -1;
@@ -207,7 +213,6 @@ class MeleeOperation implements Weapon.Operation
     private float totalSec = 0;
 
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
-    // TODO: disruptive set universally in WeaponTypeEnum (swings true, others false)
 
     MeleeOperation(
             String name,
@@ -217,7 +222,9 @@ class MeleeOperation implements Weapon.Operation
             Vec2 waits,
             DirEnum funcDir,
             GradeEnum damage,
-            Tick[] execJourney
+            ConditionApp conditionApp,
+            Tick[] execJourney,
+            Infliction.InflictionType... infTypes
     )
     {
         this.name = name;
@@ -227,13 +234,16 @@ class MeleeOperation implements Weapon.Operation
         this.waits = waits.copy();
         this.funcDir = funcDir;
         this.damage = damage;
+        this.conditionApp = conditionApp;
         this.execJourney = execJourney;
+        this.infTypes = infTypes;
     }
 
     MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.execJourney);
+                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.infTypes);
     }
 
     MeleeOperation(
@@ -243,7 +253,8 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.execJourney);
+                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.infTypes);
     }
 
     MeleeOperation(
@@ -253,6 +264,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.execJourney);
+                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.infTypes);
     }
 }

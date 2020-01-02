@@ -1,9 +1,7 @@
 package Gameplay.Weapons;
 
 import Gameplay.*;
-import Util.PolygonIntersection;
-import Util.Print;
-import Util.Vec2;
+import Util.*;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ public class Weapon extends Item
 
     private final Orient DEF_ORIENT;
     private Orient orient;
+    private float speed = 1; // temporary
 
     Actor actor;
     private boolean ballistic = false, idle = true;
@@ -145,9 +144,9 @@ public class Weapon extends Item
                         wieldDim.rotate();
 
                         Vec2 cornersOffset = new Vec2(
-                                getPosition().x + actor.getWidth() * tickOrients[i].getX() * actor.getWeaponWidthRatio()
+                                getPosition().x + actor.getDefWidth() * tickOrients[i].getX() * actor.getWeaponWidthRatio()
                                         * currentOp.getDir().getHoriz().getSign(),
-                                getPosition().y + actor.getHeight() * tickOrients[i].getY());
+                                getPosition().y + actor.getDefHeight() * tickOrients[i].getY());
 
                         wieldDim.add(cornersOffset);
                     }
@@ -187,6 +186,19 @@ public class Weapon extends Item
             corners[i] = new Vec2(shapeCorners_Rotated[i].x + shapeCornersOffset.x,
                     shapeCorners_Rotated[i].y + shapeCornersOffset.y);
         }
+        return corners;
+    }
+    private Vec2[] getActorCorners()
+    {
+        Vec2[] corners = new Vec2[4];
+        float xLeft = actor.getX() - (actor.getWidth() / 2),
+                xRight = actor.getX() + (actor.getWidth() / 2),
+                yUp = actor.getY() - (actor.getHeight() / 2),
+                yDown = actor.getY() + (actor.getHeight() / 2);
+        corners[0] = new Vec2(xLeft, yUp);
+        corners[1] = new Vec2(xRight, yUp);
+        corners[2] = new Vec2(xRight, yDown);
+        corners[3] = new Vec2(xLeft, yDown);
         return corners;
     }
 
@@ -299,21 +311,35 @@ public class Weapon extends Item
         if (currentOp != null && currentOp instanceof RushOperation)
             ((RushOperation) currentOp).interrupt(rushFinish);
     }
-    private void interrupt(Vec2 speed)
+    private void interrupt(Vec2 momentum)
     {
-        Print.blue("Interrupt at speed " + speed);
+        if (momentum != null)
+        {
+            if (currentOpExec())
+            {
+                if (momentum.mag() > currentOp.getInfliction(actor, getMass()).getMomentum().mag())
+                    interrupt();
+            }
+            else interrupt();
+
+            Print.yellow("Momentum: " + momentum);
+        }
     }
 
     @Override
-    protected void applyInflictions()
+    public void applyInflictions()
     {
         for (int i = 0; i < inflictions.size(); i++)
         {
             Infliction inf = inflictions.get(i);
 
+            Print.yellow("----------Weapon----------");
+
             damage(inf);
             Vec2 momentum = inf.getMomentum();
             if (momentum != null) interrupt(momentum.div(getMass()));
+
+            Print.yellow("--------------------------");
         }
 
         inflictions.clear();
@@ -341,7 +367,9 @@ public class Weapon extends Item
     @Override
     public void damage(Infliction inf)
     {
-
+        GradeEnum damage = inf.getDamage();
+        if (damage != null)
+            Print.yellow("Damage: " + damage);
     }
 
 
@@ -352,11 +380,9 @@ public class Weapon extends Item
     @Override
     protected void update(EntityCollection<Entity> entities, float deltaSec)
     {
-        applyInflictions();
-
         if (currentOp != null)
         {
-            if (currentOp.run(deltaSec))
+            if (currentOp.run(speed, deltaSec))
             {
                 Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;
@@ -392,13 +418,18 @@ public class Weapon extends Item
             {
                 if (PolygonIntersection.isIntersect(polygon, otherPolygon))
                 {
-                    collidedItems.add(otherWeapon);
-                    otherWeapon.inflict(currentOp.getInfliction());
-                    Print.blue(this + " clashed with " + otherWeapon);
+                    clash(otherWeapon);
+                    otherWeapon.clash(this);
                     break;
                 }
             }
         }
+    }
+    private void clash(Weapon otherWeapon)
+    {
+        collidedItems.add(otherWeapon);
+        otherWeapon.inflict(currentOp.getInfliction(actor, getMass()));
+        Print.blue(this + " clashed with " + otherWeapon);
     }
 
     public void update(ArrayList<Item> items)
@@ -411,10 +442,13 @@ public class Weapon extends Item
         {
             for (Item item : items)
             {
-                if (item != actor && !collidedItems.contains(item)
-                        && PolygonIntersection.isIntersect(getShapeCorners(), item))
+                if (item != this && item != actor && !collidedItems.contains(item)
+                        && PolygonIntersection.isIntersect(currentOp instanceof RushOperation
+                        ? getActorCorners() : getShapeCorners(), item))
                 {
-                    item.inflict(currentOp.getInfliction());
+                    Print.blue(this);
+                    Print.blue(item);
+                    item.inflict(currentOp.getInfliction(actor, getMass()));
                     collidedItems.add(item);
                 }
             }
@@ -430,7 +464,7 @@ public class Weapon extends Item
     {
         String getName();
         DirEnum getDir();
-        Infliction getInfliction();
+        Infliction getInfliction(Actor actor, float mass);
         Infliction getSelfInfliction();
         State getState();
         Orient getOrient();
@@ -438,13 +472,12 @@ public class Weapon extends Item
         MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum);
 
         void start(Orient orient, float warmBoost, Command command);
-        boolean run(float deltaSec);
+        boolean run(float speedMod, float deltaSec);
         void release(int attackKey);
         void apply(Item other);
 
         /* For clashing */
         boolean isEasyToBlock();
-        boolean isDisruptive();
 
         Operation copy();
 

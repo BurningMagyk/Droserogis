@@ -1,6 +1,8 @@
 package Gameplay.Weapons;
 
+import Gameplay.DirEnum;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class Infliction
@@ -38,11 +40,28 @@ public class Infliction
         this.types = types;
     }
 
-    public Infliction(Vec2 actorSpeed, float actorMass, Vec2 weaponSpeed, float weaponMass, InflictionType...types)
+    public Infliction(Vec2 actorSpeed, float actorMass, float actorGrip,
+                      DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
     {
+        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
+        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
+        momentum = actorMomentum.add(weaponMomentum);
+
         damage = null;
         conditionApp = null;
-        momentum = null; // temporary
+
+        this.types = types;
+    }
+
+    public Infliction(GradeEnum damage, ConditionApp conditionApp,
+                      Vec2 actorSpeed, float actorMass, float actorGrip,
+                      DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
+    {
+        this.damage = damage;
+        this.conditionApp = conditionApp;
+        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
+        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
+        momentum = actorMomentum.add(weaponMomentum);
 
         this.types = types;
     }
@@ -53,5 +72,16 @@ public class Infliction
 
     public ConditionApp getConditionApp() { return conditionApp; }
 
-    public Vec2 getMomentum() { return null; }
+    public Vec2 getMomentum() { return momentum; }
+
+    public boolean isDisruptive()
+    {
+        for (InflictionType inflictionType : types)
+        {
+            if (inflictionType == InflictionType.SLASH
+                    || inflictionType == InflictionType.BLUNT)
+                return true;
+        }
+        return false;
+    }
 }

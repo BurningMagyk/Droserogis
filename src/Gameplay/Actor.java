@@ -29,7 +29,7 @@ public class Actor extends Item
         Igon
                 {
                     public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
-                    public float height() {return 60 * SPRITE_TO_WORLD_SCALE;}
+                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
                     public float mass() {return 1;}
                     public String[] spritePaths() {return new String[]{"super_neckbeard.png"};}
                     public CharacterStat createPlayerStat()
@@ -617,6 +617,13 @@ public class Actor extends Item
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
+    public float getGrip() { return 0; }
+    public Infliction.InflictionType[] getRushInfTypes()
+    {
+        /* Based on what armor the Actor is wearing or what their skin is made of */
+        return new Infliction.InflictionType[]{Infliction.InflictionType.BLUNT};
+    }
+
     void applyPhysics(EntityCollection<Entity> entities, float deltaSec)
     {
         boolean slopeLeft = false, slopeRight = false;
@@ -958,7 +965,7 @@ public class Actor extends Item
 
     public float getWeaponWidthRatio()
     {
-        return getHeight() / getWidth();
+        return getDefHeight() / getDefWidth();
     }
 
     private Weapon getBlockingWeapon()
@@ -1312,6 +1319,8 @@ public class Actor extends Item
             if (condApp.isSinglet())
                 addCondition(condApp.getConditions());
             else addCondition(condApp.getTime(), condApp.getConditions());
+
+            Print.yellow("ConditionApp: " + condApp);
         }
     }
     public void addCondition(float time, Condition... conditions)
@@ -1493,7 +1502,7 @@ public class Actor extends Item
     {
         GradeEnum damageGrade = inf.getDamage();
         if (damageGrade != null)
-            Print.yellow("Actor: Dealt " + damageGrade + " damage of type " + inf.getTypes()[0]);
+            Print.yellow("Damage: " + damageGrade);
     }
 
     @Override
@@ -1507,10 +1516,18 @@ public class Actor extends Item
         {
             Infliction inf = inflictions.get(i);
 
+            Print.yellow("----------Actor----------");
+
             damage(inf);
             addConditionApp(inf);
             Vec2 momentum = inf.getMomentum();
-            if (momentum != null) addVelocity(momentum.div(getMass()));
+            if (momentum != null)
+            {
+                addVelocity(momentum.div(getMass()));
+                Print.yellow("Momentum: " + momentum);
+            }
+
+            Print.yellow("-------------------------");
         }
 
         inflictions.clear();

@@ -185,6 +185,24 @@ public enum DirEnum
         if (horiz == Entity.RIGHT) return RIGHT;
         return NONE;
     }
+    static public DirEnum get(DirEnum horiz, DirEnum vert)
+    {
+        if (vert == UP)
+        {
+            if (horiz == LEFT) return UPLEFT;
+            if (horiz == RIGHT) return UPRIGHT;
+            else return UP;
+        }
+        if (vert == DOWN)
+        {
+            if (horiz == LEFT) return DOWNLEFT;
+            if (horiz == RIGHT) return DOWNRIGHT;
+            else return DOWN;
+        }
+        if (horiz == LEFT) return LEFT;
+        if (horiz == RIGHT) return RIGHT;
+        return NONE;
+    }
 
     public int getSign() { return 0; }
     public DirEnum getHoriz() { return NONE; }
