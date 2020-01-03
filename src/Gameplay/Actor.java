@@ -39,11 +39,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -60,11 +56,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -81,11 +73,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR",
-                                "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR", "C", "STR");
+                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 };

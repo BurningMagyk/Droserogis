@@ -5,160 +5,101 @@ import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
+import static Util.GradeEnum.parseGrade;
+
 public class WeaponStat
 {
-    private String[] info;
-    private WeaponGrade[] damageGrades, rangeGrades, speedGrades,
-            critThreshSpeedGrades, warmupGrades, cooldownGrades;
-    private GradeEnum disruptThreshGrade;
-    private float conditionModFloat;
+    public enum Ability {
+        DURABILITY,
 
-    private class WeaponGrade
-    {
-        GradeEnum nativeGrade, charGrade1, charGrade2;
-        WeaponGrade(GradeEnum nativeGrade, GradeEnum[] charGrades)
-        {
-            this.nativeGrade = nativeGrade;
-            charGrade1 = charGrades[0];
-            charGrade2 = charGrades[1];
-        }
+        WAIT_SPEED,
+        ATTACK_SPEED,
+        SPEED_DEP,
+
+        DAMAGE
     }
 
-    public WeaponStat(String disruptThresh, String... info)
+    private GradeEnum[] grades;
+    private ConditionApp[] inflictApps, selfInflictApps;
+    private Infliction.InflictionType[] inflictTypes;
+
+    public WeaponStat(
+            String dur, String wait_spe,
+            String atk_spe, String spe_dep,
+            ConditionApp[] infApp, ConditionApp[] selfApp,
+            String dam, Infliction.InflictionType... infTypes)
     {
-        disruptThreshGrade = GradeEnum.parseGrade(disruptThresh);
+        // Durability
+        // Warmup/cooldown speed
+        // Attack speed
+        // Speed's dependence on strength
+        // ConditionApp inflictions
+        // ConditionApp self-inflictions
+        // Damage
+        // Infliction types
 
-        if (info.length % 12 != 0)
-        {
-            Print.red("Error: " + info.length + " string parameters used for WeaponStat constructor.");
-            return;
-        }
+        grades = new GradeEnum[Ability.values().length];
+        grades[0] = parseGrade(dur);
+        grades[1] = parseGrade(wait_spe);
+        grades[2] = parseGrade(atk_spe);
+        grades[3] = parseGrade(spe_dep);
+        grades[4] = parseGrade(dam);
 
-        int opCount = info.length / 12;
-        damageGrades = new WeaponGrade[opCount];
-        rangeGrades = new WeaponGrade[opCount];
-        speedGrades = new WeaponGrade[opCount];
-        critThreshSpeedGrades = new WeaponGrade[opCount];
-        warmupGrades = new WeaponGrade[opCount];
-        cooldownGrades = new WeaponGrade[opCount];
-        this.info = info;
-    }
+        inflictApps = infApp;
+        selfInflictApps = selfApp;
 
-    private GradeEnum[] getCharGrade(CharacterStat charStat, String string)
-    {
-        return GradeEnum.avg(charStat, charStat.parseAbilities(string));
-    }
-
-
-    public void setCharStat(CharacterStat charStat)
-    {
-        for (int i = 0, j = 0; i < info.length; i += 12, j++)
-        {
-            damageGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i]),
-                    getCharGrade(charStat, info[i + 1]));
-            rangeGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 2]),
-                    getCharGrade(charStat, info[i + 3]));
-            speedGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 4]),
-                    getCharGrade(charStat, info[i + 5]));
-            critThreshSpeedGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 6]),
-                    getCharGrade(charStat, info[i + 7]));
-            warmupGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 8]),
-                    getCharGrade(charStat, info[i + 9]));
-            cooldownGrades[j] = new WeaponGrade(GradeEnum.parseGrade(info[i + 10]),
-                    getCharGrade(charStat, info[i + 11]));
-        }
-
-        conditionModFloat = charStat.agility(getCharGrade(charStat, "AGI")[0]);
+        inflictTypes = infTypes;
     }
 
     /*****************************************************************************/
-    /****************************** Balancing Tools ******************************/
+    /************************ Ability Score Charts *******************************/
     /*****************************************************************************/
 
-    private GradeEnum damage(int i)
-    {
-        WeaponGrade weaponGrade = damageGrades[i];
+    private final static float[] DURABILITY = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-        // TODO: return final grade based on weaponGrade member values
-        return GradeEnum.D;
-    }
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-    private float range(int i)
-    {
-        WeaponGrade weaponGrade = rangeGrades[i];
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
 
-        // TODO: return final grade based on weaponGrade member values
-        return 1;
-    }
+    private final static float[] WAIT_SPEED = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-    private float speed(int i)
-    {
-        WeaponGrade weaponGrade = speedGrades[i];
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-        // TODO: return final grade based on weaponGrade member values
-        return 1;
-    }
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
+    private final static float[] ATTACK_SPEED = new float[] {
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-    private float critThreshSpeed(int i)
-    {
-        WeaponGrade weaponGrade = critThreshSpeedGrades[i];
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
 
-        // TODO: return final grade based on weaponGrade member values
-        return 1;
-    }
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F,
+            1.0F, 1.0F, 1.0F };
 
-    private float warmup(int i)
-    {
-        WeaponGrade weaponGrade = warmupGrades[i];
+    /***************************** Ability Score Chart Access *****************************/
 
-        // TODO: return final grade based on weaponGrade member values
-        return 1;
-    }
-
-    private float cooldown(int i)
-    {
-        WeaponGrade weaponGrade = cooldownGrades[i];
-
-        // TODO: return final grade based on weaponGrade member values
-        return 1;
-    }
-
-    GradeEnum disruptThresh() { return disruptThreshGrade; }
-
-    float conditionMod() { return conditionModFloat; }
-
-    GradeEnum[] damages()
-    {
-        GradeEnum[] vals = new GradeEnum[damageGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = damage(i); }
-        return vals;
-    }
-
-    float[] ranges()
-    {
-        float[] vals = new float[rangeGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = range(i); }
-        return vals;
-    }
-
-    float[] speeds()
-    {
-        float[] vals = new float[speedGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = speed(i); }
-        return vals;
-    }
-
-    float[] critThreshSpeeds()
-    {
-        float[] vals = new float[speedGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = critThreshSpeed(i); }
-        return vals;
-    }
-
-    Vec2[] waits()
-    {
-        Vec2[] vals = new Vec2[warmupGrades.length];
-        for (int i = 0; i < vals.length; i++) { vals[i] = new Vec2(warmup(i), cooldown(i)); }
-        return vals;
-    }
+    float durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
+    float waitSpeed() { return WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal()].ordinal()]; }
+    float attackSpeed() { return ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal()].ordinal()]; }
+    boolean speedDep(GradeEnum strGrade) { return strGrade.ordinal() >= grades[Ability.SPEED_DEP.ordinal()].ordinal(); }
+    ConditionApp[] inflictionApp() { return inflictApps; }
+    ConditionApp[] selfInflictionApp() { return selfInflictApps; }
+    GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
 }

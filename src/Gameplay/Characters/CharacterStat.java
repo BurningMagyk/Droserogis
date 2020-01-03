@@ -264,10 +264,7 @@ public class CharacterStat
 
     /***************************** Ability Score Chart Access *****************************/
 
-    private float strength(float base)
-    {
-        return STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base;
-    }
+    private float strength(float base) { return STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base; }
     private float stamina(float base)
     {
         return STAMINA[grades[Ability.STAMINA.ordinal()].ordinal()] * base;
@@ -280,10 +277,7 @@ public class CharacterStat
     {
         return AGILITY[grades[Ability.AGILITY.ordinal()].ordinal()] * base;
     }
-    private float constitution(float base)
-    {
-        return CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base;
-    }
+    private float constitution(float base) { return CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base; }
     private float vitality(float base)
     {
         return VITALITY[grades[Ability.VITALITY.ordinal()].ordinal()] * base;
@@ -296,10 +290,7 @@ public class CharacterStat
     {
         return WILL[grades[Ability.WILL.ordinal()].ordinal()] * base;
     }
-    private float intelligence(float base)
-    {
-        return INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base;
-    }
+    private float intelligence(float base) { return INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base; }
     private float knowledge(float base)
     {
         return KNOWLEDGE[grades[Ability.KNOWLEDGE.ordinal()].ordinal()] * base;
@@ -308,8 +299,7 @@ public class CharacterStat
     {
         return PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base;
     }
-
-    public float agility(GradeEnum grade) { return AGILITY[grade.ordinal()]; }
+    private float agility(GradeEnum grade) { return AGILITY[grade.ordinal()]; }
 
     /*****************************************************************************/
     /****************************** Balancing Tools ******************************/

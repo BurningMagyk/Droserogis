@@ -337,7 +337,12 @@ public class Weapon extends Item
 
             damage(inf);
             Vec2 momentum = inf.getMomentum();
-            if (momentum != null) interrupt(momentum.div(getMass()));
+            if (momentum != null)
+            {
+                interrupt(momentum.div(getMass()));
+                if (actor != null) actor.addVelocity(
+                        momentum.div(getMass() + actor.getMass() + actor.getGrip()));
+            }
 
             Print.yellow("--------------------------");
         }
