@@ -56,6 +56,16 @@ public enum GradeEnum
         return grStr;
     }
 
+    public static GradeEnum getGrade(int ord)
+    {
+        for (GradeEnum g : values())
+        {
+            if (ord == g.ordinal()) return g;
+        }
+        if (ord >= values().length) return GradeEnum.SSS__;
+        return GradeEnum.F;
+    }
+
     public static GradeEnum[] avg(CharacterStat stat, CharacterStat.Ability... args)
     {
         float sum = 0;

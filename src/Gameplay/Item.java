@@ -31,13 +31,12 @@ public abstract class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    protected Item(float xPos, float yPos, float width, float height, float mass, String[] spritePaths)
+    protected Item(float xPos, float yPos, float width, float height, float mass, int hitPoints, String[] spritePaths)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, spritePaths);
         this.mass = mass;
 
-        // TODO: get this value from Characters or Weapon
-        hitPoints = 10;
+        this.hitPoints = hitPoints;
     }
 
     protected void update(EntityCollection<Entity> entities, float deltaSec)

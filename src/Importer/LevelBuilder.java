@@ -6,6 +6,7 @@ import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Weapon;
+import Gameplay.Weapons.WeaponStat;
 import Gameplay.Weapons.WeaponType;
 import Util.Sprite;
 import Util.Vec2;
@@ -520,13 +521,13 @@ public class LevelBuilder  extends Application
                         actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                         actor.setPosition(x, y);
 
-                        Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
-                        sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-                        sword.setPosition(x, y);
-                        actor.equip(sword);
+                        //Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
+                        //sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+                        //sword.setPosition(x, y);
+                        //actor.equip(sword);
 
                         entityList.add(actor);
-                        entityList.add(sword);
+                        //entityList.add(sword);
                         addedEntity = true;
                         break;
                     }
@@ -821,7 +822,8 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
+                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", null, null, "F");
+                    entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, temp, null);
                     if (parent >= 0)
                     {
                         entityList.getPlayer(parent).equip((Weapon)entity);

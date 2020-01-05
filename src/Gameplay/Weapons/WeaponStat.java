@@ -26,7 +26,7 @@ public class WeaponStat
     public WeaponStat(
             String dur, String wait_spe,
             String atk_spe, String spe_dep,
-            ConditionApp[] infApp, ConditionApp[] selfApp,
+            ConditionApp[] infApps, ConditionApp[] selfApps,
             String dam, Infliction.InflictionType... infTypes)
     {
         // Durability
@@ -45,28 +45,29 @@ public class WeaponStat
         grades[3] = parseGrade(spe_dep);
         grades[4] = parseGrade(dam);
 
-        inflictApps = infApp;
-        selfInflictApps = selfApp;
+        inflictApps = infApps == null ? new ConditionApp[]{} : infApps;
+        selfInflictApps = selfApps == null ? new ConditionApp[]{} : selfApps;
 
         inflictTypes = infTypes;
     }
+
 
     /*****************************************************************************/
     /************************ Ability Score Charts *******************************/
     /*****************************************************************************/
 
-    private final static float[] DURABILITY = new float[] {
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+    private final static int[] DURABILITY = new int[] {
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F };
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1 };
 
     private final static float[] WAIT_SPEED = new float[] {
             1.0F, 1.0F, 1.0F,
@@ -95,11 +96,23 @@ public class WeaponStat
 
     /***************************** Ability Score Chart Access *****************************/
 
-    float durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
-    float waitSpeed() { return WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal()].ordinal()]; }
-    float attackSpeed() { return ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal()].ordinal()]; }
-    boolean speedDep(GradeEnum strGrade) { return strGrade.ordinal() >= grades[Ability.SPEED_DEP.ordinal()].ordinal(); }
+    int durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
+    float waitSpeed(GradeEnum strGrade)
+    {
+        return speedDep(strGrade) ? WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal()].ordinal()]
+                : WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal() / 2].ordinal()];
+    }
+    float attackSpeed(GradeEnum strGrade)
+    {
+        return speedDep(strGrade) ? ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal()].ordinal()]
+                : ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal() / 2].ordinal()];
+    }
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }
     GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
+
+    private boolean speedDep(GradeEnum strGrade)
+    {
+        return strGrade.ordinal() >= grades[Ability.SPEED_DEP.ordinal()].ordinal();
+    }
 }

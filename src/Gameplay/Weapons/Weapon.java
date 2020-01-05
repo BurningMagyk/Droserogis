@@ -1,6 +1,7 @@
 package Gameplay.Weapons;
 
 import Gameplay.*;
+import Gameplay.Characters.CharacterStat;
 import Util.*;
 import javafx.scene.paint.Color;
 
@@ -20,20 +21,21 @@ public class Weapon extends Item
 
     private final Orient DEF_ORIENT;
     private Orient orient;
-    private float speed = 1; // temporary
 
     Actor actor;
+    private GradeEnum actorStrength;
     private boolean ballistic = false, idle = true;
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
+    private final WeaponStat weaponStat;
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
-           WeaponType weaponType, String[] spritePaths)
+           WeaponType weaponType, WeaponStat weaponStat, String[] spritePaths)
     {
-        super(xPos, yPos, width, height, mass, spritePaths);
+        super(xPos, yPos, width, height, mass, weaponStat.durability(), spritePaths);
 
         for (int i = 0; i < shapeCorners_Rotated.length; i++)
         { shapeCorners_Rotated[i] = SHAPE_CORNERS[i].copy(); }
@@ -42,6 +44,8 @@ public class Weapon extends Item
         orient = DEF_ORIENT.copy();
 
         ops = weaponType.getOps();
+
+        this.weaponStat = weaponStat;
     }
 
     public Actor getActor() { return actor; }
@@ -49,6 +53,7 @@ public class Weapon extends Item
     public void equip(Actor actor)
     {
         this.actor = actor;
+        actorStrength = actor.getCharacterStat().getGrade(CharacterStat.Ability.STRENGTH);
         ballistic = false;
         idle = false;
         setPosition(actor.getPosition());
@@ -244,7 +249,8 @@ public class Weapon extends Item
     {
         currentCommand = command;
         currentOp = newOp;
-        currentOp.start(DEF_ORIENT, warmBoost, command);
+        currentOp.start(DEF_ORIENT, warmBoost,
+                weaponStat, actorStrength, command);
     }
 
     public boolean addCommand(Command command, boolean combo, boolean chain)
@@ -387,7 +393,7 @@ public class Weapon extends Item
     {
         if (currentOp != null)
         {
-            if (currentOp.run(speed, deltaSec))
+            if (currentOp.run(deltaSec))
             {
                 Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;
@@ -476,8 +482,9 @@ public class Weapon extends Item
         float interrupt(Command command);
         MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum);
 
-        void start(Orient orient, float warmBoost, Command command);
-        boolean run(float speedMod, float deltaSec);
+        void start(Orient orient, float warmBoost,
+                   WeaponStat weaponStat, GradeEnum actorStrength, Command command);
+        boolean run(float deltaSec);
         void release(int attackKey);
         void apply(Item other);
 

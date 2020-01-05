@@ -14,7 +14,7 @@ public class Infliction
     }
 
     private final GradeEnum damage;
-    private final ConditionApp conditionApp;
+    private final ConditionApp[] conditionApps;
     private final Vec2 momentum;
     private final InflictionType[] types;
 
@@ -22,17 +22,21 @@ public class Infliction
     {
         this.damage = damage;
 
-        conditionApp = null;
+        conditionApps = null;
         momentum = null;
 
         this.types = types;
     }
 
-    public Infliction(ConditionAppCycle cycle, int operationState, InflictionType...types)
+    public Infliction(ConditionAppCycle cycle, ConditionApp[] extraApps, int operationState, InflictionType...types)
     {
-        if (operationState == 0) conditionApp = cycle.getWarm();
-        else if (operationState == 1) conditionApp = cycle.getExec();
-        else conditionApp = cycle.getCool();
+        conditionApps = new ConditionApp[extraApps.length + 1];
+
+        if (operationState == 0) conditionApps[0] = cycle.getWarm();
+        else if (operationState == 1) conditionApps[0] = cycle.getExec();
+        else conditionApps[0] = cycle.getCool();
+
+        System.arraycopy(extraApps, 0, conditionApps, 1, extraApps.length);
 
         damage = null;
         momentum = null;
@@ -48,17 +52,17 @@ public class Infliction
         momentum = actorMomentum.add(weaponMomentum);
 
         damage = null;
-        conditionApp = null;
+        conditionApps = null;
 
         this.types = types;
     }
 
-    public Infliction(GradeEnum damage, ConditionApp conditionApp,
+    public Infliction(GradeEnum damage, ConditionApp[] conditionApps,
                       Vec2 actorSpeed, float actorMass, float actorGrip,
                       DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
     {
         this.damage = damage;
-        this.conditionApp = conditionApp;
+        this.conditionApps = conditionApps;
         Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
         Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
         momentum = actorMomentum.add(weaponMomentum);
@@ -70,7 +74,7 @@ public class Infliction
 
     public GradeEnum getDamage() { return damage; }
 
-    public ConditionApp getConditionApp() { return conditionApp; }
+    public ConditionApp[] getConditionApps() { return conditionApps; }
 
     public Vec2 getMomentum() { return momentum; }
 

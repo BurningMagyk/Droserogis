@@ -15,14 +15,13 @@ class MeleeOperation implements Weapon.Operation
     public DirEnum getDir() { return face; }
 
     private Infliction selfInfliction;
-    private float speedMod = 0;
     @Override
     public Infliction getInfliction(Actor actor, float mass)
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, conditionApp, actor.getVelocity(), actor.getMass(), actor.getGrip(),
-                infDir, speedMod, mass, infTypes); }
+        return new Infliction(damage, conditionApps, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+                infDir, execSpeed, mass, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
@@ -53,8 +52,10 @@ class MeleeOperation implements Weapon.Operation
         return null;
     }
 
+    private float waitSpeed, execSpeed;
     @Override
-    public void start(Orient startOrient, float warmBoost, Command command)
+    public void start(Orient startOrient, float warmBoost,
+                      WeaponStat weaponStat, GradeEnum str, Command command)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
@@ -63,13 +64,24 @@ class MeleeOperation implements Weapon.Operation
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
+        waitSpeed = weaponStat.waitSpeed(str);
+        execSpeed = weaponStat.attackSpeed(str);
+        ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
+        ConditionApp conditionApp = conditionApps[0];
+        conditionApps = new ConditionApp[conditionAppsExtra.length + 1];
+        System.arraycopy(conditionAppsExtra, 0,
+                conditionApps, 1, conditionAppsExtra.length);
+        conditionApps[0] = conditionApp;
+        selfApps = weaponStat.selfInflictionApp();
+        damage = GradeEnum.getGrade(baseDamage.ordinal() + weaponStat.damage().ordinal());
+
         Print.blue("Operating \"" + getName() + "\"");
     }
 
     private boolean warmup()
     {
         selfInfliction = new Infliction(
-                cycle, State.WARMUP.ordinal(), Infliction.InflictionType.METAL);
+                cycle, selfApps, State.WARMUP.ordinal(), Infliction.InflictionType.METAL);
 
         if (warmJourney.check(totalSec, face) && attackKey == -1)
         {
@@ -84,7 +96,7 @@ class MeleeOperation implements Weapon.Operation
     private boolean execute()
     {
         selfInfliction = new Infliction(
-                cycle,  State.EXECUTION.ordinal(), Infliction.InflictionType.METAL);
+                cycle, selfApps, State.EXECUTION.ordinal(), Infliction.InflictionType.METAL);
 
         for (Tick tick : execJourney)
         {
@@ -104,7 +116,7 @@ class MeleeOperation implements Weapon.Operation
     private boolean cooldown()
     {
         selfInfliction = new Infliction(
-                cycle, State.COOLDOWN.ordinal(), Infliction.InflictionType.METAL);
+                cycle, selfApps, State.COOLDOWN.ordinal(), Infliction.InflictionType.METAL);
 
         if (!coolJourney.check(totalSec, face))
         {
@@ -122,14 +134,23 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean run(float speedMod, float deltaSec)
+    public boolean run(float deltaSec)
     {
-        this.speedMod = speedMod;
-        totalSec += deltaSec * speedMod;
-
-        if (state == State.WARMUP) return warmup();
-        else if (state == State.EXECUTION) return execute();
-        else if (state == State.COOLDOWN) return cooldown();
+        if (state == State.WARMUP)
+        {
+            totalSec += deltaSec * waitSpeed;
+            return warmup();
+        }
+        else if (state == State.EXECUTION)
+        {
+            totalSec += deltaSec * execSpeed;
+            return execute();
+        }
+        else if (state == State.COOLDOWN)
+        {
+            totalSec += deltaSec * waitSpeed;
+            return cooldown();
+        }
 
         return true;
     }
@@ -175,7 +196,7 @@ class MeleeOperation implements Weapon.Operation
     {
         return new MeleeOperation(
                 name, next, proceeds, cycle,
-                waits, funcDir, damage, conditionApp, execJourney,
+                waits, funcDir, baseDamage, conditionApps[0], execJourney,
                 infTypes);
     }
 
@@ -199,8 +220,8 @@ class MeleeOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage;
-    private ConditionApp conditionApp;
+    private GradeEnum damage, baseDamage;
+    private ConditionApp[] conditionApps, selfApps;
     private Tick[] execJourney;
     private Journey warmJourney, coolJourney;
     private Infliction.InflictionType[] infTypes;
@@ -221,7 +242,7 @@ class MeleeOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum damage,
+            GradeEnum baseDamage,
             ConditionApp conditionApp,
             Tick[] execJourney,
             Infliction.InflictionType... infTypes
@@ -233,8 +254,8 @@ class MeleeOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.damage = damage;
-        this.conditionApp = conditionApp;
+        this.baseDamage = baseDamage;
+        this.conditionApps = new ConditionApp[] {conditionApp};
         this.execJourney = execJourney;
         this.infTypes = infTypes;
     }
@@ -242,7 +263,7 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
                 op.infTypes);
     }
 
@@ -253,7 +274,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
                 op.infTypes);
     }
 
@@ -264,7 +285,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.damage, op.conditionApp, op.execJourney,
+                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
                 op.infTypes);
     }
 }

@@ -1,5 +1,7 @@
 package Util;
 
+import Gameplay.DirEnum;
+
 public class Vec2
 {
     public float x,y;
@@ -74,6 +76,20 @@ public class Vec2
   {
       return Math.sqrt(x * x + y * y);
   }
+    public double mag(DirEnum dir)
+    {
+        float x;
+        if ((dir.getHoriz().getSign() < 0 && this.x < 0)
+                || (dir.getHoriz().getSign() > 0 && this.x > 0)) x = this.x;
+        else x = 0;
+
+        float y;
+        if ((dir.getHoriz().getSign() < 0 && this.y < 0)
+                || (dir.getHoriz().getSign() > 0 && this.y > 0)) y = this.y;
+        else y = 0;
+
+        return Math.sqrt(x * x + y * y);
+    }
 
     public void rotate(float theta)
     {

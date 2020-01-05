@@ -39,7 +39,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -56,7 +56,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -73,7 +73,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "STR", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 };
@@ -141,7 +141,8 @@ public class Actor extends Item
 
     public Actor(float xPos, float yPos, EnumType type)
     {
-        super(xPos, yPos, type.width(), type.height(), type.mass(), type.spritePaths());
+        super(xPos, yPos, type.width(), type.height(), type.mass(),
+                type.createPlayerStat().hitPoints(), type.spritePaths());
 
         ORIGINAL_WIDTH = type.width();
         ORIGINAL_HEIGHT = type.height();
@@ -152,7 +153,7 @@ public class Actor extends Item
         setCharacterStats();
 
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                type.mass() * 0.1F, WeaponType.NATURAL, null);
+                type.mass() * 0.1F, WeaponType.NATURAL, type.createNaturalWeaponStat(), null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
 
 //        weapons[WeaponSlot.PRIMARY.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
@@ -1301,14 +1302,17 @@ public class Actor extends Item
     {
         // TODO: check for immunities and resistances here using condType to cancel effect or modify .getTime()
 
-        ConditionApp condApp = inf.getConditionApp();
-        if (condApp != null)
+        ConditionApp[] condApps = inf.getConditionApps();
+        for (ConditionApp condApp : condApps)
         {
-            if (condApp.isSinglet())
-                addCondition(condApp.getConditions());
-            else addCondition(condApp.getTime(), condApp.getConditions());
+            if (condApp != null)
+            {
+                if (condApp.isSinglet())
+                    addCondition(condApp.getConditions());
+                else addCondition(condApp.getTime(), condApp.getConditions());
 
-            Print.yellow("ConditionApp: " + condApp);
+                Print.yellow("ConditionApp: " + condApp);
+            }
         }
     }
     public void addCondition(float time, Condition... conditions)

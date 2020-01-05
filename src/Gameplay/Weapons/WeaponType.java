@@ -250,10 +250,11 @@ public class WeaponType
         public Orient getOrient() { return orient; }
         public float interrupt(Command command) { state = State.VOID; return 0; }
         public MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum) { return null; }
-        public void start(Orient orient, float warmBoost, Command command) {
+        public void start(Orient orient, float warmBoost,
+                          WeaponStat weaponStat, GradeEnum actorStrength, Command command) {
             state = State.WARMUP;
             Print.blue("Operating \"" + getName() + "\""); }
-        public boolean run(float speedMod, float deltaSec) {
+        public boolean run(float deltaSec) {
             if (state == State.EXECUTION) {
                 interrupt(null);
                 return true; }

@@ -15,14 +15,13 @@ public class RushOperation implements Weapon.Operation
     public DirEnum getDir() { return face; }
 
     private Infliction selfInfliction;
-    private float speedMod = 0;
     @Override
     public Infliction getInfliction(Actor actor, float mass)
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, conditionApp, actor.getVelocity(), actor.getMass(), actor.getGrip(),
-                infDir, speedMod, mass, actor.getRushInfTypes());
+        return new Infliction(damage, conditionApps, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+                infDir, 0, mass, actor.getRushInfTypes());
     }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
@@ -71,39 +70,50 @@ public class RushOperation implements Weapon.Operation
         return null;
     }
 
+    private float waitSpeed;
     @Override
-    public void start(Orient orient, float warmBoost, Command command)
+    public void start(Orient orient, float warmBoost,
+                      WeaponStat weaponStat, GradeEnum str, Command command)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
         face = command.FACE;
         attackKey = command.ATTACK_KEY;
+
+        waitSpeed = weaponStat.waitSpeed(str);
+        ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
+        ConditionApp conditionApp = conditionApps[0];
+        conditionApps = new ConditionApp[conditionAppsExtra.length + 1];
+        System.arraycopy(conditionAppsExtra, 0,
+                conditionApps, 1, conditionAppsExtra.length);
+        conditionApps[0] = conditionApp;
+        selfApps = weaponStat.selfInflictionApp();
+        damage = GradeEnum.getGrade(baseDamage.ordinal() + weaponStat.damage().ordinal());
     }
 
     @Override
-    public boolean run(float speedMod, float deltaSec)
+    public boolean run(float deltaSec)
     {
-        this.speedMod = speedMod;
-        totalSec += deltaSec * speedMod;
-
         if (state == State.WARMUP)
         {
+            totalSec += deltaSec * waitSpeed;
             if (totalSec >= waits.x)
             {
                 state = State.EXECUTION;
+                totalSec = 0;
             }
         }
         if (state == State.EXECUTION)
         {
-            totalSec = 0;
             if (attackKey == -1) state = State.COOLDOWN;
         }
 
         selfInfliction = new Infliction(
-                cycle, state.ordinal(), Infliction.InflictionType.METAL);
+                cycle, selfApps, state.ordinal(), Infliction.InflictionType.METAL);
 
         if (state == State.COOLDOWN)
         {
+            totalSec += deltaSec * waitSpeed;
             if (totalSec >= waits.y)
             {
                 state = State.VOID;
@@ -139,7 +149,7 @@ public class RushOperation implements Weapon.Operation
     public Weapon.Operation copy()
     {
         return new RushOperation(name, next, cycle,
-                waits, funcDir, damage, conditionApp, finishes);
+                waits, funcDir, baseDamage, conditionApps[0], finishes);
     }
 
     public enum RushFinish
@@ -153,8 +163,8 @@ public class RushOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage;
-    private ConditionApp conditionApp;
+    private GradeEnum damage, baseDamage;
+    private ConditionApp[] conditionApps, selfApps;
     private RushFinish[] finishes;
 
     private DirEnum face;
@@ -169,7 +179,7 @@ public class RushOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum damage,
+            GradeEnum baseDamage,
             ConditionApp conditionApp,
             RushFinish ...finishes
     )
@@ -179,8 +189,8 @@ public class RushOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.damage = damage;
-        this.conditionApp = conditionApp;
+        this.baseDamage = baseDamage;
+        this.conditionApps = new ConditionApp[] {conditionApp};
         this.finishes = finishes;
     }
 }
