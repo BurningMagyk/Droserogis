@@ -112,19 +112,19 @@ public class WeaponType
         NATURAL__GRAB_WAITS = new Vec2(1F, 3F);
 
     private final static Tick[] NATURAL__PUNCH__EXEC = new Tick[] {
-            new Tick(0.25F, 1F, -0.2F, 0),
-            new Tick(0.5F, 1.1F, -0.2F, 0),
-            new Tick(0.75F, 1.2F, -0.2F, 0),
-            new Tick(1, 1.3F, -0.2F, 0) };
+            new Tick(0.25F, 0.5F, -0.2F, 0),
+            new Tick(0.5F, 0.6F, -0.2F, 0),
+            new Tick(0.75F, 0.7F, -0.2F, 0),
+            new Tick(1, 0.8F, -0.2F, 0) };
     private final static MeleeOperation NATURAL__PUNCH = new MeleeOperation(
             "Punch", EMPTY__NEXT, THRUST_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
             DirEnum.RIGHT, GradeEnum.F, null, NATURAL__PUNCH__EXEC);
 
     private final static Tick[] NATURAL__UPPERCUT__EXEC = new Tick[] {
-            new Tick(0.25F, 1, 0.75F, PI2),
-            new Tick(0.5F, 1, 0.5F, PI2),
-            new Tick(0.75F, 1, 0.25F, PI2),
-            new Tick(1, 1, 0F, PI2) };
+            new Tick(0.25F, 0.3F, 0.5F, PI2),
+            new Tick(0.5F, 0.4F, 0.1F, PI2),
+            new Tick(0.75F, 0.5F, -0.3F, PI2),
+            new Tick(1, 0.5F, -0.7F, PI2) };
     private final static MeleeOperation NATURAL__UPPERCUT = new MeleeOperation(
             "Uppercut", EMPTY__NEXT, SWING_UNTERHAU__PROCEED, STAB_CYCLE, NATURAL__PUNCH_WAITS,
             DirEnum.UP, GradeEnum.F, null, NATURAL__UPPERCUT__EXEC);

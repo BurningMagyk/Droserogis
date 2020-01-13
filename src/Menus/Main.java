@@ -61,7 +61,7 @@ public class Main extends Application
         final String NAME = "Autism is a choice";
         stage.setTitle(NAME + " - " + VERSION);
 
-        stage.getIcons().add(IMPORTER.getImage("Shaggy_Verde.png").getImage());
+        //stage.getIcons().add(IMPORTER.getImage("Shaggy_Verde.png").getImage());
 
         /* Set up main game after the prompt is already set up */
         Stage mainGameStage = new Stage(StageStyle.UNDECORATED);
