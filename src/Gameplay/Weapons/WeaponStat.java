@@ -111,6 +111,15 @@ public class WeaponStat
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }
     GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
 
+    /*
+     * Damage is a function of:
+     *  - Attack
+     *  - Weapon damage stat
+     *  - Actor stat that's applicable to the attack
+     *  - Momentum
+     *  - Victim's resistances and weaknesses
+     */
+
     private boolean speedDep(GradeEnum strGrade)
     {
         return strGrade.ordinal() >= grades[Ability.SPEED_DEP.ordinal()].ordinal();
