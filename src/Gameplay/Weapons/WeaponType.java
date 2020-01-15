@@ -112,9 +112,9 @@ public class WeaponType
         NATURAL__GRAB_WAITS = new Vec2(1F, 3F);
 
     private final static Tick[] NATURAL__PUNCH__EXEC = new Tick[] {
-            new Tick(0.25F, 0.5F, -0.2F, 0),
-            new Tick(0.5F, 0.6F, -0.2F, 0),
-            new Tick(0.75F, 0.7F, -0.2F, 0),
+            new Tick(0.25F, 0.2F, -0.2F, 0),
+            new Tick(0.5F, 0.4F, -0.2F, 0),
+            new Tick(0.75F, 0.6F, -0.2F, 0),
             new Tick(1, 0.8F, -0.2F, 0) };
     private final static MeleeOperation NATURAL__PUNCH = new MeleeOperation(
             "Punch", EMPTY__NEXT, THRUST_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
@@ -130,19 +130,19 @@ public class WeaponType
             DirEnum.UP, GradeEnum.F, null, NATURAL__UPPERCUT__EXEC);
 
     private final static Tick[] NATURAL__PUNCH_UP__EXEC = new Tick[] {
-            new Tick(0.25F, 0, -0.25F, PI2),
-            new Tick(0.5F, 0, -0.5F, PI2),
-            new Tick(0.75F, 0, -0.75F, PI2),
-            new Tick(1, 0, -1F, PI2) };
+            new Tick(0.25F, 0, -0.1F, PI2),
+            new Tick(0.5F, 0, -0.35F, PI2),
+            new Tick(0.75F, 0, -0.6F, PI2),
+            new Tick(1, 0, -0.85F, PI2) };
     private final static MeleeOperation NATURAL__PUNCH_UP = new MeleeOperation(
             "Punch up", EMPTY__NEXT, THRUST_UP_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
             DirEnum.UP, GradeEnum.F, null, NATURAL__PUNCH_UP__EXEC);
 
     private final static Tick[] NATURAL__PUNCH_DIAG_UP__EXEC = new Tick[] {
-            new Tick(0.25F, 0.25F, -0.25F, -PI4),
-            new Tick(0.5F, 0.5F, -0.5F, -PI4),
-            new Tick(0.75F, 0.75F, -0.75F, -PI4),
-            new Tick(1, 1F, -1F, -PI4) };
+            new Tick(0.25F, 0.15F, -0.15F, -PI4),
+            new Tick(0.5F, 0.3F, -0.3F, -PI4),
+            new Tick(0.75F, 0.45F, -0.45F, -PI4),
+            new Tick(1, 0.6F, -0.6F, -PI4) };
     private final static MeleeOperation NATURAL__PUNCH_DIAG_UP = new MeleeOperation(
             "Punch diag up", EMPTY__NEXT, THRUST_DIAG_UP_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
             DirEnum.DOWNRIGHT, GradeEnum.F, null, NATURAL__PUNCH_DIAG_UP__EXEC);
@@ -156,9 +156,9 @@ public class WeaponType
             DirEnum.DOWN, GradeEnum.F, null, NATURAL__STOMP__EXEC);
 
     private final static Tick[] NATURAL__KICK_ARC__EXEC = new Tick[] {
-            new Tick(0.33F, 0.0F, 0.5F, PI2),
-            new Tick(0.66F, 0.25F, 0.25F, PI4),
-            new Tick(1F, 0.5F, 0F, 0) };
+            new Tick(0.33F, 0.25F, 0.5F, PI2),
+            new Tick(0.66F, 0.5F, 0.25F, PI4),
+            new Tick(1F, 0.75F, 0F, 0) };
     private final static MeleeOperation NATURAL__KICK_ARC = new MeleeOperation(
             "Kick arc", EMPTY__NEXT, null, STAB_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.UPRIGHT, GradeEnum.F, null, NATURAL__KICK_ARC__EXEC);
@@ -166,8 +166,7 @@ public class WeaponType
     private final static Tick[] NATURAL__KICK_DIAG_DOWN__EXEC = new Tick[] {
             new Tick(0.25F, 0.25F, 0.25F, -PI4),
             new Tick(0.5F, 0.5F, 0.5F, -PI4),
-            new Tick(0.75F, 0.75F, 0.75F, -PI4),
-            new Tick(1, 1F, 1F, -PI4) };
+            new Tick(0.75F, 0.75F, 0.75F, -PI4) };
     private final static MeleeOperation NATURAL__KICK_DIAG_DOWN = new MeleeOperation(
             "Kick diag down", EMPTY__NEXT, null, STANDARD_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.DOWNRIGHT, GradeEnum.F, null, NATURAL__KICK_DIAG_DOWN__EXEC);
@@ -176,7 +175,7 @@ public class WeaponType
             new Tick(0.25F, 0.25F, 0.1F, 0),
             new Tick(0.5F, 0.5F, 0.1F, 0),
             new Tick(0.75F, 0.75F, 0.1F, 0),
-            new Tick(1, 1F, 1F, 0) };
+            new Tick(1, 1F, 0.1F, 0) };
     private final static MeleeOperation NATURAL__KICK_STRAIGHT = new MeleeOperation(
             "Kick straight", EMPTY__NEXT, null, STAB_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.RIGHT, GradeEnum.F, null, NATURAL__KICK_STRAIGHT__EXEC);

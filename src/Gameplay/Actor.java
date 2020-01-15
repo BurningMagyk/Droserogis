@@ -534,8 +534,6 @@ public class Actor extends Item
 
         prevGround.ground = touchEntity[DOWN];
         prevGround.pos = getX();
-
-        Arrays.fill(conditionsB, false);
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)
@@ -1314,7 +1312,8 @@ public class Actor extends Item
                     addCondition(condApp.getConditions());
                 else addCondition(condApp.getTime(), condApp.getConditions());
 
-                Print.yellow("ConditionApp: " + condApp);
+                if (!condApp.isSinglet())
+                    Print.yellow("ConditionApp: " + condApp);
             }
         }
     }
@@ -1373,6 +1372,8 @@ public class Actor extends Item
                 if (conditions[i] < 0) conditions[i] = 0;
             }
         }
+
+        Arrays.fill(conditionsB, false);
 
         if (wasTumbling)
         {
@@ -1511,7 +1512,7 @@ public class Actor extends Item
         {
             Infliction inf = inflictions.get(i);
 
-            Print.yellow("----------Actor----------");
+            if (!inf.isSelfInf) Print.yellow("----------Actor----------");
 
             damage(inf);
             addConditionApp(inf);
@@ -1522,7 +1523,7 @@ public class Actor extends Item
                 Print.yellow("Momentum: " + momentum);
             }
 
-            Print.yellow("-------------------------");
+            if (!inf.isSelfInf) Print.yellow("-------------------------");
         }
 
         inflictions.clear();
@@ -1532,7 +1533,7 @@ public class Actor extends Item
     public void inflict(Infliction infliction)
     {
         if (infliction != null) inflictions.add(infliction);
-        Print.yellow("Actor: " + infliction + " added");
+        if (!infliction.isSelfInf) Print.yellow("Actor: " + infliction + " added");
     }
 
     boolean setTriggered(boolean triggered)

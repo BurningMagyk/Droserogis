@@ -28,8 +28,11 @@ public class Infliction
         this.types = types;
     }
 
+    public boolean isSelfInf = false;
     public Infliction(ConditionAppCycle cycle, ConditionApp[] extraApps, int operationState, InflictionType...types)
     {
+        isSelfInf = true;
+
         conditionApps = new ConditionApp[extraApps.length + 1];
 
         if (operationState == 0) conditionApps[0] = cycle.getWarm();
