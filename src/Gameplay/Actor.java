@@ -10,6 +10,7 @@ import Util.Vec2;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Key Commands:
@@ -195,6 +196,35 @@ public class Actor extends Item
      */
     private void act(float deltaSec)
     {
+        if (has(Condition.NEGATE_ACTIVITY))
+        {
+            float condTime = conditions[Condition.NEGATE_ACTIVITY.ordinal()];
+            addCondition(condTime, Condition.NEGATE_STABILITY);
+            addCondition(condTime, Condition.NEGATE_ATTACK);
+            addCondition(condTime, Condition.NEGATE_BLOCK);
+            if (conditionsB[Condition.NEGATE_ACTIVITY.ordinal()])
+            {
+                addCondition(Condition.NEGATE_STABILITY);
+                addCondition(Condition.NEGATE_ATTACK);
+                addCondition(Condition.NEGATE_BLOCK);
+            }
+        }
+
+        /* FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY */
+        if (has(Condition.NEGATE_STABILITY))
+        {
+            float condTime = conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime;
+            addCondition(condTime, Condition.FORCE_CROUCH);
+            addCondition(condTime, Condition.NEGATE_WALK_LEFT);
+            addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
+            if (conditionsB[Condition.NEGATE_STABILITY.ordinal()])
+            {
+                addCondition(Condition.FORCE_CROUCH);
+                addCondition(Condition.NEGATE_WALK_LEFT);
+                addCondition(Condition.NEGATE_WALK_RIGHT);
+            }
+        }
+
         float vx = getVelocityX(), vy = getVelocityY();
         if (Math.abs(vx) <= runSpeed) interruptRushes(RushOperation.RushFinish.LOSE_SPRINT);
 
@@ -502,37 +532,10 @@ public class Actor extends Item
 
         if (willTumble()) addCondition(minTumbleTime, Condition.NEGATE_ACTIVITY);
 
-        if (has(Condition.NEGATE_ACTIVITY))
-        {
-            float condTime = conditions[Condition.NEGATE_ACTIVITY.ordinal()];
-            addCondition(condTime, Condition.NEGATE_STABILITY);
-            addCondition(condTime, Condition.NEGATE_ATTACK);
-            addCondition(condTime, Condition.NEGATE_BLOCK);
-            if (conditionsB[Condition.NEGATE_ACTIVITY.ordinal()])
-            {
-                addCondition(Condition.NEGATE_STABILITY);
-                addCondition(Condition.NEGATE_ATTACK);
-                addCondition(Condition.NEGATE_BLOCK);
-            }
-        }
-
-        /* FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY */
-        if (has(Condition.NEGATE_STABILITY))
-        {
-            float condTime = conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime;
-            addCondition(condTime, Condition.FORCE_CROUCH);
-            addCondition(condTime, Condition.NEGATE_WALK_LEFT);
-            addCondition(condTime, Condition.NEGATE_WALK_RIGHT);
-            if (conditionsB[Condition.NEGATE_STABILITY.ordinal()])
-            {
-                addCondition(Condition.FORCE_CROUCH);
-                addCondition(Condition.NEGATE_WALK_LEFT);
-                addCondition(Condition.NEGATE_WALK_RIGHT);
-            }
-        }
-
         prevGround.ground = touchEntity[DOWN];
         prevGround.pos = getX();
+
+        Arrays.fill(conditionsB, false);
     }
 
     private float getTopSpeed(MoveType moveType, boolean low)

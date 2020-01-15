@@ -405,6 +405,8 @@ public class Weapon extends Item
                 if (currentOp instanceof RushOperation) orient = DEF_ORIENT;
                 else orient = currentOp.getOrient();
                 dirOp = currentOp.getDir();
+
+                actor.inflict(currentOp.getSelfInfliction());
             }
 
             updateClashes(entities.getWeaponList());
