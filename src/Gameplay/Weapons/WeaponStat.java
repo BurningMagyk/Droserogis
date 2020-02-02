@@ -16,7 +16,8 @@ public class WeaponStat
         ATTACK_SPEED,
         SPEED_DEP,
 
-        DAMAGE
+        DAMAGE,
+        PRECISION
     }
 
     private GradeEnum[] grades;
@@ -27,7 +28,7 @@ public class WeaponStat
             String dur, String wait_spe,
             String atk_spe, String spe_dep,
             ConditionApp[] infApps, ConditionApp[] selfApps,
-            String dam, Infliction.InflictionType... infTypes)
+            String dam, String pre, Infliction.InflictionType... infTypes)
     {
         // Durability
         // Warmup/cooldown speed
@@ -36,6 +37,7 @@ public class WeaponStat
         // ConditionApp inflictions
         // ConditionApp self-inflictions
         // Damage
+        // Precision
         // Infliction types
 
         grades = new GradeEnum[Ability.values().length];
@@ -44,6 +46,7 @@ public class WeaponStat
         grades[2] = parseGrade(atk_spe);
         grades[3] = parseGrade(spe_dep);
         grades[4] = parseGrade(dam);
+        grades[5] = parseGrade(pre);
 
         inflictApps = infApps == null ? new ConditionApp[]{} : infApps;
         selfInflictApps = selfApps == null ? new ConditionApp[]{} : selfApps;
@@ -110,6 +113,7 @@ public class WeaponStat
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }
     GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
+    GradeEnum precision() { return grades[Ability.PRECISION.ordinal()]; }
 
     /*
      * Damage is a function of:

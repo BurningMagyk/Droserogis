@@ -13,14 +13,16 @@ public class Infliction
         AIR, WATER, EARTH, FIRE, COLD, LIGHTNING, METAL
     }
 
-    private final GradeEnum damage;
+    private final GradeEnum damage, precision;
     private final ConditionApp[] conditionApps;
     private final Vec2 momentum;
     private final InflictionType[] types;
 
+    /* For colliding with blocks */
     public Infliction(GradeEnum damage, InflictionType...types)
     {
         this.damage = damage;
+        this.precision = null;
 
         conditionApps = null;
         momentum = null;
@@ -29,6 +31,7 @@ public class Infliction
     }
 
     public boolean isSelfInf = false;
+    /* For self inflictions */
     public Infliction(ConditionAppCycle cycle, ConditionApp[] extraApps, int operationState, InflictionType...types)
     {
         isSelfInf = true;
@@ -42,12 +45,13 @@ public class Infliction
         System.arraycopy(extraApps, 0, conditionApps, 1, extraApps.length);
 
         damage = null;
+        precision = null;
         momentum = null;
 
         this.types = types;
     }
 
-    public Infliction(Vec2 actorSpeed, float actorMass, float actorGrip,
+    /*public Infliction(Vec2 actorSpeed, float actorMass, float actorGrip,
                       DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
     {
         Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
@@ -58,13 +62,15 @@ public class Infliction
         conditionApps = null;
 
         this.types = types;
-    }
+    }*/
 
-    public Infliction(GradeEnum damage, ConditionApp[] conditionApps,
+    /* For inflictions dealt by attacks */
+    public Infliction(GradeEnum damage, GradeEnum precision, ConditionApp[] conditionApps,
                       Vec2 actorSpeed, float actorMass, float actorGrip,
                       DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
     {
         this.damage = damage;
+        this.precision = precision;
         this.conditionApps = conditionApps;
         Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
         Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);

@@ -1,6 +1,7 @@
 package Gameplay.Weapons;
 
 import Gameplay.Actor;
+import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
@@ -20,7 +21,8 @@ class MeleeOperation implements Weapon.Operation
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, conditionApps, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+        return new Infliction(damage, precision, conditionApps,
+                actor.getVelocity(), actor.getMass() - mass, actor.getGrip(),
                 infDir, execSpeed, mass, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
@@ -54,8 +56,8 @@ class MeleeOperation implements Weapon.Operation
 
     private float waitSpeed, execSpeed;
     @Override
-    public void start(Orient startOrient, float warmBoost,
-                      WeaponStat weaponStat, GradeEnum str, Command command)
+    public void start(Orient startOrient, float warmBoost, CharacterStat characterStat,
+                      WeaponStat weaponStat, Command command)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
@@ -64,8 +66,10 @@ class MeleeOperation implements Weapon.Operation
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
-        waitSpeed = weaponStat.waitSpeed(str);
-        execSpeed = weaponStat.attackSpeed(str);
+        GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
+        waitSpeed = weaponStat.waitSpeed(strGrade);
+        execSpeed = weaponStat.attackSpeed(strGrade);
+
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
         conditionApps = new ConditionApp[conditionAppsExtra.length + 1];
@@ -73,7 +77,12 @@ class MeleeOperation implements Weapon.Operation
                 conditionApps, 1, conditionAppsExtra.length);
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
-        damage = GradeEnum.getGrade(baseDamage.ordinal() + weaponStat.damage().ordinal());
+        damage = GradeEnum.getGrade(damageMod / 2 *
+                (weaponStat.damage().ordinal()
+                + strGrade.ordinal()));
+        precision = GradeEnum.getGrade(precisionMod / 2 *
+                (weaponStat.precision().ordinal()
+                + characterStat.getGrade(CharacterStat.Ability.DEXTERITY).ordinal()));
 
         Print.blue("Operating \"" + getName() + "\"");
     }
@@ -196,8 +205,8 @@ class MeleeOperation implements Weapon.Operation
     {
         return new MeleeOperation(
                 name, next, proceeds, cycle,
-                waits, funcDir, baseDamage, conditionApps[0], execJourney,
-                infTypes);
+                waits, funcDir, damageMod, precisionMod,
+                conditionApps[0], execJourney, infTypes);
     }
 
     enum MeleeEnum
@@ -220,7 +229,8 @@ class MeleeOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage, baseDamage;
+    private GradeEnum damage, precision;
+    private float damageMod, precisionMod;
     private ConditionApp[] conditionApps, selfApps;
     private Tick[] execJourney;
     private Journey warmJourney, coolJourney;
@@ -242,7 +252,8 @@ class MeleeOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum baseDamage,
+            float damageMod,
+            float precisionMod,
             ConditionApp conditionApp,
             Tick[] execJourney,
             Infliction.InflictionType... infTypes
@@ -254,7 +265,8 @@ class MeleeOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.baseDamage = baseDamage;
+        this.damageMod = damageMod;
+        this.precisionMod = precisionMod;
         this.conditionApps = new ConditionApp[] {conditionApp};
         this.execJourney = execJourney;
         this.infTypes = infTypes;
@@ -263,8 +275,8 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
-                op.infTypes);
+                op.funcDir, op.damageMod, op.precisionMod,
+                op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
     MeleeOperation(
@@ -274,8 +286,8 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
-                op.infTypes);
+                op.funcDir, op.damageMod, op.precisionMod,
+                op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
     MeleeOperation(
@@ -285,7 +297,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.baseDamage, op.conditionApps[0], op.execJourney,
-                op.infTypes);
+                op.funcDir, op.damageMod, op.precisionMod,
+                op.conditionApps[0], op.execJourney, op.infTypes);
     }
 }

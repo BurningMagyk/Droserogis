@@ -23,7 +23,6 @@ public class Weapon extends Item
     private Orient orient;
 
     Actor actor;
-    private GradeEnum actorStrength;
     private boolean ballistic = false, idle = true;
     private Command currentCommand;
     Operation currentOp;
@@ -50,10 +49,9 @@ public class Weapon extends Item
 
     public Actor getActor() { return actor; }
 
-    public void equip(Actor actor)
+    public Weapon equip(Actor actor)
     {
         this.actor = actor;
-        actorStrength = actor.getCharacterStat().getGrade(CharacterStat.Ability.STRENGTH);
         ballistic = false;
         idle = false;
         setPosition(actor.getPosition());
@@ -61,6 +59,8 @@ public class Weapon extends Item
         orient = DEF_ORIENT.copy();
         dirOp = actor.getWeaponFace();
         updateCorners();
+
+        return this;
     }
 
 
@@ -250,7 +250,7 @@ public class Weapon extends Item
         currentCommand = command;
         currentOp = newOp;
         currentOp.start(DEF_ORIENT, warmBoost,
-                weaponStat, actorStrength, command);
+                actor.getCharacterStat(), weaponStat, command);
     }
 
     public boolean addCommand(Command command, boolean combo, boolean chain)
@@ -361,12 +361,6 @@ public class Weapon extends Item
     {
         if (infliction != null) inflictions.add(infliction);
         Print.yellow("Weapon: " + infliction + " added");
-    }
-
-    @Override
-    public boolean easyToBlock()
-    {
-        return false;
     }
 
     private int blockRating = 0;
@@ -484,8 +478,8 @@ public class Weapon extends Item
         float interrupt(Command command);
         MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum);
 
-        void start(Orient orient, float warmBoost,
-                   WeaponStat weaponStat, GradeEnum actorStrength, Command command);
+        void start(Orient orient, float warmBoost, CharacterStat characterStat,
+                   WeaponStat weaponStat, Command command);
         boolean run(float deltaSec);
         void release(int attackKey);
         void apply(Item other);

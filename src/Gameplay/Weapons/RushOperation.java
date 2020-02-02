@@ -1,6 +1,7 @@
 package Gameplay.Weapons;
 
 import Gameplay.Actor;
+import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Item;
 import Util.GradeEnum;
@@ -20,7 +21,8 @@ public class RushOperation implements Weapon.Operation
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, conditionApps, actor.getVelocity(), actor.getMass(), actor.getGrip(),
+        return new Infliction(damage, null, conditionApps,
+                actor.getVelocity(), actor.getMass(), actor.getGrip(),
                 infDir, 0, mass, actor.getRushInfTypes());
     }
     @Override
@@ -72,15 +74,17 @@ public class RushOperation implements Weapon.Operation
 
     private float waitSpeed;
     @Override
-    public void start(Orient orient, float warmBoost,
-                      WeaponStat weaponStat, GradeEnum str, Command command)
+    public void start(Orient orient, float warmBoost, CharacterStat characterStat,
+                      WeaponStat weaponStat, Command command)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
         face = command.FACE;
         attackKey = command.ATTACK_KEY;
 
-        waitSpeed = weaponStat.waitSpeed(str);
+        GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
+        waitSpeed = weaponStat.waitSpeed(strGrade);
+
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
         conditionApps = new ConditionApp[conditionAppsExtra.length + 1];
@@ -88,7 +92,9 @@ public class RushOperation implements Weapon.Operation
                 conditionApps, 1, conditionAppsExtra.length);
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
-        damage = GradeEnum.getGrade(baseDamage.ordinal() + weaponStat.damage().ordinal());
+        damage = GradeEnum.getGrade(damageMod / 2 *
+                (weaponStat.damage().ordinal()
+                + strGrade.ordinal()));
     }
 
     @Override
@@ -149,7 +155,7 @@ public class RushOperation implements Weapon.Operation
     public Weapon.Operation copy()
     {
         return new RushOperation(name, next, cycle,
-                waits, funcDir, baseDamage, conditionApps[0], finishes);
+                waits, funcDir, damageMod, conditionApps[0], finishes);
     }
 
     public enum RushFinish
@@ -163,7 +169,8 @@ public class RushOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage, baseDamage;
+    private GradeEnum damage;
+    private float damageMod;
     private ConditionApp[] conditionApps, selfApps;
     private RushFinish[] finishes;
 
@@ -179,7 +186,7 @@ public class RushOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum baseDamage,
+            float damageMod,
             ConditionApp conditionApp,
             RushFinish ...finishes
     )
@@ -189,7 +196,7 @@ public class RushOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.baseDamage = baseDamage;
+        this.damageMod = damageMod;
         this.conditionApps = new ConditionApp[] {conditionApp};
         this.finishes = finishes;
     }

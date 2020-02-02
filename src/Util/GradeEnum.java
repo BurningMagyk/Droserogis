@@ -56,6 +56,7 @@ public enum GradeEnum
         return grStr;
     }
 
+    public static GradeEnum getGrade(float ord) { return getGrade((int) ord); }
     public static GradeEnum getGrade(int ord)
     {
         for (GradeEnum g : values())

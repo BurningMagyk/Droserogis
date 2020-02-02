@@ -40,7 +40,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -57,7 +57,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -74,7 +74,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C");
+                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 };
@@ -136,6 +136,8 @@ public class Actor extends Item
 
     private enum WeaponSlot { NATURAL, SECONDARY, PRIMARY }
     public Weapon[] weapons = new Weapon[WeaponSlot.values().length];
+    private enum ArmorSlot { HEAD, TORSO, HANDS, LEGS, FEET }
+    public Armor[] armors = new Armor[ArmorSlot.values().length];
     private float[] conditions = new float[Condition.values().length];
     private boolean[] conditionsB = new boolean[Condition.values().length];
 
@@ -608,6 +610,7 @@ public class Actor extends Item
     }
 
     public float getGrip() { return 0; }
+
     public Infliction.InflictionType[] getRushInfTypes()
     {
         /* Based on what armor the Actor is wearing or what their skin is made of */
@@ -734,6 +737,10 @@ public class Actor extends Item
         for (Weapon weapon : weapons)
         {
             if (weapon != null) weapon.updatePosition(p, getVelocity(), getDims(), getWeaponFace());
+        }
+        for (Armor armor : armors)
+        {
+            if (armor != null) armor.updatePosition(p, getVelocity());
         }
         super.setPosition(p);
     }
@@ -1108,6 +1115,10 @@ public class Actor extends Item
     public void equip(Weapon weapon)
     {
         //weapons[1] = weapon.equip(this);
+    }
+    public void equip(Armor armor)
+    {
+        //armor[1] = armor.equip(this);
     }
 
     //===============================================================================================================
@@ -1498,11 +1509,18 @@ public class Actor extends Item
     {
         GradeEnum damageGrade = inf.getDamage();
         if (damageGrade != null)
-            Print.yellow("Damage: " + damageGrade);
+        {
+            int damageGradeOrd = damageGrade.ordinal();
+            for (Armor armor : armors)
+            {
+                if (armor != null)
+                    damageGradeOrd -= armor.getResistanceTo(inf).ordinal();
+            }
+            GradeEnum newDamageGrade = GradeEnum.getGrade(damageGradeOrd);
+            Print.yellow("Damage: " + newDamageGrade);
+        }
     }
 
-    @Override
-    public boolean easyToBlock() { return false; } // TODO: return true if wielding a shield
     public boolean tryingToBlock() { return pressingUp; }
 
     @Override
@@ -1532,8 +1550,26 @@ public class Actor extends Item
     @Override
     public void inflict(Infliction infliction)
     {
-        if (infliction != null) inflictions.add(infliction);
+        if (infliction != null)
+        {
+            inflictions.add(infliction);
+            for (Armor armor : armors) { if (armor != null) armor.inflict(infliction); }
+        }
         if (!infliction.isSelfInf) Print.yellow("Actor: " + infliction + " added");
+    }
+
+    public float getMass()
+    {
+        float totalMass = mass;
+        for (int i = 1; i < weapons.length; i++)
+        {
+            if (weapons[i] != null) totalMass += weapons[i].getMass();
+        }
+        for (Armor armor : armors)
+        {
+            if (armor != null) totalMass += armor.getMass();
+        }
+        return totalMass;
     }
 
     boolean setTriggered(boolean triggered)

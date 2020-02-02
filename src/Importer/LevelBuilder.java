@@ -503,7 +503,7 @@ public class LevelBuilder  extends Application
             {
                 if (text.endsWith(shape.getText()))
                 {
-                    Block block = new Block(x, y, 100, 100, shape, null);
+                    Block block = new Block(x, y, 100, 100, shape, null, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -822,7 +822,7 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", null, null, "F");
+                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", null, null, "F", "D");
                     entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, temp, null);
                     if (parent >= 0)
                     {
@@ -839,7 +839,7 @@ public class LevelBuilder  extends Application
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    entity = new Block(x, y, width, height, shape, null);
+                    entity = new Block(x, y, width, height, shape, null,null);
                     ((Block)entity).setLiquid(isLiquid);
                 }
 
