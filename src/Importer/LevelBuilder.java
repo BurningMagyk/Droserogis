@@ -503,7 +503,7 @@ public class LevelBuilder  extends Application
             {
                 if (text.endsWith(shape.getText()))
                 {
-                    Block block = new Block(x, y, 100, 100, shape, null, null);
+                    Block block = new Block(x, y, 100, 100, shape, 1.0F, null, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -839,7 +839,7 @@ public class LevelBuilder  extends Application
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    entity = new Block(x, y, width, height, shape, null,null);
+                    entity = new Block(x, y, width, height, shape, 1.0F, null,null);
                     ((Block)entity).setLiquid(isLiquid);
                 }
 

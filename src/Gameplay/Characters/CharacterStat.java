@@ -340,11 +340,17 @@ public class CharacterStat
     public float minTumbleTime() { return 1F; } // agility
 
     public float proneRecoverTime() { return 0.85F; } // constitution
-    public float staggerRecoverTime() { return 1; } // strength
-    public float staggerParryMod() { return 1.5F; } // strength
-    public float staggerBlockMod() { return 0.5F; } // strength
 
-    public float[] landingThresh() { return new float[] { agility(0.4F), agility(0.8F) }; }
+    public GradeEnum[] landingThresh()
+    {
+        GradeEnum agilityGrade = grades[Ability.AGILITY.ordinal()];
+        return new GradeEnum[] { GradeEnum.getGrade(agilityGrade.ordinal() / 2), agilityGrade };
+    }
+    public GradeEnum[] staggerThresh()
+    {
+        GradeEnum strengthGrade = grades[Ability.STRENGTH.ordinal()];
+        return new GradeEnum[] { GradeEnum.getGrade(strengthGrade.ordinal() / 2), strengthGrade };
+    }
 
     public float friction() { return 0.35F; } // agility
 

@@ -346,8 +346,14 @@ public class Weapon extends Item
             if (momentum != null)
             {
                 interrupt(momentum.div(getMass()));
-                if (actor != null) actor.addVelocity(
+                if (actor != null)
+                {
+                    actor.addVelocity(
                         momentum.div(getMass() + actor.getMass() + actor.getGrip()));
+
+                    /* Stagger actor */
+                    //if ()
+                }
             }
 
             Print.yellow("--------------------------");

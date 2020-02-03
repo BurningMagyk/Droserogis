@@ -243,7 +243,8 @@ public abstract class Item extends Entity
                     if (this.bumpingCeiling)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
-                        damage((float) newVel.minus(originalVel).mag(),
+                        damage((float) newVel.minus(originalVel).mag()
+                                        * ((Block) entity).getHazardRating(),
                                 ((Block) entity).getInfMaterials());
                         setVelocity(newVel);
                     }
@@ -251,7 +252,8 @@ public abstract class Item extends Entity
                 /* Colliding with level surface from below */
                 else
                 {
-                    damage(Math.abs(getVelocityY()),
+                    damage(Math.abs(getVelocityY())
+                                    * ((Block) entity).getHazardRating(),
                             ((Block) entity).getInfMaterials());
                     setVelocityY(0);
                 }
@@ -266,7 +268,8 @@ public abstract class Item extends Entity
                     if (!isGrounded)
                     {
                         Vec2 newVel = entity.applySlope(originalVel);
-                        damage((float) newVel.minus(originalVel).mag(),
+                        damage((float) newVel.minus(originalVel).mag()
+                                        * ((Block) entity).getHazardRating(),
                                 ((Block) entity).getInfMaterials());
                         setVelocity(newVel);
                     }
@@ -274,7 +277,8 @@ public abstract class Item extends Entity
                 /* Colliding with level surface from above */
                 else
                 {
-                    damage(Math.abs(getVelocityY()),
+                    damage(Math.abs(getVelocityY())
+                                    * ((Block) entity).getHazardRating(),
                             ((Block) entity).getInfMaterials());
                     setVelocityY(0);
                 }
@@ -282,14 +286,16 @@ public abstract class Item extends Entity
             else if (edge[0] == LEFT)
             {
                 goal.x = entity.getRightEdge() + getWidth() / 2;
-                damage(Math.abs(getVelocityX()),
+                damage(Math.abs(getVelocityX())
+                                * ((Block) entity).getHazardRating(),
                         ((Block) entity).getInfMaterials());
                 setVelocityX(0);
             }
             else if (edge[0] == RIGHT)
             {
                 goal.x = entity.getLeftEdge() - getWidth() / 2;
-                damage(Math.abs(getVelocityX()),
+                damage(Math.abs(getVelocityX())
+                                * ((Block) entity).getHazardRating(),
                         ((Block) entity).getInfMaterials());
                 setVelocityX(0);
             }
@@ -314,10 +320,11 @@ public abstract class Item extends Entity
     /* Only called for damage caused by colliding with Blocks */
     void damage(float amount, Infliction.InflictionType... infType)
     {
+        if (amount == 0) return;
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-        // TODO: write formula for this, taking the Block's material into account
-        if (amount > 0.3) damage(new Infliction(GradeEnum.F, infType));
+        Print.blue(amount);
+        damage(new Infliction(GradeEnum.getGrade(amount), infType));
     }
 
     public abstract void damage(Infliction inf);

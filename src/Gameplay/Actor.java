@@ -1409,96 +1409,102 @@ public class Actor extends Item
         else return STAGGER_MAG_MOD[2];
     }
 
-    /* Called when player is hit or blocked */
-    public void stagger(DirEnum dir, float mag, boolean operator)
+    /* Called when player is hit */
+    public void stagger(GradeEnum damage, DirEnum dir)
     {
-        float _staggerRecoverTime = getStaggerMagMod(mag) * staggerRecoverTime;
+//        float _staggerRecoverTime = getStaggerMagMod(mag) * staggerRecoverTime;
+//
+//        if (operator) /* When player gets blocked */
+//        {
+//
+//        }
+//
+//        /* When player is hit */
+//        if (has(Condition.NEGATE_ACTIVITY))
+//        {
+//            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
+//            Print.green("ouch!");
+//        }
+//        else if (has(Condition.NEGATE_STABILITY))
+//        {
+//            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
+//        }
+//        else if (state.isGrounded())
+//        {
+//            DirEnum horiz = dir.getHoriz(), vert = dir.getVert();
+//
+//            if (vert == DirEnum.UP)
+//            {
+//                if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
+//                    addCondition(_staggerRecoverTime, Condition.FORCE_STAND);
+//            }
+//            else if (vert == DirEnum.DOWN)
+//            {
+//                if (state.isLow()) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+//                else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
+//                    addCondition(_staggerRecoverTime, Condition.FORCE_CROUCH);
+//            }
+//
+//            if (horiz == DirEnum.LEFT)
+//            {
+//                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+//                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_RIGHT);
+//                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_RIGHT);
+//            }
+//            else if (horiz == DirEnum.RIGHT)
+//            {
+//                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+//                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT);
+//                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT);
+//            }
+//            else if (vert != DirEnum.NONE)
+//            {
+//                if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
+//                    addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
+//                else if (!canRun()) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+//                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+//            }
+//        }
+//
+//
+//        for (Weapon weapon : weapons) { weapon.interrupt(); }
+//        // TODO: decide what magnitude causes these effects
+//        if (mag > walkSpeed) interruptRushes(RushOperation.RushFinish.STAGGER);
+    }
 
-        if (operator) /* When player gets blocked */
-        {
-            float staggerBlockedTime = _staggerRecoverTime * staggerBlockMod;
-            addCondition(staggerBlockedTime, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
-        }
-
-        /* When player is hit */
-        if (has(Condition.NEGATE_ACTIVITY))
-        {
-            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
-            Print.green("ouch!");
-        }
-        else if (has(Condition.NEGATE_STABILITY))
-        {
-            addCondition(_staggerRecoverTime, Condition.NEGATE_ACTIVITY);
-        }
-        else if (state.isGrounded())
-        {
-            DirEnum horiz = dir.getHoriz(), vert = dir.getVert();
-
-            if (vert == DirEnum.UP)
-            {
-                if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(_staggerRecoverTime, Condition.FORCE_STAND);
-            }
-            else if (vert == DirEnum.DOWN)
-            {
-                if (state.isLow()) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_LEFT) || has(Condition.NEGATE_RUN_RIGHT))
-                    addCondition(_staggerRecoverTime, Condition.FORCE_CROUCH);
-            }
-
-            if (horiz == DirEnum.LEFT)
-            {
-                if (has(Condition.NEGATE_WALK_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_RIGHT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_RIGHT);
-            }
-            else if (horiz == DirEnum.RIGHT)
-            {
-                if (has(Condition.NEGATE_WALK_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
-                else if (has(Condition.NEGATE_RUN_LEFT)) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT);
-                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT);
-            }
-            else if (vert != DirEnum.NONE)
-            {
-                if (has(Condition.NEGATE_WALK_LEFT) || has(Condition.NEGATE_WALK_RIGHT))
-                    addCondition(_staggerRecoverTime, Condition.NEGATE_STABILITY);
-                else if (!canRun()) addCondition(_staggerRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
-                else addCondition(_staggerRecoverTime, Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
-            }
-        }
-
-
-        for (Weapon weapon : weapons) { weapon.interrupt(); }
-        // TODO: decide what magnitude causes these effects
-        if (mag > walkSpeed) interruptRushes(RushOperation.RushFinish.STAGGER);
+    /* Called when player's attack is blocked */
+    public void staggerBlock(GradeEnum grade, DirEnum dir)
+    {
+//        // TODO: dividing staggerRecoverTime by 2 should be playtested
+//        addCondition(staggerRecoverTime / 2, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
     /* Called when player's attack is parried */
-    public void stagger(GradeEnum grade)
+    public void staggerParry(GradeEnum grade, DirEnum dir)
     {
-        float gradeInflucence;
-        if (grade.ordinal() <= GradeEnum.E.ordinal()) gradeInflucence = 1;
-        else if (grade.ordinal() <= GradeEnum.C.ordinal()) gradeInflucence = STAGGER_MAG_MOD[0];
-        else if (grade.ordinal() <= GradeEnum.A.ordinal()) gradeInflucence = STAGGER_MAG_MOD[1];
-        else gradeInflucence = STAGGER_MAG_MOD[2];
-
-        addCondition(staggerRecoverTime * staggerParryMod * gradeInflucence,
-                Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
-
-        if (grade.ordinal() >= GradeEnum.F.ordinal()) // TODO: decide actual value of this
-            interruptRushes(RushOperation.RushFinish.STAGGER);
+//        float gradeInflucence;
+//        if (grade.ordinal() <= GradeEnum.E.ordinal()) gradeInflucence = 1;
+//        else if (grade.ordinal() <= GradeEnum.C.ordinal()) gradeInflucence = STAGGER_MAG_MOD[0];
+//        else if (grade.ordinal() <= GradeEnum.A.ordinal()) gradeInflucence = STAGGER_MAG_MOD[1];
+//        else gradeInflucence = STAGGER_MAG_MOD[2];
+//
+//        addCondition(staggerRecoverTime * staggerParryMod * gradeInflucence,
+//                Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
+//
+//        if (grade.ordinal() >= GradeEnum.F.ordinal()) // TODO: decide actual value of this
+//            interruptRushes(RushOperation.RushFinish.STAGGER);
     }
 
     /* Called when player lands too hard */
-    void stagger(float amount)
+    void staggerLanding(GradeEnum grade)
     {
         pressedJumpSurface = null;
-        if (amount <= landingThresh[0]) return;
+        if (grade.ordinal() <= landingThresh[0].ordinal()) return;
 
-        addCondition(staggerRecoverTime,
+        addCondition(proneRecoverTime / grade.ordinal() > landingThresh[1].ordinal() ? 1 : 2,
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK,
                 Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT,
-                amount > landingThresh[1] ? Condition.NEGATE_ACTIVITY : !canWalk()
+                grade.ordinal() > landingThresh[1].ordinal() ? Condition.NEGATE_ACTIVITY : !canWalk()
                         ? Condition.NEGATE_STABILITY : Condition.FORCE_CROUCH);
         pressedJumpTime = 0F;
         interruptRushes(RushOperation.RushFinish.STAGGER);
@@ -1518,6 +1524,19 @@ public class Actor extends Item
             }
             GradeEnum newDamageGrade = GradeEnum.getGrade(damageGradeOrd);
             Print.yellow("Damage: " + newDamageGrade);
+
+            // Stagger a different way if hit ground/wall
+            boolean landedTooHard = false;
+            for (Infliction.InflictionType type : inf.getTypes())
+            {
+                if (type == Infliction.InflictionType.SURFACE)
+                {
+                    landedTooHard = true;
+                    continue;
+                }
+            }
+            if (landedTooHard) staggerLanding(newDamageGrade);
+            //else stagger(newDamageGrade);
         }
     }
 
@@ -1712,18 +1731,11 @@ public class Actor extends Item
 
     // friction
 
-    /* How long the player staggers */
-    private float staggerRecoverTime = 2;
+    /* How easy it is to be forced to crouch or go prone after falling too hard */
+    GradeEnum[] landingThresh = { GradeEnum.F, GradeEnum.F };
 
-    /* Modifies staggerRecoverTime when parried.
-     * Want this to be low but would never fall below 1.0F */
-    private float staggerParryMod = 2F;
-
-    /* Modifies staggerRecoverTime when blocking.
-    *  Want this to be low and would never go over 1.0F */
-    private float staggerBlockMod = 0.5F;
-
-    float[] landingThresh = { 0.5F, 1F };
+    /* How easy it is to be staggered */
+    GradeEnum[] staggerThresh = { GradeEnum.F, GradeEnum.F };
 
     private void setCharacterStats()
     {
@@ -1757,11 +1769,9 @@ public class Actor extends Item
         minTumbleTime = charStat.minTumbleTime();
 
         proneRecoverTime = charStat.proneRecoverTime();
-        staggerRecoverTime = charStat.staggerRecoverTime();
-        staggerParryMod = charStat.staggerParryMod();
-        staggerBlockMod = charStat.staggerBlockMod();
 
         landingThresh = charStat.landingThresh();
+        staggerThresh = charStat.staggerThresh();
 
         NORMAL_FRICTION = charStat.friction();
         GREATER_FRICTION = NORMAL_FRICTION * 3;
