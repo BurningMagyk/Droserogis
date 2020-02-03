@@ -367,7 +367,7 @@ public class Gameplay implements Reactor
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
             double x = viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
-            double y = -75 - (cameraPosY + cameraOffsetY)*layerZoom/2;
+            double y = -90 - (cameraPosY + cameraOffsetY)*layerZoom/2;
 
             context.drawImage(backgroundLayer[i], x,y);
         }
