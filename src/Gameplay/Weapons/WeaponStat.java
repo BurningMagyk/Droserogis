@@ -115,14 +115,6 @@ public class WeaponStat
     GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
     GradeEnum precision() { return grades[Ability.PRECISION.ordinal()]; }
 
-    /*
-     * Damage is a function of:
-     *  - Attack
-     *  - Weapon damage stat
-     *  - Actor stat that's applicable to the attack
-     *  - Momentum
-     *  - Victim's resistances and weaknesses
-     */
 
     private boolean speedDep(GradeEnum strGrade)
     {

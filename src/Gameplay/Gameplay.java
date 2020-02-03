@@ -1,5 +1,5 @@
 package Gameplay;
-
+//Game Title: The Lie Made Flesh
 import Gameplay.Weapons.Weapon;
 import Importer.LevelBuilder;
 import Importer.ImageResource;
@@ -12,9 +12,11 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import org.lwjgl.glfw.GLFWGamepadState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -35,6 +37,10 @@ public class Gameplay implements Reactor
             cameraOffsetX, cameraOffsetY,
             cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
+    private final int BACKGROUND_LAYER_COUNT = 4;
+    private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
+    private ImagePattern backgroundTexturePattern;
+
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
         this.context = context;
@@ -42,6 +48,12 @@ public class Gameplay implements Reactor
         this.viewHeight = (int) context.getCanvas().getHeight();
 
         GAMEPADS = gamepads;
+
+        for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
+        {
+            String name = "/Image/MossyWoods-Background_"+i+".png";
+            backgroundLayer[i] = new Image(name);
+        }
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -76,7 +88,7 @@ public class Gameplay implements Reactor
         lastUpdateTime = now;
 
         //System.out.println(now);
-        clearContext();
+
 
         context.setFill(Color.BLACK);
 
@@ -94,6 +106,7 @@ public class Gameplay implements Reactor
         Actor player1 = entities.getPlayer(0);
         moveCamera(player1.getPosition().x, player1.getPosition().y,
                 player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam());
+        renderBackground();
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
@@ -343,11 +356,26 @@ public class Gameplay implements Reactor
     /**
      * Canvas is cleared at the beginning of every frame.
      */
-    private void clearContext()
+    private void renderBackground()
     {
         /* Clear canvas */
-        context.clearRect(0, 0, context.getCanvas().getWidth(),
-                context.getCanvas().getHeight());
+        //context.clearRect(0, 0, context.getCanvas().getWidth(),
+        //        context.getCanvas().getHeight());
+
+        //System.out.println("cameraPos=("+cameraPosX+", " + +cameraPosY + ")   cameraOffset=("+cameraOffsetX+", "+ cameraOffsetY + ")   zoom="+cameraZoom);
+        for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
+        {
+            double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
+            double x = viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
+            double y = 70 - (cameraPosY + cameraOffsetY)*layerZoom;
+
+            context.drawImage(backgroundLayer[i], x,y);
+        }
+
+
+        //cameraOffsetX = viewWidth / 2F / cameraZoom;
+        //cameraOffsetY = viewHeight / 2F / cameraZoom;
+
     }
 
     public static void main(String[] args)
