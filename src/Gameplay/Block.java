@@ -9,16 +9,18 @@ import javafx.scene.paint.Color;
 
 public class Block extends Entity
 {
+    private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
     private boolean isLiquid = false;
     private Color liquidColor = Color.rgb(150, 180, 230, 0.5);
 
     public Block(float xPos, float yPos, float width, float height,
-                 ShapeEnum shape, Infliction.InflictionType[] infMaterials,
+                 ShapeEnum shape, float hazardRating, Infliction.InflictionType[] infMaterials,
                  String[] spritePaths)
     {
         super(xPos, yPos, width, height, shape, spritePaths);
 
+        this.hazardRating = hazardRating;
         if (infMaterials == null || infMaterials.length == 0)
         {
             this.infMaterials = new Infliction.InflictionType[]
@@ -31,6 +33,7 @@ public class Block extends Entity
 
     public boolean isLiquid() { return isLiquid; }
 
+    public float getHazardRating() { return hazardRating; }
     public Infliction.InflictionType[] getInfMaterials() { return infMaterials; }
 
     @Override

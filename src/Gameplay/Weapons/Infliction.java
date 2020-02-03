@@ -9,7 +9,7 @@ public class Infliction
 {
     public enum InflictionType
     {
-        PIERCE, SLASH, BLUNT, SCRAPE,
+        PIERCE, SLASH, BLUNT, SCRAPE, SURFACE,
         AIR, WATER, EARTH, FIRE, COLD, LIGHTNING, METAL
     }
 
@@ -86,6 +86,29 @@ public class Infliction
     public ConditionApp[] getConditionApps() { return conditionApps; }
 
     public Vec2 getMomentum() { return momentum; }
+
+    public DirEnum getDir()
+    {
+        if (momentum == null) return DirEnum.NONE;
+        if (momentum.x == 0)
+        {
+            if (momentum.y == 0) return DirEnum.NONE;
+            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
+            else return DirEnum.UP;
+        }
+        else if (momentum.x > 0)
+        {
+            if (momentum.y == 0) return DirEnum.RIGHT;
+            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
+            else return DirEnum.UPRIGHT;
+        }
+        else // if (momentum.x < 0)
+        {
+            if (momentum.y == 0) return DirEnum.LEFT;
+            else if (momentum.y > 0) return DirEnum.DOWNLEFT;
+            else return DirEnum.UPLEFT;
+        }
+    }
 
     public boolean isDisruptive()
     {
