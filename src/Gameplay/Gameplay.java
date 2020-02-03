@@ -39,6 +39,7 @@ public class Gameplay implements Reactor
 
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
+    private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
     private ImagePattern backgroundTexturePattern;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
@@ -54,6 +55,10 @@ public class Gameplay implements Reactor
             String name = "/Image/MossyWoods-Background_"+i+".png";
             backgroundLayer[i] = new Image(name);
         }
+        backgroundLayerOffsetY[0] = 0;
+        backgroundLayerOffsetY[1] = 20;
+        backgroundLayerOffsetY[2] = 60;
+        backgroundLayerOffsetY[3] = 140;
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -359,23 +364,18 @@ public class Gameplay implements Reactor
     private void renderBackground()
     {
         /* Clear canvas */
-        //context.clearRect(0, 0, context.getCanvas().getWidth(),
-        //        context.getCanvas().getHeight());
+        context.clearRect(0, 0, context.getCanvas().getWidth(),
+                context.getCanvas().getHeight());
 
         //System.out.println("cameraPos=("+cameraPosX+", " + +cameraPosY + ")   cameraOffset=("+cameraOffsetX+", "+ cameraOffsetY + ")   zoom="+cameraZoom);
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
-            double x = viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
-            double y = -220 - (cameraPosY + cameraOffsetY)*layerZoom/4;
-
+            double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
+            double y = -120;
+            if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
             context.drawImage(backgroundLayer[i], x,y);
         }
-
-
-        //cameraOffsetX = viewWidth / 2F / cameraZoom;
-        //cameraOffsetY = viewHeight / 2F / cameraZoom;
-
     }
 
     public static void main(String[] args)
