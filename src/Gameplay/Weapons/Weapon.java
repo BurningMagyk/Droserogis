@@ -352,7 +352,7 @@ public class Weapon extends Item
                     actor.addVelocity(momentumCopy.div(actor.getMass()));
 
                     /* Stagger actor */
-                    actor.staggerParry(inf.getDamage());
+                    actor.staggerParry(inf.getDamage(), inf.getDir());
                 }
 
                 interrupt(momentum.div(getMass()));
@@ -462,31 +462,45 @@ public class Weapon extends Item
                         ? getActorCorners() : getShapeCorners(), item))
                 {
                     Infliction inf = currentOp.getInfliction(actor, getMass());
-                    item.inflict(inf);
                     collidedItems.add(item);
 
-                    /* If other item is a blocking actor and they're facing you */
+                    /* If other item is an actor */
                     if (item instanceof Actor)
                     {
-                        Actor actor = (Actor) item;
+                        Actor other = (Actor) item;
                         DirEnum dir = currentOp.getDir();
                         if (currentOp instanceof RushOperation)
                         {
-                            if ((actor.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
-                                    || (actor.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getActorCorners(), actor.getTopRect()))
-                                    || (!actor.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getActorCorners(), actor.getBottomRect())))
+                            /* If other item is an actor and they're facing you */
+                            if ((other.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
+                                    || (other.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getTopRect()))
+                                    || (!other.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getBottomRect())))
                             {
-                                ((Actor) item).staggerBlock(inf.getDamage(), dir);
+                                actor.staggerBlock(inf.getDamage(), dir);
+                                ((Actor) item).getBlockingWeapon().inflict(inf);
                             }
+                            else item.inflict(inf);
                         }
                         else
                         {
-                            // TODO: gotta finish here
-                            //if (dir.getHoriz() == DirEnum.LEFT && PolygonIntersection.isInter)
+                            /* If other item is an actor and they're facing you */
+                            if ((other.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
+                                    || (other.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
+                                    && PolygonIntersection.isIntersect(getShapeCorners(), other.getTopRect()))
+                                    || (!other.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
+                                    && PolygonIntersection.isIntersect(getShapeCorners(), other.getBottomRect())))
+                            {
+                                actor.staggerBlock(inf.getDamage(), dir);
+                                ((Actor) item).getBlockingWeapon().inflict(inf);
+                            }
+                            else item.inflict(inf);
                         }
                     }
+
+                    /* If other item is not an actor */
+                    else item.inflict(inf);
                 }
             }
         }

@@ -36,7 +36,7 @@ class MeleeOperation implements Weapon.Operation
         float boost = 0;
 
         if (state == State.WARMUP || (state.ordinal() >= State.COOLDOWN.ordinal()
-                && proceedsTo(command))) boost = totalSec;
+                && command != null && proceedsTo(command))) boost = totalSec;
 
         totalSec = 0;
         state = State.VOID;
