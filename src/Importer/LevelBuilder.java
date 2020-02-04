@@ -564,30 +564,30 @@ public class LevelBuilder  extends Application
         backgroundTexturePattern = new ImagePattern(backgroundTexture, offsetX, offsetY, 512, 512, false);
 
 
-        //gtx.clearRect(0, 0, width, height);
-        gtx.setFill(backgroundTexturePattern);
-        gtx.fillRect(0, 0, width, height);
-        gtx.setFill(Color.BLACK);
-        gtx.setStroke(Color.BLACK);
-        gtx.setLineWidth(1);
-        int xStart = offsetX % 50;
-        int yStart = offsetY % 10;
-        for (int x = xStart; x < width; x += 50)
-        {
-            for (int y = yStart; y < height; y += 10)
-            {
-                gtx.strokeLine(x,y,x,y+1);
-            }
-        }
-        xStart = offsetX % 10;
-        yStart = offsetY % 50;
-        for (int y = yStart; y < height; y += 50)
-        {
-            for (int x = xStart; x < width; x += 10)
-            {
-                gtx.strokeLine(x,y,x+1,y);
-            }
-        }
+        gtx.clearRect(0, 0, width, height);
+        //gtx.setFill(backgroundTexturePattern);
+        //gtx.fillRect(0, 0, width, height);
+        //gtx.setFill(Color.BLACK);
+        //gtx.setStroke(Color.BLACK);
+        //gtx.setLineWidth(1);
+        //int xStart = offsetX % 50;
+        //int yStart = offsetY % 10;
+        //for (int x = xStart; x < width; x += 50)
+        //{
+        //    for (int y = yStart; y < height; y += 10)
+        //    {
+        //        gtx.strokeLine(x,y,x,y+1);
+        //    }
+        //}
+        //xStart = offsetX % 10;
+        //yStart = offsetY % 50;
+        //for (int y = yStart; y < height; y += 50)
+        //{
+        //    for (int x = xStart; x < width; x += 10)
+        //    {
+        //        gtx.strokeLine(x,y,x+1,y);
+        //    }
+        //}
 
         for (Entity block : entityList) {
             render(block);
