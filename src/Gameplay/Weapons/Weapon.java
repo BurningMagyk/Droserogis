@@ -216,7 +216,7 @@ public class Weapon extends Item
                     || actor.has(Actor.Condition.NEGATE_BLOCK)
                     || actor.has(Actor.Condition.NEGATE_ACTIVITY))
                 return Color.CYAN;
-            else if (actor.tryingToBlock()) return Color.RED;
+            else if (actor.isBlockingUp()) return Color.RED;
         }
         return Color.BLACK;
     }
@@ -345,15 +345,17 @@ public class Weapon extends Item
             Vec2 momentum = inf.getMomentum();
             if (momentum != null)
             {
-                interrupt(momentum.div(getMass()));
+                /* Weapon got parried */
                 if (actor != null)
                 {
-                    actor.addVelocity(
-                        momentum.div(getMass() + actor.getMass() + actor.getGrip()));
+                    Vec2 momentumCopy = momentum.copy();
+                    actor.addVelocity(momentumCopy.div(actor.getMass()));
 
                     /* Stagger actor */
-                    //if ()
+                    actor.staggerParry(inf.getDamage());
                 }
+
+                interrupt(momentum.div(getMass()));
             }
 
             Print.yellow("--------------------------");
@@ -369,10 +371,9 @@ public class Weapon extends Item
         Print.yellow("Weapon: " + infliction + " added");
     }
 
-    private int blockRating = 0;
     public int getBlockRating()
     {
-        return blockRating;
+        return weaponStat.blockRating();
     }
 
     @Override
@@ -406,6 +407,7 @@ public class Weapon extends Item
                 else orient = currentOp.getOrient();
                 dirOp = currentOp.getDir();
 
+                /* Current operation may inflict something to the wielder */
                 actor.inflict(currentOp.getSelfInfliction());
             }
 
@@ -450,7 +452,7 @@ public class Weapon extends Item
         /* Apply inflictions from clashes earlier this frame */
         applyInflictions();
 
-        /* Current operation may inflict something to the wielder */
+        /* Inflict to other item that isn't another attacking weapon */
         if (currentOpExec())
         {
             for (Item item : items)
@@ -459,10 +461,32 @@ public class Weapon extends Item
                         && PolygonIntersection.isIntersect(currentOp instanceof RushOperation
                         ? getActorCorners() : getShapeCorners(), item))
                 {
-                    Print.blue(this);
-                    Print.blue(item);
-                    item.inflict(currentOp.getInfliction(actor, getMass()));
+                    Infliction inf = currentOp.getInfliction(actor, getMass());
+                    item.inflict(inf);
                     collidedItems.add(item);
+
+                    /* If other item is a blocking actor and they're facing you */
+                    if (item instanceof Actor)
+                    {
+                        Actor actor = (Actor) item;
+                        DirEnum dir = currentOp.getDir();
+                        if (currentOp instanceof RushOperation)
+                        {
+                            if ((actor.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
+                                    || (actor.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), actor.getTopRect()))
+                                    || (!actor.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), actor.getBottomRect())))
+                            {
+                                ((Actor) item).staggerBlock(inf.getDamage(), dir);
+                            }
+                        }
+                        else
+                        {
+                            // TODO: gotta finish here
+                            //if (dir.getHoriz() == DirEnum.LEFT && PolygonIntersection.isInter)
+                        }
+                    }
                 }
             }
         }
@@ -488,10 +512,11 @@ public class Weapon extends Item
                    WeaponStat weaponStat, Command command);
         boolean run(float deltaSec);
         void release(int attackKey);
-        void apply(Item other);
+        void apply(Item other); // TODO: what's this for??
 
         /* For clashing */
-        boolean isEasyToBlock();
+        boolean isParrying();
+        boolean isPermeating();
 
         Operation copy();
 

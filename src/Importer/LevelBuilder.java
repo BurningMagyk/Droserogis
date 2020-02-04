@@ -822,7 +822,7 @@ public class LevelBuilder  extends Application
                         throw new IOException("Weapon record must have 4 fields.");
                     }
                     int parent = Integer.valueOf(data[3]);
-                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", null, null, "F", "D");
+                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", 1, null, null, "F", "D");
                     entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, temp, null);
                     if (parent >= 0)
                     {

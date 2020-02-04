@@ -144,7 +144,9 @@ public class RushOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean isEasyToBlock() { return false; }
+    public boolean isParrying() { return true; }
+    @Override
+    public boolean isPermeating() { return false; }
 
     private boolean proceedsTo(Command command)
     {

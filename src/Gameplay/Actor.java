@@ -6,6 +6,7 @@ import Gameplay.Weapons.ConditionApp;
 import Gameplay.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
+import Util.Rect;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
@@ -40,7 +41,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
+                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -57,7 +58,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
+                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 },
@@ -74,7 +75,7 @@ public class Actor extends Item
                     }
                     public WeaponStat createNaturalWeaponStat()
                     {
-                        return new WeaponStat("C", "C", "C", "C", null, null, "C", "D");
+                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
                     }
                     public float naturalWeaponMass() {return mass() * 0.1f;}
                 };
@@ -100,9 +101,6 @@ public class Actor extends Item
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
     private CharacterStat charStat;
-
-    // TODO: these values need to be balanced for MVP
-    private float[] STAGGER_MAG_MOD = new float[] { 1.25F, 1.5F, 1.75F };
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -165,6 +163,12 @@ public class Actor extends Item
     }
 
     public EnumType getActorType() { return actorType;}
+
+    // TODO: this only works for standing or crouching, needs to work with prone
+    public Rect getTopRect() { return new Rect(getX(), getY(),
+            getWidth(), getHeight() / 2); }
+    public Rect getBottomRect() { return new Rect(getX(), getY() + getHeight() / 2,
+            getWidth(), getHeight() / 2); }
 
     @Override
     public Color getColor()
@@ -1401,14 +1405,6 @@ public class Actor extends Item
         }
     }
 
-    private float getStaggerMagMod(float mag)
-    {
-        if (mag < walkSpeed) return 1;
-        else if (mag < runSpeed) return STAGGER_MAG_MOD[0];
-        else if (mag < rushSpeed) return STAGGER_MAG_MOD[1];
-        else return STAGGER_MAG_MOD[2];
-    }
-
     /* Called when player is hit */
     public void stagger(GradeEnum damage, DirEnum dir)
     {
@@ -1480,19 +1476,13 @@ public class Actor extends Item
     }
 
     /* Called when player's attack is parried */
-    public void staggerParry(GradeEnum grade, DirEnum dir)
+    public void staggerParry(GradeEnum grade)
     {
-//        float gradeInflucence;
-//        if (grade.ordinal() <= GradeEnum.E.ordinal()) gradeInflucence = 1;
-//        else if (grade.ordinal() <= GradeEnum.C.ordinal()) gradeInflucence = STAGGER_MAG_MOD[0];
-//        else if (grade.ordinal() <= GradeEnum.A.ordinal()) gradeInflucence = STAGGER_MAG_MOD[1];
-//        else gradeInflucence = STAGGER_MAG_MOD[2];
-//
-//        addCondition(staggerRecoverTime * staggerParryMod * gradeInflucence,
-//                Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
-//
-//        if (grade.ordinal() >= GradeEnum.F.ordinal()) // TODO: decide actual value of this
-//            interruptRushes(RushOperation.RushFinish.STAGGER);
+        float staggerTime = proneRecoverTime;
+        if (grade.ordinal() >= staggerThresh[0].ordinal()) staggerTime = proneRecoverTime * 1.5F;
+        else if (grade.ordinal() >= staggerThresh[1].ordinal()) staggerTime = proneRecoverTime * 2;
+
+        addCondition(proneRecoverTime, Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK);
     }
 
     /* Called when player lands too hard */
@@ -1501,7 +1491,7 @@ public class Actor extends Item
         pressedJumpSurface = null;
         if (grade.ordinal() <= landingThresh[0].ordinal()) return;
 
-        addCondition(proneRecoverTime / grade.ordinal() > landingThresh[1].ordinal() ? 1 : 2,
+        addCondition(proneRecoverTime / (grade.ordinal() > landingThresh[1].ordinal() ? 1 : 2),
                 Condition.NEGATE_ATTACK, Condition.NEGATE_BLOCK,
                 Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT,
                 grade.ordinal() > landingThresh[1].ordinal() ? Condition.NEGATE_ACTIVITY : !canWalk()
@@ -1540,7 +1530,7 @@ public class Actor extends Item
         }
     }
 
-    public boolean tryingToBlock() { return pressingUp; }
+    public boolean isBlockingUp() { return pressingUp; }
 
     @Override
     protected void applyInflictions()

@@ -21,19 +21,23 @@ public class WeaponStat
     }
 
     private GradeEnum[] grades;
+    private int blockRating;
     private ConditionApp[] inflictApps, selfInflictApps;
     private Infliction.InflictionType[] inflictTypes;
 
     public WeaponStat(
             String dur, String wait_spe,
             String atk_spe, String spe_dep,
+            int blo_rat,
             ConditionApp[] infApps, ConditionApp[] selfApps,
-            String dam, String pre, Infliction.InflictionType... infTypes)
+            String dam, String pre,
+            Infliction.InflictionType... infTypes)
     {
         // Durability
         // Warmup/cooldown speed
         // Attack speed
         // Speed's dependence on strength
+        // Block rating
         // ConditionApp inflictions
         // ConditionApp self-inflictions
         // Damage
@@ -48,6 +52,7 @@ public class WeaponStat
         grades[4] = parseGrade(dam);
         grades[5] = parseGrade(pre);
 
+        blockRating = blo_rat;
         inflictApps = infApps == null ? new ConditionApp[]{} : infApps;
         selfInflictApps = selfApps == null ? new ConditionApp[]{} : selfApps;
 
@@ -115,6 +120,13 @@ public class WeaponStat
     GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
     GradeEnum precision() { return grades[Ability.PRECISION.ordinal()]; }
 
+    /* 0 - can't block (eg. flail)
+     * 1 - can block non-permeating attacks with partial damage soak (eg. natural)
+     * 2 - can block non-permeating attacks with complete damage soak (eg. sword)
+     * 3 - can block permeating attacks too (eg. kite shield)
+     * 4 - can block top and bottom halves at the same time (eg. tower shield)
+     */
+    int blockRating() { return blockRating; }
 
     private boolean speedDep(GradeEnum strGrade)
     {

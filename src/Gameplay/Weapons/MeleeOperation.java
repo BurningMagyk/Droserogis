@@ -177,9 +177,11 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public boolean isEasyToBlock() {
-        return false;
+    public boolean isParrying() {
+        return parrying;
     }
+    @Override
+    public boolean isPermeating() { return permeating; }
 
     private boolean proceedsTo(Command command)
     {
@@ -206,6 +208,7 @@ class MeleeOperation implements Weapon.Operation
         return new MeleeOperation(
                 name, next, proceeds, cycle,
                 waits, funcDir, damageMod, precisionMod,
+                parrying, permeating,
                 conditionApps[0], execJourney, infTypes);
     }
 
@@ -231,6 +234,7 @@ class MeleeOperation implements Weapon.Operation
     private DirEnum funcDir;
     private GradeEnum damage, precision;
     private float damageMod, precisionMod;
+    private boolean parrying, permeating;
     private ConditionApp[] conditionApps, selfApps;
     private Tick[] execJourney;
     private Journey warmJourney, coolJourney;
@@ -254,6 +258,8 @@ class MeleeOperation implements Weapon.Operation
             DirEnum funcDir,
             float damageMod,
             float precisionMod,
+            boolean parrying,
+            boolean permeating,
             ConditionApp conditionApp,
             Tick[] execJourney,
             Infliction.InflictionType... infTypes
@@ -267,6 +273,8 @@ class MeleeOperation implements Weapon.Operation
         this.funcDir = funcDir;
         this.damageMod = damageMod;
         this.precisionMod = precisionMod;
+        this.parrying = parrying;
+        this.permeating = permeating;
         this.conditionApps = new ConditionApp[] {conditionApp};
         this.execJourney = execJourney;
         this.infTypes = infTypes;
@@ -276,6 +284,7 @@ class MeleeOperation implements Weapon.Operation
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
                 op.funcDir, op.damageMod, op.precisionMod,
+                op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
@@ -287,6 +296,7 @@ class MeleeOperation implements Weapon.Operation
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
                 op.funcDir, op.damageMod, op.precisionMod,
+                op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
@@ -298,6 +308,7 @@ class MeleeOperation implements Weapon.Operation
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
                 op.funcDir, op.damageMod, op.precisionMod,
+                op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 }
