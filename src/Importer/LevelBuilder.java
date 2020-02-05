@@ -81,7 +81,7 @@ public class LevelBuilder  extends Application
 
     private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
 
-    private Image blockTexture = new Image("/Image/metalRustedTexture.png");
+    private Image blockTexture = new Image("/Image/woodTexture.png");
     private Image backgroundTexture = new Image("/Image/metalStealWashedout.png");
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
@@ -560,34 +560,34 @@ public class LevelBuilder  extends Application
         int width  = (int)(canvas.getWidth()/zoomFactor);
         int height = (int)(canvas.getHeight()/zoomFactor);
 
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 512, 512, false);
+        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 128, 128, false);
         backgroundTexturePattern = new ImagePattern(backgroundTexture, offsetX, offsetY, 512, 512, false);
 
 
         gtx.clearRect(0, 0, width, height);
-        //gtx.setFill(backgroundTexturePattern);
-        //gtx.fillRect(0, 0, width, height);
-        //gtx.setFill(Color.BLACK);
-        //gtx.setStroke(Color.BLACK);
-        //gtx.setLineWidth(1);
-        //int xStart = offsetX % 50;
-        //int yStart = offsetY % 10;
-        //for (int x = xStart; x < width; x += 50)
-        //{
-        //    for (int y = yStart; y < height; y += 10)
-        //    {
-        //        gtx.strokeLine(x,y,x,y+1);
-        //    }
-        //}
-        //xStart = offsetX % 10;
-        //yStart = offsetY % 50;
-        //for (int y = yStart; y < height; y += 50)
-        //{
-        //    for (int x = xStart; x < width; x += 10)
-        //    {
-        //        gtx.strokeLine(x,y,x+1,y);
-        //    }
-        //}
+        gtx.setFill(backgroundTexturePattern);
+        gtx.fillRect(0, 0, width, height);
+        gtx.setFill(Color.BLACK);
+        gtx.setStroke(Color.BLACK);
+        gtx.setLineWidth(1);
+        int xStart = offsetX % 50;
+        int yStart = offsetY % 10;
+        for (int x = xStart; x < width; x += 50)
+        {
+            for (int y = yStart; y < height; y += 10)
+            {
+                gtx.strokeLine(x,y,x,y+1);
+            }
+        }
+        xStart = offsetX % 10;
+        yStart = offsetY % 50;
+        for (int y = yStart; y < height; y += 50)
+        {
+            for (int x = xStart; x < width; x += 10)
+            {
+                gtx.strokeLine(x,y,x+1,y);
+            }
+        }
 
         for (Entity block : entityList) {
             render(block);

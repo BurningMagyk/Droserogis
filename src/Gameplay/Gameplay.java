@@ -23,9 +23,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
 {
-    //private int frame = 0;
     private int viewWidth, viewHeight;
-    private GraphicsContext context;
+    private GraphicsContext gfx;
     private AnimationTimer timer;
 
     private final Gamepad[] GAMEPADS;
@@ -41,12 +40,14 @@ public class Gameplay implements Reactor
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
+    private Image blockTexture = new Image("/Image/woodTexture.png");
+    private ImagePattern blockTexturePattern;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
-        this.context = context;
-        this.viewWidth = (int) context.getCanvas().getWidth();
-        this.viewHeight = (int) context.getCanvas().getHeight();
+        this.gfx = context;
+        this.viewWidth = (int) gfx.getCanvas().getWidth();
+        this.viewHeight = (int) gfx.getCanvas().getHeight();
 
         GAMEPADS = gamepads;
 
@@ -95,7 +96,7 @@ public class Gameplay implements Reactor
         //System.out.println(now);
 
 
-        context.setFill(Color.BLACK);
+        gfx.setFill(Color.BLACK);
 
         queryGamepads();
 
@@ -236,7 +237,6 @@ public class Gameplay implements Reactor
      */
     private void drawEntity(Entity entity)
     {
-        //if (entity instanceof Block) return;
         //TODO: Right now the image loader loads every image size 35x70
         //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
         ImageResource sprite = entity.getSprite();
@@ -256,7 +256,8 @@ public class Gameplay implements Reactor
         }
         else
         {
-            context.setFill(entity.getColor());
+            if (entity instanceof Block) gfx.setFill(blockTexturePattern);
+            else gfx.setFill(entity.getColor());
 
             if (entity.getShape().isTriangle())
             {
@@ -268,7 +269,7 @@ public class Gameplay implements Reactor
                     xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
                     yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                 }
-                context.fillPolygon(xPos, yPos, 3);
+                gfx.fillPolygon(xPos, yPos, 3);
             }
             else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
             {
@@ -277,7 +278,7 @@ public class Gameplay implements Reactor
                     Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
                     if (cc != null)
                     {
-                        context.setFill(Color.rgb(120, 170, 170));
+                        gfx.setFill(Color.rgb(120, 170, 170));
                         for (int j = 0; j < cc.length; j++)
                         {
                             double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
@@ -287,11 +288,11 @@ public class Gameplay implements Reactor
                                 xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
                                 yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
                             }
-                            context.fillPolygon(xxCorners, yyCorners, 4);
+                            gfx.fillPolygon(xxCorners, yyCorners, 4);
                         }
                     }
 
-                    context.setFill(entity.getColor());
+                    gfx.setFill(entity.getColor());
                     Vec2[] c = ((Weapon) entity).getShapeCorners();
                     double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
                     double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
@@ -300,22 +301,25 @@ public class Gameplay implements Reactor
                         xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
                         yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
                     }
-                    context.fillPolygon(xCorners, yCorners, 4);
+                    gfx.fillPolygon(xCorners, yCorners, 4);
                 } else {
                     Vec2 pos = entity.getPosition();
+                    double x = (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+                    double y = (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+                    double width = entity.getWidth() * cameraZoom;
+                    double height = entity.getHeight() * cameraZoom;
+                    gfx.fillRect(x, y, width, height);
 
-                    context.fillRect(
-                            (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
-                            (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
-                            entity.getWidth() * cameraZoom,
-                            entity.getHeight() * cameraZoom);
+                    //gfx.setStroke(Color.BLACK);
+                    //gfx.setLineWidth(1);
+                    //gfx.strokeLine(x, y, x+width, y+height);
                 }
             }
 
             /* Draws vertical and horizontal lines through the middle for debugging */
-            context.setFill(Color.BLACK);
-            context.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
-            context.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+            gfx.setFill(Color.BLACK);
+            gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+            gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
         }
     }
 
@@ -366,10 +370,8 @@ public class Gameplay implements Reactor
     private void renderBackground()
     {
         /* Clear canvas */
-        context.clearRect(0, 0, context.getCanvas().getWidth(),
-                context.getCanvas().getHeight());
-
-        //System.out.println("cameraPos=("+cameraPosX+", " + +cameraPosY + ")   cameraOffset=("+cameraOffsetX+", "+ cameraOffsetY + ")   zoom="+cameraZoom);
+        gfx.clearRect(0, 0, gfx.getCanvas().getWidth(),
+                gfx.getCanvas().getHeight());
 
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
@@ -377,8 +379,12 @@ public class Gameplay implements Reactor
             double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
             double y = -120;
             if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
-            context.drawImage(backgroundLayer[i], x,y);
+            gfx.drawImage(backgroundLayer[i], x,y);
         }
+
+        double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
+        double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
+        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 256, 175, false);
     }
 
     public static void main(String[] args)
