@@ -23,6 +23,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
 {
+    //private int frame = 0;
     private int viewWidth, viewHeight;
     private GraphicsContext context;
     private AnimationTimer timer;
@@ -40,7 +41,6 @@ public class Gameplay implements Reactor
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image foregroundLayer;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
@@ -59,8 +59,6 @@ public class Gameplay implements Reactor
         backgroundLayerOffsetY[1] = 20;
         backgroundLayerOffsetY[2] = 60;
         backgroundLayerOffsetY[3] = 140;
-
-        foregroundLayer = new Image("/Image/MossyWoods-Foreground.png");
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -238,7 +236,7 @@ public class Gameplay implements Reactor
      */
     private void drawEntity(Entity entity)
     {
-        if (entity instanceof Block) return;
+        //if (entity instanceof Block) return;
         //TODO: Right now the image loader loads every image size 35x70
         //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
         ImageResource sprite = entity.getSprite();
@@ -372,6 +370,7 @@ public class Gameplay implements Reactor
                 context.getCanvas().getHeight());
 
         //System.out.println("cameraPos=("+cameraPosX+", " + +cameraPosY + ")   cameraOffset=("+cameraOffsetX+", "+ cameraOffsetY + ")   zoom="+cameraZoom);
+
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
@@ -380,11 +379,6 @@ public class Gameplay implements Reactor
             if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
             context.drawImage(backgroundLayer[i], x,y);
         }
-
-        double x = -687+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*cameraZoom;
-        double y = -355-(cameraPosY + cameraOffsetY)*cameraZoom;
-        context.drawImage(foregroundLayer, x,y);
-
     }
 
     public static void main(String[] args)
