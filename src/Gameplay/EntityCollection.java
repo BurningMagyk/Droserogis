@@ -6,12 +6,12 @@ package Gameplay;
 // TODO: monsters and players should each be different subclasses of Actor.
 // TODO: At least one difference between them is that players have input devices (controllers) while monsters have AI.
 
-
-import Gameplay.Weapons.Weapon;
-
+import Util.Rect;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import Gameplay.Weapons.Weapon;
 
 public class EntityCollection<Entity> extends AbstractCollection<Entity>
 {
@@ -37,6 +37,7 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
     };
 
     private int totalSize = 0;
+    private Rect blockBounds;
 
     @Override public int size()
     {
@@ -59,7 +60,7 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
 
     @Override public Iterator<Entity> iterator()
     {
-        return new Iterator<Entity>()
+        return new Iterator<>()
         {
             int totalIdx = -1;
             int collectionIdx = 0;
@@ -95,7 +96,6 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
 
     public int getPlayerCount() {return playerList.size();}
 
-
     //=================================================================================================================
     // Checks to make sure duplicates aren't being added.
     // Also adds the entity to a list of items if it's an Item or Actor.
@@ -127,6 +127,18 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         }
         else if (entity instanceof Block)
         {
+            Block block = (Block) entity;
+            if (blockList.size() == 0)
+            {
+                blockBounds = new Rect(block.getLeftEdge(), block.getTopEdge(), block.getWidth(), block.getHeight());
+            }
+            else
+            {
+                if (block.getLeftEdge() < blockBounds.getLeft()) blockBounds.setLeft(block.getLeftEdge());
+                if (block.getTopEdge() < blockBounds.getTop()) blockBounds.setTop(block.getTopEdge());
+                if (block.getRightEdge() > blockBounds.getRight()) blockBounds.setRight(block.getRightEdge());
+                if (block.getBottomEdge() > blockBounds.getBottom()) blockBounds.setBottom(block.getBottomEdge());
+            }
             blockList.add((Block) entity);
             physicsItems.add(entity);
         }
@@ -134,10 +146,8 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         {
             cameraZoneList.add((CameraZone) entity);
         }
-        //System.out.println(")");
         return true;
     }
-
 
 
 
@@ -164,7 +174,7 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
             }
         }
         else if (entity instanceof Block)
-        {
+        {   //TODO (maybe): if it becomes possible for levels to change size during gameplay, then update blockBounds
             objectExists = blockList.remove(entity);
             if (objectExists)
             {
@@ -181,9 +191,6 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
         }
         return objectExists;
     }
-
-
-
 
     public Actor getPlayer(int i) { return playerList.get(i);}
 
@@ -220,5 +227,10 @@ public class EntityCollection<Entity> extends AbstractCollection<Entity>
 
         throw new IllegalArgumentException("EntityCollection.get(" + idx + ") List corrupted: totalSize=" + totalSize);
     }
+
+    public double getBoundsLeft() {return blockBounds.getLeft();}
+    public double getBoundsRight() {return blockBounds.getRight();}
+    public double getBoundsTop() {return blockBounds.getTop();}
+    public double getBoundsBottom() {return blockBounds.getBottom();}
 }
 

@@ -66,9 +66,6 @@ public class Gameplay implements Reactor
         backgroundLayerOffsetY[2] = 60;
         backgroundLayerOffsetY[3] = 140;
 
-        /* Set up initial position and zoom of the camera */
-        moveCamera(0, 0, 100, 10, true);
-
         timer = new AnimationTimer()
         {
             @Override
@@ -82,9 +79,22 @@ public class Gameplay implements Reactor
     // Gameplay stats would go in here
     public void start()
     {
-        buildLevels();
+        /**
+         * Sets up all of the blocks, entities, and players that appear in the level.
+         * Should later utilize procedural generation.
+         */
+        entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         Font font = gfx.getFont();
         gfx.setFont(new Font(font.getName(), 12));
+
+        /* Set up initial position and zoom of the camera */
+        moveCamera(0, 0, 100, 10, true);
+
+        //System.out.println("Level Left Bounds: " + entities.getBoundsLeft());
+        //System.out.println("Level Right Bounds: " + entities.getBoundsRight());
+        //System.out.println("Level Top Bounds: " + entities.getBoundsTop());
+        //System.out.println("Level Bottom Bounds: " + entities.getBoundsBottom());
+
         timer.start();
     }
 
@@ -113,7 +123,9 @@ public class Gameplay implements Reactor
         for (Weapon weapon : entities.getWeaponList()) weapon.update(entities.getDynamicItems());
 
         Actor player1 = entities.getPlayer(0);
-        moveCamera(player1.getPosition().x, player1.getPosition().y,
+        float x = player1.getPosition().x;
+        float y = player1.getPosition().y;
+        moveCamera(x, y,
                 player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam());
 
         gfx.setFill(Color.BLACK);
@@ -336,33 +348,38 @@ public class Gameplay implements Reactor
         }
     }
 
-    /**
-     * Sets up all of the blocks, entities, and players that appear in the level.
-     * Should later utilize procedural generation.
-     */
-    private void buildLevels()
-    {
-        entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
-        //entities = LevelBuilder.loadLevel("D:/Games/Hermano Test Levels/01.csv");
 
-//        Actor testActor = new Actor(0, 0, Actor.EnumType.Lyra);
-//        entities.add(testActor);
-//
-//        Block testBlock = new Block(0, 5, 30, 3,
-//                Entity.ShapeEnum.RECTANGLE, null);
-//        entities.add(testBlock);
-    }
 
     /**
      * Call every frame. Movement and zooming should be smooth.
      */
     private void moveCamera(float posX, float posY, float zoom, float topSpeed, boolean updateVert)
     {
-        if (zoom != -1) cameraZoomGoal = zoom;//cameraZoom = zoom;
+        if (zoom != -1) cameraZoomGoal = zoom;
         if (Math.abs(cameraZoomGoal - cameraZoom) < Math.sqrt(cameraZoomLerp)) cameraZoom = cameraZoomGoal;
         else cameraZoom = ((cameraZoomGoal - cameraZoom) * cameraZoomLerp) + cameraZoom;
 
         float _camPosLerp = (cameraPosLerp * topSpeed * 10) + cameraPosLerp;
+
+        //Prevent camera from moving to a location that views beyond the edge of the level
+        System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
+        if (posX - viewWidth/1.99f/cameraZoom < entities.getBoundsLeft())
+        {
+            posX = (float)entities.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+        }
+        else if (posX + viewWidth/1.99f/cameraZoom > entities.getBoundsRight())
+        {
+            posX = (float) entities.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+        }
+        if (posY - viewHeight/1.99f/cameraZoom < entities.getBoundsTop())
+        {
+            posY = (float)entities.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+        }
+        else if (posY + viewHeight/1.99f/cameraZoom > entities.getBoundsBottom())
+        {
+            posY = (float)entities.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+        }
+
         if (Math.abs(cameraPosX - posX) < _camPosLerp / 10) cameraPosX = posX;
         else cameraPosX += (posX - cameraPosX) * _camPosLerp;
         if (updateVert)
