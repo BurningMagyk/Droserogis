@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.text.Font;
 import org.lwjgl.glfw.GLFWGamepadState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -26,6 +27,10 @@ public class Gameplay implements Reactor
     private int viewWidth, viewHeight;
     private GraphicsContext gfx;
     private AnimationTimer timer;
+    private int frame = 0;
+    private double fps = 0;
+    private long fpsLastTime = 0;
+    private int  fpsLastFrame = 0;
 
     private final Gamepad[] GAMEPADS;
 
@@ -45,7 +50,7 @@ public class Gameplay implements Reactor
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
-        this.gfx = context;
+        gfx = context;
         this.viewWidth = (int) gfx.getCanvas().getWidth();
         this.viewHeight = (int) gfx.getCanvas().getHeight();
 
@@ -78,7 +83,8 @@ public class Gameplay implements Reactor
     public void start()
     {
         buildLevels();
-
+        Font font = gfx.getFont();
+        gfx.setFont(new Font(font.getName(), 12));
         timer.start();
     }
 
@@ -87,16 +93,13 @@ public class Gameplay implements Reactor
         if (lastUpdateTime < 0)
         {
             lastUpdateTime = now;
+            fpsLastTime = now;
             return;
         }
 
         float deltaSec = (now - lastUpdateTime) * 1e-9f;
         lastUpdateTime = now;
-
-        //System.out.println(now);
-
-
-        gfx.setFill(Color.BLACK);
+        frame++;
 
         queryGamepads();
 
@@ -112,10 +115,20 @@ public class Gameplay implements Reactor
         Actor player1 = entities.getPlayer(0);
         moveCamera(player1.getPosition().x, player1.getPosition().y,
                 player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam());
+
+        gfx.setFill(Color.BLACK);
         renderBackground();
 
         /* Draw all entities after they've been moved and their flags have been set */
         for (Entity entity : entities) drawEntity(entity);
+
+        gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
+        if ((now - fpsLastTime) > 1e9) //Print fps every second
+        {
+            fps = (frame - fpsLastFrame)/((now-fpsLastTime)*1e-9);
+            fpsLastTime = now;
+            fpsLastFrame = frame;
+        }
 
         // Testing
         GLFWGamepadState gamepadState = GLFWGamepadState.create();
