@@ -18,6 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.lwjgl.glfw.GLFWGamepadState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -85,7 +86,8 @@ public class Gameplay implements Reactor
          */
         entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         Font font = gfx.getFont();
-        gfx.setFont(new Font(font.getName(), 12));
+        System.out.println ("Using Font " +font.getName());
+        gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 24));
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -362,7 +364,7 @@ public class Gameplay implements Reactor
         float _camPosLerp = (cameraPosLerp * topSpeed * 10) + cameraPosLerp;
 
         //Prevent camera from moving to a location that views beyond the edge of the level
-        System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
+        //System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
         if (posX - viewWidth/1.99f/cameraZoom < entities.getBoundsLeft())
         {
             posX = (float)entities.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
