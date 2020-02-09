@@ -75,6 +75,7 @@ public class Gameplay implements Reactor
                 mainGameLoop(now);
             }
         };
+        
     }
 
     // Gameplay stats would go in here
@@ -87,7 +88,7 @@ public class Gameplay implements Reactor
         entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         Font font = gfx.getFont();
         System.out.println ("Using Font " +font.getName());
-        gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 24));
+        gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, 10, true);
@@ -283,8 +284,8 @@ public class Gameplay implements Reactor
         }
         else
         {
-            if (entity instanceof Block) gfx.setFill(blockTexturePattern);
-            else gfx.setFill(entity.getColor());
+            //if (entity instanceof Block) gfx.setFill(blockTexturePattern);
+            gfx.setFill(entity.getColor());
 
             if (entity.getShape().isTriangle())
             {
@@ -293,9 +294,18 @@ public class Gameplay implements Reactor
 
                 for (int i = 0; i < 3; i++)
                 {
+                    xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom +6;
+                    yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom -6;
+                }
+                gfx.setFill(Color.BLACK);
+                gfx.fillPolygon(xPos, yPos, 3);
+
+                for (int i = 0; i < 3; i++)
+                {
                     xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
                     yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                 }
+                gfx.setFill(blockTexturePattern);
                 gfx.fillPolygon(xPos, yPos, 3);
             }
             else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
@@ -335,6 +345,13 @@ public class Gameplay implements Reactor
                     double y = (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
                     double width = entity.getWidth() * cameraZoom;
                     double height = entity.getHeight() * cameraZoom;
+
+                    if (entity instanceof Block)
+                    {
+                        gfx.setFill(Color.BLACK);
+                        gfx.fillRect(x + 6, y - 6, width, height);
+                        gfx.setFill(blockTexturePattern);
+                    }
                     gfx.fillRect(x, y, width, height);
 
                     //gfx.setStroke(Color.BLACK);
@@ -344,9 +361,9 @@ public class Gameplay implements Reactor
             }
 
             /* Draws vertical and horizontal lines through the middle for debugging */
-            gfx.setFill(Color.BLACK);
-            gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
-            gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+            //gfx.setFill(Color.BLACK);
+            //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+            //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
         }
     }
 

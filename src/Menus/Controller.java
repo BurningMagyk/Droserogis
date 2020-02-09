@@ -6,6 +6,7 @@ import Util.DebugEnum;
 import Util.Print;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
@@ -41,7 +42,10 @@ class Controller extends AnimationTimer
     private List<Menu> menuList;
 
     private final Stage stage;
+    private final Scene scene;
     private long lastUpdate = 0;
+
+    private final ImageCursor cursor;
 
     Controller(final Stage stage)
     {
@@ -55,7 +59,7 @@ class Controller extends AnimationTimer
         GAMEPADS = new Gamepad[GLFW_JOYSTICK_LAST];
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) { GAMEPADS[i] = new Gamepad(i); }
 
-        Scene scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
+        scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
         Main.IMPORTER.setContext(CONTEXT);
@@ -93,7 +97,6 @@ class Controller extends AnimationTimer
 
         /* Try importing image file */
         Image cursorImage;
-        ImageCursor cursor;
         InputStream input = getClass()
                 .getResourceAsStream("/Uncontrolled/cursor.png");
         if (input != null)
@@ -103,7 +106,11 @@ class Controller extends AnimationTimer
             cursor = new ImageCursor(cursorImage, 30, 30);
             scene.setCursor(cursor);
         }
-        else Print.red("\"/Uncontrolled/cursor.png\" was not imported");
+        else
+        {
+            cursor = null;
+            Print.red("\"/Uncontrolled/cursor.png\" was not imported");
+        }
     }
 
     /**
@@ -182,6 +189,7 @@ class Controller extends AnimationTimer
             }
             case GAMEPLAY: {
                 goToGameplay();
+                scene.setCursor(Cursor.NONE);
                 return;
             }
             default:
@@ -205,6 +213,7 @@ class Controller extends AnimationTimer
 
         /* So that the Start Menu song doesn't play at the prompt */
         if (menuEnum != Menu.MenuEnum.START) currentMenu.startMedia();
+        scene.setCursor(cursor);
     }
 
     private boolean isSpecialCase(Menu prev, Menu next)
