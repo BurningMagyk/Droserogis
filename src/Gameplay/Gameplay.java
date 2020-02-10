@@ -21,6 +21,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.lwjgl.glfw.GLFWGamepadState;
 
+import java.util.Random;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
@@ -49,6 +51,8 @@ public class Gameplay implements Reactor
     private Image blockTexture = new Image("/Image/woodTexture.png");
     private ImagePattern blockTexturePattern;
 
+    Random rand = new Random();
+
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
         gfx = context;
@@ -75,7 +79,7 @@ public class Gameplay implements Reactor
                 mainGameLoop(now);
             }
         };
-        
+
     }
 
     // Gameplay stats would go in here
@@ -91,7 +95,7 @@ public class Gameplay implements Reactor
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
 
         /* Set up initial position and zoom of the camera */
-        moveCamera(0, 0, 100, 10, true);
+        moveCamera(0, 0, 100, 10, true, 1);
 
         //System.out.println("Level Left Bounds: " + entities.getBoundsLeft());
         //System.out.println("Level Right Bounds: " + entities.getBoundsRight());
@@ -111,6 +115,7 @@ public class Gameplay implements Reactor
         }
 
         float deltaSec = (now - lastUpdateTime) * 1e-9f;
+        //float deltaSec = 1F/60F;
         lastUpdateTime = now;
         frame++;
 
@@ -129,7 +134,7 @@ public class Gameplay implements Reactor
         float x = player1.getPosition().x;
         float y = player1.getPosition().y;
         moveCamera(x, y,
-                player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam());
+                player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam(), deltaSec);
 
         gfx.setFill(Color.BLACK);
         renderBackground();
@@ -372,13 +377,11 @@ public class Gameplay implements Reactor
     /**
      * Call every frame. Movement and zooming should be smooth.
      */
-    private void moveCamera(float posX, float posY, float zoom, float topSpeed, boolean updateVert)
+    private void moveCamera(float posX, float posY, float zoom, float topSpeed, boolean updateVert, float deltaSec)
     {
         if (zoom != -1) cameraZoomGoal = zoom;
         if (Math.abs(cameraZoomGoal - cameraZoom) < Math.sqrt(cameraZoomLerp)) cameraZoom = cameraZoomGoal;
         else cameraZoom = ((cameraZoomGoal - cameraZoom) * cameraZoomLerp) + cameraZoom;
-
-        float _camPosLerp = (cameraPosLerp * topSpeed * 10) + cameraPosLerp;
 
         //Prevent camera from moving to a location that views beyond the edge of the level
         //System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
@@ -399,6 +402,8 @@ public class Gameplay implements Reactor
             posY = (float)entities.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
         }
 
+        /*
+        float _camPosLerp = (cameraPosLerp * topSpeed / 8) + cameraPosLerp;
         if (Math.abs(cameraPosX - posX) < _camPosLerp / 10) cameraPosX = posX;
         else cameraPosX += (posX - cameraPosX) * _camPosLerp;
         if (updateVert)
@@ -406,6 +411,15 @@ public class Gameplay implements Reactor
             if (Math.abs(cameraPosY - posY) < _camPosLerp / 5) cameraPosY = posY;
             else cameraPosY += (posY - cameraPosY) * _camPosLerp * 2;
         }
+        */
+
+        float cameraSpeed = Math.min(5f*deltaSec, 1f);
+        cameraPosX = cameraPosX*(1f-cameraSpeed) + posX*cameraSpeed;
+        if (updateVert)
+        {
+            cameraPosY = cameraPosY*(1f-cameraSpeed) + posY*cameraSpeed;
+        }
+
 
         cameraOffsetX = viewWidth / 2F / cameraZoom;
         cameraOffsetY = viewHeight / 2F / cameraZoom;
