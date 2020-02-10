@@ -718,6 +718,7 @@ public class Actor extends Item
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
         goal.add(getVelocity().mul(deltaSec));
+
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(deltaSec, goal, entities);
         setPosition(goal);
