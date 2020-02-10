@@ -21,7 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.lwjgl.glfw.GLFWGamepadState;
 
-import java.util.Random;
+import java.time.Instant;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -50,8 +50,6 @@ public class Gameplay implements Reactor
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
     private Image blockTexture = new Image("/Image/woodTexture.png");
     private ImagePattern blockTexturePattern;
-
-    Random rand = new Random();
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
@@ -109,15 +107,24 @@ public class Gameplay implements Reactor
     {
         if (lastUpdateTime < 0)
         {
-            lastUpdateTime = now;
-            fpsLastTime = now;
+            lastUpdateTime = System.nanoTime();
+            fpsLastTime = System.nanoTime();
+            fps = 1.0/60.0;
             return;
         }
+        long currentNano = System.nanoTime();
+        float deltaSec = (float)((currentNano - lastUpdateTime) * 1e-9);
 
-        float deltaSec = (now - lastUpdateTime) * 1e-9f;
         //float deltaSec = 1F/60F;
-        lastUpdateTime = now;
+        lastUpdateTime = currentNano;
         frame++;
+        if ((now - fpsLastTime) > 1e9) //Print fps every second
+        {
+            fps = (frame - fpsLastFrame)/((currentNano-fpsLastTime)*1e-9);
+            fpsLastTime = currentNano;
+            fpsLastFrame = frame;
+        }
+        deltaSec = (float)(1.0/fps);
 
         queryGamepads();
 
@@ -143,12 +150,6 @@ public class Gameplay implements Reactor
         for (Entity entity : entities) drawEntity(entity);
 
         gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
-        if ((now - fpsLastTime) > 1e9) //Print fps every second
-        {
-            fps = (frame - fpsLastFrame)/((now-fpsLastTime)*1e-9);
-            fpsLastTime = now;
-            fpsLastFrame = frame;
-        }
 
         // Testing
         GLFWGamepadState gamepadState = GLFWGamepadState.create();
