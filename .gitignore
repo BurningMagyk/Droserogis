@@ -6,13 +6,9 @@
 #temp vim files
 *~
 
-# ignore uncontrolled all image files
+# ignore all files in uncontrolled (images, fonts, docs, notes help, .... anything wanted only locally)
 Uncontrolled/*
 */Uncontrolled/*
-
-# ignore all font files
-*.ttf
-*.otf
 
 # ignore all text files
 *.txt
