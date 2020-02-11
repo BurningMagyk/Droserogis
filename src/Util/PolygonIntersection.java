@@ -295,7 +295,7 @@ public class PolygonIntersection
         };
 
         assert(isIntersect(poly1, rect1) == false);
-        rect1.setHeight(20);
+        rect1.setBottom(rect1.getLeft()+20);
         assert(isIntersect(poly1, rect1) == true);
 
 

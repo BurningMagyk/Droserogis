@@ -309,29 +309,29 @@ public class CharacterStat
 
     public int hitPoints() { return 100; } // vitality
 
-    public float airSpeed() { return 0.12F; } // dexterity
-    public float swimSpeed() { return agility(3F); }
-    public float crawlSpeed() { return 0.02F; } // agility
-    public float walkSpeed() { return 0.03F; } // agility
-    public float runSpeed() { return 0.06F; } // agility
-    public float lowerSprintSpeed() { return 0.07F; } // agility
-    public float sprintSpeed() { return 0.11F; } // agility
-    public float rushSpeed() { return agility(0.18F); } // agility
+    public float airSpeed() { return 9.6F; } // dexterity
+    public float swimSpeed() { return agility(100F); }
+    public float crawlSpeed() { return 1.6F; } // agility
+    public float walkSpeed() { return 2.4F; } // agility
+    public float runSpeed() { return 4.8F; } // agility
+    public float lowerSprintSpeed() { return 5.6F; } // agility
+    public float sprintSpeed() { return 8.8F; } // agility
+    public float rushSpeed() { return agility(14.4F); } // agility
 
-    public float maxClimbSpeed() { return 0.3F; } // agility + dexterity
-    public float maxStickSpeed() { return 0.05F; } // agility + dexterity
-    public float maxSlideSpeed() { return 0.4F; } // agility + dexterity
-    public float maxLowerGroundSpeed() { return 0.1F; } // agility + dexterity
-    public float maxGroundSpeed() { return 0.2F; } // agility + dexterity
-    public float maxTotalSpeed() { return 3F; } // none
+    public float maxClimbSpeed() { return 24F; } // agility + dexterity
+    public float maxStickSpeed() { return 4F; } // agility + dexterity
+    public float maxSlideSpeed() { return 32F; } // agility + dexterity
+    public float maxLowerGroundSpeed() { return 8F; } // agility + dexterity
+    public float maxGroundSpeed() { return 16F; } // agility + dexterity
+    public float maxTotalSpeed() { return 200F; } // none
 
-    public float airAccel() { return 0.1F; } // dexterity
-    public float swimAccel() { return 0.3F; } // agility
-    public float crawlAccel() { return 0.15F; } // agility
-    public float climbAccel() { return 0.1F; } // agility
-    public float runAccel() { return 0.2F; } // agility
+    public float airAccel() { return 8F; } // dexterity
+    public float swimAccel() { return 24F; } // agility
+    public float crawlAccel() { return 12F; } // agility
+    public float climbAccel() { return 8F; } // agility
+    public float runAccel() { return 16F; } // agility
 
-    public float jumpVel() { return 0.2F; } // strength + agility
+    public float jumpVel() { return 8F; } // strength + agility
 
     public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]
@@ -352,7 +352,7 @@ public class CharacterStat
         return new GradeEnum[] { GradeEnum.getGrade(strengthGrade.ordinal() / 2), strengthGrade };
     }
 
-    public float friction() { return 0.35F; } // agility
+    public float friction() { return 2F; } // agility
 
     public int maxCommandChain() { return (int) 2; } // intelligence
 }

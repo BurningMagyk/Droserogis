@@ -81,7 +81,7 @@ public class LevelBuilder  extends Application
 
     private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
 
-    private Image blockTexture = new Image("/Image/metalRustedTexture.png");
+    private Image blockTexture = new Image("/Image/woodTexture.png");
     private Image backgroundTexture = new Image("/Image/metalStealWashedout.png");
     private ImagePattern blockTexturePattern;
     private ImagePattern backgroundTexturePattern;
@@ -333,7 +333,6 @@ public class LevelBuilder  extends Application
         {
             //renderAll();
         }
-        return;
     }
 
 
@@ -560,11 +559,11 @@ public class LevelBuilder  extends Application
         int width  = (int)(canvas.getWidth()/zoomFactor);
         int height = (int)(canvas.getHeight()/zoomFactor);
 
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 512, 512, false);
+        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 128, 128, false);
         backgroundTexturePattern = new ImagePattern(backgroundTexture, offsetX, offsetY, 512, 512, false);
 
 
-        //gtx.clearRect(0, 0, width, height);
+        gtx.clearRect(0, 0, width, height);
         gtx.setFill(backgroundTexturePattern);
         gtx.fillRect(0, 0, width, height);
         gtx.setFill(Color.BLACK);

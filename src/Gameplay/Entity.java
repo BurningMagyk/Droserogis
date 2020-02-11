@@ -75,8 +75,8 @@ abstract public class Entity
     //  For a rectangle, pos is the intersection of the two diagonals.
     //  For a triangle, pos is the midpoint of the hypotenuse.
     private Vec2 pos;
-    private Vec2 velocity = new Vec2(Vec2.ZERO);
-    private Vec2 acceleration = new Vec2(Vec2.ZERO);
+    protected Vec2 velocity = new Vec2(Vec2.ZERO);
+    protected Vec2 acceleration = new Vec2(Vec2.ZERO);
 
     private float width, height, defWidth, defHeight;
     private double sinTheta, cosTheta;
@@ -87,7 +87,7 @@ abstract public class Entity
     private Color color = Color.BLACK;
 
     private boolean triggered = false;
-    private float friction = 0.5F;
+    private float friction = 3F;
 
     public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
     {

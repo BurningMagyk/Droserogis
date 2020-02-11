@@ -717,8 +717,8 @@ public class Actor extends Item
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        getVelocity().mul(deltaSec);
-        goal.add(getVelocity());
+        goal.add(getVelocity().mul(deltaSec));
+
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(deltaSec, goal, entities);
         setPosition(goal);
@@ -1791,5 +1791,30 @@ public class Actor extends Item
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
+    }
+
+
+
+    public static void main(String[] args)
+    {
+        // applyPhysics(EntityCollection entities, float deltaSec)
+        EntityCollection entityList = new EntityCollection();
+        Actor player = new Actor(0,0, Actor.EnumType.Lyra);
+        player.setVelocity(10,10);
+        player.setAcceleration(-1,1);
+        player.setFriction(0);
+        player.airDrag = 0;
+        entityList.add(player);
+        player.applyPhysics(entityList, 1);
+
+        System.out.println("Location = (" + player.getX()+ ", " + player.getY() + ")");
+        System.out.println("Velocity = (" + player.getVelocityX()+ ", " + player.getVelocityY() + ")");
+        System.out.println("Acc = (" + player.getAccelerationX()+ ", " + player.getAccelerationY() + ")");
+
+        player.applyPhysics(entityList, 1);
+
+        System.out.println("\nLocation = (" + player.getX()+ ", " + player.getY() + ")");
+        System.out.println("Velocity = (" + player.getVelocityX()+ ", " + player.getVelocityY() + ")");
+        System.out.println("Acc = (" + player.getAccelerationX()+ ", " + player.getAccelerationY() + ")");
     }
 }
