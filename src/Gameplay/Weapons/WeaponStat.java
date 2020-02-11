@@ -105,20 +105,28 @@ public class WeaponStat
     /***************************** Ability Score Chart Access *****************************/
 
     int durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
-    float waitSpeed(GradeEnum strGrade)
+    float waitSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
-        return speedDep(strGrade) ? WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal()].ordinal()]
-                : WAIT_SPEED[grades[Ability.WAIT_SPEED.ordinal() / 2].ordinal()];
+        int avg = (grades[Ability.WAIT_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
+        return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg / 2];
     }
-    float attackSpeed(GradeEnum strGrade)
+    float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
-        return speedDep(strGrade) ? ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal()].ordinal()]
-                : ATTACK_SPEED[grades[Ability.ATTACK_SPEED.ordinal() / 2].ordinal()];
+        int avg = (grades[Ability.ATTACK_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
+        return speedDep(strGrade) ? ATTACK_SPEED[avg] : ATTACK_SPEED[avg / 2];
     }
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }
-    GradeEnum damage() { return grades[Ability.DAMAGE.ordinal()]; }
-    GradeEnum precision() { return grades[Ability.PRECISION.ordinal()]; }
+    GradeEnum damage(GradeEnum strGrade)
+    {
+        int damageVal = grades[Ability.DAMAGE.ordinal()].ordinal();
+        return GradeEnum.getGrade((damageVal + strGrade.ordinal()) / 2);
+    }
+    GradeEnum precision(GradeEnum dexGrade)
+    {
+        int precisionVal = grades[Ability.PRECISION.ordinal()].ordinal();
+        return GradeEnum.getGrade((precisionVal + dexGrade.ordinal()) / 2);
+    }
 
     /* 0 - can't block (eg. flail)
      * 1 - can block non-permeating attacks with partial damage soak (eg. natural)

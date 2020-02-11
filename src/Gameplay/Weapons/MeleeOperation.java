@@ -67,8 +67,11 @@ class MeleeOperation implements Weapon.Operation
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
-        waitSpeed = weaponStat.waitSpeed(strGrade);
-        execSpeed = weaponStat.attackSpeed(strGrade);
+        GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
+        GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
+
+        waitSpeed = weaponStat.waitSpeed(strGrade, agiGrade);
+        execSpeed = weaponStat.attackSpeed(strGrade, agiGrade);
 
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
@@ -78,10 +81,10 @@ class MeleeOperation implements Weapon.Operation
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
         damage = GradeEnum.getGrade(damageMod / 2 *
-                (weaponStat.damage().ordinal()
+                (weaponStat.damage(strGrade).ordinal()
                 + strGrade.ordinal()));
         precision = GradeEnum.getGrade(precisionMod / 2 *
-                (weaponStat.precision().ordinal()
+                (weaponStat.precision(dexGrade).ordinal()
                 + characterStat.getGrade(CharacterStat.Ability.DEXTERITY).ordinal()));
 
         Print.blue("Operating \"" + getName() + "\"");
