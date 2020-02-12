@@ -2,8 +2,8 @@
 <br>
 <p>
     <i>--This project is still in development--</i><br><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>The Lie Made Flesh</i> is (will be) a 2D-platformer fighting game. 
-    The game is an adaptation of a novel being written by the amazing, God-like author: Robin Campos.
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>The Lie Made Flesh</i> will be a 2D-platformer game with elements of fighting and RPG. 
+    The game is an adaptation of a story of the same name.
 </p><br>
 
 ## CREDITS<br>
