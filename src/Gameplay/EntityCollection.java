@@ -6,12 +6,15 @@ package Gameplay;
 // TODO: monsters and players should each be different subclasses of Actor.
 // TODO: At least one difference between them is that players have input devices (controllers) while monsters have AI.
 
+import Gameplay.entity.Actor;
+import Gameplay.entity.Block;
+import Gameplay.entity.Item;
 import Util.Rect;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import Gameplay.Weapons.Weapon;
+import Gameplay.entity.Weapon;
 
 public class EntityCollection<Entity> extends AbstractCollection<Entity>
 {

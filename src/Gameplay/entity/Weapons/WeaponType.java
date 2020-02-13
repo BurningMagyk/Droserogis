@@ -1,29 +1,29 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.entity.Actor;
 import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
-import Gameplay.Item;
-import Util.GradeEnum;
+import Gameplay.entity.Item;
+import Gameplay.entity.Weapon;
 import Util.Print;
 import Util.Vec2;
 
-import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
-import static Gameplay.Actor.Condition.*;
+import static Gameplay.entity.Weapons.MeleeOperation.MeleeEnum.*;
+import static Gameplay.entity.Actor.Condition.*;
 
 public class WeaponType
 {
     private final Orient DEF_ORIENT;
     private final Weapon.Operation[] OPS;
 
-    WeaponType(Orient orient,  Weapon.Operation...ops)
+    public WeaponType(Orient orient,  Weapon.Operation...ops)
     {
         DEF_ORIENT = orient.copy();
         OPS = ops;
     }
 
-    Orient getDefaultOrient() { return DEF_ORIENT; }
-    Weapon.Operation[] getOps()
+    public Orient getDefaultOrient() { return DEF_ORIENT; }
+    public Weapon.Operation[] getOps()
     {
         Weapon.Operation[] opsCopy = new Weapon.Operation[OPS.length];
         for (int i = 0; i < OPS.length; i++)

@@ -1,9 +1,6 @@
-package Gameplay;
+package Gameplay.entity;
 
-import Gameplay.Weapons.Infliction;
-import Util.GradeEnum;
-import Util.Vec2;
-import javafx.scene.image.Image;
+import Gameplay.entity.Weapons.Infliction;
 import javafx.scene.paint.Color;
 
 

@@ -1,6 +1,10 @@
 package Gameplay;
 //Game Title: The Lie Made Flesh
-import Gameplay.Weapons.Weapon;
+import Gameplay.entity.Weapon;
+import Gameplay.entity.Actor;
+import Gameplay.entity.Block;
+import Gameplay.entity.Entity;
+import Gameplay.entity.Item;
 import Importer.LevelBuilder;
 import Importer.ImageResource;
 import Menus.Gamepad;
@@ -20,8 +24,6 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.lwjgl.glfw.GLFWGamepadState;
-
-import java.time.Instant;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -48,8 +50,13 @@ public class Gameplay implements Reactor
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image blockTexture = new Image("/Image/woodTexture.png");
-    private ImagePattern blockTexturePattern;
+    private Image textureBlock = new Image("/Image/woodTexture.png");
+    private ImagePattern texturePatternBlock;
+
+    private Image textureWater0 = new Image("/Image/water0.png");
+    private Image textureWater1 = new Image("/Image/water1.png");
+    private ImagePattern texturePatternWater0;
+    private ImagePattern texturePatternWater1;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
@@ -109,13 +116,12 @@ public class Gameplay implements Reactor
         {
             lastUpdateTime = System.nanoTime();
             fpsLastTime = System.nanoTime();
-            fps = 1.0/60.0;
+            fps = 60.0;
             return;
         }
         long currentNano = System.nanoTime();
         float deltaSec = (float)((currentNano - lastUpdateTime) * 1e-9);
 
-        //float deltaSec = 1F/60F;
         lastUpdateTime = currentNano;
         frame++;
         if ((now - fpsLastTime) > 1e9) //Print fps every second
@@ -300,18 +306,10 @@ public class Gameplay implements Reactor
 
                 for (int i = 0; i < 3; i++)
                 {
-                    xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom +6;
-                    yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom -6;
-                }
-                gfx.setFill(Color.BLACK);
-                gfx.fillPolygon(xPos, yPos, 3);
-
-                for (int i = 0; i < 3; i++)
-                {
                     xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
                     yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                 }
-                gfx.setFill(blockTexturePattern);
+                gfx.setFill(texturePatternBlock);
                 gfx.fillPolygon(xPos, yPos, 3);
             }
             else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
@@ -354,15 +352,15 @@ public class Gameplay implements Reactor
 
                     if (entity instanceof Block)
                     {
-                        gfx.setFill(Color.BLACK);
-                        gfx.fillRect(x + 6, y - 6, width, height);
-                        gfx.setFill(blockTexturePattern);
+                        if (((Block) entity).isLiquid())
+                        {
+                            gfx.setFill(texturePatternWater0);
+                            gfx.fillRect(x, y, width, height);
+                            gfx.setFill(texturePatternWater1);
+                        }
+                        else gfx.setFill(texturePatternBlock);
                     }
                     gfx.fillRect(x, y, width, height);
-
-                    //gfx.setStroke(Color.BLACK);
-                    //gfx.setLineWidth(1);
-                    //gfx.strokeLine(x, y, x+width, y+height);
                 }
             }
 
@@ -448,7 +446,12 @@ public class Gameplay implements Reactor
 
         double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 256, 175, false);
+        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 175, false);
+
+        long currentNano = System.nanoTime();
+        float shift =  (float)(currentNano*0.5e-8);
+        texturePatternWater0 = new ImagePattern(textureWater0, offsetX+shift, offsetY+shift, 512, 512, false);
+        texturePatternWater1 = new ImagePattern(textureWater1, offsetX+shift/2, offsetY-shift/2, 512, 512, false);
     }
 
     public static void main(String[] args)

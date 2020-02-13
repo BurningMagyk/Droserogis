@@ -1,19 +1,19 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.entity.Actor;
 import Gameplay.DirEnum;
 
-import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
+import static Gameplay.entity.Weapons.MeleeOperation.MeleeEnum.*;
 
 public class Command
 {
     private final int PREV_KEY;
-    final int ATTACK_KEY;
-    final DirEnum FACE, DIR;
+    public final int ATTACK_KEY;
+    public final DirEnum FACE, DIR;
 
     private enum StateType { LOW, PRONE, FREE, STANDARD }
 
-    final MeleeOperation.MeleeEnum ENUM;
+    public final MeleeOperation.MeleeEnum ENUM;
     private StateType TYPE;
     private boolean SPRINT;
 
@@ -215,7 +215,7 @@ public class Command
 //        return this;
 //    }
 
-    Command merge(Command command, Actor.State state, boolean canStand)
+    public Command merge(Command command, Actor.State state, boolean canStand)
     {
         return new Command(command.ATTACK_KEY, ATTACK_KEY, FACE, DIR, state, canStand);
     }

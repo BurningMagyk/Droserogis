@@ -1,7 +1,7 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Actor;
-import Gameplay.Item;
+import Gameplay.entity.Actor;
+import Gameplay.entity.Item;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;

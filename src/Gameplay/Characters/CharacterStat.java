@@ -323,7 +323,7 @@ public class CharacterStat
     public float maxSlideSpeed() { return 32F; } // agility + dexterity
     public float maxLowerGroundSpeed() { return 8F; } // agility + dexterity
     public float maxGroundSpeed() { return 16F; } // agility + dexterity
-    public float maxTotalSpeed() { return 200F; } // none
+    public float maxTotalSpeed() { return 50F; } // none
 
     public float airAccel() { return 8F; } // dexterity
     public float swimAccel() { return 24F; } // agility
@@ -331,7 +331,7 @@ public class CharacterStat
     public float climbAccel() { return 8F; } // agility
     public float runAccel() { return 16F; } // agility
 
-    public float jumpVel() { return 8F; } // strength + agility
+    public float jumpVel() { return 16F; } // strength + agility
 
     public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]

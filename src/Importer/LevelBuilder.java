@@ -1,13 +1,13 @@
 package Importer;
 
-import Gameplay.Actor;
-import Gameplay.Block;
+import Gameplay.entity.Actor;
+import Gameplay.entity.Block;
 import Gameplay.CameraZone;
-import Gameplay.Entity;
+import Gameplay.entity.Entity;
 import Gameplay.EntityCollection;
-import Gameplay.Weapons.Weapon;
-import Gameplay.Weapons.WeaponStat;
-import Gameplay.Weapons.WeaponType;
+import Gameplay.entity.Weapon;
+import Gameplay.entity.Weapons.WeaponStat;
+import Gameplay.entity.Weapons.WeaponType;
 import Util.Sprite;
 import Util.Vec2;
 

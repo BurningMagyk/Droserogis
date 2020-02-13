@@ -1,9 +1,12 @@
-package Gameplay;
+package Gameplay.entity;
 
 import Gameplay.Characters.CharacterStat;
-import Gameplay.Weapons.*;
-import Gameplay.Weapons.ConditionApp;
-import Gameplay.Weapons.Infliction;
+import Gameplay.DirEnum;
+import Gameplay.CameraZone;
+import Gameplay.entity.Weapons.*;
+import Gameplay.entity.Weapons.ConditionApp;
+import Gameplay.entity.Weapons.Infliction;
+import Gameplay.EntityCollection;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Rect;
@@ -26,6 +29,7 @@ import java.util.Arrays;
  */
 public class Actor extends Item
 {
+    private static final boolean DEBUG_PHYSICS = false;
     public enum EnumType
     {
         Igon
@@ -90,17 +94,225 @@ public class Actor extends Item
         public abstract float naturalWeaponMass();
     }
 
+    //================================================================================================================
+    // State
+    //================================================================================================================
+    public enum State
+    {
+        RISE
+                {
+                    public boolean isAirborne() { return true; }
+                    Color getColor() { return Color.CORNFLOWERBLUE; }
+                },
+        FALL
+                {
+                    public boolean isAirborne() { return true; }
+                    Color getColor() { return Color.CYAN; }
+                },
+        STAND
+                {
+                    public boolean isGrounded() { return true; }
+                    Color getColor() { return Color.MAROON; }
+                },
+        RUN
+                {
+                    public boolean isGrounded() { return true; }
+                    Color getColor() { return Color.BROWN; }
+                },
+        SPRINT
+                {
+                    public boolean isGrounded() { return true; }
+                    Color getColor() { return Color.DARKGRAY; }
+                    public boolean isSprint() { return true; }
+                },
+        WALL_STICK
+                {
+                    public boolean isOnWall() { return true; }
+                    Color getColor() { return Color.GREENYELLOW; }
+                },
+        WALL_CLIMB
+                {
+                    public boolean isOnWall() { return true; }
+                    Color getColor() { return Color.LIGHTGREEN; }
+                },
+        CROUCH
+                {
+                    public boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    Color getColor() { return Color.RED; }
+                },
+        CRAWL
+                {
+                    public boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    Color getColor() { return Color.HOTPINK; }
+                },
+        LOWER_SPRINT
+                {
+                    public boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    public boolean isSprint() { return true; }
+                    Color getColor() { return Color.DEEPPINK; }
+                },
+        SLIDE
+                {
+                    public boolean isGrounded() { return true; }
+                    public boolean isLow() { return true; }
+                    Color getColor() { return Color.PINK; }
+                },
+        SWIM
+                {
+                    Color getColor() { return Color.BLUE; }
+                };
+
+        public boolean isOnWall() { return false; }
+        public boolean isAirborne() { return false; }
+        public boolean isGrounded() { return false; }
+        public boolean isLow() { return false; }
+        public boolean isSprint() { return false; }
+        Color getColor() { return Color.BLACK; }
+    }
+
+    //================================================================================================================
+    // Condition
+    //================================================================================================================
+    public enum Condition
+    {
+        NEGATE_ATTACK, NEGATE_BLOCK,
+        NEGATE_JUMP,
+        NEGATE_SPRINT_LEFT, NEGATE_SPRINT_RIGHT,
+        NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT,
+        NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
+        NEGATE_STABILITY, NEGATE_ACTIVITY,
+        DASH,
+        FORCE_STAND, FORCE_CROUCH
+    }
+
     private EnumType actorType;
 
     private final float
             NORMAL_GRAVITY = gravity,
             REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
             WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F,
-            GREATER_GRAVITY = NORMAL_GRAVITY / 0.5F;
+            GREATER_GRAVITY = NORMAL_GRAVITY * 2;
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
     private CharacterStat charStat;
+
+    /*=======================================================================*/
+    /* Variables that are set by the character's stats                       */
+    /*=======================================================================*/
+
+    private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
+
+    /* This is the highest speed the player can be running or sprinting before
+     * changing their state to TUMBLE. */
+    private float maxGroundSpeed = 0;
+
+    /* This is the highest speed the player can get from walking alone.
+     * They can go faster while walking with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float walkSpeed = 0;
+
+    private float rushSpeed = 0;
+
+    /* This is the highest speed the player can get from sprinting alone.
+     * They can go faster while sprinting with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float sprintSpeed = 0;
+
+    /* This is the highest speed the player can get from running alone.
+     * They can go faster while running with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float runSpeed = 0.08F;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is running or sprinting on the ground. */
+    private float runAccel = 0;
+
+    /* This is the highest speed the player can be crawling or crouching before
+     * changing their state to TUMBLE or SLIDE. */
+    private float maxLowerGroundSpeed = 0;
+
+    /* This is the highest speed the player can get from sprinting on their
+     * hands alone. They can go faster while sprinting on their hands with the
+     * help of external influences, such as going down a slope or being pushed
+     * by a faster object. */
+    private float lowerSprintSpeed = 0;
+
+    /* This is the highest speed the player can get from crawling alone.
+     * They can go faster while crawling with the help of external influences,
+     * such as going down a slope or being pushed by a faster object. */
+    private float crawlSpeed = 0;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is crawling on the ground. */
+    private float crawlAccel = 0;
+
+    /* This is the highest speed the player can be sliding before changing
+     * their state to TUMBLE. */
+    private float maxSlideSpeed = 0;
+
+    /* This is the highest speed the player can be climbing before changing
+     * their state to RISE. */
+    private float maxClimbSpeed = 0;
+
+    /* This is the highest speed the player can be skidding down a wall before
+     * changing their state to FALL. */
+    private float maxStickSpeed = 0F;
+
+    /* This is the acceleration that is applied to the player when on a wall.
+     * Most characters should use their crawlAccel value for this, unless they
+     * know how to climb without needing a running start. */
+    private float climbAccel = crawlAccel;
+
+    /* How long it takes to climb over a ledge after grabbing it */
+    private float climbLedgeTime = 1;
+
+    private float[] stairRecoverTime = { 0.05F, 0.05F, 0.05F };
+
+    /* This is the highest speed the player can move.
+     * (In the air or anywhere) */
+    private float maxTotalSpeed = 0;
+
+    /* This is the highest speed the player can get from moving themselves in
+     * the air. They can go faster in the air with the help of external
+     * influences such as wind or being pushed by a faster object. */
+    private float airSpeed = 0;
+
+    /* This is the acceleration that is applied to the player when dirPrimary
+     * is not null and the player is airborne. */
+    private float airAccel = 0;
+
+    /* This is the highest speed the player can move in water. */
+    private float swimSpeed = 3F;
+
+    /* A variable "topSwimSpeed" won't be needed because the drag underwater
+     * will be high enough to cap the player's speed. */
+
+    /* This is the acceleration that is applied to the player when in water. */
+    private float swimAccel = 0;
+
+    /* The velocity used to jump */
+    private float jumpVel = 0;
+
+    /* How long dashing negates walking */
+    private float dashRecoverTime = 0;
+
+    /* How long it takes to get up from being prone */
+    private float proneRecoverTime = 0;
+
+    /* How long the player tumbles */
+    private float minTumbleTime = 0;
+
+    // friction
+
+    /* How easy it is to be forced to crouch or go prone after falling too hard */
+    GradeEnum[] landingThresh = { GradeEnum.F, GradeEnum.F };
+
+    /* How easy it is to be staggered */
+    GradeEnum[] staggerThresh = { GradeEnum.F, GradeEnum.F };
 
     /* The horizontal direction that the player intends to move towards */
     private int dirHoriz = -1;
@@ -150,7 +362,7 @@ public class Actor extends Item
 
         this.actorType = type;
         this.charStat = type.createPlayerStat();
-        System.out.println("Actor("+type+")"+this.charStat);
+        Print.white("Actor("+type+")"+this.charStat);
         setCharacterStats();
 
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
@@ -188,13 +400,24 @@ public class Actor extends Item
 
     public CharacterStat getCharacterStat() { return charStat;}
 
-    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    public void update(EntityCollection<Entity> entities, float deltaSec)
     {
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println(this + ": pos=("+getX()+", "+ getY()+")    vel=("+velocity.x + ", "+velocity.y+")    deltaSec="+deltaSec);
+
         resetAcceleration();
         applyInflictions();
         act(deltaSec);
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("    Before Physics: vel=("+velocity.x + ", "+velocity.y+")    acc=("+acceleration.x + ", "+acceleration.y+")");
+
         applyPhysics(entities, deltaSec);
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("    Done Physics: vel=("+velocity.x + ", "+velocity.y+")    acc=("+acceleration.x + ", "+acceleration.y+")");
+        setState(determineState());
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("    Done SetState: vel=("+velocity.x + ", "+velocity.y+")    acc=("+acceleration.x + ", "+acceleration.y+")");
+
         countdownCondition(deltaSec);
+
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("    Done Cool down: vel=("+velocity.x + ", "+velocity.y+")    acc=("+acceleration.x + ", "+acceleration.y+")");
+
     }
 
     /**
@@ -202,6 +425,7 @@ public class Actor extends Item
      */
     private void act(float deltaSec)
     {
+        if (DEBUG_PHYSICS) System.out.println("    act() Enter    dirHoriz="+ dirHoriz + "    isGrounded()="+ state.isGrounded() + "    jump=" + pressingJump);
         if (has(Condition.NEGATE_ACTIVITY))
         {
             float condTime = conditions[Condition.NEGATE_ACTIVITY.ordinal()];
@@ -216,7 +440,7 @@ public class Actor extends Item
             }
         }
 
-        /* FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY */
+        // FORCE_CROUCH and NEGATE_WALK conditions must remain longer than NEGATE_STABILITY
         if (has(Condition.NEGATE_STABILITY))
         {
             float condTime = conditions[Condition.NEGATE_STABILITY.ordinal()] + proneRecoverTime;
@@ -231,12 +455,15 @@ public class Actor extends Item
             }
         }
 
-        float vx = getVelocityX(), vy = getVelocityY();
-        if (Math.abs(vx) <= runSpeed) interruptRushes(RushOperation.RushFinish.LOSE_SPRINT);
+        //TODO: understand this
+        if (Math.abs(velocity.x) <= runSpeed) interruptRushes(RushOperation.RushFinish.LOSE_SPRINT);
 
-        /* Late surfaces acts wacky when not airborne. */
+        // Late surfaces acts wacky when not airborne.
+        //TODO: understand this
         if (pressedJumpTime > 0 && state.isAirborne())
         {
+            if (DEBUG_PHYSICS) System.out.println("****************** pressedJumpTime = " + pressedJumpTime + "    isAirborne()=" + state.isAirborne());
+
             if (touchLateSurface[DOWN] != null && touchLateSurface[DOWN].valid())
             {
                 float lateVelY = touchLateSurface[DOWN].getLateVel().y;
@@ -251,23 +478,25 @@ public class Actor extends Item
                 Vec2 lateVel = touchLateSurface[LEFT].getLateVel();
                 if (dirHoriz == RIGHT)
                 {
-                    if (canJump()) {
-                        setVelocityX(jumpVel * 0.70712F + lateVel.x); // sin(45)
-                        setVelocityY(-jumpVel * 0.70712F + lateVel.y); // cos(45)
+                    if (canJump())
+                    {
+                        velocity.x =  jumpVel * 0.70712F + lateVel.x; // sin(45)
+                        velocity.y = -jumpVel * 0.70712F + lateVel.y; // cos(45)
                     }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == UP)
                 {
-                    if (canJump()) {
-                        setVelocityX(jumpVel * 0.34202F + lateVel.x); // sin(20)
-                        setVelocityY(-jumpVel * 0.93969F + lateVel.y); // cos(20)
+                    if (canJump())
+                    {
+                        velocity.x =  jumpVel * 0.34202F + lateVel.x; // sin(20)
+                        velocity.y = -jumpVel * 0.93969F + lateVel.y; // cos(20)
                     }
                     pressedJumpTime = 0F;
                 }
                 else if (dirVert == DOWN)
                 {
-                    if (canJump()) setVelocityX(jumpVel + lateVel.x);
+                    if (canJump()) velocity.x = jumpVel + lateVel.x;
                     pressedJumpTime = 0;
                 }
             }
@@ -300,15 +529,16 @@ public class Actor extends Item
 
         if (state.isGrounded())
         {
-            /* If the entity being stood on is an upward-slope triangle */
+            // If the entity being stood on is an upward-slope triangle
             if (!touchEntity[DOWN].getShape().getDirs()[UP])
             {
                 float slopeAccel = gravity * getMass();
                 if (state == State.CROUCH || state == State.CRAWL) slopeAccel /= 2;
-                setAcceleration(touchEntity[DOWN].applySlopeY(slopeAccel));
+                //setAcceleration(touchEntity[DOWN].applySlopeY(slopeAccel));
             }
 
-            float accel, topSpeed;
+            float accel;
+            float topSpeed = maxTotalSpeed;
             MoveType moveType = getMoveType();
             if (state.isLow())
             {
@@ -321,36 +551,33 @@ public class Actor extends Item
                 topSpeed = getTopSpeed(moveType,false);
             }
 
-            if (dirHoriz == LEFT)
+
+            if (dirHoriz == LEFT || dirHoriz == RIGHT)
             {
-                if (state == State.SLIDE) { if (vx > 0) addAccelerationX(-accel); }
-                else if (vx > -topSpeed)
+                float sign = 1;
+                if (dirHoriz == LEFT) sign = -1;
+
+                if (state == State.SLIDE) { if (sign*velocity.x < 0)  acceleration.x = acceleration.x + sign*accel;}
+                else
                 {
-                    addAccelerationX(-accel);
-                    addVelocityX((float) -minThreshSpeed * 1.5F);
+                    acceleration.x = acceleration.x + sign*accel;
+                    if (Math.abs(velocity.x) < minThreshSpeed) velocity.x = sign*minThreshSpeed;
                 }
-                if (has(Condition.DASH) && getVelocityX() > -rushSpeed
+                if (has(Condition.DASH) && velocity.x > -rushSpeed
                         && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
                 {
-                    setVelocityX(-rushSpeed);
+                    velocity.x = sign*rushSpeed;
                     addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
                 }
-            }
-            else if (dirHoriz == RIGHT)
-            {
-                if (state == State.SLIDE) { if (vx < 0) addAccelerationX(accel); }
-                else if (vx < topSpeed)
+
+                if (Math.abs(velocity.x) > topSpeed)
                 {
-                    addAccelerationX(accel);
-                    addVelocityX((float) minThreshSpeed * 1.5F);
-                }
-                if (has(Condition.DASH) && getVelocityX() < rushSpeed
-                        && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
-                {
-                    setVelocityX(rushSpeed);
-                    addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                    velocity.x = sign * topSpeed;
+                    //if x acceleration is in the same direction as x velocity, then remove x acceleration.
+                    if (velocity.x * acceleration.x > 0) acceleration.x = 0;
                 }
             }
+
 
             /* Going up stairs */
             float stairTopEdge = touchEntity[DOWN].getTopEdge(prevGround.pos);
@@ -374,6 +601,7 @@ public class Actor extends Item
 
             if (pressedJumpTime > 0)
             {
+                if (DEBUG_PHYSICS) System.out.println("################### pressedJumpTime = " + pressedJumpTime + "    isAirborne()=" + state.isAirborne());
                 if (canJump()) {
                     addVelocityY(touchEntity[DOWN].getShape().getDirs()[UP]
                             ? -jumpVel : -jumpVel - slopeJumpBuffer);
@@ -385,19 +613,32 @@ public class Actor extends Item
 
         else if (state.isAirborne())
         {
-            suspendedMovement(vx, airSpeed, airAccel);
+            //TODO: airborn movement seems to work without this. Is it still needed?
+            //suspendedMovement(vx, airSpeed, airAccel);
         }
 
         else if (state == State.SWIM)
         {
-            suspendedMovement(vx, swimSpeed, swimAccel);
+            if (pressingJump)
+            {
+                velocity.y -= jumpVel/2;
+                velocity.y = Math.max(velocity.y, -jumpVel/2);
+            }
             if (dirVert == UP)
             {
-                if (vy > -swimSpeed) addAccelerationY(-swimAccel);
+                if (velocity.y > -swimSpeed) acceleration.y -= swimAccel;
             }
             else if (dirVert == DOWN)
             {
-                if (vy < swimSpeed) addAccelerationY(swimAccel);
+                if (velocity.y < swimSpeed) acceleration.y += swimAccel;
+            }
+            if (dirHoriz == LEFT)
+            {
+                if (velocity.x > -swimSpeed) acceleration.x -= swimAccel;
+            }
+            else if (dirHoriz == RIGHT)
+            {
+                if (velocity.x < swimSpeed) acceleration.x += swimAccel;
             }
         }
 
@@ -432,7 +673,6 @@ public class Actor extends Item
                             addVelocityX(jumpVel);
                             fromWall = true;
                         }
-                        pressedJumpTime = 0F;
                     }
                     pressedJumpSurface = touchEntity[LEFT];
                 }
@@ -474,7 +714,7 @@ public class Actor extends Item
                     && (dirVert == UP || touchEntity[dirHoriz] != null)
                     && velY >= -maxClimbSpeed && velY <= maxStickSpeed)
             {
-                addAccelerationY(-climbAccel * (velY > 0 && canRun() ? 5 : 1)); // TODO: decide this value (right now it's 5)
+                acceleration.y = (-climbAccel * (velY > 0 && canRun() ? 5 : 1)); // TODO: decide this value (right now it's 5)
 
                 /* Ledge-climbing */
                 int _dirHoriz = -1;
@@ -510,12 +750,6 @@ public class Actor extends Item
             pressedJumpTime = 0F;
             if (state == State.RISE) gravity = GREATER_GRAVITY;
         }
-
-        /* Cap overall speed */
-        if (getVelocityX() > maxTotalSpeed) setVelocityX(maxTotalSpeed);
-        else if (getVelocityX() < -maxTotalSpeed) setVelocityX(-maxTotalSpeed);
-        if (getVelocityY() > maxTotalSpeed) setVelocityY(maxTotalSpeed);
-        else if (getVelocityY() < -maxTotalSpeed) setVelocityY(-maxTotalSpeed);
 
         /* When travelling on a ramp, they get reduced gravity */
         if (touchEntity[DOWN] != null
@@ -624,116 +858,106 @@ public class Actor extends Item
 
     void applyPhysics(EntityCollection<Entity> entities, float deltaSec)
     {
-        boolean slopeLeft = false, slopeRight = false;
-        if (touchEntity[DOWN] != null && touchEntity[DOWN].getShape().getDirs()[DOWN])
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("        start: acc=("+acceleration.x+", "+acceleration.y+")");
+
+        Vec2 finalVelocity = new Vec2(0,0);
+        finalVelocity.x = velocity.x + acceleration.x*deltaSec;
+        finalVelocity.y = velocity.y + acceleration.y*deltaSec;
+
+        applyDrag(finalVelocity, deltaSec);
+        applyFriction(finalVelocity, deltaSec);
+
+        if (Math.abs(finalVelocity.x) < minThreshSpeed) finalVelocity.x = 0;
+        if (Math.abs(finalVelocity.y) < minThreshSpeed) finalVelocity.y = 0;
+
+        if (DEBUG_PHYSICS) if (this == entities.getPlayer(0)) System.out.println("        finalVelocity=("+finalVelocity.x+", "+finalVelocity.y+")");
+
+        double speedSquared = finalVelocity.magnitudeSquared();
+        if (speedSquared>maxTotalSpeed*maxTotalSpeed)
         {
-            slopeLeft = !touchEntity[DOWN].getShape().getDirs()[LEFT];
-            slopeRight = !touchEntity[DOWN].getShape().getDirs()[RIGHT];
+            if (DEBUG_PHYSICS) System.out.println("        *********** speedSquared="+speedSquared + "   finalVelocity=(" + finalVelocity.x+", "+finalVelocity.y+")");
+            (finalVelocity.normalize()).mul(maxTotalSpeed);
         }
-        applyAcceleration(getAcceleration(), deltaSec);
-        Vec2 beforeDrag = applyAcceleration(determineDrag(), deltaSec);
-        neutralizeVelocity(beforeDrag, slopeLeft, slopeRight);
-        Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
-        neutralizeVelocity(beforeFriction, slopeLeft, slopeRight);
-        Vec2 contactVelocity = applyVelocity(deltaSec, entities);
-        if (setState(determineState()) && contactVelocity != null)
-            addVelocityY(-Math.abs(contactVelocity.x));
+
+        applyVelocity(deltaSec, finalVelocity, entities);
     }
 
-    /* Used for airborne and swimming, horizontal */
-    private void suspendedMovement(float vx, float topAirSpeed, float airAccel) {
-        if (dirHoriz == LEFT)
-        {
-            if (vx > -topAirSpeed) addAccelerationX(-airAccel);
-        }
-        else if (dirHoriz == RIGHT)
-        {
-            if (vx < topAirSpeed) addAccelerationX(airAccel);
-        }
-    }
 
-    private Vec2 determineFriction()
+
+
+
+    private void applyFriction(Vec2 velocity, float deltaSec)
     {
         float frictionX = 0, frictionY = 0;
+
+        if (state.isAirborne()) return;
+
         if (state.isGrounded())
         {
-            boolean exceedSprint, exceedRunL, exceedRunR, exceedWalkL, exceedWalkR;
-            if (state.isLow())
+            if (state == State.SLIDE)
             {
-                exceedSprint = getVelocityX() > lowerSprintSpeed || getVelocityX() < -lowerSprintSpeed;
-                exceedRunR = getVelocityX() > crawlSpeed; exceedRunL = getVelocityX() < -crawlSpeed;
-                exceedWalkR = getVelocityX() > crawlSpeed; exceedWalkL = getVelocityX() < -crawlSpeed;
-            }
-            else
-            {
-                exceedSprint = getVelocityX() > sprintSpeed || getVelocityX() < -sprintSpeed;
-                exceedRunR = getVelocityX() > runSpeed; exceedRunL = getVelocityX() < -runSpeed;
-                exceedWalkR = getVelocityX() > walkSpeed; exceedWalkL = getVelocityX() < -walkSpeed;
-            }
-
-            if (dirHoriz == -1
-                    || exceedSprint
-                    || (exceedRunR && has(Condition.NEGATE_SPRINT_RIGHT))
-                    || (exceedRunL && has(Condition.NEGATE_SPRINT_LEFT))
-                    || (exceedWalkR && has(Condition.NEGATE_RUN_RIGHT))
-                    || (exceedWalkL && has(Condition.NEGATE_RUN_LEFT))
-                    || (getVelocityX() > 0  && (dirHoriz == LEFT || has(Condition.NEGATE_WALK_RIGHT)))
-                    || (getVelocityX() < 0  && (dirHoriz == RIGHT || has(Condition.NEGATE_WALK_LEFT)))
-                    || state == State.SLIDE
-                    || has(Condition.NEGATE_ACTIVITY)
-                    || has(Condition.NEGATE_STABILITY))
-            {
-                frictionX = touchEntity[DOWN].getFriction() * getFriction();
-                if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
-                {
-                    Vec2 slopeVel = touchEntity[DOWN].applySlopeX(frictionX);
-                    frictionX = slopeVel.x;
-                    frictionY = slopeVel.y;
-                }
+                frictionX = touchEntity[DOWN].getFriction() * getFriction() * touchEntity[DOWN].getCosSlope();
+                frictionY = touchEntity[DOWN].getFriction() * getFriction() * touchEntity[DOWN].getSinSlope();
             }
         }
         else if (state.isOnWall())
         {
             /* Don't apply friction if climbing up a wall */
-            if (getVelocityY() < 0) return new Vec2(frictionX, frictionY);
+            if (velocity.y < 0) return;
 
             if (dirHoriz != -1 || dirVert != -1)
+            {
                 frictionY = touchEntity[touchEntity[LEFT] != null
                         ? LEFT : RIGHT].getFriction() * getFriction();
+            }
         }
+        frictionX *= deltaSec;
+        frictionY *= deltaSec;
 
-        if (getVelocityX() > 0) frictionX = -frictionX;
-        if (getVelocityY() > 0) frictionY = -frictionY;
+        frictionX = Vec2.bound(frictionX, 0,1);
+        frictionY = Vec2.bound(frictionY, 0,1);
 
-        return new Vec2(frictionX, frictionY);
+        velocity.x *= (1-frictionX);
+        velocity.y *= (1-frictionY);
     }
+
+
+
 
     /**
      *  Returns the velocity upon hitting a surface.
      *  Useful for determining how much vertical velocity is generated by
      *  running into another entity.
      */
-    private Vec2 applyVelocity(float deltaSec, EntityCollection<Entity> entities)
+    private void applyVelocity(float deltaSec, Vec2 finalVelocity, EntityCollection<Entity> entities)
     {
-        Vec2 posOriginal = getPosition();
-        Vec2 goal = getPosition();
-        goal.add(getVelocity().mul(deltaSec));
+        Vec2 goal = new Vec2(0,0);
+        goal.x = getX() + deltaSec*(velocity.x + finalVelocity.x)/2;
+        goal.y = getY() + deltaSec*(velocity.y + finalVelocity.y)/2;
 
-        /* triggerContacts() returns null if the actor does not hit anything */
-        Vec2 contactVel = triggerContacts(deltaSec, goal, entities);
+        // triggerContacts()
+        //      Returns null if the actor does not hit anything
+        //      Sets touchEntity[] to null or whatever entity it is touching on that side
+        //      Changes the location in goal so that the object is not overlap anything.
+        //      If a collision is detected, sets finalVelocity adjusted accordingly.
+        triggerContacts(entities, goal, finalVelocity, deltaSec);
         setPosition(goal);
+        velocity.x = finalVelocity.x;
+        velocity.y = finalVelocity.y;
 
-        /* Stop horizontal velocity from building up by setting it to match change in
-         * position. Needed for jumping to work correctly and when falling off block. */
-        if (touchEntity[DOWN] != null
-                && !touchEntity[DOWN].getShape().getDirs()[UP])
-            setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
-
-        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isTriangle())
-                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isTriangle()))
-            interruptRushes(RushOperation.RushFinish.HIT_WALL);
-
-        return contactVel;
+        //TODO: Understand what Robin is looking for here.
+        // Stop horizontal velocity from building up by setting it to match change in
+        // position. Needed for jumping to work correctly and when falling off block.
+        //if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
+        //{
+        //    setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
+        //}
+        //
+        //if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isTriangle())
+        //        || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isTriangle()))
+        //{
+        //    interruptRushes(RushOperation.RushFinish.HIT_WALL);
+        //}
     }
 
     @Override
@@ -754,20 +978,20 @@ public class Actor extends Item
     {
         if (pressed)
         {
-            /* If you're on a wall, it changes your secondary direction */
+            if (DEBUG_PHYSICS) System.out.println("Actor: **************************************************************** pressLeft");
+            // If you're on a wall, it changes your secondary direction
             if (state.isOnWall()) dirFace = LEFT;
-            /* It changes your primary direction regardless */
+            // It changes your primary direction regardless
             dirHoriz = LEFT;
-            /* If you're not forcing a secondary direction,
-             * this will change it */
+            // If you're not forcing a secondary direction, this will change it
             if (dirFace != LEFT && !pressingRight) dirFace = LEFT;
         }
-        /* If you release the key when already moving left */
+        // If you release the key when already moving left
         else if (dirHoriz == LEFT)
         {
             if (pressingRight) dirHoriz = RIGHT;
             else dirHoriz = -1;
-            /* If you release the key when already moving left with a wall */
+            // If you release the key when already moving left with a wall
             if (state.isOnWall())
             {
                 if (pressingRight) dirFace = RIGHT;
@@ -780,20 +1004,19 @@ public class Actor extends Item
     {
         if (pressed)
         {
-            /* If you're on a wall, it changes your secondary direction */
+            // If you're on a wall, it changes your secondary direction
             if (state.isOnWall()) dirFace = RIGHT;
-            /* It changes your primary direction regardless */
+            // It changes your primary direction regardless
             dirHoriz = RIGHT;
-            /* If you're not forcing a secondary direction,
-             * this will change it */
+            // If you're not forcing a secondary direction, this will change it
             if (dirFace != RIGHT && !pressingLeft) dirFace = RIGHT;
         }
-        /* If you release the key when already moving right */
+        // If you release the key when already moving right
         else if (dirHoriz == RIGHT)
         {
             if (pressingLeft) dirHoriz = LEFT;
             else dirHoriz = -1;
-            /* If you release the key when already moving right with a wall */
+            // If you release the key when already moving right with a wall
             if (state.isOnWall())
             {
                 if (pressingLeft) dirFace = LEFT;
@@ -1009,7 +1232,7 @@ public class Actor extends Item
         {
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
-                /* Width and height are switched */
+                // Width and height are switched
                 setHeight(ORIGINAL_WIDTH);
                 setWidth(ORIGINAL_HEIGHT);
                 return State.SLIDE;
@@ -1134,15 +1357,17 @@ public class Actor extends Item
     //  touching.
     //
     // The given Vec2 goal is the location where this actor would move if it does not hit anything.
-    //   This method changes the location in goal so that the object overlap anything.
+    //   This method changes the location in goal so that the object is not overlap anything.
     //
     // If a collision is detected, this actor's velocity adjusted accordingly.
     //
     // The method returns null if this actor's velocity is unchanged. Otherwise, it returns this actors original
     // velocity.
     //===============================================================================================================
-    private Vec2 triggerContacts(float deltaSec, Vec2 goal, EntityCollection<Entity> entityList)
+    protected Vec2 triggerContacts(EntityCollection<Entity> entityList, Vec2 goal, Vec2 finalVelocity, float deltaSec)
     {
+        //TODO understand this
+        /*
         for (int i = 0; i < touchLateSurface.length; i++)
         {
             if (touchLateSurface[i] != null
@@ -1151,8 +1376,9 @@ public class Actor extends Item
             else if (touchLateSurface[i] == null && touchEntity[i] != null)
                 touchLateSurface[i] = new LateSurface(touchEntity[i], getVelocity());
         }
+        */
 
-        return super.triggerContacts(goal, entityList);
+        return super.triggerContacts(entityList, goal, finalVelocity, deltaSec);
     }
 
     /**
@@ -1161,7 +1387,7 @@ public class Actor extends Item
      *          camera zone it's inside of. Only applicable if being controlled
      *          by a player.
      */
-    float getZoom(ArrayList<CameraZone> cameraZoneList)
+    public float getZoom(ArrayList<CameraZone> cameraZoneList)
     {
         float sum = 0;
         ArrayList<Float> distances = new ArrayList<>();
@@ -1185,7 +1411,7 @@ public class Actor extends Item
         return totalZoom;
     }
 
-    boolean shouldVertCam()
+    public boolean shouldVertCam()
     {
         return state.isGrounded() || state.isOnWall() || state == State.SWIM
                 || fromWall || getY() - getHeight() > fromGround;
@@ -1193,7 +1419,7 @@ public class Actor extends Item
 
     public int getSpeedRating()
     {
-        double speed = Math.abs(getVelocity().mag());
+        double speed = velocity.magnitude();
         if (speed > sprintSpeed) return 3;
         if (speed > runSpeed) return 2;
         if (speed > walkSpeed) return 1;
@@ -1222,100 +1448,7 @@ public class Actor extends Item
         }
     }
 
-    //================================================================================================================
-    // State
-    //================================================================================================================
-    public enum State
-    {
-        RISE
-                {
-                    public boolean isAirborne() { return true; }
-                    Color getColor() { return Color.CORNFLOWERBLUE; }
-                },
-        FALL
-                {
-                    public boolean isAirborne() { return true; }
-                    Color getColor() { return Color.CYAN; }
-                },
-        STAND
-                {
-                    public boolean isGrounded() { return true; }
-                    Color getColor() { return Color.MAROON; }
-                },
-        RUN
-                {
-                    public boolean isGrounded() { return true; }
-                    Color getColor() { return Color.BROWN; }
-                },
-        SPRINT
-                {
-                    public boolean isGrounded() { return true; }
-                    Color getColor() { return Color.DARKGRAY; }
-                    public boolean isSprint() { return true; }
-                },
-        WALL_STICK
-                {
-                    public boolean isOnWall() { return true; }
-                    Color getColor() { return Color.GREENYELLOW; }
-                },
-        WALL_CLIMB
-                {
-                    public boolean isOnWall() { return true; }
-                    Color getColor() { return Color.LIGHTGREEN; }
-                },
-        CROUCH
-                {
-                    public boolean isGrounded() { return true; }
-                    public boolean isLow() { return true; }
-                    Color getColor() { return Color.RED; }
-                },
-        CRAWL
-                {
-                    public boolean isGrounded() { return true; }
-                    public boolean isLow() { return true; }
-                    Color getColor() { return Color.HOTPINK; }
-                },
-        LOWER_SPRINT
-                {
-                    public boolean isGrounded() { return true; }
-                    public boolean isLow() { return true; }
-                    public boolean isSprint() { return true; }
-                    Color getColor() { return Color.DEEPPINK; }
-                },
-        SLIDE
-                {
-                    public boolean isGrounded() { return true; }
-                    public boolean isLow() { return true; }
-                    Color getColor() { return Color.PINK; }
-                },
-        SWIM
-                {
-                    Color getColor() { return Color.BLUE; }
-                };
 
-        public boolean isOnWall() { return false; }
-        public boolean isAirborne() { return false; }
-        public boolean isGrounded() { return false; }
-        public boolean isLow() { return false; }
-        public boolean isSprint() { return false; }
-        Color getColor() { return Color.BLACK; }
-    }
-    public State getState() { return state; }
-
-    //================================================================================================================
-    // Condition
-    //================================================================================================================
-    public enum Condition
-    {
-        NEGATE_ATTACK, NEGATE_BLOCK,
-        NEGATE_JUMP,
-        NEGATE_SPRINT_LEFT, NEGATE_SPRINT_RIGHT,
-        NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT,
-        NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
-        NEGATE_STABILITY, NEGATE_ACTIVITY,
-        DASH,
-        FORCE_STAND, FORCE_CROUCH
-    }
     private void addConditionApp(Infliction inf)
     {
         // TODO: check for immunities and resistances here using condType to cancel effect or modify .getTime()
@@ -1398,7 +1531,7 @@ public class Actor extends Item
             else if (!has(Condition.NEGATE_ACTIVITY))
             {
                 /* Dodging while knocked down */
-                if (Math.abs(getVelocity().mag()) <= walkSpeed)
+                if (velocity.magnitude() <= walkSpeed)
                 {
                     if (dirHoriz == LEFT && getVelocityX() > -rushSpeed / 1.5F) setVelocityX(-rushSpeed / 1.5F);
                     else if (dirHoriz == RIGHT && getVelocityX() < rushSpeed / 1.5F) setVelocityX(rushSpeed / 1.5F);
@@ -1407,7 +1540,7 @@ public class Actor extends Item
         }
     }
 
-    /* Called when player is hit */
+    //  Called when player is hit
     public void stagger(GradeEnum grade, DirEnum dir)
     {
         int mag = 0;
@@ -1481,7 +1614,7 @@ public class Actor extends Item
         if (mag > 0) stagger(mag - 1, staggerTime, dir);
     }
 
-    /* Called when player's attack is blocked */
+    // Called when player's attack is blocked
     public void staggerBlock(GradeEnum grade, DirEnum dir)
     {
         float staggerTime = proneRecoverTime / 2;
@@ -1507,7 +1640,7 @@ public class Actor extends Item
         if (dir.getVert() == DirEnum.RIGHT) addCondition(staggerTime, Condition.NEGATE_WALK_LEFT);
     }
 
-    /* Called when player lands too hard */
+    // Called when player lands too hard
     void staggerLanding(GradeEnum grade)
     {
         pressedJumpSurface = null;
@@ -1524,7 +1657,8 @@ public class Actor extends Item
 
     @Override
     public void damage(Infliction inf)
-    {
+    {   //TODO: Understand this
+        /*
         GradeEnum damageGrade = inf.getDamage();
         if (damageGrade != null)
         {
@@ -1552,6 +1686,7 @@ public class Actor extends Item
             if (landedTooHard) staggerLanding(newDamageGrade);
             //else stagger(newDamageGrade);
         }
+        */
     }
 
     public boolean isBlockingUp() { return pressingUp; }
@@ -1611,145 +1746,9 @@ public class Actor extends Item
         return true;
     }
 
-    private class LateSurface
-    {
-        private Entity entity;
-        private Vec2 lateVel;
-        private float duration = 0.15F; // TODO: decide this value
 
-        LateSurface(Entity entity, Vec2 lateVel)
-        {
-            this.entity = entity;
-            this.lateVel = lateVel;
-        }
 
-        boolean countdown(float deltaSec)
-        {
-            duration -= deltaSec;
-            if (duration <= 0) return true;
-            return false;
-        }
 
-        Vec2 getLateVel() { return lateVel; }
-
-        ShapeEnum getShape() { return entity.getShape(); }
-
-        boolean valid() { return entity != pressedJumpSurface; }
-    }
-
-    /*=======================================================================*/
-    /* Variables that are set by the character's stats                       */
-    /*=======================================================================*/
-
-    private final float ORIGINAL_WIDTH, ORIGINAL_HEIGHT;
-
-    /* This is the highest speed the player can be running or sprinting before
-     * changing their state to TUMBLE. */
-    private float maxGroundSpeed = 0.25F;
-
-    /* This is the highest speed the player can get from walking alone.
-     * They can go faster while walking with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float walkSpeed = 0.04F;
-
-    private float rushSpeed = 0.3F;
-
-    /* This is the highest speed the player can get from sprinting alone.
-     * They can go faster while sprinting with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float sprintSpeed = 0.13F;
-
-    /* This is the highest speed the player can get from running alone.
-     * They can go faster while running with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float runSpeed = 0.08F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is running or sprinting on the ground. */
-    private float runAccel = 0.4F;
-
-    /* This is the highest speed the player can be crawling or crouching before
-     * changing their state to TUMBLE or SLIDE. */
-    private float maxLowerGroundSpeed = 0.15F;
-
-    /* This is the highest speed the player can get from sprinting on their
-     * hands alone. They can go faster while sprinting on their hands with the
-     * help of external influences, such as going down a slope or being pushed
-     * by a faster object. */
-    private float lowerSprintSpeed = 0.10F;
-
-    /* This is the highest speed the player can get from crawling alone.
-     * They can go faster while crawling with the help of external influences,
-     * such as going down a slope or being pushed by a faster object. */
-    private float crawlSpeed = 0.05F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is crawling on the ground. */
-    private float crawlAccel = 0.3F;
-
-    /* This is the highest speed the player can be sliding before changing
-     * their state to TUMBLE. */
-    private float maxSlideSpeed = 0.3F;
-
-    /* This is the highest speed the player can be climbing before changing
-     * their state to RISE. */
-    private float maxClimbSpeed = 1F;
-
-    /* This is the highest speed the player can be skidding down a wall before
-     * changing their state to FALL. */
-    private float maxStickSpeed = 1.5F;
-
-    /* This is the acceleration that is applied to the player when on a wall.
-     * Most characters should use their crawlAccel value for this, unless they
-     * know how to climb without needing a running start. */
-    private float climbAccel = crawlAccel;
-
-    /* How long it takes to climb over a ledge after grabbing it */
-    private float climbLedgeTime = 1;
-
-    private float[] stairRecoverTime = { 0.05F, 0.05F, 0.05F };
-
-    /* This is the highest speed the player can move.
-     * (In the air or anywhere) */
-    private float maxTotalSpeed = 5F;
-
-    /* This is the highest speed the player can get from moving themselves in
-     * the air. They can go faster in the air with the help of external
-     * influences such as wind or being pushed by a faster object. */
-    private float airSpeed = 0.2F;
-
-    /* This is the acceleration that is applied to the player when dirPrimary
-     * is not null and the player is airborne. */
-    private float airAccel = 0.1F;
-
-    /* This is the highest speed the player can move in water. */
-    private float swimSpeed = 3F;
-
-    /* A variable "topSwimSpeed" won't be needed because the drag underwater
-     * will be high enough to cap the player's speed. */
-
-    /* This is the acceleration that is applied to the player when in water. */
-    private float swimAccel = 0.3F;
-
-    /* The velocity used to jump */
-    private float jumpVel = 0.4F;
-
-    /* How long dashing negates walking */
-    private float dashRecoverTime = 1;
-
-    /* How long it takes to get up from being prone */
-    private float proneRecoverTime = 1;
-
-    /* How long the player tumbles */
-    private float minTumbleTime = 1F;
-
-    // friction
-
-    /* How easy it is to be forced to crouch or go prone after falling too hard */
-    GradeEnum[] landingThresh = { GradeEnum.F, GradeEnum.F };
-
-    /* How easy it is to be staggered */
-    GradeEnum[] staggerThresh = { GradeEnum.F, GradeEnum.F };
 
     private void setCharacterStats()
     {
@@ -1794,10 +1793,36 @@ public class Actor extends Item
     }
 
 
+        private class LateSurface
+        {
+            private Entity entity;
+            private Vec2 lateVel;
+            private float duration = 0.15F; // TODO: decide this value
+
+            LateSurface(Entity entity, Vec2 lateVel)
+            {
+                this.entity = entity;
+                this.lateVel = lateVel;
+            }
+
+            boolean countdown(float deltaSec)
+            {
+                duration -= deltaSec;
+                if (duration <= 0) return true;
+                return false;
+            }
+
+            Vec2 getLateVel() { return lateVel; }
+
+            ShapeEnum getShape() { return entity.getShape(); }
+
+            boolean valid() { return entity != pressedJumpSurface; }
+        }
 
     public static void main(String[] args)
     {
         // applyPhysics(EntityCollection entities, float deltaSec)
+        /*
         EntityCollection entityList = new EntityCollection();
         Actor player = new Actor(0,0, Actor.EnumType.Lyra);
         player.setVelocity(10,10);
@@ -1816,5 +1841,7 @@ public class Actor extends Item
         System.out.println("\nLocation = (" + player.getX()+ ", " + player.getY() + ")");
         System.out.println("Velocity = (" + player.getVelocityX()+ ", " + player.getVelocityY() + ")");
         System.out.println("Acc = (" + player.getAccelerationX()+ ", " + player.getAccelerationY() + ")");
+
+         */
     }
 }

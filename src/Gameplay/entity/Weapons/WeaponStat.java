@@ -1,9 +1,6 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Characters.CharacterStat;
 import Util.GradeEnum;
-import Util.Print;
-import Util.Vec2;
 
 import static Util.GradeEnum.parseGrade;
 
@@ -104,25 +101,27 @@ public class WeaponStat
 
     /***************************** Ability Score Chart Access *****************************/
 
-    int durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
-    float waitSpeed(GradeEnum strGrade, GradeEnum agiGrade)
+    public int durability() { return DURABILITY[grades[Ability.DURABILITY.ordinal()].ordinal()]; }
+
+    public float waitSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
         int avg = (grades[Ability.WAIT_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
         return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg / 2];
     }
-    float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
+
+    public float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
         int avg = (grades[Ability.ATTACK_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
         return speedDep(strGrade) ? ATTACK_SPEED[avg] : ATTACK_SPEED[avg / 2];
     }
-    ConditionApp[] inflictionApp() { return inflictApps; }
-    ConditionApp[] selfInflictionApp() { return selfInflictApps; }
-    GradeEnum damage(GradeEnum strGrade)
+    public ConditionApp[] inflictionApp() { return inflictApps; }
+    public ConditionApp[] selfInflictionApp() { return selfInflictApps; }
+    public GradeEnum damage(GradeEnum strGrade)
     {
         int damageVal = grades[Ability.DAMAGE.ordinal()].ordinal();
         return GradeEnum.getGrade((damageVal + strGrade.ordinal()) / 2);
     }
-    GradeEnum precision(GradeEnum dexGrade)
+    public GradeEnum precision(GradeEnum dexGrade)
     {
         int precisionVal = grades[Ability.PRECISION.ordinal()].ordinal();
         return GradeEnum.getGrade((precisionVal + dexGrade.ordinal()) / 2);
@@ -134,7 +133,7 @@ public class WeaponStat
      * 3 - can block permeating attacks too (eg. kite shield)
      * 4 - can block top and bottom halves at the same time (eg. tower shield)
      */
-    int blockRating() { return blockRating; }
+    public int blockRating() { return blockRating; }
 
     private boolean speedDep(GradeEnum strGrade)
     {

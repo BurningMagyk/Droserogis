@@ -1,6 +1,7 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
 import Gameplay.DirEnum;
+import Gameplay.entity.Weapon;
 import Util.Vec2;
 
 public class Tick

@@ -1,23 +1,18 @@
-package Gameplay;
+package Gameplay.entity;
 
 import Importer.ImageResource;
 import Menus.Main;
-import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-
-import static Menus.Main.IMPORTER;
 
 abstract public class Entity
 {
     public static final float SPRITE_TO_WORLD_SCALE = 1f/50f;
 
-    static final int UP = 0;
-    static final int RIGHT = 1;
-    static final int DOWN = 2;
-    static final int LEFT = 3;
+    public static final int UP = 0;
+    public static final int RIGHT = 1;
+    public static final int DOWN = 2;
+    public static final int LEFT = 3;
 
     int opp(int dir)
     {
@@ -79,7 +74,8 @@ abstract public class Entity
     protected Vec2 acceleration = new Vec2(Vec2.ZERO);
 
     private float width, height, defWidth, defHeight;
-    private double sinTheta, cosTheta;
+    private float sinTheta = 1;
+    private float cosTheta = 0;
     private Vec2 normal = null;
     private Vec2[] vertexList;
 
@@ -164,9 +160,9 @@ abstract public class Entity
             vertexList[3] = new Vec2(-width / 2, height / 2);
         }
 
-        double hypotenuse = Math.sqrt(width * width + height * height);
-        sinTheta = (double) height / hypotenuse;
-        cosTheta = (double) width / hypotenuse;
+        float hypotenuse = (float)Math.sqrt(width * width + height * height);
+        sinTheta = height / hypotenuse;
+        cosTheta = width / hypotenuse;
     }
 
     public Vec2 getPosition() { return new Vec2(pos); }
@@ -185,6 +181,9 @@ abstract public class Entity
     public Vec2 getVelocity() { return new Vec2(velocity); }
     public float getVelocityX() { return velocity.x; }
     public float getVelocityY() { return velocity.y; }
+
+    public float getCosSlope() {return cosTheta;}
+    public float getSinSlope() {return sinTheta;}
 
     public void setVelocity(Vec2 v)
     {
@@ -229,28 +228,6 @@ abstract public class Entity
         else velocity.y += y;
     }
 
-    Vec2 getAcceleration() {return new Vec2(acceleration);}
-    float getAccelerationX() {return acceleration.x;}
-    float getAccelerationY() {return acceleration.y;}
-
-    public void setAcceleration(Vec2 v)
-    {
-        acceleration.x = v.x;
-        acceleration.y = v.y;
-    }
-    public void setAcceleration(float x, float y)
-    {
-        acceleration.x = x;
-        acceleration.y = y;
-    }
-    void setAccelerationX(float x) {acceleration.x = x;}
-    void setAccelerationY(float y) {acceleration.y = y;}
-
-    void addAcceleration(Vec2 a) { acceleration.add(a); }
-    void addAcceleration(float x, float y) { acceleration.add(new Vec2(x, y)); }
-    void addAccelerationX(float x) { acceleration.x += x; }
-    void addAccelerationY(float y) { acceleration.y += y; }
-
 
     public float getLeftEdge() { return pos.x - width / 2; }
 
@@ -268,7 +245,7 @@ abstract public class Entity
 
     public Color getColor() {return color;}
 
-    void resetFlags() { triggered = false; }
+    public void resetFlags() { triggered = false; }
     boolean getTriggered() { return triggered;}
     boolean setTriggered(boolean triggered)
     {
@@ -285,6 +262,7 @@ abstract public class Entity
      * Returns the direction that the other entity would move in according to
      * what velocity it had.
      */
+     /*
     public Vec2 applySlope(Vec2 origin)
     {
 //        if (shape != ShapeEnum.TRIANGLE_UP_L
@@ -293,11 +271,11 @@ abstract public class Entity
 //        double originMagnitude = Math.sqrt(origin.x * origin.x + origin.y * origin.y);
 //        if (originMagnitude == 0F) return new Vec2(0, 0);
 //
-//        /* Dot product of origin and normal */
+//        // Dot product of origin and normal
 //        float dotProduct = origin.x * normal.x + origin.y * normal.y;
 //        double cosTheta = dotProduct / (originMagnitude * normalMagnitude);
 //
-//        /* The direction of the sloped surface multiplied by cos(theta) */
+//        // The direction of the sloped surface multiplied by cos(theta)
 //        float xComp = (float) (-width * cosTheta / normalMagnitude);
 //        float yComp = (float) (-height * cosTheta / normalMagnitude);
 //        Print.yellow("x: " + xComp + ", y: " + yComp);
@@ -307,11 +285,13 @@ abstract public class Entity
         Vec2 fromY = applySlopeY(origin.y);
         return new Vec2(fromX.x + fromY.x, fromX.y + fromY.y);
     }
+    */
 
     /**
      * Returns the direction that the other entity would move in according to
      * what horizontal velocity it has.
      */
+    /*
     public Vec2 applySlopeX(float totalVel)
     {
         switch (shape)
@@ -332,11 +312,13 @@ abstract public class Entity
                 return new Vec2(totalVel, 0);
         }
     }
+    */
 
     /**
      * Returns the direction that the other entity would move in according to
      * what vertical velocity it has.
      */
+    /*
     public Vec2 applySlopeY(float totalVel)
     {
         switch (shape)
@@ -357,7 +339,7 @@ abstract public class Entity
                 return new Vec2(0, totalVel);
         }
     }
-
+    */
 
 
     boolean withinBoundsX(Entity other)
@@ -377,19 +359,19 @@ abstract public class Entity
         return withinBoundsX(other) && withinBoundsY(other);
     }
 
-    boolean surroundsX(Entity other)
+    public boolean surroundsX(Entity other)
     {
         return other.getX() - other.width / 2 >= pos.x - width / 2
                 && other.getX() + other.width / 2 <= pos.x + width / 2;
     }
 
-    boolean surroundsY(Entity other)
+    public boolean surroundsY(Entity other)
     {
         return other.getY() - other.height / 2 >= pos.y - height / 2
                 && other.getY() + other.height / 2 <= pos.y + height / 2;
     }
 
-    boolean surrounds(Entity other)
+    public boolean surrounds(Entity other)
     {
         return surroundsX(other) && surroundsY(other);
     }
@@ -412,7 +394,13 @@ abstract public class Entity
         return -1;
     }
 
-
+    //================================================================================================================
+    //Returns an array of size 2.
+    //If the entity is not touching anything, then directions[0] == -1.
+    //Otherwise, if entity is touching UP | DOWN, directions[0] == UP | DOWN and
+    //           if the surface is flat, directions[1] == -1 otherwise, directions[1] = LEFT | RIGHT
+    //Otherwise, if entity is not touching up or down, but is touching on a side, then directions[0] = LEFT | RIGHT
+    //================================================================================================================
     public int[] getTouchEdge(Entity other, Vec2 goal)
     {
         int[] directions = {-1, -1};
@@ -424,12 +412,12 @@ abstract public class Entity
 
         boolean[] shapeDirs = shape.getDirs();
 
-        /* The Actor is within the x-bounds */
+        // The Actor is within the x-bounds
         if (withinBoundsX(other))
         {
-            /* If this Entity has a level bottom side */
+            // If this Entity has a level bottom side
             if (shapeDirs[DOWN]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() > getBottomEdge()
                     && goal.y - other.height / 1.999 < getBottomEdge())
             {
@@ -437,9 +425,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* If this Entity has a level top side */
+            // If this Entity has a level top side
             if (shapeDirs[UP]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() < getTopEdge()
                     && goal.y + other.height / 1.999 > getTopEdge())
             {
@@ -447,9 +435,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* If this Entity has an upper-left slope */
+            // If this Entity has an upper-left slope
             if (!shapeDirs[LEFT] && !shapeDirs[UP]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() < getTopEdge(other.getX())
                     && goal.y + other.height / 1.999 > getTopEdge(goal.x))
             {
@@ -458,9 +446,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* If this Entity has an upper-right slope */
+            // If this Entity has an upper-right slope
             if (!shapeDirs[RIGHT] && !shapeDirs[UP]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() < getTopEdge(other.getX())
                     && goal.y + other.height / 1.999 > getTopEdge(goal.x))
             {
@@ -469,9 +457,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* If this Entity has a lower-left slope */
+            // If this Entity has a lower-left slope
             if (!shapeDirs[LEFT] && !shapeDirs[DOWN]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() > getBottomEdge(other.getX())
                     && goal.y - other.height / 1.999 < getBottomEdge(goal.x))
             {
@@ -480,9 +468,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* If this Entity has an lower-right slope */
+            // If this Entity has an lower-right slope
             if (!shapeDirs[RIGHT] && !shapeDirs[DOWN]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getY() > getBottomEdge(other.getX())
                     && goal.y - other.height / 1.999 < getBottomEdge(goal.x))
             {
@@ -492,10 +480,10 @@ abstract public class Entity
             }
         }
 
-        /* This Actor is within the y-bounds */
+        //This Actor is within the y-bounds
         if (withinBoundsY(other))
         {
-            /* This Entity has a level left side */
+            // This Entity has a level left side
             if (shapeDirs[LEFT]
                     /* And the other is in contact with it */
                     && other.getX() < getLeftEdge()
@@ -505,9 +493,9 @@ abstract public class Entity
                 return directions;
             }
 
-            /* This Entity has a level right side */
+            // This Entity has a level right side
             if (shapeDirs[RIGHT]
-                    /* And the other is in contact with it */
+                    // And the other is in contact with it
                     && other.getX() > getRightEdge()
                     && goal.x - other.width / 1.999 < getRightEdge())
             {
@@ -521,17 +509,17 @@ abstract public class Entity
 
     float getTopEdge(float otherX)
     {
-        /* Assumes that the Actor is within the x-bounds */
+        // Assumes that the Actor is within the x-bounds
 
         if (!shape.isTriangle() || shape.getDirs()[UP])
             return getTopEdge();
         float xRatio = (getVertexX(2) - otherX) / width;
-        /* Up-left */
+        // Up-left
         if (shape.getDirs()[RIGHT])
         {
             return getVertexY(2) + (xRatio * height);
         }
-        /* Up-right */
+        // Up-right
         else // if (shape.getDirs()[LEFT])
         {
             return getVertexY(0) - (xRatio * height);
@@ -540,17 +528,17 @@ abstract public class Entity
 
     float getBottomEdge(float otherX)
     {
-        /* Assumes that the Actor is within the x-bounds */
+        // Assumes that the Actor is within the x-bounds
 
         if (!shape.isTriangle() || shape.getDirs()[DOWN])
             return getBottomEdge();
         float xRatio = (getVertexX(1) - otherX) / width;
-        /* Down-left */
+        // Down-left
         if (shape.getDirs()[RIGHT])
         {
             return getVertexY(1) - (xRatio * height);
         }
-        /* Down-right */
+        // Down-right
         else // if (shape.getDirs()[LEFT])
         {
             return getVertexY(0) + (xRatio * height);
@@ -603,5 +591,5 @@ abstract public class Entity
     }
 
     public int spriteIndex = 0;
-    ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
+    public ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
 }
