@@ -6,13 +6,9 @@
 #temp vim files
 *~
 
-# ignore uncontrolled all image files
+# ignore all files in uncontrolled (images, fonts, docs, notes help, .... anything wanted only locally)
 Uncontrolled/*
 */Uncontrolled/*
-
-# ignore all font files
-*.ttf
-*.otf
 
 # ignore all text files
 *.txt
@@ -41,7 +37,8 @@ Uncontrolled/*
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+out
+out/*
+
 MANIFEST.MF
 
-out/**
-/out/production/Droserogis/Levels/

@@ -1,7 +1,6 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
 import Gameplay.DirEnum;
-import Util.Print;
 import Util.Vec2;
 
 public class Journey

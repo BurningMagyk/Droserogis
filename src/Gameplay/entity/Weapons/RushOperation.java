@@ -1,11 +1,11 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.entity.Actor;
 import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
-import Gameplay.Item;
+import Gameplay.entity.Item;
+import Gameplay.entity.Weapon;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
 
 public class RushOperation implements Weapon.Operation
@@ -83,7 +83,10 @@ public class RushOperation implements Weapon.Operation
         attackKey = command.ATTACK_KEY;
 
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
-        waitSpeed = weaponStat.waitSpeed(strGrade);
+        GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
+        GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
+
+        waitSpeed = weaponStat.waitSpeed(strGrade, agiGrade);
 
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
@@ -93,7 +96,7 @@ public class RushOperation implements Weapon.Operation
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
         damage = GradeEnum.getGrade(damageMod / 2 *
-                (weaponStat.damage().ordinal()
+                (weaponStat.damage(dexGrade).ordinal()
                 + strGrade.ordinal()));
     }
 

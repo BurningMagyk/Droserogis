@@ -1,14 +1,15 @@
-package Gameplay.Weapons;
+package Gameplay.entity.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.entity.Actor;
 import Gameplay.Characters.CharacterStat;
 import Gameplay.DirEnum;
-import Gameplay.Item;
+import Gameplay.entity.Item;
+import Gameplay.entity.Weapon;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
-class MeleeOperation implements Weapon.Operation
+public class MeleeOperation implements Weapon.Operation
 {
     @Override
     public String getName() { return name; }
@@ -67,8 +68,11 @@ class MeleeOperation implements Weapon.Operation
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
 
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
-        waitSpeed = weaponStat.waitSpeed(strGrade);
-        execSpeed = weaponStat.attackSpeed(strGrade);
+        GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
+        GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
+
+        waitSpeed = weaponStat.waitSpeed(strGrade, agiGrade);
+        execSpeed = weaponStat.attackSpeed(strGrade, agiGrade);
 
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
@@ -78,10 +82,10 @@ class MeleeOperation implements Weapon.Operation
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
         damage = GradeEnum.getGrade(damageMod / 2 *
-                (weaponStat.damage().ordinal()
+                (weaponStat.damage(strGrade).ordinal()
                 + strGrade.ordinal()));
         precision = GradeEnum.getGrade(precisionMod / 2 *
-                (weaponStat.precision().ordinal()
+                (weaponStat.precision(dexGrade).ordinal()
                 + characterStat.getGrade(CharacterStat.Ability.DEXTERITY).ordinal()));
 
         Print.blue("Operating \"" + getName() + "\"");
@@ -193,7 +197,7 @@ class MeleeOperation implements Weapon.Operation
         return false;
     }
 
-    Orient[] getTickOrients()
+    public Orient[] getTickOrients()
     {
         Orient[] tickOrients = new Orient[execJourney.length];
         for (int i = 0; i < execJourney.length; i++)
@@ -212,7 +216,7 @@ class MeleeOperation implements Weapon.Operation
                 conditionApps[0], execJourney, infTypes);
     }
 
-    enum MeleeEnum
+    public enum MeleeEnum
     {
         THRUST, THRUST_UNTERHAU, THRUST_UP, THRUST_DOWN, THRUST_DIAG_UP, THRUST_DIAG_DOWN,
         LUNGE,
@@ -249,7 +253,7 @@ class MeleeOperation implements Weapon.Operation
 
     // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
 
-    MeleeOperation(
+    public MeleeOperation(
             String name,
             MeleeEnum[][] next,
             MeleeEnum[] proceeds,
@@ -280,7 +284,7 @@ class MeleeOperation implements Weapon.Operation
         this.infTypes = infTypes;
     }
 
-    MeleeOperation(String name, MeleeOperation op)
+    public MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
                 op.funcDir, op.damageMod, op.precisionMod,
@@ -288,7 +292,7 @@ class MeleeOperation implements Weapon.Operation
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
-    MeleeOperation(
+    public MeleeOperation(
             String name,
             MeleeOperation op,
             MeleeEnum[][] next
@@ -300,7 +304,7 @@ class MeleeOperation implements Weapon.Operation
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
-    MeleeOperation(
+    public MeleeOperation(
             String name,
             MeleeOperation op,
             ConditionAppCycle cycle

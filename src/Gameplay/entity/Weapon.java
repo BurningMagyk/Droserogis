@@ -1,7 +1,14 @@
-package Gameplay.Weapons;
+package Gameplay.entity;
 
 import Gameplay.*;
 import Gameplay.Characters.CharacterStat;
+import Gameplay.entity.Weapons.Command;
+import Gameplay.entity.Weapons.Infliction;
+import Gameplay.entity.Weapons.MeleeOperation;
+import Gameplay.entity.Weapons.Orient;
+import Gameplay.entity.Weapons.RushOperation;
+import Gameplay.entity.Weapons.WeaponStat;
+import Gameplay.entity.Weapons.WeaponType;
 import Util.*;
 import javafx.scene.paint.Color;
 
@@ -22,17 +29,17 @@ public class Weapon extends Item
     private final Orient DEF_ORIENT;
     private Orient orient;
 
-    Actor actor;
+    private Actor actor;
     private boolean ballistic = false, idle = true;
     private Command currentCommand;
-    Operation currentOp;
+    private Operation currentOp;
     private final Operation[] ops;
     private final WeaponStat weaponStat;
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
-           WeaponType weaponType, WeaponStat weaponStat, String[] spritePaths)
+                  WeaponType weaponType, WeaponStat weaponStat, String[] spritePaths)
     {
         super(xPos, yPos, width, height, mass, weaponStat.durability(), spritePaths);
 
@@ -83,7 +90,7 @@ public class Weapon extends Item
         for (Vec2 wieldDim : shapeCorners_Rotated) { wieldDim.rotate(); }
     }
 
-    static float reduceTheta(float theta)
+    public static float reduceTheta(float theta)
     {
         while (theta < 0) { theta += Math.PI; }
         while (theta >= Math.PI) { theta -= Math.PI; }
@@ -323,7 +330,7 @@ public class Weapon extends Item
         {
             if (currentOpExec())
             {
-                if (momentum.mag() > currentOp.getInfliction(actor, getMass()).getMomentum().mag())
+                if (momentum.magnitude() > currentOp.getInfliction(actor, getMass()).getMomentum().magnitude())
                     interrupt();
             }
             else interrupt();
@@ -390,7 +397,7 @@ public class Weapon extends Item
     /*=======================================================================*/
 
     @Override
-    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    public void update(EntityCollection<Entity> entities, float deltaSec)
     {
         if (currentOp != null)
         {
@@ -511,7 +518,7 @@ public class Weapon extends Item
     /*                            Inner Classes                              */
     /*=======================================================================*/
 
-    interface Operation
+    public interface Operation
     {
         String getName();
         DirEnum getDir();

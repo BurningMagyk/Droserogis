@@ -1,5 +1,7 @@
 package Gameplay;
 
+import Gameplay.entity.Actor;
+import Gameplay.entity.Entity;
 import javafx.scene.paint.Color;
 
 public class CameraZone extends Entity
@@ -19,7 +21,7 @@ public class CameraZone extends Entity
     @Override
     public Color getColor() { return color; }
 
-    float getDistanceFromEdge(Actor actor)
+    public float getDistanceFromEdge(Actor actor)
     {
         float w = actor.getWidth() / 2, h = actor.getHeight() / 2;
         return Math.min(
