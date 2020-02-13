@@ -1,7 +1,6 @@
 package Gameplay;
 
-import Gameplay.entity.Entity;
-import Gameplay.entity.Item;
+import Util.Print;
 import Util.Vec2;
 
 public enum DirEnum

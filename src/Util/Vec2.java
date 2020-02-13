@@ -25,13 +25,11 @@ public class Vec2
         this.y = v.y;
     }
 
-    //Return a value so operations can be chained
-    public Vec2 normalize()
+    public void normalize()
     {
         float r = (float)Math.sqrt(x*x+y*y);
         x /= r;
         y /= r;
-        return this;
     }
 
     public Vec2 mul(float a)
@@ -74,33 +72,30 @@ public class Vec2
         return new Vec2(x - v.x, y - v.y);
     }
 
-    //==============================================================================================================
-    // Magnitude is the length of the vector. Magnitude is always >=0.
-    //==============================================================================================================
-    public double magnitude()
+    public double mag()
   {
       return Math.sqrt(x * x + y * y);
   }
+    public double mag(DirEnum dir)
+    {
+        float x;
+        if ((dir.getHoriz().getSign() < 0 && this.x < 0)
+                || (dir.getHoriz().getSign() > 0 && this.x > 0)) x = this.x;
+        else x = 0;
 
+        float y;
+        if ((dir.getHoriz().getSign() < 0 && this.y < 0)
+                || (dir.getHoriz().getSign() > 0 && this.y > 0)) y = this.y;
+        else y = 0;
 
-    //==============================================================================================================
-    // Like magnitude, this is always >=0.  Its only advantage over magnitude is that it is quicker to calculate.
-    // a.magnitudeSquared() > b.magnitudeSquared() if and only if a.magnitude() > b.magnitude()
-    // Thus, prefer to magnitude if all that is needed is greater than or equal to comparison.
-    //==============================================================================================================
-    public double magnitudeSquared() { return x * x + y * y; }
+        return Math.sqrt(x * x + y * y);
+    }
 
-
-
-    //==============================================================================================================
-    // Return this so operation can be chained.
-    //==============================================================================================================
-    public Vec2 rotate(float theta)
+    public void rotate(float theta)
     {
         float xx = (float) (x * Math.cos(theta) - y * Math.sin(theta));
         y = (float) (x * Math.sin(theta) + y * Math.cos(theta));
         x = xx;
-        return this;
     }
 
     public void rotate()
@@ -121,25 +116,5 @@ public class Vec2
     public String toString()
     {
         return "(" + x + ", " + y + ")";
-    }
-
-    public Vec2 bound(float min, float max)
-    {
-        if (x<min) x=min;
-        else if (x>max) x=max;
-
-        if (y<min) y=min;
-        else if (y>max) y=max;
-
-        return this;
-    }
-
-
-    public static float bound(float x, float min, float max)
-    {
-        if (x<min) x=min;
-        else if (x>max) x=max;
-
-        return x;
     }
 }
