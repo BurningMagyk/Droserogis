@@ -602,6 +602,7 @@ public class LevelBuilder  extends Application
         {
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
             else gtx.setFill(Color.DARKGREEN);
+            System.out.println(block.getX()+", " + block.getY());
         }
         else if (block instanceof Block)
         {
@@ -829,10 +830,10 @@ public class LevelBuilder  extends Application
                     }
                 }
                 else {
-                    if (data.length != 6)
+                    if (data.length != 7)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Block record must have 5 fields.");
+                        throw new IOException("Block record must have 6 fields.");
                     }
                     boolean isLiquid = Boolean.valueOf(data[5]);
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
@@ -840,6 +841,7 @@ public class LevelBuilder  extends Application
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, shape, 1.0F, null,null);
                     ((Block)entity).setLiquid(isLiquid);
+                    ((Block)entity).setCapType(Integer.valueOf(data[6]));
                 }
 
                 entityList.add(entity);
