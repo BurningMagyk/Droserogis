@@ -830,7 +830,7 @@ public class LevelBuilder  extends Application
                     }
                 }
                 else {
-                    if (data.length != 7)
+                    if (data.length != 6)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
                         throw new IOException("Block record must have 6 fields.");
@@ -841,7 +841,6 @@ public class LevelBuilder  extends Application
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, shape, 1.0F, null,null);
                     ((Block)entity).setLiquid(isLiquid);
-                    ((Block)entity).setCapType(Integer.valueOf(data[6]));
                 }
 
                 entityList.add(entity);
