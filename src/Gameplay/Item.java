@@ -124,7 +124,8 @@ public abstract class Item extends Entity
 
         /* This is needed so that the Actor sinks when inactive in liquid */
         if (Math.abs(getVelocityX()) < minThreshSpeed) setVelocityX(0);
-        if (Math.abs(getVelocityY()) < minThreshSpeed) setVelocityY(0);
+        if (Math.abs(getVelocityY()) < minThreshSpeed)
+            setVelocityY(inWater ? (float) minThreshSpeed : 0);
     }
 
     Vec2 determineDrag()
@@ -190,6 +191,9 @@ public abstract class Item extends Entity
     {
         Vec2 originalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
+        float fromSlope = 0;
+        if (touchEntity[DOWN] != null  && !touchEntity[DOWN].getShape().getDirs()[UP])
+            fromSlope = touchEntity[DOWN].applySlopeX(getVelocityX()).y;
         inWater = false; submerged = false;
 
         touchEntity[UP] = null;
@@ -215,7 +219,13 @@ public abstract class Item extends Entity
             int[] edge = entity.getTouchEdge(this, goal);
 
             /* Actor made no contact with the entity */
-            if (edge[0] < 0) continue;
+            if (edge[0] < 0)
+            {
+                /* Fell off an upward slope, correct y-velocity */
+                if (fromSlope > 0) setVelocityY(fromSlope);
+
+                continue;
+            }
 
             /* If touching a block of liquid */
             if (withBlock && ((Block) entity).isLiquid())
