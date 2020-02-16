@@ -301,7 +301,9 @@ public class Actor extends Item
         if (state.isGrounded())
         {
             /* If the entity being stood on is an upward-slope triangle */
-            if (!touchEntity[DOWN].getShape().getDirs()[UP])
+            boolean onUpwardSlope = !touchEntity[DOWN].getShape().getDirs()[UP];
+
+            if (onUpwardSlope)
             {
                 float slopeAccel = gravity * getMass();
                 if (state == State.CROUCH || state == State.CRAWL) slopeAccel /= 2;
@@ -327,7 +329,7 @@ public class Actor extends Item
                 else if (vx > -topSpeed)
                 {
                     addAccelerationX(-accel);
-                    addVelocityX((float) -minThreshSpeed * 1.5F);
+                    addVelocityX(((float) -minThreshSpeed * 1.5F));
                 }
                 if (has(Condition.DASH) && getVelocityX() > -rushSpeed
                         && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
@@ -717,7 +719,7 @@ public class Actor extends Item
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        goal.add(getVelocity().mul(deltaSec));
+        goal.add(getVelocity().mul(deltaSec * 80));
 
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(deltaSec, goal, entities);

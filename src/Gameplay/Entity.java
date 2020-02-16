@@ -87,7 +87,8 @@ abstract public class Entity
     private Color color = Color.BLACK;
 
     private boolean triggered = false;
-    private float friction = 3F;
+    //private float friction = 3F;
+    private float friction = 0.5F;
 
     public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
     {

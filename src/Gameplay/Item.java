@@ -17,9 +17,11 @@ public abstract class Item extends Entity
 
     float slopeJumpBuffer = 0.1F;
 
-    float gravity = 17.0F;
+//    float gravity = 17.0F;
+    float gravity = 0.25F;
 
-    float airDrag = 1F;
+//    float airDrag = 1F;
+    float airDrag = 0.25F;
     float waterDrag = 10F;
 
     boolean bumpingCeiling = false;
@@ -170,8 +172,7 @@ public abstract class Item extends Entity
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        getVelocity().mul(deltaSec);
-        goal.add(getVelocity());
+        goal.add(getVelocity().mul(deltaSec * 80));
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
@@ -323,7 +324,7 @@ public abstract class Item extends Entity
         if (amount == 0) return;
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-        Print.blue(amount);
+        //Print.blue(amount);
         damage(new Infliction(GradeEnum.getGrade(amount), infType));
     }
 
