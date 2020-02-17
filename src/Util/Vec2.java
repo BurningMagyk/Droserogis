@@ -72,6 +72,13 @@ public class Vec2
         return new Vec2(x - v.x, y - v.y);
     }
 
+    public static double sign(double x)
+    {
+        if (x<0) return -1;
+        if (x>0) return 1;
+        return 0;
+    }
+
     public double mag()
   {
       return Math.sqrt(x * x + y * y);

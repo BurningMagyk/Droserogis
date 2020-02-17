@@ -13,6 +13,7 @@ public class Block extends Entity
     private Infliction.InflictionType[] infMaterials;
     private boolean isLiquid = false;
     private Color liquidColor = Color.rgb(150, 180, 230, 0.5);
+    private int capType;
 
     public Block(float xPos, float yPos, float width, float height,
                  ShapeEnum shape, float hazardRating, Infliction.InflictionType[] infMaterials,
@@ -42,4 +43,7 @@ public class Block extends Entity
         if (isLiquid) return liquidColor;
         return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
+
+    public int getCapType() {return capType;}
+    public void setCapType(int capType) {this.capType = capType;}
 }

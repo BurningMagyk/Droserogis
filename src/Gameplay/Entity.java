@@ -87,7 +87,8 @@ abstract public class Entity
     private Color color = Color.BLACK;
 
     private boolean triggered = false;
-    private float friction = 3F;
+    //private float friction = 3F;
+    private float friction = 0.5F;
 
     public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
     {
@@ -121,26 +122,42 @@ abstract public class Entity
         //For a triangle, the given (xPos,yPos) is the center of the hypotenuse.
         //  This is done to make it easy to align objects in level building. However, the center of the hypotenuse would NOT
         //  be the center of mass of a right triangle of a thin lamina of uniform density.
+        //Note: for collision to work, vertices must be in clockwise order.
+        //      for shadow rendering to work, vertex 0 and vertex 1 must be on the upper game surface.
         if (shape == ShapeEnum.TRIANGLE_UP_R)
         {
+            //0
+            //##
+            //2#1
             vertexList = new Vec2[3];
-            vertexList[0] = new Vec2(-width / 2, height / 2);   // Lower-left corner (square corner)
-            vertexList[1] = new Vec2(-width / 2, -height / 2);  // Upper-left corner
-            vertexList[2] = new Vec2(width / 2, height / 2);    // Lower-right corner
+            vertexList[0] = new Vec2(-width / 2, -height / 2);  // Upper-left corner
+            vertexList[1] = new Vec2(width / 2, height / 2);    // Lower-right corner
+            vertexList[2] = new Vec2(-width / 2, height / 2);   // Lower-left corner (square corner)
             normal.x = width; normal.y = -height;
         }
 
         else if (shape == ShapeEnum.TRIANGLE_UP_L)
         {
+            //  1
+            // ##
+            //0#2
             vertexList = new Vec2[3];
-            vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
-            vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
-            vertexList[2] = new Vec2(width / 2, -height / 2);   // Upper-right corner
+            vertexList[0] = new Vec2(-width / 2, height / 2);   // Lower-left corner
+            vertexList[1] = new Vec2(width / 2, -height / 2);   // Upper-right corner
+            vertexList[2] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
+
+            //vertexList = new Vec2[3];
+            //vertexList[0] = new Vec2(width / 2, height / 2);    // Lower-right corner (square corner)
+            //vertexList[1] = new Vec2(-width / 2, height / 2);   // Lower-left corner
+            //vertexList[2] = new Vec2(width / 2, -height / 2);   // Upper-right corner
             normal.x = -width; normal.y = -height;
         }
 
         else if (shape == ShapeEnum.TRIANGLE_DW_R)
         {
+            //0#1
+            //##
+            //2
             vertexList = new Vec2[3];
             vertexList[0] = new Vec2(-width / 2, -height / 2);
             vertexList[1] = new Vec2(width / 2, -height / 2);
@@ -149,10 +166,13 @@ abstract public class Entity
         }
         else if (shape == ShapeEnum.TRIANGLE_DW_L)
         {
+            //0#1
+            // ##
+            //  2
             vertexList = new Vec2[3];
-            vertexList[0] = new Vec2(width / 2, -height / 2);
-            vertexList[1] = new Vec2(width / 2, height / 2);
-            vertexList[2] = new Vec2(-width / 2, -height / 2);
+            vertexList[0] = new Vec2(-width / 2, -height / 2);
+            vertexList[1] = new Vec2(width / 2, -height / 2);
+            vertexList[2] = new Vec2( width / 2,  height / 2);
             normal.x = -width; normal.y = height;
         }
         else if (shape == ShapeEnum.RECTANGLE)
@@ -523,18 +543,18 @@ abstract public class Entity
     {
         /* Assumes that the Actor is within the x-bounds */
 
-        if (!shape.isTriangle() || shape.getDirs()[UP])
-            return getTopEdge();
-        float xRatio = (getVertexX(2) - otherX) / width;
+        if (!shape.isTriangle() || shape.getDirs()[UP]) return getTopEdge();
+
+        float xRatio = (pos.x+width/2 - otherX) / width;
         /* Up-left */
         if (shape.getDirs()[RIGHT])
         {
-            return getVertexY(2) + (xRatio * height);
+            return (pos.y-height/2) + (xRatio * height);
         }
         /* Up-right */
         else // if (shape.getDirs()[LEFT])
         {
-            return getVertexY(0) - (xRatio * height);
+            return (pos.y+height/2) - (xRatio * height);
         }
     }
 
@@ -542,18 +562,18 @@ abstract public class Entity
     {
         /* Assumes that the Actor is within the x-bounds */
 
-        if (!shape.isTriangle() || shape.getDirs()[DOWN])
-            return getBottomEdge();
-        float xRatio = (getVertexX(1) - otherX) / width;
+        if (!shape.isTriangle() || shape.getDirs()[DOWN]) return getBottomEdge();
+
+        float xRatio = (pos.x+width/2 - otherX) / width;
         /* Down-left */
         if (shape.getDirs()[RIGHT])
         {
-            return getVertexY(1) - (xRatio * height);
+            return (pos.y+height/2) - (xRatio * height);
         }
         /* Down-right */
         else // if (shape.getDirs()[LEFT])
         {
-            return getVertexY(0) + (xRatio * height);
+            return (pos.y-height/2) + (xRatio * height);
         }
     }
 

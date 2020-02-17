@@ -33,10 +33,8 @@ public class Main extends Application
     public final static Importer IMPORTER = new Importer();
     public final static Translator TRANSLATOR = new Translator();
 
-    private final int SCREEN_WIDTH =
-            Toolkit.getDefaultToolkit().getScreenSize().width;
-    private final int SCREEN_HEIGHT =
-            Toolkit.getDefaultToolkit().getScreenSize().height;
+    private final int SCREEN_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
+    private final int SCREEN_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
 
     private Controller MAINGAME;
 

@@ -8,6 +8,7 @@ import Menus.Main;
 import Util.DebugEnum;
 import Util.Reactor;
 import Util.Vec2;
+import Gameplay.Entity.ShapeEnum;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -21,8 +22,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import org.lwjgl.glfw.GLFWGamepadState;
 
-import java.time.Instant;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
@@ -31,7 +30,7 @@ public class Gameplay implements Reactor
     private GraphicsContext gfx;
     private AnimationTimer timer;
     private int frame = 0;
-    private double fps = 0;
+    private float fps = 0;
     private long fpsLastTime = 0;
     private int  fpsLastFrame = 0;
 
@@ -48,11 +47,20 @@ public class Gameplay implements Reactor
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image blockTexture = new Image("/Image/woodTexture.png");
-    private ImagePattern blockTexturePattern;
+    private Image textureBlock = new Image("/Image/woodTexture.png");
+    private Image textureShadow = new Image("/Image/shadowTexture.png");
+
+    private ImagePattern texturePatternBlock;
+    private ImagePattern texturePatternShadow;
+
+    private Image textureWater0 = new Image("/Image/water0.png");
+    private Image textureWater1 = new Image("/Image/water1.png");
+    private ImagePattern texturePatternWater0;
+    private ImagePattern texturePatternWater1;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
+
         gfx = context;
         this.viewWidth = (int) gfx.getCanvas().getWidth();
         this.viewHeight = (int) gfx.getCanvas().getHeight();
@@ -109,26 +117,24 @@ public class Gameplay implements Reactor
         {
             lastUpdateTime = System.nanoTime();
             fpsLastTime = System.nanoTime();
-            fps = 1.0/60.0;
+            fps = 60.0f;
             return;
         }
         long currentNano = System.nanoTime();
         float deltaSec = (float)((currentNano - lastUpdateTime) * 1e-9);
 
-        //float deltaSec = 1F/60F;
         lastUpdateTime = currentNano;
         frame++;
-        if ((now - fpsLastTime) > 1e9) //Print fps every second
+        if ((now - fpsLastTime) > 1e9)
         {
-            fps = (frame - fpsLastFrame)/((currentNano-fpsLastTime)*1e-9);
+            fps = (frame - fpsLastFrame)/((currentNano-fpsLastTime)*1e-9f);
             fpsLastTime = currentNano;
             fpsLastFrame = frame;
         }
-        deltaSec = (float)(1.0/fps);
+        deltaSec = 1.0f/fps;
 
         queryGamepads();
 
-        // triggerContacts() sets every entity's flags correctly only if they've all been reset
         for (Entity entity : entities) entity.resetFlags();
 
         for (Weapon weapon : entities.getWeaponList()) weapon.applyInflictions();
@@ -145,9 +151,9 @@ public class Gameplay implements Reactor
 
         gfx.setFill(Color.BLACK);
         renderBackground();
-
-        /* Draw all entities after they've been moved and their flags have been set */
-        for (Entity entity : entities) drawEntity(entity);
+        renderShadows();
+        renderEntities();
+        renderSecondWaterLayer();
 
         gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
 
@@ -265,17 +271,111 @@ public class Gameplay implements Reactor
         //GAMEPADS[0].query(entities.getPlayer(1));
     }
 
+
+
+    private void renderShadows()
+    {
+        double[] xx = new double[4];
+        double[] yy = new double[4];
+        gfx.setFill(texturePatternShadow);
+        for (Entity entity : entities)
+        {
+            if ((entity instanceof Block) == false) continue;
+            Block block = ((Block) entity);
+            double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+            double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+            double width = entity.getWidth() * cameraZoom;
+            float height = entity.getHeight() * cameraZoom;
+
+            if (block.isLiquid())
+            {
+                gfx.setFill(texturePatternWater0);
+                gfx.fillRect(x, y, width, height);
+                gfx.setFill(texturePatternShadow);
+                continue;
+            }
+
+            Entity.ShapeEnum shape = entity.getShape();
+            double shadowL = (x-viewWidth/2)/30.0;
+            double shadowR = (x+width-viewWidth/2)/30.0;
+            //Top surface
+            if (shape != ShapeEnum.TRIANGLE_UP_L && shape != ShapeEnum.TRIANGLE_UP_R)
+            {
+                xx[0] = x + width;           yy[0] = y;
+                xx[1] = x;                   yy[1] = y;
+                xx[2] = x + shadowL;         yy[2] = y - 24;
+                xx[3] = x + width + shadowR; yy[3] = y - 24;
+                gfx.fillPolygon(xx, yy, 4);
+            }
+
+            //Top surface
+            else if (shape == ShapeEnum.TRIANGLE_UP_L )
+            {
+                xx[0] = x;                     yy[0] = y+height;
+                xx[1] = x + width;             yy[1] = y;
+                xx[2] = x + width;             yy[2] = y - 24;
+                xx[3] = x;                     yy[3] = y + height - 24;
+                gfx.fillPolygon(xx, yy, 4);
+            }
+
+            //Top surface
+            else if (shape == ShapeEnum.TRIANGLE_UP_R)
+            {
+                double triShadow = Math.min(shadowL, 0);
+                if (x>viewWidth/2) triShadow = Math.max(shadowR, 0);
+                xx[0] = x + width;             yy[0] = y+height;
+                xx[1] = x;                     yy[1] = y;
+                xx[2] = x;                     yy[2] = y - 24;
+                xx[3] = x + width;             yy[3] = y + height - 24;
+                gfx.fillPolygon(xx, yy, 4);
+            }
+
+
+            if (shadowL<0)
+            {
+                if (shape != ShapeEnum.TRIANGLE_DW_L && shape != ShapeEnum.TRIANGLE_UP_L)
+                {
+                    xx[0] = x + shadowL;       yy[0] = y - 24;
+                    xx[1] = x;                 yy[1] = y;
+                    xx[2] = x;                 yy[2] = y + height;
+                    xx[3] = x + shadowL;       yy[3] = y + height - 24;
+                    if (shape == ShapeEnum.TRIANGLE_UP_R) yy[1] = yy[0];
+                    gfx.fillPolygon(xx, yy, 4);
+                }
+            }
+            if (shadowR>0)
+            {
+                if (shape != ShapeEnum.TRIANGLE_DW_R && shape != ShapeEnum.TRIANGLE_UP_R)
+                {
+                    xx[0] = x + width;             yy[0] = y;
+                    xx[1] = x + width + shadowR;   yy[1] = y - 24;
+                    xx[2] = x + width + shadowR;   yy[2] = y + height - 24;
+                    xx[3] = x + width;             yy[3] = y + height;
+                    if (shape == ShapeEnum.TRIANGLE_UP_L) yy[0] = yy[1];
+                    gfx.fillPolygon(xx, yy, 4);
+                }
+            }
+        }
+    }
+
+
+
+
     /**
      * Until we utilize sprites, we'll test the game by drawing shapes that match the
      * blocks' hitboxes. The blocks' colors will help indicate what state they're in.
      */
-    private void drawEntity(Entity entity)
+    private void renderEntities()
     {
-        //TODO: Right now the image loader loads every image size 35x70
-        //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
-        ImageResource sprite = entity.getSprite();
-        if (sprite != null)
+        double[] xPos = new double[3];
+        double[] yPos = new double[3];
+        for (Entity entity : entities)
         {
+            //TODO: Right now the image loader loads every image size 35x70
+            //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
+            ImageResource sprite = entity.getSprite();
+            if (sprite != null)
+            {
             /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
             xPos = xPos - Sprite.getRequestedWidth() / 2; //this is set in the Importer
 
@@ -283,93 +383,101 @@ public class Gameplay implements Reactor
             yPos = yPos - Sprite.getRequestedHeight() / 2; //this is set in the Importer
 
             context.drawImage(Sprite,xPos,yPos);*/
-
-            sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
-                    (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
-                    entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
-        }
-        else
-        {
-            //if (entity instanceof Block) gfx.setFill(blockTexturePattern);
-            gfx.setFill(entity.getColor());
-
-            if (entity.getShape().isTriangle())
-            {
-                double[] xPos = new double[3];
-                double[] yPos = new double[3];
-
-                for (int i = 0; i < 3; i++)
-                {
-                    xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom +6;
-                    yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom -6;
-                }
-                gfx.setFill(Color.BLACK);
-                gfx.fillPolygon(xPos, yPos, 3);
-
-                for (int i = 0; i < 3; i++)
-                {
-                    xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
-                    yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
-                }
-                gfx.setFill(blockTexturePattern);
-                gfx.fillPolygon(xPos, yPos, 3);
+            //System.out.println("drawing sprite");
+                sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
+                        (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
+                        entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
             }
-            else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+            else
             {
-                if (entity instanceof Weapon)
-                {
-                    Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
-                    if (cc != null)
-                    {
-                        gfx.setFill(Color.rgb(120, 170, 170));
-                        for (int j = 0; j < cc.length; j++)
-                        {
-                            double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
-                            double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
-                            for (int i = 0; i < xxCorners.length; i++)
-                            {
-                                xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                                yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
-                            }
-                            gfx.fillPolygon(xxCorners, yyCorners, 4);
-                        }
-                    }
+                gfx.setFill(entity.getColor());
 
-                    gfx.setFill(entity.getColor());
-                    Vec2[] c = ((Weapon) entity).getShapeCorners();
-                    double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
-                    double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
-                    for (int i = 0; i < xCorners.length; i++)
+                if (entity.getShape().isTriangle())
+                {
+                    for (int i = 0; i < 3; i++)
                     {
-                        xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                        yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                        xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
+                        yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                     }
-                    gfx.fillPolygon(xCorners, yCorners, 4);
-                } else {
-                    Vec2 pos = entity.getPosition();
-                    double x = (pos.x - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
-                    double y = (pos.y - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+                    gfx.setFill(texturePatternBlock);
+                    gfx.fillPolygon(xPos, yPos, 3);
+                }
+                else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+                {
+                    if (entity instanceof Weapon)
+                    {
+                        Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
+                        if (cc != null)
+                        {
+                            gfx.setFill(Color.rgb(120, 170, 170));
+                            for (int j = 0; j < cc.length; j++)
+                            {
+                                double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
+                                double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
+                                for (int i = 0; i < xxCorners.length; i++)
+                                {
+                                    xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                                    yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                                }
+                                gfx.fillPolygon(xxCorners, yyCorners, 4);
+                            }
+                        }
+
+                        gfx.setFill(entity.getColor());
+                        Vec2[] c = ((Weapon) entity).getShapeCorners();
+                        double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+                        double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
+                        for (int i = 0; i < xCorners.length; i++)
+                        {
+                            xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                            yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                        }
+                        gfx.fillPolygon(xCorners, yCorners, 4);
+                    }
+                    else
+                    {
+                        double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+                        double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+                        double width = entity.getWidth() * cameraZoom;
+                        double height = entity.getHeight() * cameraZoom;
+
+                        if (entity instanceof Block)
+                        {
+                            if (((Block) entity).isLiquid()) continue;
+                            else gfx.setFill(texturePatternBlock);
+                        }
+                        else gfx.setFill(entity.getColor());
+                        gfx.fillRect(x, y, width, height);
+                    }
+                }
+
+                /* Draws vertical and horizontal lines through the camera for debugging */
+                //gfx.setFill(Color.BLACK);
+                //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+                //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+            }
+        }
+    }
+
+
+
+
+    private void renderSecondWaterLayer()
+    {
+        for (Entity entity : entities)
+        {
+            if (entity instanceof Block)
+            {
+                if (((Block) entity).isLiquid())
+                {
+                    double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+                    double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
                     double width = entity.getWidth() * cameraZoom;
                     double height = entity.getHeight() * cameraZoom;
-
-                    if (entity instanceof Block)
-                    {
-                        gfx.setFill(Color.BLACK);
-                        gfx.fillRect(x + 6, y - 6, width, height);
-                        gfx.setFill(blockTexturePattern);
-                    }
+                    gfx.setFill(texturePatternWater1);
                     gfx.fillRect(x, y, width, height);
-
-                    //gfx.setStroke(Color.BLACK);
-                    //gfx.setLineWidth(1);
-                    //gfx.strokeLine(x, y, x+width, y+height);
                 }
             }
-
-            /* Draws vertical and horizontal lines through the middle for debugging */
-            //gfx.setFill(Color.BLACK);
-            //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
-            //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
         }
     }
 
@@ -434,8 +542,7 @@ public class Gameplay implements Reactor
     private void renderBackground()
     {
         /* Clear canvas */
-        gfx.clearRect(0, 0, gfx.getCanvas().getWidth(),
-                gfx.getCanvas().getHeight());
+        gfx.clearRect(0, 0, viewWidth, viewHeight);
 
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
@@ -448,7 +555,13 @@ public class Gameplay implements Reactor
 
         double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 256, 175, false);
+        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 175, false);
+        texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 400, 400, false);
+
+        long currentNano = System.nanoTime();
+        float shift =  (float)(currentNano*0.5e-8);
+        texturePatternWater0 = new ImagePattern(textureWater0, offsetX+shift, offsetY+shift, 512, 512, false);
+        texturePatternWater1 = new ImagePattern(textureWater1, offsetX+shift/2, offsetY-shift/2, 512, 512, false);
     }
 
     public static void main(String[] args)

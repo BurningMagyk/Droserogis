@@ -602,6 +602,7 @@ public class LevelBuilder  extends Application
         {
             if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
             else gtx.setFill(Color.DARKGREEN);
+            System.out.println(block.getX()+", " + block.getY());
         }
         else if (block instanceof Block)
         {
@@ -832,7 +833,7 @@ public class LevelBuilder  extends Application
                     if (data.length != 6)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Block record must have 5 fields.");
+                        throw new IOException("Block record must have 6 fields.");
                     }
                     boolean isLiquid = Boolean.valueOf(data[5]);
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
