@@ -17,9 +17,11 @@ public abstract class Item extends Entity
 
     float slopeJumpBuffer = 0.1F;
 
-    float gravity = 17.0F;
+//    float gravity = 17.0F;
+    float gravity = 0.25F;
 
-    float airDrag = 1F;
+//    float airDrag = 1F;
+    float airDrag = 0.25F;
     float waterDrag = 10F;
 
     boolean bumpingCeiling = false;
@@ -122,7 +124,8 @@ public abstract class Item extends Entity
 
         /* This is needed so that the Actor sinks when inactive in liquid */
         if (Math.abs(getVelocityX()) < minThreshSpeed) setVelocityX(0);
-        if (Math.abs(getVelocityY()) < minThreshSpeed) setVelocityY(0);
+        if (Math.abs(getVelocityY()) < minThreshSpeed)
+            setVelocityY(inWater ? (float) minThreshSpeed : 0);
     }
 
     Vec2 determineDrag()
@@ -170,8 +173,7 @@ public abstract class Item extends Entity
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        getVelocity().mul(deltaSec);
-        goal.add(getVelocity());
+        goal.add(getVelocity().mul(deltaSec * 80));
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
@@ -189,6 +191,9 @@ public abstract class Item extends Entity
     {
         Vec2 originalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
+        float fromSlope = 0;
+        if (touchEntity[DOWN] != null  && !touchEntity[DOWN].getShape().getDirs()[UP])
+            fromSlope = touchEntity[DOWN].applySlopeX(getVelocityX()).y;
         inWater = false; submerged = false;
 
         touchEntity[UP] = null;
@@ -214,7 +219,19 @@ public abstract class Item extends Entity
             int[] edge = entity.getTouchEdge(this, goal);
 
             /* Actor made no contact with the entity */
-            if (edge[0] < 0) continue;
+            if (edge[0] < 0)
+            {
+                /* Fell off an upward slope and not jumping, correct y-velocity.
+                 * Warning: Don't make moving platforms that are sloped. */
+                if (fromSlope > 0 && getVelocityY() > 0)
+                {
+                    goal.y -= getVelocityY();
+                    goal.y += fromSlope;
+                    setVelocityY(fromSlope);
+                }
+
+                continue;
+            }
 
             /* If touching a block of liquid */
             if (withBlock && ((Block) entity).isLiquid())
@@ -323,7 +340,7 @@ public abstract class Item extends Entity
         if (amount == 0) return;
         // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-        Print.blue(amount);
+        //Print.blue(amount);
         damage(new Infliction(GradeEnum.getGrade(amount), infType));
     }
 
