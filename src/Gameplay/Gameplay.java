@@ -155,11 +155,12 @@ public class Gameplay implements Reactor
         renderEntities();
         renderSecondWaterLayer();
 
+        gfx.setFill(Color.BLACK);
         gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
 
         // Testing
-        GLFWGamepadState gamepadState = GLFWGamepadState.create();
-        glfwGetGamepadState(GLFW_JOYSTICK_1, gamepadState);
+        //GLFWGamepadState gamepadState = GLFWGamepadState.create();
+        //glfwGetGamepadState(GLFW_JOYSTICK_1, gamepadState);
         //Print.blue(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A));
     }
 
@@ -268,7 +269,7 @@ public class Gameplay implements Reactor
     private void queryGamepads()
     {
         //GAMEPADS[0].query(entities.getPlayer(0));
-        //GAMEPADS[0].query(entities.getPlayer(1));
+        //GAMEPADS[1].query(entities.getPlayer(1));
     }
 
 
@@ -374,6 +375,10 @@ public class Gameplay implements Reactor
             //TODO: Right now the image loader loads every image size 35x70
             //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
             ImageResource sprite = entity.getSprite();
+            //if (entity instanceof Actor)
+            //{
+            //    System.out.println(entity + "   sprite="+sprite);
+            //}
             if (sprite != null)
             {
             /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
@@ -417,7 +422,7 @@ public class Gameplay implements Reactor
                                 for (int i = 0; i < xxCorners.length; i++)
                                 {
                                     xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                                    yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                                    yyCorners[i] = -9+(yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
                                 }
                                 gfx.fillPolygon(xxCorners, yyCorners, 4);
                             }
@@ -447,6 +452,7 @@ public class Gameplay implements Reactor
                             else gfx.setFill(texturePatternBlock);
                         }
                         else gfx.setFill(entity.getColor());
+
                         gfx.fillRect(x, y, width, height);
                     }
                 }

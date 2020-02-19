@@ -70,16 +70,16 @@ public class Gamepad
         //if (code == KeyCode.S)
         player.pressDown(gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_Y) >= DEADZONE);
         //if (code == KeyCode.J)
-        player.pressJump(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A) == 1);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A)==1) player.pressJump(true);
         //if (code == KeyCode.SHIFT)
-        player.pressShift(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB) == 1);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB) == 1) player.pressShift(true);
         //if (code == KeyCode.K)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_X) == 1, Actor.ATTACK_KEY_1);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_X) == 1) player.pressAttack(true, Actor.ATTACK_KEY_1);
         //if (code == KeyCode.L)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_Y) == 1, Actor.ATTACK_KEY_2);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_Y) == 1) player.pressAttack(true, Actor.ATTACK_KEY_2);
         //if (code == KeyCode.SEMICOLON)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B) == 1, Actor.ATTACK_KEY_3);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B) == 1) player.pressAttack(true, Actor.ATTACK_KEY_3);
         //if (code == KeyCode.U)
-        player.pressAttackMod(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == 1);
+        if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == 1) player.pressAttackMod(true);
     }
 }
