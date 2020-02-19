@@ -422,7 +422,7 @@ public class Gameplay implements Reactor
                                 for (int i = 0; i < xxCorners.length; i++)
                                 {
                                     xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                                    yyCorners[i] = -9+(yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                                    yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
                                 }
                                 gfx.fillPolygon(xxCorners, yyCorners, 4);
                             }
