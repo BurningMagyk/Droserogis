@@ -662,7 +662,12 @@ public class LevelBuilder  extends Application
             for (Entity entity : entityList)
             {
                 if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
-                //if (entity instanceof Natural) continue; // TODO: was this needed?
+
+                // This is needed to prevent the natural weapons from being saved as separate weapon records
+                // If we ever get the game to a point where there are weapons created and stored in the level builder
+                // Then this will need to be modified.
+                if (entity instanceof Weapon) continue;
+
                 int x = Math.round(entity.getX());
                 int y = Math.round(entity.getY());
                 int w = Math.round(entity.getWidth());
@@ -683,22 +688,6 @@ public class LevelBuilder  extends Application
                 {
                     type =  "Player";
                     stats += ","+((Actor)entity).getActorType();
-                }
-                else if (entity instanceof Weapon)
-                {
-                    Weapon sword = ((Weapon)entity);
-                    type =  "WeaponAttacks";
-                    Actor actor = sword.getActor();
-                    int playerIdx = -1;
-                    for (int i=0; i<entityList.getPlayerCount(); i++)
-                    {
-                        if (actor == entityList.getPlayer(i))
-                        {
-                            playerIdx = i;
-                            break;
-                        }
-                    }
-                    stats += "," + playerIdx;
                 }
                 else
                 {
@@ -814,6 +803,7 @@ public class LevelBuilder  extends Application
                     Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
                     entity = new Actor(x, y, actorType);
                 }
+                /* TODO: someday, when weapons are added, the format will need to be figured out.
                 else if (data[0].equals("WeaponAttacks"))
                 {
                     if (data.length != 4)
@@ -829,6 +819,7 @@ public class LevelBuilder  extends Application
                         entityList.getPlayer(parent).equip((Weapon)entity);
                     }
                 }
+                */
                 else {
                     if (data.length != 6)
                     {

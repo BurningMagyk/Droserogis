@@ -41,12 +41,7 @@ RECTANGLE,60,-10,20,20,false
 RECTANGLE,10,-115,20,30,false
 TRIANGLE_UP_R,-1350,45,100,90,false
 TRIANGLE_UP_R,-1130,70,240,40,false
-TRIANGLE_UP_R,-1150,-50,100,100,false
 TRIANGLE_UP_R,-525,40,250,100,false
 RECTANGLE,-660,40,20,100,false
 Player,-250,-150,Igon
 Player,-300,-250,Zuzen
-WeaponAttacks,-250,-150,0
-WeaponAttacks,-300,-250,1
-WeaponAttacks,-250,-150,-1
-WeaponAttacks,-300,-250,-1

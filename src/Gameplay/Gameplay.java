@@ -268,8 +268,8 @@ public class Gameplay implements Reactor
 
     private void queryGamepads()
     {
-        //GAMEPADS[0].query(entities.getPlayer(0));
-        //GAMEPADS[1].query(entities.getPlayer(1));
+        GAMEPADS[0].query(entities.getPlayer(0));
+        GAMEPADS[1].query(entities.getPlayer(1));
     }
 
 
