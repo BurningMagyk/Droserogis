@@ -221,8 +221,14 @@ public abstract class Item extends Entity
             /* Actor made no contact with the entity */
             if (edge[0] < 0)
             {
-                /* Fell off an upward slope, correct y-velocity */
-                if (fromSlope > 0) setVelocityY(fromSlope);
+                /* Fell off an upward slope and not jumping, correct y-velocity.
+                 * Warning: Don't make moving platforms that are sloped. */
+                if (fromSlope > 0 && getVelocityY() > 0)
+                {
+                    goal.y -= getVelocityY();
+                    goal.y += fromSlope;
+                    setVelocityY(fromSlope);
+                }
 
                 continue;
             }

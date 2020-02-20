@@ -56,7 +56,7 @@ public class Main extends Application
         }
 
         final String VERSION = "indev";
-        final String NAME = "Autism is a choice";
+        final String NAME = "The Lie Made Flesh, a.k.a. Autism is a choice";
         stage.setTitle(NAME + " - " + VERSION);
 
         //stage.getIcons().add(IMPORTER.getImage("Shaggy_Verde.png").getImage());
