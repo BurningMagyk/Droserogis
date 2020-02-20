@@ -92,6 +92,12 @@ public class Gamepad
             lastButtonA_state =GLFW_RELEASE;
         }
 
+        //TODO: do the same for
+        //private byte lastButtonB_state = GLFW_RELEASE;
+        //private byte lastButtonX_state = GLFW_RELEASE;
+        //private byte lastButtonY_state = GLFW_RELEASE;
+        //private byte lastButtonRbumper_state = GLFW_RELEASE;
+
         //player.pressJump(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A) == GLFW_PRESS);
         //if (code == KeyCode.SHIFT)
 
