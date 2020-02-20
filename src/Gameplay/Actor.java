@@ -1397,7 +1397,7 @@ public class Actor extends Item
         if (wasTumbling)
         {
             if (Math.abs(getVelocityX()) > walkSpeed) addCondition(0.01F, Condition.NEGATE_ACTIVITY);
-            else if (!has(Condition.NEGATE_ACTIVITY))
+            else if (!has(Condition.NEGATE_ACTIVITY) && !has(Condition.NEGATE_STABILITY))
             {
                 /* Dodging while knocked down */
                 if (Math.abs(getVelocity().mag()) <= walkSpeed)
