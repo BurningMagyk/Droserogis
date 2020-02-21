@@ -177,86 +177,104 @@ public class Gameplay implements Reactor
         else if (code == KeyCode.ENTER && pressed)
         {
             entities.getPlayer(0).debug();
+            return;
         }
-        else if (code == KeyCode.LEFT)// && pressed)
+
+        if (!GAMEPADS[1].isConnected())
         {
-            //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
-            entities.getPlayer(1).pressLeft(pressed);
+            if (code == KeyCode.LEFT)// && pressed)
+            {
+                //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
+                entities.getPlayer(1).pressLeft(pressed);
+                return;
+            }
+            else if (code == KeyCode.RIGHT)// && pressed)
+            {
+                //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
+                entities.getPlayer(1).pressRight(pressed);
+                return;
+            }
+            else if (code == KeyCode.UP)// && pressed)
+            {
+                //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
+                entities.getPlayer(1).pressUp(pressed);
+                return;
+            }
+            else if (code == KeyCode.DOWN)// && pressed)
+            {
+                //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
+                entities.getPlayer(1).pressDown(pressed);
+                return;
+            }
+            else if (code == KeyCode.NUMPAD0)
+            {
+                entities.getPlayer(1).pressJump(pressed);
+                return;
+            }
+            else if (code == KeyCode.N)
+            {
+                entities.getPlayer(1).pressJump(pressed);
+                return;
+            }
+            else if (code == KeyCode.M)
+            {
+                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
+                return;
+            }
+            else if (code == KeyCode.COMMA)
+            {
+                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
+                return;
+            }
+            else if (code == KeyCode.PERIOD)
+            {
+                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
+                return;
+            }
         }
-        else if (code == KeyCode.RIGHT)// && pressed)
+
+        if (!GAMEPADS[0].isConnected())
         {
-            //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
-            entities.getPlayer(1).pressRight(pressed);
-        }
-        else if (code == KeyCode.UP)// && pressed)
-        {
-            //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
-            entities.getPlayer(1).pressUp(pressed);
-        }
-        else if (code == KeyCode.DOWN)// && pressed)
-        {
-            //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
-            entities.getPlayer(1).pressDown(pressed);
-        }
-        else if (code == KeyCode.NUMPAD0)
-        {
-            entities.getPlayer(1).pressJump(pressed);
-        }
-        else if (code == KeyCode.A)
-        {
-            entities.getPlayer(0).pressLeft(pressed);
-        }
-        else if (code == KeyCode.D)
-        {
-            entities.getPlayer(0).pressRight(pressed);
-        }
-        else if (code == KeyCode.J)
-        {
-            entities.getPlayer(0).pressJump(pressed);
-        }
-        else if (code == KeyCode.W)
-        {
-            entities.getPlayer(0).pressUp(pressed);
-        }
-        else if (code == KeyCode.S)
-        {
-            entities.getPlayer(0).pressDown(pressed);
-        }
-        else if (code == KeyCode.SHIFT)
-        {
-            entities.getPlayer(0).pressShift(pressed);
-        }
-        else if (code == KeyCode.K)
-        {
-            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_1);
-        }
-        else if (code == KeyCode.L)
-        {
-            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_2);
-        }
-        else if (code == KeyCode.SEMICOLON)
-        {
-            entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_3);
-        }
-        else if (code == KeyCode.U)
-        {
-            entities.getPlayer(0).pressAttackMod(pressed);
-        }
-        else if (code == KeyCode.N)
-        {
-            entities.getPlayer(1).pressJump(pressed);
-        }
-        else if (code == KeyCode.M)
-        {
-            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
-        }
-        else if (code == KeyCode.COMMA)
-        {
-            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
-        }
-        else if (code == KeyCode.PERIOD)
-        {
-            entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
+            if (code == KeyCode.A)
+            {
+                entities.getPlayer(0).pressLeft(pressed);
+            }
+            else if (code == KeyCode.D)
+            {
+                entities.getPlayer(0).pressRight(pressed);
+            }
+            else if (code == KeyCode.J)
+            {
+                entities.getPlayer(0).pressJump(pressed);
+            }
+            else if (code == KeyCode.W)
+            {
+                entities.getPlayer(0).pressUp(pressed);
+            }
+            else if (code == KeyCode.S)
+            {
+                entities.getPlayer(0).pressDown(pressed);
+            }
+            else if (code == KeyCode.SHIFT)
+            {
+                entities.getPlayer(0).pressShift(pressed);
+            }
+            else if (code == KeyCode.K)
+            {
+                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_1);
+            }
+            else if (code == KeyCode.L)
+            {
+                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_2);
+            }
+            else if (code == KeyCode.SEMICOLON)
+            {
+                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_3);
+            }
+            else if (code == KeyCode.U)
+            {
+                entities.getPlayer(0).pressAttackMod(pressed);
+            }
         }
     }
 

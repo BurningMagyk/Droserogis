@@ -140,7 +140,7 @@ class Controller extends AnimationTimer
         Menu.MenuEnum nextMenu = currentMenu.animateFrame(framesMissed + 1);
         if (nextMenu != null) goToMenu(nextMenu);
 
-        searchForGamepads();
+        //searchForGamepads();
 
         lastUpdate = now;
     }
@@ -272,14 +272,6 @@ class Controller extends AnimationTimer
         MOUSE.setReactor(Gameplay);
         KEYBOARD.setReactor(Gameplay);
         Gameplay.start();
-    }
-
-    private void searchForGamepads()
-    {
-        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
-        {
-            GAMEPADS[i].checkConnection();
-        }
     }
 
     public static void main(String[] args)

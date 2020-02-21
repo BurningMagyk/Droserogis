@@ -20,13 +20,16 @@ public class Gamepad
     private byte lastButtonY_state = GLFW_RELEASE;
     private byte lastButtonRbumper_state = GLFW_RELEASE;
 
-    Gamepad(int i)
+    public Gamepad(int i)
     {
         gamepadIdx = i;
         gamepadState = GLFWGamepadState.create();
         glfwGetGamepadState(gamepadIdx, gamepadState);
     }
 
+    public boolean isConnected() {return connected;}
+
+    /*
     public void checkConnection()
     {
         if (connected)
@@ -46,10 +49,12 @@ public class Gamepad
             }
         }
     }
+    */
 
     public void query(Actor player)
     {
-        if (!glfwGetGamepadState(gamepadIdx, gamepadState)) return;
+        connected = glfwGetGamepadState(gamepadIdx, gamepadState);
+        if (!connected) return;
 
         //if (code == KeyCode.ESCAPE)
         if (gamepadState.buttons(GLFW_GAMEPAD_BUTTON_START) == 1)
@@ -92,25 +97,64 @@ public class Gamepad
             lastButtonA_state =GLFW_RELEASE;
         }
 
-        //TODO: do the same for
-        //private byte lastButtonB_state = GLFW_RELEASE;
-        //private byte lastButtonX_state = GLFW_RELEASE;
-        //private byte lastButtonY_state = GLFW_RELEASE;
-        //private byte lastButtonRbumper_state = GLFW_RELEASE;
 
-        //player.pressJump(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A) == GLFW_PRESS);
         //if (code == KeyCode.SHIFT)
-
         //byte buttonA_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A);
         player.pressShift(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB) == GLFW_PRESS);
+
         //if (code == KeyCode.K)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_X) == GLFW_PRESS, Actor.ATTACK_KEY_1);
+        byte buttonX_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_X);
+        if (buttonX_state == GLFW_PRESS)
+        {
+            player.pressAttack(true, Actor.ATTACK_KEY_1);
+            lastButtonX_state = buttonX_state;
+        }
+        else if (lastButtonX_state == GLFW_PRESS)
+        {
+            player.pressAttack(false, Actor.ATTACK_KEY_1);
+            lastButtonX_state = GLFW_RELEASE;
+        }
+
         //if (code == KeyCode.L)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_Y) == GLFW_PRESS, Actor.ATTACK_KEY_2);
+        byte buttonY_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_Y);
+        if (buttonY_state == GLFW_PRESS)
+        {
+            player.pressAttack(true, Actor.ATTACK_KEY_2);
+            lastButtonY_state = buttonX_state;
+        }
+        else if (lastButtonY_state == GLFW_PRESS)
+        {
+            player.pressAttack(false, Actor.ATTACK_KEY_2);
+            lastButtonY_state = GLFW_RELEASE;
+        }
+
+
         //if (code == KeyCode.SEMICOLON)
-        player.pressAttack(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B) == GLFW_PRESS, Actor.ATTACK_KEY_3);
+        byte buttonB_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B);
+        if (buttonB_state == GLFW_PRESS)
+        {
+            player.pressAttack(true, Actor.ATTACK_KEY_3);
+            lastButtonB_state = buttonX_state;
+        }
+        else if (lastButtonB_state == GLFW_PRESS)
+        {
+            player.pressAttack(false, Actor.ATTACK_KEY_3);
+            lastButtonB_state = GLFW_RELEASE;
+        }
+
+
         //if (code == KeyCode.U)
-        player.pressAttackMod(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER) == GLFW_PRESS);
+        byte buttonRbumper_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B);
+        if (buttonRbumper_state == GLFW_PRESS)
+        {
+            player.pressAttackMod(true);
+            lastButtonRbumper_state = buttonX_state;
+        }
+        else if (lastButtonRbumper_state == GLFW_PRESS)
+        {
+            player.pressAttackMod(false);
+            lastButtonRbumper_state = GLFW_RELEASE;
+        }
 
     }
 }
