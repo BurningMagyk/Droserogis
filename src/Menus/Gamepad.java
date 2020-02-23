@@ -9,7 +9,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Gamepad
 {
-    private final float DEADZONE = 0.05F;
+    private final float DEADZONE = 0.2F; //Remote Xbox controller reading axis as high as of 0.15 when untouched
     private final int gamepadIdx;
 
     private GLFWGamepadState gamepadState;
@@ -18,7 +18,14 @@ public class Gamepad
     private byte lastButtonB_state = GLFW_RELEASE;
     private byte lastButtonX_state = GLFW_RELEASE;
     private byte lastButtonY_state = GLFW_RELEASE;
+    private boolean lastUp_state    = false;
+    private boolean lastDown_state  = false;
+    private boolean lastLeft_state  = false;
+    private boolean lastRight_state = false;
+
+
     private byte lastButtonRbumper_state = GLFW_RELEASE;
+
 
     public Gamepad(int i)
     {
@@ -70,14 +77,54 @@ public class Gamepad
         {
             player.debug();
         }
-        //if (code == KeyCode.A)
-        player.pressLeft(gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_X) <= DEADZONE - 1);
-        //if (code == KeyCode.D)
-        player.pressRight(gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_X) >= 1 - DEADZONE);
-        //if (code == KeyCode.W)
-        player.pressUp(gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_Y) <= -DEADZONE);
-        //if (code == KeyCode.S)
-        player.pressDown(gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_Y) >= DEADZONE);
+
+        float axisX = gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_X);
+        float axisY = gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_Y);
+        Print.blue("("+ axisX + " ," + axisY +")");
+
+        boolean pressUp = false;
+        boolean pressDown = false;
+        boolean pressLeft = false;
+        boolean pressRight = false;
+
+        if ((Math.abs(axisX) > DEADZONE) && (Math.abs(axisX) >= Math.abs(axisY)))
+        {
+            if (axisX > 0) pressRight = true; else pressLeft = true;
+            if ((Math.abs(axisY) > DEADZONE) && (Math.abs(axisY) > 2 * Math.abs(axisX)))
+            {
+                if (axisY > 0) pressDown = true; else pressUp = true;
+            }
+        }
+        else if (Math.abs(axisY) > DEADZONE)
+        {
+            if (axisY > 0) pressDown = true; else pressUp = true;
+            if ((Math.abs(axisX) > DEADZONE) && (Math.abs(axisX) > 2 * Math.abs(axisY)))
+            {
+                if (axisX > 0) pressRight = true; else pressLeft = true;
+            }
+        }
+        if (lastDown_state != pressDown)
+        {
+            player.pressDown(pressDown);
+            lastDown_state = pressDown;
+        }
+        if (lastUp_state != pressUp)
+        {
+            player.pressUp(pressUp);
+            lastUp_state = pressUp;
+        }
+        if (lastLeft_state != pressLeft)
+        {
+            player.pressLeft(pressLeft);
+            lastLeft_state = pressLeft;
+        }
+        if (lastRight_state != pressRight)
+        {
+            player.pressRight(pressRight);
+            lastRight_state = pressRight;
+        }
+
+
 
         //It seems this only gives two states: GLFW_PRES, when pressed and GLFW_RELEASE when not pressed. T
         //     here is no actual release event.
