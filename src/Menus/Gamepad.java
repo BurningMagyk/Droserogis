@@ -14,14 +14,16 @@ public class Gamepad
 
     private GLFWGamepadState gamepadState;
     private boolean connected = false;
-    private byte lastButtonA_state = GLFW_RELEASE;
-    private byte lastButtonB_state = GLFW_RELEASE;
-    private byte lastButtonX_state = GLFW_RELEASE;
-    private byte lastButtonY_state = GLFW_RELEASE;
-    private boolean lastUp_state    = false;
-    private boolean lastDown_state  = false;
-    private boolean lastLeft_state  = false;
-    private boolean lastRight_state = false;
+    private byte lastButtonA = GLFW_RELEASE;
+    private byte lastButtonB = GLFW_RELEASE;
+    private byte lastButtonX = GLFW_RELEASE;
+    private byte lastButtonY = GLFW_RELEASE;
+    private byte lastButtonLeftThumb = GLFW_RELEASE;
+    private byte lastButtonRightbumper = GLFW_RELEASE;
+    private boolean lastUp    = false;
+    private boolean lastDown  = false;
+    private boolean lastLeft  = false;
+    private boolean lastRight = false;
 
 
     private byte lastButtonRbumper_state = GLFW_RELEASE;
@@ -80,7 +82,7 @@ public class Gamepad
 
         float axisX = gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_X);
         float axisY = gamepadState.axes(GLFW_GAMEPAD_AXIS_LEFT_Y);
-        Print.blue("("+ axisX + " ," + axisY +")");
+        //Print.blue("("+ axisX + " ," + axisY +")");
 
         boolean pressUp = false;
         boolean pressDown = false;
@@ -103,27 +105,26 @@ public class Gamepad
                 if (axisX > 0) pressRight = true; else pressLeft = true;
             }
         }
-        if (lastDown_state != pressDown)
+        if (lastDown != pressDown)
         {
             player.pressDown(pressDown);
-            lastDown_state = pressDown;
+            lastDown = pressDown;
         }
-        if (lastUp_state != pressUp)
+        if (lastUp != pressUp)
         {
             player.pressUp(pressUp);
-            lastUp_state = pressUp;
+            lastUp = pressUp;
         }
-        if (lastLeft_state != pressLeft)
+        if (lastLeft != pressLeft)
         {
             player.pressLeft(pressLeft);
-            lastLeft_state = pressLeft;
+            lastLeft = pressLeft;
         }
-        if (lastRight_state != pressRight)
+        if (lastRight != pressRight)
         {
             player.pressRight(pressRight);
-            lastRight_state = pressRight;
+            lastRight = pressRight;
         }
-
 
 
         //It seems this only gives two states: GLFW_PRES, when pressed and GLFW_RELEASE when not pressed. T
@@ -133,75 +134,52 @@ public class Gamepad
 
         //if (code == KeyCode.J)
         byte buttonA_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A);
-        if (buttonA_state == GLFW_PRESS)
+        if (lastButtonA != buttonA_state)
         {
-            player.pressJump(true);
-            lastButtonA_state = buttonA_state;
+            player.pressJump(buttonA_state == GLFW_PRESS);
+            lastButtonA = buttonA_state;
         }
-        else if (lastButtonA_state == GLFW_PRESS)
-        {
-            player.pressJump(false);
-            lastButtonA_state =GLFW_RELEASE;
-        }
-
 
         //if (code == KeyCode.SHIFT)
-        //byte buttonA_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_A);
-        player.pressShift(gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB) == GLFW_PRESS);
+        byte buttonLeftThumb_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB);
+        if ( lastButtonLeftThumb != buttonLeftThumb_state)
+        {
+            player.pressShift(buttonLeftThumb_state == GLFW_PRESS);
+            lastButtonLeftThumb = buttonLeftThumb_state;
+        }
 
-        //if (code == KeyCode.K)
         byte buttonX_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_X);
-        if (buttonX_state == GLFW_PRESS)
+        if (lastButtonX != buttonX_state)
         {
-            player.pressAttack(true, Actor.ATTACK_KEY_1);
-            lastButtonX_state = buttonX_state;
+            player.pressAttack(buttonX_state == GLFW_PRESS, Actor.ATTACK_KEY_1);
+            lastButtonX = buttonX_state;
         }
-        else if (lastButtonX_state == GLFW_PRESS)
-        {
-            player.pressAttack(false, Actor.ATTACK_KEY_1);
-            lastButtonX_state = GLFW_RELEASE;
-        }
+
 
         //if (code == KeyCode.L)
         byte buttonY_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_Y);
-        if (buttonY_state == GLFW_PRESS)
+        if (lastButtonY != buttonY_state)
         {
-            player.pressAttack(true, Actor.ATTACK_KEY_2);
-            lastButtonY_state = buttonX_state;
-        }
-        else if (lastButtonY_state == GLFW_PRESS)
-        {
-            player.pressAttack(false, Actor.ATTACK_KEY_2);
-            lastButtonY_state = GLFW_RELEASE;
+            player.pressAttack(buttonY_state == GLFW_PRESS, Actor.ATTACK_KEY_2);
+            lastButtonY = buttonY_state;
         }
 
 
         //if (code == KeyCode.SEMICOLON)
         byte buttonB_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B);
-        if (buttonB_state == GLFW_PRESS)
+        if (lastButtonB != buttonB_state)
         {
-            player.pressAttack(true, Actor.ATTACK_KEY_3);
-            lastButtonB_state = buttonX_state;
-        }
-        else if (lastButtonB_state == GLFW_PRESS)
-        {
-            player.pressAttack(false, Actor.ATTACK_KEY_3);
-            lastButtonB_state = GLFW_RELEASE;
+            player.pressAttack(buttonB_state == GLFW_PRESS, Actor.ATTACK_KEY_3);
+            lastButtonB = buttonB_state;
         }
 
 
         //if (code == KeyCode.U)
-        byte buttonRbumper_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_B);
-        if (buttonRbumper_state == GLFW_PRESS)
+        byte buttonRightbumper_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);
+        if (lastButtonRightbumper != buttonRightbumper_state)
         {
-            player.pressAttackMod(true);
-            lastButtonRbumper_state = buttonX_state;
+            player.pressAttackMod(buttonRightbumper_state == GLFW_PRESS);
+            lastButtonRightbumper = buttonRightbumper_state;
         }
-        else if (lastButtonRbumper_state == GLFW_PRESS)
-        {
-            player.pressAttackMod(false);
-            lastButtonRbumper_state = GLFW_RELEASE;
-        }
-
     }
 }
