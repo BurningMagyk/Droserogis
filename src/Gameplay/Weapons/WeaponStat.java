@@ -78,29 +78,29 @@ public class WeaponStat
             1, 1, 1 };
 
     private final static float[] WAIT_SPEED = new float[] {
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+            1.0F, 1.25F, 1.5F,
+            1.75F, 2.0F, 2.25F,
+            2.5F, 2.75F, 3.0F,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+            3.5F, 4.0F, 4.5F,
+            5.0F, 5.5F, 6.0F,
+            6.5F, 7.0F, 7.5F,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F };
+            8.0F, 8.5F, 9.0F,
+            9.5F, 10F, 10F,
+            10F, 10F, 10F };
     private final static float[] ATTACK_SPEED = new float[] {
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+            1.7F, 2.1F, 2.5F,
+            3.9F, 4.3F, 4.7F,
+            5.1F, 5.5F, 5.9F,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
+            6.3F, 6.7F, 7.1F,
+            7.5F, 7.9F, 8.0F,
+            8.0F, 8.0F, 8.0F,
 
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F,
-            1.0F, 1.0F, 1.0F };
+            8.0F, 8.0F, 8.0F,
+            8.0F, 8.0F, 8.0F,
+            8.0F, 8.0F, 8.0F };
 
     /***************************** Ability Score Chart Access *****************************/
 
@@ -108,12 +108,12 @@ public class WeaponStat
     float waitSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
         int avg = (grades[Ability.WAIT_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
-        return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg / 2];
+        return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg] * 2;
     }
     float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
         int avg = (grades[Ability.ATTACK_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
-        return speedDep(strGrade) ? ATTACK_SPEED[avg] : ATTACK_SPEED[avg / 2];
+        return speedDep(strGrade) ? ATTACK_SPEED[avg] : ATTACK_SPEED[avg] / 2;
     }
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }

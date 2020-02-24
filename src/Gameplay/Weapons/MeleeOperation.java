@@ -23,7 +23,7 @@ class MeleeOperation implements Weapon.Operation
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
         return new Infliction(damage, precision, conditionApps,
                 actor.getVelocity(), actor.getMass() - mass, actor.getGrip(),
-                infDir, execSpeed, mass, infTypes); }
+                infDir, execSpeed / 10, mass, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
@@ -65,6 +65,7 @@ class MeleeOperation implements Weapon.Operation
         attackKey = command.ATTACK_KEY;
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
+        for (Tick tick : execJourney) { tick.reset(); }
 
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
         GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
