@@ -6,6 +6,7 @@ import Importer.ImageResource;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
+import Util.Print;
 import Util.Reactor;
 import Util.Vec2;
 import Gameplay.Entity.ShapeEnum;
@@ -49,9 +50,11 @@ public class Gameplay implements Reactor
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
     private Image textureBlock = new Image("/Image/woodTexture.png");
     private Image textureShadow = new Image("/Image/shadowTexture.png");
+    private Image textureGround = new Image("/Image/ground.png");
 
     private ImagePattern texturePatternBlock;
     private ImagePattern texturePatternShadow;
+    private ImagePattern texturePatternGround;
 
     private Image textureWater0 = new Image("/Image/water0.png");
     private Image textureWater1 = new Image("/Image/water1.png");
@@ -70,6 +73,7 @@ public class Gameplay implements Reactor
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             String name = "/Image/MossyWoods-Background_"+i+".png";
+            Print.purple("Loading Image: ["+name +"]");
             backgroundLayer[i] = new Image(name);
         }
         backgroundLayerOffsetY[0] = 0;
@@ -566,14 +570,21 @@ public class Gameplay implements Reactor
     private void renderBackground()
     {
         /* Clear canvas */
-        gfx.clearRect(0, 0, viewWidth, viewHeight);
+        //gfx.clearRect(0, 0, viewWidth, viewHeight);
 
+        double layer3Left = 0;
+        double layer3Bottom = 0;
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
             double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
             double y = -120;
             if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
+            if (i == 3)
+            {
+                layer3Left   = x;
+                layer3Bottom = y+backgroundLayer[i].getHeight()-1;
+            }
             gfx.drawImage(backgroundLayer[i], x,y);
         }
 
@@ -581,6 +592,10 @@ public class Gameplay implements Reactor
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
         texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 175, false);
         texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 400, 400, false);
+        texturePatternGround = new ImagePattern(textureGround, layer3Left, layer3Bottom, 512, 512, false);
+
+        gfx.setFill(texturePatternGround);
+        gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
 
         long currentNano = System.nanoTime();
         float shift =  (float)(currentNano*0.5e-8);
