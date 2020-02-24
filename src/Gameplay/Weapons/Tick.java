@@ -1,12 +1,14 @@
 package Gameplay.Weapons;
 
 import Gameplay.DirEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class Tick
 {
     float sec;
     Orient tickOrient;
+    boolean used = false;
 
     Tick(float sec, Orient tickOrient)
     {
@@ -21,12 +23,15 @@ public class Tick
 
     boolean check(float totalSec, DirEnum dir)
     {
-        if (totalSec < this.sec)
+        if (totalSec < this.sec || !used)
         {
+            used = true;
             return true;
         }
         return false;
     }
+
+    void reset() { used = false; }
 
     Orient getOrient() { return tickOrient.copy(); }
 

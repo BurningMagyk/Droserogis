@@ -305,9 +305,7 @@ public class CharacterStat
     /****************************** Balancing Tools ******************************/
     /*****************************************************************************/
 
-    //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
-
-    public int hitPoints() { return 100; } // vitality
+    public int hitPoints() { return (int) (vitality(90) + constitution(10)); }
 
     public float airSpeed() { return 0.12F; } // dexterity
     public float swimSpeed() { return agility(3F); }
@@ -331,15 +329,18 @@ public class CharacterStat
     public float climbAccel() { return 0.1F; } // agility
     public float runAccel() { return 0.2F; } // agility
 
+    public float slopeAccelDiv() { return 2; } // strength + agility
+
     public float jumpVel() { return 0.1F; } // strength + agility
 
     public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]
-            { agility(0.25F), dexterity(0.2F), stamina(0.5F) }; }
-    public float dashRecoverTime() { return 0.5F; } // agility
-    public float minTumbleTime() { return 1F; } // agility
+            { agility(0.25F), dexterity(0.2F),
+                    stamina(0.25F) + constitution(0.25F) }; }
+    public float dashRecoverTime() { return 0.5F; } // agility + constitution
+    public float minTumbleTime() { return 1F; } // agility + vitality
 
-    public float proneRecoverTime() { return 0.85F; } // constitution
+    public float proneRecoverTime() { return 0.85F; } // constitution + vitality + agility
 
     public GradeEnum[] landingThresh()
     {
@@ -353,4 +354,6 @@ public class CharacterStat
     }
 
     public float friction() { return 0.35F; } // agility
+
+    public float weaponGrip() { return 0.02F; } // strength
 }

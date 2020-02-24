@@ -73,7 +73,7 @@ public class Infliction
         this.precision = precision;
         this.conditionApps = conditionApps;
         Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
-        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
+        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
         momentum = actorMomentum.add(weaponMomentum);
 
         this.types = types;

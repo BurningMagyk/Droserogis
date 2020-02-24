@@ -314,12 +314,12 @@ public class Actor extends Item
             MoveType moveType = getMoveType();
             if (state.isLow())
             {
-                accel = moveType == MoveType.STILL ? 0 : crawlAccel;
+                accel = moveType == MoveType.STILL ? 0 : getTopAccel(true);//crawlAccel;
                 topSpeed = getTopSpeed(moveType, true);
             }
             else
             {
-                accel = moveType == MoveType.STILL ? 0 : runAccel;
+                accel = moveType == MoveType.STILL ? 0 : getTopAccel(false);//runAccel;
                 topSpeed = getTopSpeed(moveType,false);
             }
 
@@ -544,6 +544,25 @@ public class Actor extends Item
         prevGround.pos = getX();
     }
 
+    private float getTopAccel(boolean low)
+    {
+        float slopeFactor = 1;
+        if (touchEntity[DOWN] != null)
+        {
+            if ((touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_L && getVelocityX() > 0)
+                    || (touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_R && getVelocityX() < 0))
+            {
+                slopeFactor = touchEntity[DOWN].getWidth()
+                        / ((touchEntity[DOWN].getWidth() +  touchEntity[DOWN].getHeight())
+                        * slopeAccelDiv);
+            }
+
+        }
+
+        if (low) return crawlAccel * (0.5F + (slopeFactor / 2));
+        return runAccel * slopeFactor;
+    }
+
     private float getTopSpeed(MoveType moveType, boolean low)
     {
         switch (moveType)
@@ -616,7 +635,7 @@ public class Actor extends Item
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
-    public float getGrip() { return 0; }
+    public float getGrip() { return weaponGrip; }
 
     public Infliction.InflictionType[] getRushInfTypes()
     {
@@ -1706,6 +1725,9 @@ public class Actor extends Item
      * know how to climb without needing a running start. */
     private float climbAccel = crawlAccel;
 
+    /* This is how difficult it is to go up a slope (1 is easiest, 3 is hardest) */
+    private float slopeAccelDiv = 2;
+
     /* How long it takes to climb over a ledge after grabbing it */
     private float climbLedgeTime = 1;
 
@@ -1753,6 +1775,9 @@ public class Actor extends Item
     /* How easy it is to be staggered */
     GradeEnum[] staggerThresh = { GradeEnum.F, GradeEnum.F };
 
+    /* How much blocks resist momentum and how much attacks give momentum */
+    float weaponGrip = 0.03F;
+
     private void setCharacterStats()
     {
         airSpeed = charStat.airSpeed();
@@ -1777,9 +1802,12 @@ public class Actor extends Item
         climbAccel = charStat.climbAccel() / getMass();
         runAccel = charStat.runAccel();
 
+        slopeAccelDiv = charStat.slopeAccelDiv();
+
         jumpVel = charStat.jumpVel() / getMass();
 
         climbLedgeTime = charStat.climbLedgeTime() / getMass();
+
         stairRecoverTime = charStat.stairRecoverTime();
         dashRecoverTime = charStat.dashRecoverTime();
         minTumbleTime = charStat.minTumbleTime();
@@ -1793,6 +1821,8 @@ public class Actor extends Item
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
+
+        weaponGrip = charStat.weaponGrip();
     }
 
 
