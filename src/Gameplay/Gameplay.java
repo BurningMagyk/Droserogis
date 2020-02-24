@@ -48,7 +48,7 @@ public class Gameplay implements Reactor
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image textureBlock = new Image("/Image/woodTexture.png");
+    private Image textureBlock = new Image("/Image/SkullTexture.png");
     private Image textureShadow = new Image("/Image/shadowTexture.png");
     private Image textureGround = new Image("/Image/ground.png");
 
@@ -590,8 +590,8 @@ public class Gameplay implements Reactor
 
         double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
-        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 175, false);
-        texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 400, 400, false);
+        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 256, false);
+        texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 256, 256, false);
         texturePatternGround = new ImagePattern(textureGround, layer3Left, layer3Bottom, 512, 512, false);
 
         gfx.setFill(texturePatternGround);
