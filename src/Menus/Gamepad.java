@@ -92,7 +92,7 @@ public class Gamepad
         if ((Math.abs(axisX) > DEADZONE) && (Math.abs(axisX) >= Math.abs(axisY)))
         {
             if (axisX > 0) pressRight = true; else pressLeft = true;
-            if ((Math.abs(axisY) > DEADZONE) && (Math.abs(axisY) > 2 * Math.abs(axisX)))
+            if ((Math.abs(axisY) > DEADZONE) && (Math.abs(axisY)*2 > Math.abs(axisX)))
             {
                 if (axisY > 0) pressDown = true; else pressUp = true;
             }
@@ -100,28 +100,32 @@ public class Gamepad
         else if (Math.abs(axisY) > DEADZONE)
         {
             if (axisY > 0) pressDown = true; else pressUp = true;
-            if ((Math.abs(axisX) > DEADZONE) && (Math.abs(axisX) > 2 * Math.abs(axisY)))
+            if ((Math.abs(axisX) > DEADZONE) && (Math.abs(axisX)*2 > Math.abs(axisY)))
             {
                 if (axisX > 0) pressRight = true; else pressLeft = true;
             }
         }
         if (lastDown != pressDown)
         {
+            //Print.blue("pressDown( " + pressDown + "):     " + axisX + ", " + axisY);
             player.pressDown(pressDown);
             lastDown = pressDown;
         }
         if (lastUp != pressUp)
         {
+            //Print.blue("pressUp( " + pressUp + "):     " + axisX + ", " + axisY);
             player.pressUp(pressUp);
             lastUp = pressUp;
         }
         if (lastLeft != pressLeft)
         {
+            //Print.green("pressLeft( " + pressLeft + "):     " + axisX + ", " + axisY);
             player.pressLeft(pressLeft);
             lastLeft = pressLeft;
         }
         if (lastRight != pressRight)
         {
+            //Print.green("pressRight( " + pressRight + "):     " + axisX + ", " + axisY);
             player.pressRight(pressRight);
             lastRight = pressRight;
         }
