@@ -13,6 +13,12 @@ public class Vec2
 
     private static double sin = 0, cos = 1;
 
+    public Vec2(double x, double y)
+    {
+        this.x = (float) x;
+        this.y = (float) y;
+    }
+
     public Vec2(float x, float y)
     {
         this.x = x;

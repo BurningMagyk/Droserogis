@@ -74,7 +74,12 @@ public class Infliction
         this.conditionApps = conditionApps;
         Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
         Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
-        momentum = actorMomentum.add(weaponMomentum);
+        Vec2 ridiculous = actorMomentum.add(weaponMomentum);
+
+        // Differences in momentum are ridiculous so here I'm curbing them
+        int xSign = (ridiculous.x < 0) ? -1 : 1, ySign = (ridiculous.y < 0) ? -1 : 1;
+        momentum = new Vec2(Math.sqrt(Math.abs(ridiculous.x) * 100) / 50 * xSign,
+                Math.sqrt(Math.abs(ridiculous.y) * 100) / 50 * ySign);
 
         this.types = types;
     }

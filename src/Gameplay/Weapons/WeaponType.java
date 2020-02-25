@@ -149,7 +149,7 @@ public class WeaponType
             new Tick(1, 0.6F, -0.6F, -PI4) };
     private final static MeleeOperation NATURAL__PUNCH_DIAG_UP = new MeleeOperation(
             "Punch diag up", EMPTY__NEXT, THRUST_DIAG_UP_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
-            DirEnum.DOWNRIGHT, 1, 0,
+            DirEnum.UPRIGHT, 1, 0,
             false, false, null, NATURAL__PUNCH_DIAG_UP__EXEC);
 
     private final static Tick[] NATURAL__STOMP__EXEC = new Tick[] {
@@ -346,7 +346,7 @@ public class WeaponType
             new Tick(1, 1F, -1F, -PI4) };
     private final static MeleeOperation SWORD__THRUST_DIAG_UP = new MeleeOperation(
             "Thrust diag up", EMPTY__NEXT, null, STANDARD_CYCLE, SWORD__THRUST_WAITS,
-            DirEnum.DOWNRIGHT, 1, 0, false, true,
+            DirEnum.UPRIGHT, 1, 0, false, true,
             null, SWORD__THRUST_DIAG_UP__EXEC);
 
     private final static Tick[] SWORD__THRUST_DIAG_DOWN__EXEC = new Tick[] {
