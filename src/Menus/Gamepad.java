@@ -26,9 +26,6 @@ public class Gamepad
     private boolean lastRight = false;
 
 
-    private byte lastButtonRbumper_state = GLFW_RELEASE;
-
-
     public Gamepad(int i)
     {
         gamepadIdx = i;

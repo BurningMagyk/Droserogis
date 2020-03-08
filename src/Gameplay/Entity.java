@@ -623,5 +623,5 @@ abstract public class Entity
     }
 
     public int spriteIndex = 0;
-    ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
+    public ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
 }

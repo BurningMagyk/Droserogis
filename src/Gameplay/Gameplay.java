@@ -21,7 +21,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import org.lwjgl.glfw.GLFWGamepadState;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -37,13 +36,12 @@ public class Gameplay implements Reactor
 
     private final Gamepad[] GAMEPADS;
 
-    private EntityCollection<Entity> entities = new EntityCollection();
+    private EntityCollection<Entity> entityList = new EntityCollection();
 
     private long lastUpdateTime = -1;
 
-    private float cameraPosX, cameraPosY, cameraPosLerp = 0.05F,
-            cameraOffsetX, cameraOffsetY,
-            cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
+    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
+    private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
@@ -99,7 +97,7 @@ public class Gameplay implements Reactor
          * Sets up all of the blocks, entities, and players that appear in the level.
          * Should later utilize procedural generation.
          */
-        entities = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+        entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         Font font = gfx.getFont();
         System.out.println ("Using Font " +font.getName());
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
@@ -139,19 +137,22 @@ public class Gameplay implements Reactor
 
         queryGamepads();
 
-        for (Entity entity : entities) entity.resetFlags();
+        for (Entity entity : entityList) entity.resetFlags();
 
-        for (Weapon weapon : entities.getWeaponList()) weapon.applyInflictions();
+        for (Weapon weapon : entityList.getWeaponList()) weapon.applyInflictions();
 
-        for (Item item : entities.getDynamicItems()) item.update(entities, deltaSec);
+        for (Item item : entityList.getDynamicItems()) item.update(entityList, deltaSec);
 
-        for (Weapon weapon : entities.getWeaponList()) weapon.update(entities.getDynamicItems());
+        for (Weapon weapon : entityList.getWeaponList()) weapon.update(entityList.getDynamicItems());
 
-        Actor player1 = entities.getPlayer(0);
+        Actor player1 = entityList.getPlayer(0);
         float x = player1.getPosition().x;
         float y = player1.getPosition().y;
         moveCamera(x, y,
-                player1.getZoom(entities.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam(), deltaSec);
+                player1.getZoom(entityList.getCameraZoneList()), player1.getTopSpeed(), player1.shouldVertCam(), deltaSec);
+
+
+        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
 
         gfx.setFill(Color.BLACK);
         renderBackground();
@@ -180,7 +181,7 @@ public class Gameplay implements Reactor
         }
         else if (code == KeyCode.ENTER && pressed)
         {
-            entities.getPlayer(0).debug();
+            entityList.getPlayer(0).debug();
             return;
         }
 
@@ -189,50 +190,50 @@ public class Gameplay implements Reactor
             if (code == KeyCode.LEFT)// && pressed)
             {
                 //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
-                entities.getPlayer(1).pressLeft(pressed);
+                entityList.getPlayer(1).pressLeft(pressed);
                 return;
             }
             else if (code == KeyCode.RIGHT)// && pressed)
             {
                 //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
-                entities.getPlayer(1).pressRight(pressed);
+                entityList.getPlayer(1).pressRight(pressed);
                 return;
             }
             else if (code == KeyCode.UP)// && pressed)
             {
                 //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
-                entities.getPlayer(1).pressUp(pressed);
+                entityList.getPlayer(1).pressUp(pressed);
                 return;
             }
             else if (code == KeyCode.DOWN)// && pressed)
             {
                 //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
-                entities.getPlayer(1).pressDown(pressed);
+                entityList.getPlayer(1).pressDown(pressed);
                 return;
             }
             else if (code == KeyCode.NUMPAD0)
             {
-                entities.getPlayer(1).pressJump(pressed);
+                entityList.getPlayer(1).pressJump(pressed);
                 return;
             }
             else if (code == KeyCode.N)
             {
-                entities.getPlayer(1).pressJump(pressed);
+                entityList.getPlayer(1).pressJump(pressed);
                 return;
             }
             else if (code == KeyCode.M)
             {
-                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
+                entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
                 return;
             }
             else if (code == KeyCode.COMMA)
             {
-                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
+                entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
                 return;
             }
             else if (code == KeyCode.PERIOD)
             {
-                entities.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
+                entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
                 return;
             }
         }
@@ -241,43 +242,43 @@ public class Gameplay implements Reactor
         {
             if (code == KeyCode.A)
             {
-                entities.getPlayer(0).pressLeft(pressed);
+                entityList.getPlayer(0).pressLeft(pressed);
             }
             else if (code == KeyCode.D)
             {
-                entities.getPlayer(0).pressRight(pressed);
+                entityList.getPlayer(0).pressRight(pressed);
             }
             else if (code == KeyCode.J)
             {
-                entities.getPlayer(0).pressJump(pressed);
+                entityList.getPlayer(0).pressJump(pressed);
             }
             else if (code == KeyCode.W)
             {
-                entities.getPlayer(0).pressUp(pressed);
+                entityList.getPlayer(0).pressUp(pressed);
             }
             else if (code == KeyCode.S)
             {
-                entities.getPlayer(0).pressDown(pressed);
+                entityList.getPlayer(0).pressDown(pressed);
             }
             else if (code == KeyCode.SHIFT)
             {
-                entities.getPlayer(0).pressShift(pressed);
+                entityList.getPlayer(0).pressShift(pressed);
             }
             else if (code == KeyCode.K)
             {
-                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_1);
+                entityList.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_1);
             }
             else if (code == KeyCode.L)
             {
-                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_2);
+                entityList.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_2);
             }
             else if (code == KeyCode.SEMICOLON)
             {
-                entities.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_3);
+                entityList.getPlayer(0).pressAttack(pressed, Actor.ATTACK_KEY_3);
             }
             else if (code == KeyCode.U)
             {
-                entities.getPlayer(0).pressAttackMod(pressed);
+                entityList.getPlayer(0).pressAttackMod(pressed);
             }
         }
     }
@@ -290,8 +291,8 @@ public class Gameplay implements Reactor
 
     private void queryGamepads()
     {
-        GAMEPADS[0].query(entities.getPlayer(0));
-        GAMEPADS[1].query(entities.getPlayer(1));
+        GAMEPADS[0].query(entityList.getPlayer(0));
+        GAMEPADS[1].query(entityList.getPlayer(1));
     }
 
 
@@ -301,7 +302,7 @@ public class Gameplay implements Reactor
         double[] xx = new double[4];
         double[] yy = new double[4];
         gfx.setFill(texturePatternShadow);
-        for (Entity entity : entities)
+        for (Entity entity : entityList)
         {
             if ((entity instanceof Block) == false) continue;
             Block block = ((Block) entity);
@@ -384,15 +385,15 @@ public class Gameplay implements Reactor
 
 
 
-    /**
-     * Until we utilize sprites, we'll test the game by drawing shapes that match the
-     * blocks' hitboxes. The blocks' colors will help indicate what state they're in.
-     */
+    //===============================================================================================================
+    // Until we utilize sprites, we'll test the game by drawing shapes that match the
+    // blocks' hitboxes. The blocks' colors will help indicate what state they're in.
+    //===============================================================================================================
     private void renderEntities()
     {
         double[] xPos = new double[3];
         double[] yPos = new double[3];
-        for (Entity entity : entities)
+        for (Entity entity : entityList)
         {
             //TODO: Right now the image loader loads every image size 35x70
             //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
@@ -492,7 +493,7 @@ public class Gameplay implements Reactor
 
     private void renderSecondWaterLayer()
     {
-        for (Entity entity : entities)
+        for (Entity entity : entityList)
         {
             if (entity instanceof Block)
             {
@@ -522,21 +523,21 @@ public class Gameplay implements Reactor
 
         //Prevent camera from moving to a location that views beyond the edge of the level
         //System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
-        if (posX - viewWidth/1.99f/cameraZoom < entities.getBoundsLeft())
+        if (posX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
         {
-            posX = (float)entities.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+            posX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
         }
-        else if (posX + viewWidth/1.99f/cameraZoom > entities.getBoundsRight())
+        else if (posX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
         {
-            posX = (float) entities.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+            posX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
         }
-        if (posY - viewHeight/1.99f/cameraZoom < entities.getBoundsTop())
+        if (posY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
         {
-            posY = (float)entities.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+            posY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
         }
-        else if (posY + viewHeight/1.99f/cameraZoom > entities.getBoundsBottom())
+        else if (posY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
         {
-            posY = (float)entities.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+            posY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
         }
 
         /*
@@ -564,14 +565,14 @@ public class Gameplay implements Reactor
 
 
 
-    /**
-     * Canvas is cleared at the beginning of every frame.
-     */
+    //=================================================================================================================
+    // The 2.5D background is drawn in 4 layers with increasing parallax shift from back to front.
+    // If the front most image layer does not reach the bottom of the draw area, then the lower section is tiled with
+    //    texturePatternGround.
+    //
+    //=================================================================================================================
     private void renderBackground()
     {
-        /* Clear canvas */
-        //gfx.clearRect(0, 0, viewWidth, viewHeight);
-
         double layer3Left = 0;
         double layer3Bottom = 0;
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)

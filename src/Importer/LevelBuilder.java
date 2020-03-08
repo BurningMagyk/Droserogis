@@ -6,8 +6,8 @@ import Gameplay.CameraZone;
 import Gameplay.Entity;
 import Gameplay.EntityCollection;
 import Gameplay.Weapons.Weapon;
-import Gameplay.Weapons.WeaponStat;
-import Gameplay.Weapons.WeaponType;
+
+import Util.Print;
 import Util.Sprite;
 import Util.Vec2;
 
@@ -57,7 +57,8 @@ public class LevelBuilder  extends Application
     private boolean DEBUG = false;
     private Scene scene;
     private Canvas canvas;
-    private GraphicsContext gtx;
+    private int viewWidth, viewHeight;
+    private GraphicsContext gfx;
 
     private EntityCollection<Entity> entityList = new EntityCollection();
     private float lastMouseX, lastMouseY;
@@ -66,9 +67,12 @@ public class LevelBuilder  extends Application
     private Entity selectedEntity = null;
     private int selectedVertexIdx = -1;
     private boolean windowWasResized = false;
+
+
     private int offsetX=0;
     private int offsetY=0;
-    private float zoomFactor = 1.0f;
+    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
+    private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
     private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
     private RadioMenuItem menuItemStone, menuItemWater;
@@ -79,13 +83,21 @@ public class LevelBuilder  extends Application
     private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
     private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
 
-    private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
+    private final int BACKGROUND_LAYER_COUNT = 4;
+    private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
+    private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
+    private Image textureBlock = new Image("/Image/SkullTexture.png");
+    private Image textureShadow = new Image("/Image/shadowTexture.png");
+    private Image textureGround = new Image("/Image/ground.png");
 
-    private Image blockTexture = new Image("/Image/woodTexture.png");
-    private ImagePattern blockTexturePattern;
+    private ImagePattern texturePatternBlock;
+    private ImagePattern texturePatternShadow;
+    private ImagePattern texturePatternGround;
 
-    private Image swordFighter = new Image("/Image/Jacob_Idle.png");
-    //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
+    private Image textureWater0 = new Image("/Image/water0.png");
+    private Image textureWater1 = new Image("/Image/water1.png");
+    private ImagePattern texturePatternWater0;
+    private ImagePattern texturePatternWater1;
 
     private Sprite swordFighterIdle;
 
@@ -102,12 +114,25 @@ public class LevelBuilder  extends Application
     }
 
     @Override
-    public void start(Stage stage) {
-        stage.setTitle("Hermano Level Builder");
-
+    public void start(Stage stage)
+    {
+        stage.setTitle("The Lie Made Flesh: Level Builder");
 
         canvas = new Canvas(100, 60);
-        gtx = canvas.getGraphicsContext2D();
+        gfx = canvas.getGraphicsContext2D();
+        this.viewWidth = (int) gfx.getCanvas().getWidth();
+        this.viewHeight = (int) gfx.getCanvas().getHeight();
+
+        for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
+        {
+            String name = "/Image/MossyWoods-Background_"+i+".png";
+            Print.purple("Loading Image: ["+name +"]");
+            backgroundLayer[i] = new Image(name);
+        }
+        backgroundLayerOffsetY[0] = 0;
+        backgroundLayerOffsetY[1] = 20;
+        backgroundLayerOffsetY[2] = 60;
+        backgroundLayerOffsetY[3] = 140;
 
         menuEntity = new ContextMenu();
         menuMaterial = new ContextMenu();
@@ -170,15 +195,11 @@ public class LevelBuilder  extends Application
         menuItemStone.setToggleGroup(toggleGroupMaterial);
         menuItemWater.setToggleGroup(toggleGroupMaterial);
 
-        gtx.setFill(Color.DARKBLUE);
-        gtx.setFont(new Font("Verdana", 20));
+        gfx.setFill(Color.DARKBLUE);
+        gfx.setFont(new Font("Verdana", 20));
 
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #999999");
-
-
-        swordFighterIdle = new Sprite(swordFighter, 10, 100, 100, 0, 0);
-
 
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
@@ -187,8 +208,15 @@ public class LevelBuilder  extends Application
         createCanvas();
         root.getChildren().add(canvas);
 
-        gtx.clearRect(80, 180, 600, 350);
-        gtx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
+        cameraPosX = -4.9999995f;
+        cameraPosY =  0.57286453f;
+        cameraOffsetX = 9.6f;
+        cameraOffsetY = 5.4f;
+        cameraZoom =100.0f;
+
+
+        gfx.clearRect(80, 180, 600, 350);
+        gfx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
                         "Right-click on Entity to delete.\n" +
                         "Right-click on Entity to set its Properties.\n\n" +
 
@@ -222,21 +250,60 @@ public class LevelBuilder  extends Application
     }
 
 
+    //=================================================================================================================
+    // The 2.5D background is drawn in 4 layers with increasing parallax shift from back to front.
+    // If the front most image layer does not reach the bottom of the draw area, then the lower section is tiled with
+    //    texturePatternGround.
+    //
+    //=================================================================================================================
+    private void renderBackground()
+    {
+        double layer3Left = 0;
+        double layer3Bottom = 0;
+        for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
+        {
+            double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
+            double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
+            double y = -120;
+            if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
+            if (i == 3)
+            {
+                layer3Left   = x;
+                layer3Bottom = y+backgroundLayer[i].getHeight()-1;
+            }
+            gfx.drawImage(backgroundLayer[i], x,y);
+        }
+
+        double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
+        double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
+        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 256, false);
+        texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 256, 256, false);
+        texturePatternGround = new ImagePattern(textureGround, layer3Left, layer3Bottom, 512, 512, false);
+
+        gfx.setFill(texturePatternGround);
+        gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
+
+        long currentNano = System.nanoTime();
+        float shift =  (float)(currentNano*0.5e-8);
+        texturePatternWater0 = new ImagePattern(textureWater0, offsetX+shift, offsetY+shift, 512, 512, false);
+        texturePatternWater1 = new ImagePattern(textureWater1, offsetX+shift/2, offsetY-shift/2, 512, 512, false);
+    }
+
     private void scrollWheelEvent(ScrollEvent event) {
         double deltaY = event.getDeltaY();
-        float zoom2 = zoomFactor;
-        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,zoomFactor - 0.05f);
-        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, zoomFactor + 0.05f);
+        float zoom2 = cameraZoom;
+        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,cameraZoom - 0.05f);
+        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, cameraZoom + 0.05f);
 
         if (Math.abs(zoom2 - 1.0) < 0.001) zoom2= 1.0f;
-        offsetX += lastMouseX/zoom2 - lastMouseX/zoomFactor;
-        offsetY += lastMouseY/zoom2 - lastMouseY/zoomFactor;
-        zoomFactor = zoom2;
+        offsetX += lastMouseX/zoom2 - lastMouseX/cameraZoom;
+        offsetY += lastMouseY/zoom2 - lastMouseY/cameraZoom;
+        cameraZoom = zoom2;
 
         //System.out.println("zoomFactor="+zoomFactor);
-        gtx.restore();
-        gtx.save();
-        gtx.scale(zoomFactor,zoomFactor);
+        gfx.restore();
+        gfx.save();
+        gfx.scale(cameraZoom,cameraZoom);
         //renderAll();
     }
 
@@ -283,8 +350,8 @@ public class LevelBuilder  extends Application
         }
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
-        float x = mouseX/zoomFactor - offsetX;
-        float y = mouseY/zoomFactor - offsetY;
+        float x = mouseX/cameraZoom - offsetX;
+        float y = mouseY/cameraZoom - offsetY;
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
@@ -352,8 +419,8 @@ public class LevelBuilder  extends Application
             float y0 = selectedEntity.getY();
             float px = selectedEntity.getVertexX(selectedVertexIdx);
             float py = selectedEntity.getVertexY(selectedVertexIdx);
-            float dx = (((mouseX/zoomFactor)-offsetX) - x0) - (px - x0);
-            float dy = (((mouseY/zoomFactor)-offsetY) - y0) - (py - y0);
+            float dx = (((mouseX/cameraZoom)-offsetX) - x0) - (px - x0);
+            float dy = (((mouseY/cameraZoom)-offsetY) - y0) - (py - y0);
             dx = Math.round(dx/10)*10;
             dy = Math.round(dy/10)*10;
             selectedEntity.setPosition(x0+dx/2, y0+dy/2);
@@ -363,8 +430,8 @@ public class LevelBuilder  extends Application
         }
         else if (selectedEntity != null)
         {  //Move block
-            float x = Math.round(((mouseX-offsetX)/zoomFactor-mouseDownOffsetWithinBlockX)/10)*10;
-            float y = Math.round(((mouseY-offsetY)/zoomFactor-mouseDownOffsetWithinBlockY)/10)*10;
+            float x = Math.round(((mouseX-offsetX)/cameraZoom-mouseDownOffsetWithinBlockX)/10)*10;
+            float y = Math.round(((mouseY-offsetY)/cameraZoom-mouseDownOffsetWithinBlockY)/10)*10;
             if (selectedEntity.getWidth() % 20 != 0)  x+=5;
             if (selectedEntity.getHeight() % 20 != 0) y+=5;
             selectedEntity.setPosition(x, y);
@@ -445,8 +512,8 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null)
             {
                 //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
-                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedEntity.getX();
-                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
+                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/cameraZoom - selectedEntity.getX();
+                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/cameraZoom - selectedEntity.getY();
             }
         }
         //renderAll();
@@ -456,8 +523,8 @@ public class LevelBuilder  extends Application
 
     private void menuEvent(ActionEvent e)
     {
-        float x = Math.round(((mouseDownX / zoomFactor) - offsetX) / 10) * 10;
-        float y = Math.round(((mouseDownY / zoomFactor) - offsetY) / 10) * 10;
+        float x = Math.round(((mouseDownX / cameraZoom) - offsetX) / 10) * 10;
+        float y = Math.round(((mouseDownY / cameraZoom) - offsetY) / 10) * 10;
         MenuItem item = (MenuItem) e.getSource();
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
@@ -553,41 +620,142 @@ public class LevelBuilder  extends Application
     }
 
 
-    private void renderAll() {
-        int width  = (int)(canvas.getWidth()/zoomFactor);
-        int height = (int)(canvas.getHeight()/zoomFactor);
+    private void renderAll()
+    {
+        renderBackground();
+        renderEntities();
+        renderSecondWaterLayer();
+    }
 
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 128, 128, false);
 
 
-        gtx.clearRect(0, 0, width, height);
-        gtx.fillRect(0, 0, width, height);
-        gtx.setFill(Color.BLACK);
-        gtx.setStroke(Color.BLACK);
-        gtx.setLineWidth(1);
-        int xStart = offsetX % 50;
-        int yStart = offsetY % 10;
-        for (int x = xStart; x < width; x += 50)
+    //===============================================================================================================
+    // Until we utilize sprites, we'll test the game by drawing shapes that match the
+    // blocks' hitboxes. The blocks' colors will help indicate what state they're in.
+    //===============================================================================================================
+    private void renderEntities()
+    {
+        double[] xPos = new double[3];
+        double[] yPos = new double[3];
+        for (Entity entity : entityList)
         {
-            for (int y = yStart; y < height; y += 10)
+            //TODO: Right now the image loader loads every image size 35x70
+            //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
+            //ImageResource sprite = entity.getSprite();
+            ImageResource sprite = null;
+            //if (entity instanceof Actor)
+            //{
+            //    System.out.println(entity + "   sprite="+sprite);
+            //}
+            if (sprite != null)
             {
-                gtx.strokeLine(x,y,x,y+1);
-            }
-        }
-        xStart = offsetX % 10;
-        yStart = offsetY % 50;
-        for (int y = yStart; y < height; y += 50)
-        {
-            for (int x = xStart; x < width; x += 10)
-            {
-                gtx.strokeLine(x,y,x+1,y);
-            }
-        }
+            /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
+            xPos = xPos - Sprite.getRequestedWidth() / 2; //this is set in the Importer
 
-        for (Entity block : entityList) {
-            render(block);
+            double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
+            yPos = yPos - Sprite.getRequestedHeight() / 2; //this is set in the Importer
+
+            context.drawImage(Sprite,xPos,yPos);*/
+                //System.out.println("drawing sprite");
+                sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
+                        (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
+                        entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
+            }
+            else
+            {
+                gfx.setFill(entity.getColor());
+
+                if (entity.getShape().isTriangle())
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
+                        yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
+                    }
+                    gfx.setFill(texturePatternBlock);
+                    gfx.fillPolygon(xPos, yPos, 3);
+                }
+                else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+                {
+                    if (entity instanceof Weapon)
+                    {
+                        Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
+                        if (cc != null)
+                        {
+                            gfx.setFill(Color.rgb(120, 170, 170));
+                            for (int j = 0; j < cc.length; j++)
+                            {
+                                double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
+                                double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
+                                for (int i = 0; i < xxCorners.length; i++)
+                                {
+                                    xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                                    yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                                }
+                                gfx.fillPolygon(xxCorners, yyCorners, 4);
+                            }
+                        }
+
+                        gfx.setFill(entity.getColor());
+                        Vec2[] c = ((Weapon) entity).getShapeCorners();
+                        double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+                        double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
+                        for (int i = 0; i < xCorners.length; i++)
+                        {
+                            xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
+                            yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
+                        }
+                        gfx.fillPolygon(xCorners, yCorners, 4);
+                    }
+                    else
+                    {
+                        double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+                        double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+                        double width = entity.getWidth() * cameraZoom;
+                        double height = entity.getHeight() * cameraZoom;
+
+                        if (entity instanceof Block)
+                        {
+                            if (((Block) entity).isLiquid()) continue;
+                            else gfx.setFill(texturePatternBlock);
+                        }
+                        else gfx.setFill(entity.getColor());
+
+                        gfx.fillRect(x, y, width, height);
+                    }
+                }
+
+                /* Draws vertical and horizontal lines through the camera for debugging */
+                //gfx.setFill(Color.BLACK);
+                //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+                //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+            }
         }
     }
+
+
+
+
+    private void renderSecondWaterLayer()
+    {
+        for (Entity entity : entityList)
+        {
+            if (entity instanceof Block)
+            {
+                if (((Block) entity).isLiquid())
+                {
+                    double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
+                    double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
+                    double width = entity.getWidth() * cameraZoom;
+                    double height = entity.getHeight() * cameraZoom;
+                    gfx.setFill(texturePatternWater1);
+                    gfx.fillRect(x, y, width, height);
+                }
+            }
+        }
+    }
+
+    /*
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
         //if (block instanceof Natural) return;
@@ -632,7 +800,7 @@ public class LevelBuilder  extends Application
             gtx.fillRect(x, y, block.getWidth(), block.getHeight());
         }
     }
-
+*/
 
 
     //============================================================================================
