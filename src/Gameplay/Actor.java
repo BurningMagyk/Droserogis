@@ -192,6 +192,7 @@ public class Actor extends Item
     {
         resetAcceleration();
         applyInflictions();
+        interact(entities);
         act(deltaSec);
         applyPhysics(entities, deltaSec);
         countdownCondition(deltaSec);
@@ -1018,6 +1019,32 @@ public class Actor extends Item
         }
     }
 
+    private boolean setToInteract = false;
+    public void interact(EntityCollection<Entity> entities)
+    {
+        if (entities != null && setToInteract)
+        {
+            setToInteract = false;
+
+            for (Entity entity : entities)
+            {
+                if (entity instanceof Item && entity.withinBounds(this))
+                {
+                    // TODO: let actor interact with characters and items other than equipping
+                    if (entity instanceof Weapon)
+                    {
+                        if (equip((Weapon) entity)) break;
+                    }
+                    else if (entity instanceof Armor)
+                    {
+                        if (equip((Armor) entity)) break;
+                    }
+                }
+            }
+        }
+        else setToInteract = true;
+    }
+
     private State determineState()
     {
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
@@ -1138,13 +1165,23 @@ public class Actor extends Item
         return false;
     }
 
-    public void equip(Weapon weapon)
+    public boolean equip(Weapon weapon)
     {
-        //weapons[1] = weapon.equip(this);
+        if (weapon.isIdle())
+        {
+            weapons[1] = weapon.equip(this);
+            return true;
+        }
+        return false;
     }
-    public void equip(Armor armor)
+    public boolean equip(Armor armor)
     {
-        //armor[1] = armor.equip(this);
+        if (armor.isIdle())
+        {
+            //armor[1] = armor.equip(this);
+            return true;
+        }
+        return false;
     }
 
     //===============================================================================================================
@@ -1608,8 +1645,9 @@ public class Actor extends Item
         {
             inflictions.add(infliction);
             for (Armor armor : armors) { if (armor != null) armor.inflict(infliction); }
+
+            if (!infliction.isSelfInf) Print.yellow("Actor: " + infliction + " added");
         }
-        if (!infliction.isSelfInf) Print.yellow("Actor: " + infliction + " added");
     }
 
     public float getMass()
