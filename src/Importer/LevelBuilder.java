@@ -47,8 +47,8 @@ import javafx.util.Duration;
 public class LevelBuilder  extends Application
 {
 
-    private static final float ZOOM_MIN = 40f;
-    private static final float ZOOM_MAX = 250f;
+    private static final float ZOOM_MIN = 0.359f;
+    private static final float ZOOM_MAX = 1.5f;
 
     private boolean DEBUG = false;
     private Scene scene;
@@ -66,10 +66,15 @@ public class LevelBuilder  extends Application
     //private boolean windowWasResized = false;
 
 
-    //private int offsetX=0;
-    //private int offsetY=0;
-    private float cameraPosX, cameraPosY;
+
+    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
+    private float levelEditorScale = 1;
+    private int levelEditorOffsetX=0;
+    private int levelEditorOffsetY=0;
+
+
+
     private float snapGridSize;
 
     private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
@@ -160,8 +165,10 @@ public class LevelBuilder  extends Application
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #999999");
 
-        cameraPosX = -4.9999995f+9.6f;
-        cameraPosY =  0.57286453f+5.4f;
+        cameraPosX = -4.9999995f;
+        cameraPosY =  0.57286453f;
+        cameraOffsetX = 9.6f;
+        cameraOffsetY = 5.4f;
         cameraZoom =100.0f;
 
         snapGridSize = 10f/cameraZoom;
@@ -185,7 +192,7 @@ public class LevelBuilder  extends Application
 
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom, levelEditorScale);
 
         root.getChildren().add(canvas);
 
@@ -240,25 +247,50 @@ public class LevelBuilder  extends Application
 
     private void scrollWheelEvent(ScrollEvent event)
     {
-        if (true) return;
-        /*
         double deltaY = event.getDeltaY();
-        float zoom2 = cameraZoom;
-        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,cameraZoom - 0.05f);
-        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, cameraZoom + 0.05f);
+        //float oldZeroX = levelEditorScale*(- cameraPosX + cameraOffsetX) * cameraZoom;
+        //float oldZeroY = levelEditorScale*(- cameraPosY + cameraOffsetY) * cameraZoom;
 
-        if (Math.abs(zoom2 - 1.0) < 0.001) zoom2= 1.0f;
-        offsetX += lastMouseX/zoom2 - lastMouseX/cameraZoom;
-        offsetY += lastMouseY/zoom2 - lastMouseY/cameraZoom;
-        cameraZoom = zoom2;
+        //float oldLevelEditorScale = levelEditorScale;
+        //float zoom = cameraZoom;
+        //if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,cameraZoom - 0.05f);
+        //else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, cameraZoom + 0.05f);
+        if (deltaY < 0) levelEditorScale = Math.max(ZOOM_MIN,levelEditorScale - 0.03f);
+        else if (deltaY > 0) levelEditorScale = Math.min(ZOOM_MAX, levelEditorScale + 0.03f);
+        if (Math.abs(levelEditorScale-1)< 0.02) levelEditorScale=1;
 
-        //System.out.println("zoomFactor="+zoomFactor);
-        gfx.restore();
-        gfx.save();
-        gfx.scale(cameraZoom,cameraZoom);
-        //renderAll();
-        */
+        //float oldCenterX = (viewWidth/2)*oldLevelEditorScale;
+        //float oldCenterY = (viewHeight/2)*oldLevelEditorScale;
 
+        //float centerX = (viewWidth/2)*levelEditorScale;
+        //float centerY = (viewHeight/2)*levelEditorScale;
+
+
+        //float zeroX = levelEditorScale*(- cameraPosX + cameraOffsetX) * cameraZoom;
+        //float zeroY = levelEditorScale*(- cameraPosY + cameraOffsetY) * cameraZoom;
+
+        //cameraPosX += oldCenterX-centerX;
+        //cameraPosY += oldCenterY-centerY;
+/*
+        if (cameraPosX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
+        {
+            cameraPosX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+        }
+        else if (cameraPosX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
+        {
+            cameraPosX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+        }
+        if (cameraPosY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
+        {
+            cameraPosY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+        }
+        else if (cameraPosY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
+        {
+            cameraPosY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+        }
+*/
+
+/*
 
         float deltaY = (float)event.getDeltaY();
         float zoom2 = cameraZoom;
@@ -270,13 +302,18 @@ public class LevelBuilder  extends Application
         float offsetY = lastMouseY/zoom2 - lastMouseY/cameraZoom;
         cameraZoom = zoom2;
 
-        //cameraOffsetX -= offsetX;
-        //cameraOffsetY -= offsetY;
+        cameraOffsetX -= offsetX;
+        cameraOffsetY -= offsetY;
 
         //gfx.restore();
         //gfx.save();
         //gfx.scale(cameraZoom,cameraZoom);
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+
+ */
+        gfx.restore();
+        gfx.setFill(Color.BLACK);
+        gfx.fillRect(0, 0, viewWidth, viewHeight);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
     }
 
     private void keyPressed(KeyEvent key)
@@ -308,8 +345,8 @@ public class LevelBuilder  extends Application
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
 
-        float x = mouseX/cameraZoom + cameraPosX;
-        float y = mouseY/cameraZoom + cameraPosY;
+        float x = mouseX/cameraZoom + cameraPosX - cameraOffsetX;
+        float y = mouseY/cameraZoom + cameraPosY - cameraOffsetY;
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
@@ -372,24 +409,22 @@ public class LevelBuilder  extends Application
             cameraPosX -= (mouseX - lastMouseX)/cameraZoom;
             cameraPosY -= (mouseY - lastMouseY)/cameraZoom;
 
-            if (cameraPosX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
+            if (cameraPosX - viewWidth/1.99f/cameraZoom < -31.7f)
             {
-                cameraPosX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+                cameraPosX = -31.7f+viewWidth/1.99f/cameraZoom;
             }
-            else if (cameraPosX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
+            else if (cameraPosX + viewWidth/1.99f/cameraZoom > 20.79f)
             {
-                cameraPosX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+                cameraPosX = 20.79f - viewWidth / 1.99f / cameraZoom;
             }
-            if (cameraPosY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
+            if (cameraPosY - viewHeight/1.99f/cameraZoom < -19.0f)
             {
-                cameraPosY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+                cameraPosY = -19.0f+viewHeight/1.99f/cameraZoom;
             }
-            else if (cameraPosY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
+            else if (cameraPosY + viewHeight/1.99f/cameraZoom >6f)
             {
-                cameraPosY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+                cameraPosY = 6f-viewHeight/1.99f/cameraZoom;
             }
-
-
 
         }
         else if (selectedVertexIdx >= 0)
@@ -401,8 +436,8 @@ public class LevelBuilder  extends Application
             //float dx = (((mouseX/cameraZoom)-cameraOffsetX) - x0) - (px - x0);
             //float dy = (((mouseY/cameraZoom)-cameraOffsetY) - y0) - (py - y0);
 
-            float dx = ((mouseX/cameraZoom + cameraPosX) - x0) - (px - x0);
-            float dy = ((mouseY/cameraZoom + cameraPosY) - y0) - (py - y0);
+            float dx = ((mouseX/cameraZoom + cameraPosX - cameraOffsetX) - x0) - (px - x0);
+            float dy = ((mouseY/cameraZoom + cameraPosY - cameraOffsetY) - y0) - (py - y0);
 
             dx = snapGridSize*Math.round(dx/snapGridSize);
             dy = snapGridSize*Math.round(dy/snapGridSize);
@@ -422,8 +457,8 @@ public class LevelBuilder  extends Application
             //cameraPosX -= (mouseX - lastMouseX)/cameraZoom;
             //float x = Math.round(((mouseX-cameraOffsetX)/cameraZoom-mouseDownOffsetWithinBlockX)/10)*10;
             //float y = Math.round(((mouseY-cameraOffsetY)/cameraZoom-mouseDownOffsetWithinBlockY)/10)*10;
-            float x = (mouseX/cameraZoom + cameraPosX )-mouseDownOffsetWithinBlockX;
-            float y = (mouseY/cameraZoom + cameraPosY )-mouseDownOffsetWithinBlockY;
+            float x = (mouseX/cameraZoom + cameraPosX - cameraOffsetX )-mouseDownOffsetWithinBlockX;
+            float y = (mouseY/cameraZoom + cameraPosY - cameraOffsetY )-mouseDownOffsetWithinBlockY;
 
             x = Math.round(x/(snapGridSize/2))*(snapGridSize/2);
             y = Math.round(y/(snapGridSize/2))*(snapGridSize/2);
@@ -449,7 +484,9 @@ public class LevelBuilder  extends Application
         lastMouseX = mouseX;
         lastMouseY = mouseY;
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        gfx.setFill(Color.BLACK);
+        gfx.fillRect(0, 0, viewWidth/levelEditorScale, viewHeight/levelEditorScale);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
 
     }
 
@@ -512,11 +549,11 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null)
             {
                 //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
-                mouseDownOffsetWithinBlockX = (mouseDownX/cameraZoom + cameraPosX) - selectedEntity.getX();
-                mouseDownOffsetWithinBlockY = (mouseDownY/cameraZoom + cameraPosY) - selectedEntity.getY();
+                mouseDownOffsetWithinBlockX = (mouseDownX/cameraZoom + cameraPosX - cameraOffsetX) - selectedEntity.getX();
+                mouseDownOffsetWithinBlockY = (mouseDownY/cameraZoom + cameraPosY - cameraOffsetY) - selectedEntity.getY();
             }
         }
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
 
     }
 
@@ -527,8 +564,8 @@ public class LevelBuilder  extends Application
 
         //float x = Math.round(((mouseDownX / cameraZoom) - cameraOffsetX) / 10) * 10;
         //float y = Math.round(((mouseDownY / cameraZoom) - cameraOffsetY) / 10) * 10;
-        float x = mouseDownX/cameraZoom + cameraPosX;
-        float y = mouseDownY/cameraZoom + cameraPosY;
+        float x = mouseDownX/cameraZoom + cameraPosX - cameraOffsetX;
+        float y = mouseDownY/cameraZoom + cameraPosY - cameraOffsetY;
         MenuItem item = (MenuItem) e.getSource();
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
@@ -611,7 +648,7 @@ public class LevelBuilder  extends Application
                 }
             }
         }
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
 
 
     }
@@ -757,7 +794,7 @@ public class LevelBuilder  extends Application
         if (path == null) return;
         entityList = loadLevel(path);
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
         /*
         //Center the view of all entities
         int minX = Integer.MAX_VALUE;

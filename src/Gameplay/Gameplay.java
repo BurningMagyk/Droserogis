@@ -121,7 +121,6 @@ public class Gameplay implements Reactor
         for (Weapon weapon : entityList.getWeaponList()) weapon.update(entityList.getDynamicItems());
 
         Actor player1 = entityList.getPlayer(0);
-        Actor player2 = entityList.getPlayer(1);
         float x = player1.getPosition().x;
         float y = player1.getPosition().y;
         moveCamera(x, y, 100, player1.shouldVertCam(), deltaSec);
@@ -129,7 +128,7 @@ public class Gameplay implements Reactor
 
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  cameraZoom="+cameraZoom);
 
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,1);
 
         gfx.setFill(Color.BLACK);
         gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
@@ -160,21 +159,25 @@ public class Gameplay implements Reactor
         {
             if (code == KeyCode.LEFT)// && pressed)
             {
+                //moveCamera(cameraPosX - 0.1F, cameraPosY, cameraZoom);
                 entityList.getPlayer(1).pressLeft(pressed);
                 return;
             }
             else if (code == KeyCode.RIGHT)// && pressed)
             {
+                //moveCamera(cameraPosX + 0.1F, cameraPosY, cameraZoom);
                 entityList.getPlayer(1).pressRight(pressed);
                 return;
             }
             else if (code == KeyCode.UP)// && pressed)
             {
+                //moveCamera(cameraPosX, cameraPosY - 0.1F, cameraZoom);
                 entityList.getPlayer(1).pressUp(pressed);
                 return;
             }
             else if (code == KeyCode.DOWN)// && pressed)
             {
+                //moveCamera(cameraPosX, cameraPosY + 0.1F, cameraZoom);
                 entityList.getPlayer(1).pressDown(pressed);
                 return;
             }
@@ -268,7 +271,7 @@ public class Gameplay implements Reactor
     /**
      * Call every frame. Movement and zooming should be smooth.
      */
-    private void moveCamera(float goalX, float goalY, float zoom, boolean updateVert, float deltaSec)
+    private void moveCamera(float posX, float posY, float zoom, boolean updateVert, float deltaSec)
     {
         if (zoom != -1) cameraZoomGoal = zoom;
         if (Math.abs(cameraZoomGoal - cameraZoom) < Math.sqrt(cameraZoomLerp)) cameraZoom = cameraZoomGoal;
@@ -276,31 +279,44 @@ public class Gameplay implements Reactor
 
         //Prevent camera from moving to a location that views beyond the edge of the level
         //System.out.println("posX="+posX +"   viewWidth/2/cameraZoom="+viewWidth/2F/cameraZoom + "      left="+entities.getBoundsLeft() + "    right="+entities.getBoundsRight());
-        if (goalX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
+        if (posX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
         {
-            goalX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+            posX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
         }
-        else if (goalX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
+        else if (posX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
         {
-            goalX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+            posX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
         }
-        if (goalY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
+        if (posY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
         {
-            goalY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+            posY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
         }
-        else if (goalY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
+        else if (posY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
         {
-            goalY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+            posY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
         }
 
-        //float cameraSpeed = Math.min(5f*deltaSec, 1f);
-        //cameraPosX = cameraPosX*(1f-cameraSpeed) + goalX*cameraSpeed;
-        //if (updateVert)
-        //{
-        //    cameraPosY = cameraPosY*(1f-cameraSpeed) + goalY*cameraSpeed;
-        //}
-        cameraPosX = goalX;
-        cameraPosY = goalY;
+        /*
+        float _camPosLerp = (cameraPosLerp * topSpeed / 8) + cameraPosLerp;
+        if (Math.abs(cameraPosX - posX) < _camPosLerp / 10) cameraPosX = posX;
+        else cameraPosX += (posX - cameraPosX) * _camPosLerp;
+        if (updateVert)
+        {
+            if (Math.abs(cameraPosY - posY) < _camPosLerp / 5) cameraPosY = posY;
+            else cameraPosY += (posY - cameraPosY) * _camPosLerp * 2;
+        }
+        */
+
+        float cameraSpeed = Math.min(5f*deltaSec, 1f);
+        cameraPosX = cameraPosX*(1f-cameraSpeed) + posX*cameraSpeed;
+        if (updateVert)
+        {
+            cameraPosY = cameraPosY*(1f-cameraSpeed) + posY*cameraSpeed;
+        }
+
+
+        cameraOffsetX = viewWidth / 2F / cameraZoom;
+        cameraOffsetY = viewHeight / 2F / cameraZoom;
     }
 
 
