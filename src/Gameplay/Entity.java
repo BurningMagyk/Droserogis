@@ -421,8 +421,9 @@ abstract public class Entity
     // If a vertex is near the given point, then that vertex index is returned.
     // Otherwise, getVertexNear() returns -1;
     //====================================================================================================
-    public int getVertexNear(double x, double y) {
-        double radiusSquared = 16; //4 pixels squared
+    public int getVertexNear(double x, double y, double pixelSize)
+    {
+        double radiusSquared = (4*pixelSize)*(4*pixelSize); //4 pixels squared
         for (int i=0; i<vertexList.length; i++) {
             double dx = pos.x + vertexList[i].x - x;
             double dy = pos.y + vertexList[i].y - y;

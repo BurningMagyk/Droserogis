@@ -1182,6 +1182,7 @@ public class Actor extends Item
      *          camera zone it's inside of. Only applicable if being controlled
      *          by a player.
      */
+    /*
     float getZoom(ArrayList<CameraZone> cameraZoneList)
     {
         float sum = 0;
@@ -1205,7 +1206,7 @@ public class Actor extends Item
         }
         return totalZoom;
     }
-
+    */
     boolean shouldVertCam()
     {
         return state.isGrounded() || state.isOnWall() || state == State.SWIM
