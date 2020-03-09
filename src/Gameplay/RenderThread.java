@@ -30,7 +30,7 @@ public class RenderThread
     private ImagePattern texturePatternWater0;
     private ImagePattern texturePatternWater1;
 
-    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
+    private float cameraX, cameraY;
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
     private GraphicsContext gfx;
@@ -56,13 +56,11 @@ public class RenderThread
         backgroundLayerOffsetY[3] = 140;
     }
 
-    public void renderAll(EntityCollection<Entity> entityList, float cameraPosX , float cameraPosY, float cameraOffsetX, float cameraOffsetY, float cameraZoom)
+    public void renderAll(EntityCollection<Entity> entityList, float cameraPosX , float cameraPosY, float cameraZoom)
     {
         this.entityList = entityList;
-        this.cameraPosX = cameraPosX;
-        this.cameraPosY = cameraPosY;
-        this.cameraOffsetX = cameraOffsetX;
-        this.cameraOffsetY = cameraOffsetY;
+        this.cameraX = cameraPosX;
+        this.cameraY = cameraPosY;
         this.cameraZoom = cameraZoom;
 
         renderBackground();
@@ -80,16 +78,28 @@ public class RenderThread
     //=================================================================================================================
     private void renderBackground()
     {
-        gfx.setFill(Color.BLACK);
+        //gfx.setFill(Color.GREY);
+        //gfx.fillRect(0, 0, viewWidth, viewHeight);
+
+
+        //System.out.println("\n=======");
+        //double worldWidth = (cameraZoom*(entityList.getBoundsRight() - entityList.getBoundsLeft()));
+
+        //double frontMostLayerWidth = backgroundLayer[BACKGROUND_LAYER_COUNT-1].getWidth();
+        //Print.purple("frontMostLayerWidth =" + frontMostLayerWidth +"      worldWidth="+worldWidth);
 
         double layer3Left = 0;
         double layer3Bottom = 0;
+
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
-            double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
-            double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
-            double y = -120;
-            if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
+            double layerCenter = backgroundLayer[i].getWidth()/2.0;
+
+
+            double layerShift = 95f/(1+BACKGROUND_LAYER_COUNT-i);
+            double x = -400 + viewWidth/2 - backgroundLayer[0].getWidth()/2 - cameraX*layerShift;
+            double y = 0;
+            if (i>0) y = (-100 -cameraY*layerShift/2) - backgroundLayerOffsetY[i];
             if (i == 3)
             {
                 layer3Left   = x;
@@ -99,23 +109,25 @@ public class RenderThread
             gfx.drawImage(backgroundLayer[i], x,y);
         }
 
-        double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
-        double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
+        double offsetX = (-cameraX)*cameraZoom;
+        double offsetY = (-cameraY)*cameraZoom;
         texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 256, false);
         texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 256, 256, false);
         texturePatternGround = new ImagePattern(textureGround, layer3Left, layer3Bottom, 512, 512, false);
 
         gfx.setFill(texturePatternGround);
-        gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
+        //gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
+        gfx.fillRect(0, layer3Bottom, viewWidth, viewHeight-layer3Bottom);
 
         long currentNano = System.nanoTime();
         float shift =  (float)(currentNano*0.5e-8);
         texturePatternWater0 = new ImagePattern(textureWater0, offsetX+shift, offsetY+shift, 512, 512, false);
         texturePatternWater1 = new ImagePattern(textureWater1, offsetX+shift/2, offsetY-shift/2, 512, 512, false);
+
     }
 
     private void renderShadows()
-    {
+    {/*
         double[] xx = new double[4];
         double[] yy = new double[4];
         gfx.setFill(texturePatternShadow);
@@ -197,6 +209,7 @@ public class RenderThread
                 }
             }
         }
+        */
     }
 
 
@@ -212,97 +225,78 @@ public class RenderThread
         double[] yPos = new double[3];
         for (Entity entity : entityList)
         {
-            //TODO: Right now the image loader loads every image size 35x70
-            //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
             ImageResource sprite = entity.getSprite();
             //if (entity instanceof Actor)
             //{
             //    System.out.println(entity + "   sprite="+sprite);
             //}
-            if (false)
-            //if (sprite != null)
+
+            gfx.setFill(entity.getColor());
+
+            if (entity.getShape().isTriangle())
             {
-            /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
-            xPos = xPos - Sprite.getRequestedWidth() / 2; //this is set in the Importer
-
-            double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
-            yPos = yPos - Sprite.getRequestedHeight() / 2; //this is set in the Importer
-
-            context.drawImage(Sprite,xPos,yPos);*/
-                //System.out.println("drawing sprite");
-                sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
-                        (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
-                        entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
-            }
-            else
-            {
-                gfx.setFill(entity.getColor());
-
-                if (entity.getShape().isTriangle())
+                for (int i = 0; i < 3; i++)
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
-                        yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
-                    }
-                    gfx.setFill(texturePatternBlock);
-                    gfx.fillPolygon(xPos, yPos, 3);
+                    xPos[i] = viewWidth/2  + (entity.getVertexX(i) - cameraX) * cameraZoom;
+                    yPos[i] = viewHeight/2 + (entity.getVertexY(i) - cameraY) * cameraZoom;
                 }
-                else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+                gfx.setFill(texturePatternBlock);
+                gfx.fillPolygon(xPos, yPos, 3);
+            }
+            else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
+            {
+                if (entity instanceof Weapon)
                 {
-                    if (entity instanceof Weapon)
+                    Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
+                    if (cc != null)
                     {
-                        Vec2[][] cc = ((Weapon) entity).getClashShapeCorners();
-                        if (cc != null)
+                        gfx.setFill(Color.rgb(120, 170, 170));
+                        for (int j = 0; j < cc.length; j++)
                         {
-                            gfx.setFill(Color.rgb(120, 170, 170));
-                            for (int j = 0; j < cc.length; j++)
+                            double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
+                            double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
+                            for (int i = 0; i < xxCorners.length; i++)
                             {
-                                double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
-                                double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
-                                for (int i = 0; i < xxCorners.length; i++)
-                                {
-                                    xxCorners[i] = (xxCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                                    yyCorners[i] = (yyCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
-                                }
-                                gfx.fillPolygon(xxCorners, yyCorners, 4);
+                                xxCorners[i] = viewWidth/2 + (xxCorners[i] - cameraX ) * cameraZoom;
+                                yyCorners[i] = viewHeight/2 + (yyCorners[i] - cameraY ) * cameraZoom;
                             }
+                            gfx.fillPolygon(xxCorners, yyCorners, 4);
                         }
-
-                        gfx.setFill(entity.getColor());
-                        Vec2[] c = ((Weapon) entity).getShapeCorners();
-                        double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
-                        double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
-                        for (int i = 0; i < xCorners.length; i++)
-                        {
-                            xCorners[i] = (xCorners[i] - cameraPosX + cameraOffsetX) * cameraZoom;
-                            yCorners[i] = (yCorners[i] - cameraPosY + cameraOffsetY) * cameraZoom;
-                        }
-                        gfx.fillPolygon(xCorners, yCorners, 4);
                     }
-                    else
+
+                    gfx.setFill(entity.getColor());
+                    Vec2[] c = ((Weapon) entity).getShapeCorners();
+                    double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+                    double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
+                    for (int i = 0; i < xCorners.length; i++)
                     {
-                        double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
-                        double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
-                        double width = entity.getWidth() * cameraZoom;
-                        double height = entity.getHeight() * cameraZoom;
-
-                        if (entity instanceof Block)
-                        {
-                            if (((Block) entity).isLiquid()) continue;
-                            else gfx.setFill(texturePatternBlock);
-                        }
-                        else gfx.setFill(entity.getColor());
-
-                        gfx.fillRect(x, y, width, height);
+                        xCorners[i] = viewWidth/2 + (xCorners[i] - cameraX) * cameraZoom;
+                        yCorners[i] = viewHeight/2 + (yCorners[i] - cameraY) * cameraZoom;
                     }
+                    gfx.fillPolygon(xCorners, yCorners, 4);
                 }
+                else
+                {
+                    double x = viewWidth/2 + (entity.getX() - entity.getWidth() / 2 - cameraX) * cameraZoom;
+                    double y = viewHeight/2 + (entity.getY() - entity.getHeight() / 2 - cameraY) * cameraZoom;
+                    double width = entity.getWidth() * cameraZoom;
+                    double height = entity.getHeight() * cameraZoom;
 
-                /* Draws vertical and horizontal lines through the camera for debugging */
-                //gfx.setFill(Color.BLACK);
-                //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
-                //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
+                    if (entity instanceof Block)
+                    {
+                        if (((Block) entity).isLiquid()) continue;
+                        else gfx.setFill(texturePatternBlock);
+                    }
+                    else gfx.setFill(entity.getColor());
+
+                    gfx.fillRect(x, y, width, height);
+                }
             }
+
+            /* Draws vertical and horizontal lines through the camera for debugging */
+            //gfx.setFill(Color.BLACK);
+            //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
+            //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
         }
     }
 
@@ -311,6 +305,7 @@ public class RenderThread
 
     private void renderSecondWaterLayer()
     {
+        /*
         for (Entity entity : entityList)
         {
             if (entity instanceof Block)
@@ -326,6 +321,8 @@ public class RenderThread
                 }
             }
         }
+
+         */
     }
 
 }
