@@ -259,6 +259,9 @@ public class LevelBuilder  extends Application
         else if (deltaY > 0) levelEditorScale = Math.min(ZOOM_MAX, levelEditorScale + 0.03f);
         if (Math.abs(levelEditorScale-1)< 0.02) levelEditorScale=1;
 
+
+        Print.purple("LevelBuilder: scrollWheelEvent: levelEditorScale="+levelEditorScale);
+
         //float oldCenterX = (viewWidth/2)*oldLevelEditorScale;
         //float oldCenterY = (viewHeight/2)*oldLevelEditorScale;
 
@@ -345,8 +348,8 @@ public class LevelBuilder  extends Application
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
 
-        float x = mouseX/cameraZoom + cameraPosX - cameraOffsetX;
-        float y = mouseY/cameraZoom + cameraPosY - cameraOffsetY;
+        float x = (mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX;
+        float y = (mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY;
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
@@ -436,8 +439,8 @@ public class LevelBuilder  extends Application
             //float dx = (((mouseX/cameraZoom)-cameraOffsetX) - x0) - (px - x0);
             //float dy = (((mouseY/cameraZoom)-cameraOffsetY) - y0) - (py - y0);
 
-            float dx = ((mouseX/cameraZoom + cameraPosX - cameraOffsetX) - x0) - (px - x0);
-            float dy = ((mouseY/cameraZoom + cameraPosY - cameraOffsetY) - y0) - (py - y0);
+            float dx = (((mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX) - x0) - (px - x0);
+            float dy = (((mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY) - y0) - (py - y0);
 
             dx = snapGridSize*Math.round(dx/snapGridSize);
             dy = snapGridSize*Math.round(dy/snapGridSize);
@@ -457,8 +460,8 @@ public class LevelBuilder  extends Application
             //cameraPosX -= (mouseX - lastMouseX)/cameraZoom;
             //float x = Math.round(((mouseX-cameraOffsetX)/cameraZoom-mouseDownOffsetWithinBlockX)/10)*10;
             //float y = Math.round(((mouseY-cameraOffsetY)/cameraZoom-mouseDownOffsetWithinBlockY)/10)*10;
-            float x = (mouseX/cameraZoom + cameraPosX - cameraOffsetX )-mouseDownOffsetWithinBlockX;
-            float y = (mouseY/cameraZoom + cameraPosY - cameraOffsetY )-mouseDownOffsetWithinBlockY;
+            float x = ((mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX )-mouseDownOffsetWithinBlockX;
+            float y = ((mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY )-mouseDownOffsetWithinBlockY;
 
             x = Math.round(x/(snapGridSize/2))*(snapGridSize/2);
             y = Math.round(y/(snapGridSize/2))*(snapGridSize/2);
@@ -549,8 +552,8 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null)
             {
                 //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
-                mouseDownOffsetWithinBlockX = (mouseDownX/cameraZoom + cameraPosX - cameraOffsetX) - selectedEntity.getX();
-                mouseDownOffsetWithinBlockY = (mouseDownY/cameraZoom + cameraPosY - cameraOffsetY) - selectedEntity.getY();
+                mouseDownOffsetWithinBlockX = ((mouseDownX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX) - selectedEntity.getX();
+                mouseDownOffsetWithinBlockY = ((mouseDownY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY) - selectedEntity.getY();
             }
         }
         renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
