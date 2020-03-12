@@ -19,11 +19,9 @@ public class RenderThread
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
     private Image textureBlock = new Image("/Image/SkullTexture.png");
     private Image textureShadow = new Image("/Image/shadowTexture.png");
-    private Image textureGround = new Image("/Image/ground.png");
 
     private ImagePattern texturePatternBlock;
     private ImagePattern texturePatternShadow;
-    private ImagePattern texturePatternGround;
 
     private Image textureWater0 = new Image("/Image/water0.png");
     private Image textureWater1 = new Image("/Image/water1.png");
@@ -94,11 +92,12 @@ public class RenderThread
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
-            double x = 100+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
+            double x = 66+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
             double y = -120;
             if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
             if (i == 3)
             {
+                y+=50;
                 layer3Left   = x;
                 layer3Bottom = y+backgroundLayer[i].getHeight()-1;
             }
@@ -110,9 +109,8 @@ public class RenderThread
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
         texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 256, false);
         texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 256, 256, false);
-        texturePatternGround = new ImagePattern(textureGround, layer3Left, layer3Bottom, 512, 512, false);
 
-        gfx.setFill(texturePatternGround);
+        gfx.setFill(Color.BLACK);
         //gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
         //gfx.fillRect(0, layer3Bottom, viewWidth/levelEditorScale, (viewHeight-layer3Bottom)/levelEditorScale);
         gfx.fillRect(0, layer3Bottom, viewWidth/levelEditorScale, 3000);
