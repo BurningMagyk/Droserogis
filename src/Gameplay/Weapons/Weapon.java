@@ -375,6 +375,7 @@ public class Weapon extends Item
     {
         return weaponStat.blockRating();
     }
+    public boolean isIdle() { return idle; }
 
     @Override
     public void damage(Infliction inf)
@@ -396,6 +397,8 @@ public class Weapon extends Item
         {
             if (currentOp.run(deltaSec))
             {
+                if (currentOp.getName().equals("Interact")) actor.interact(null);
+
                 Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;
                 orient = DEF_ORIENT.copy();

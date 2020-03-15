@@ -276,7 +276,7 @@ public class WeaponType
         public void apply(Item other) { }
         public boolean isParrying() { return false; }
         public boolean isPermeating() { return false; }
-        public Weapon.Operation copy() { return null; } // never used
+        public Weapon.Operation copy() { return new InteractOperation(); }
     }
 
     public final static WeaponType NATURAL = new WeaponType(

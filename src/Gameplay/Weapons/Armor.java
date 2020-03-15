@@ -78,4 +78,6 @@ public class Armor extends Item
         if (infliction != null) inflictions.add(infliction);
         Print.yellow("Armor: " + infliction + " added");
     }
+
+    public boolean isIdle() { return idle; }
 }

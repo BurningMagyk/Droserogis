@@ -1,13 +1,9 @@
 package Importer;
 
-import Gameplay.Actor;
-import Gameplay.Block;
-import Gameplay.CameraZone;
-import Gameplay.Entity;
-import Gameplay.EntityCollection;
+import Gameplay.*;
 import Gameplay.Weapons.Weapon;
-import Gameplay.Weapons.WeaponStat;
-import Gameplay.Weapons.WeaponType;
+
+import Util.Print;
 import Util.Sprite;
 import Util.Vec2;
 
@@ -51,24 +47,35 @@ import javafx.util.Duration;
 public class LevelBuilder  extends Application
 {
 
-    private static final float ZOOM_MIN = 0.4f;
-    private static final float ZOOM_MAX = 2.5f;
+    private static final float ZOOM_MIN = 0.359f;
+    private static final float ZOOM_MAX = 1.5f;
 
     private boolean DEBUG = false;
     private Scene scene;
     private Canvas canvas;
-    private GraphicsContext gtx;
+    private RenderThread renderThread;
+    private int viewWidth, viewHeight;
+    private GraphicsContext gfx;
 
-    private EntityCollection<Entity> entityList = new EntityCollection();
+    private EntityCollection<Entity> entityList = new EntityCollection<Entity>();
     private float lastMouseX, lastMouseY;
     private float mouseDownX, mouseDownY;
     private float mouseDownOffsetWithinBlockX, mouseDownOffsetWithinBlockY;
     private Entity selectedEntity = null;
     private int selectedVertexIdx = -1;
-    private boolean windowWasResized = false;
-    private int offsetX=0;
-    private int offsetY=0;
-    private float zoomFactor = 1.0f;
+    //private boolean windowWasResized = false;
+
+
+
+    private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
+    private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
+    private float levelEditorScale = 1;
+    private int levelEditorOffsetX=0;
+    private int levelEditorOffsetY=0;
+
+
+
+    private float snapGridSize;
 
     private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
     private RadioMenuItem menuItemStone, menuItemWater;
@@ -78,18 +85,6 @@ public class LevelBuilder  extends Application
 
     private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
     private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
-
-    private static final Color lightTranslucentGreen = Color.rgb(135, 169, 107, 0.5);
-
-    private Image blockTexture = new Image("/Image/woodTexture.png");
-    private Image backgroundTexture = new Image("/Image/metalStealWashedout.png");
-    private ImagePattern blockTexturePattern;
-    private ImagePattern backgroundTexturePattern;
-
-    private Image swordFighter = new Image("/Image/Jacob_Idle.png");
-    //private Sprite swordFighterIdle = new Sprite(swordFighter, 13, 40, 52, 9, 27);
-
-    private Sprite swordFighterIdle;
 
     Timeline timeline;
 
@@ -104,13 +99,8 @@ public class LevelBuilder  extends Application
     }
 
     @Override
-    public void start(Stage stage) {
-        stage.setTitle("Hermano Level Builder");
-
-
-        canvas = new Canvas(100, 60);
-        gtx = canvas.getGraphicsContext2D();
-
+    public void start(Stage stage)
+    {
         menuEntity = new ContextMenu();
         menuMaterial = new ContextMenu();
         menuCameraZoom = new ContextMenu();
@@ -172,25 +162,45 @@ public class LevelBuilder  extends Application
         menuItemStone.setToggleGroup(toggleGroupMaterial);
         menuItemWater.setToggleGroup(toggleGroupMaterial);
 
-        gtx.setFill(Color.DARKBLUE);
-        gtx.setFont(new Font("Verdana", 20));
-
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #999999");
 
+        cameraPosX = -4.9999995f;
+        cameraPosY =  0.57286453f;
+        cameraOffsetX = 9.6f;
+        cameraOffsetY = 5.4f;
+        cameraZoom =100.0f;
 
-        swordFighterIdle = new Sprite(swordFighter, 10, 100, 100, 0, 0);
-
+        snapGridSize = 10f/cameraZoom;
 
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
         stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setFullScreen(true);
         stage.show();
-        createCanvas();
+
+        viewWidth  = (int)scene.getWidth();
+        viewHeight = (int)scene.getHeight();
+        System.out.println("************* create canvas (" + viewWidth + ", " + viewHeight + ") *****************");
+
+        canvas = new Canvas(viewWidth, viewHeight);
+
+        gfx = canvas.getGraphicsContext2D();
+        gfx.setFill(Color.DARKBLUE);
+        gfx.setFont(new Font("Verdana", 20));
+
+        renderThread = new RenderThread(gfx, viewWidth, viewHeight);
+        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom, levelEditorScale);
+
         root.getChildren().add(canvas);
 
-        gtx.clearRect(80, 180, 600, 350);
-        gtx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
+
+
+
+        gfx.clearRect(80, 180, 600, 350);
+        gfx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
                         "Right-click on Entity to delete.\n" +
                         "Right-click on Entity to set its Properties.\n\n" +
 
@@ -209,41 +219,109 @@ public class LevelBuilder  extends Application
         scene.setOnMouseMoved(this::mouseMoved);
         scene.setOnMouseDragged(this::mouseDragged);
 
-        scene.widthProperty().addListener(this::windowResize);
-        scene.heightProperty().addListener(this::windowResize);
+        //scene.widthProperty().addListener(this::windowResize);
+        //scene.heightProperty().addListener(this::windowResize);
 
         scene.setOnKeyPressed(this::keyPressed);
         scene.setOnScroll(this::scrollWheelEvent);
 
-
-
-        timeline = new Timeline(new KeyFrame(
+        /*
+            timeline = new Timeline(new KeyFrame(
                 Duration.millis(100),
                 ae -> renderAll()));
         timeline.setCycleCount(Animation.INDEFINITE);
+        */
     }
 
 
-    private void scrollWheelEvent(ScrollEvent event) {
+
+
+
+
+
+
+
+
+
+
+
+    private void scrollWheelEvent(ScrollEvent event)
+    {
         double deltaY = event.getDeltaY();
-        float zoom2 = zoomFactor;
-        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,zoomFactor - 0.05f);
-        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, zoomFactor + 0.05f);
+        //float oldZeroX = levelEditorScale*(- cameraPosX + cameraOffsetX) * cameraZoom;
+        //float oldZeroY = levelEditorScale*(- cameraPosY + cameraOffsetY) * cameraZoom;
 
-        if (Math.abs(zoom2 - 1.0) < 0.001) zoom2= 1.0f;
-        offsetX += lastMouseX/zoom2 - lastMouseX/zoomFactor;
-        offsetY += lastMouseY/zoom2 - lastMouseY/zoomFactor;
-        zoomFactor = zoom2;
+        //float oldLevelEditorScale = levelEditorScale;
+        //float zoom = cameraZoom;
+        //if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,cameraZoom - 0.05f);
+        //else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, cameraZoom + 0.05f);
+        if (deltaY < 0) levelEditorScale = Math.max(ZOOM_MIN,levelEditorScale - 0.03f);
+        else if (deltaY > 0) levelEditorScale = Math.min(ZOOM_MAX, levelEditorScale + 0.03f);
+        if (Math.abs(levelEditorScale-1)< 0.02) levelEditorScale=1;
 
-        //System.out.println("zoomFactor="+zoomFactor);
-        gtx.restore();
-        gtx.save();
-        gtx.scale(zoomFactor,zoomFactor);
-        //renderAll();
+
+        Print.purple("LevelBuilder: scrollWheelEvent: levelEditorScale="+levelEditorScale);
+
+        //float oldCenterX = (viewWidth/2)*oldLevelEditorScale;
+        //float oldCenterY = (viewHeight/2)*oldLevelEditorScale;
+
+        //float centerX = (viewWidth/2)*levelEditorScale;
+        //float centerY = (viewHeight/2)*levelEditorScale;
+
+
+        //float zeroX = levelEditorScale*(- cameraPosX + cameraOffsetX) * cameraZoom;
+        //float zeroY = levelEditorScale*(- cameraPosY + cameraOffsetY) * cameraZoom;
+
+        //cameraPosX += oldCenterX-centerX;
+        //cameraPosY += oldCenterY-centerY;
+/*
+        if (cameraPosX - viewWidth/1.99f/cameraZoom < entityList.getBoundsLeft())
+        {
+            cameraPosX = (float) entityList.getBoundsLeft()+viewWidth/1.99f/cameraZoom;
+        }
+        else if (cameraPosX + viewWidth/1.99f/cameraZoom > entityList.getBoundsRight())
+        {
+            cameraPosX = (float) entityList.getBoundsRight() - viewWidth / 1.99f / cameraZoom;
+        }
+        if (cameraPosY - viewHeight/1.99f/cameraZoom < entityList.getBoundsTop())
+        {
+            cameraPosY = (float) entityList.getBoundsTop()+viewHeight/1.99f/cameraZoom;
+        }
+        else if (cameraPosY + viewHeight/1.99f/cameraZoom > entityList.getBoundsBottom())
+        {
+            cameraPosY = (float) entityList.getBoundsBottom()-viewHeight/1.99f/cameraZoom;
+        }
+*/
+
+/*
+
+        float deltaY = (float)event.getDeltaY();
+        float zoom2 = cameraZoom;
+        if (deltaY < 0) zoom2 = Math.max(ZOOM_MIN,cameraZoom*0.98f);
+        else if (deltaY > 0) zoom2 = Math.min(ZOOM_MAX, cameraZoom*1.02f);
+
+        //if (Math.abs(zoom2 - 1.0) < 0.001) zoom2= 1.0f;
+        float offsetX = lastMouseX/zoom2 - lastMouseX/cameraZoom;
+        float offsetY = lastMouseY/zoom2 - lastMouseY/cameraZoom;
+        cameraZoom = zoom2;
+
+        cameraOffsetX -= offsetX;
+        cameraOffsetY -= offsetY;
+
+        //gfx.restore();
+        //gfx.save();
+        //gfx.scale(cameraZoom,cameraZoom);
+
+ */
+        gfx.restore();
+        gfx.setFill(Color.BLACK);
+        gfx.fillRect(0, 0, viewWidth, viewHeight);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
     }
 
     private void keyPressed(KeyEvent key)
     {
+        if (key.getCode() == KeyCode.ESCAPE) System.exit(0);
         if (key.getCode() == KeyCode.L) loadFile();
         if (key.getCode() == KeyCode.S) saveFile();
     }
@@ -252,41 +330,26 @@ public class LevelBuilder  extends Application
     // When the user is resizing the window, there are many resize width and resize height events generated.
     // This avoids creating a new canvas and imageBaseLayer or every event.
     //=================================================================================================================
-    private void windowResize(Observable value) {
-        //System.out.println("scene Width: " + scene.getWidth());
-        //System.out.println("canvas Width: " + canvas.getWidth());
-        windowWasResized = true;
-    }
+    //private void windowResize(Observable value) {
+    //    //System.out.println("scene Width: " + scene.getWidth());
+    //    //System.out.println("canvas Width: " + canvas.getWidth());
+    //    windowWasResized = true;
+    //}
 
-    private void createCanvas() {
-        windowWasResized = false;
-        int width  = (int)scene.getWidth();
-        int height = (int)scene.getHeight();
-        System.out.println("************* create canvas (" + width + ", " + height + ") *****************");
-
-        if (canvas == null) {
-            canvas = new Canvas(width, height);
-        }
-
-        else if ((canvas.getWidth() < width) || (canvas.getHeight() < height))
-        {
-            canvas.setWidth(width);
-            canvas.setHeight(height);
-        }
-        renderAll();
-    }
 
     private void mouseMoved(MouseEvent event)
     {
-        if (windowWasResized)
-        {
-            createCanvas();
-            return;
-        }
+
+        //if (windowWasResized)
+        //{
+        //    createCanvas();
+        //    return;
+        //}
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
-        float x = mouseX/zoomFactor - offsetX;
-        float y = mouseY/zoomFactor - offsetY;
+
+        float x = (mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX;
+        float y = (mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY;
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
@@ -302,7 +365,7 @@ public class LevelBuilder  extends Application
 
             if (!(entity instanceof Weapon) && !(entity instanceof Actor))
             {
-                int vertexIdx = entity.getVertexNear(x, y);
+                int vertexIdx = entity.getVertexNear(x, y, 1f/cameraZoom);
                 if (vertexIdx >= 0)
                 {
                     if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
@@ -336,7 +399,8 @@ public class LevelBuilder  extends Application
     }
 
 
-    private void mouseDragged(MouseEvent event) {
+    private void mouseDragged(MouseEvent event)
+    {
         float mouseX = (float)event.getX();
         float mouseY = (float)event.getY();
 
@@ -345,8 +409,26 @@ public class LevelBuilder  extends Application
         if (event.isMiddleButtonDown())
         {
             //Drag world
-            offsetX += (mouseX - lastMouseX);
-            offsetY += (mouseY - lastMouseY);
+            cameraPosX -= (mouseX - lastMouseX)/cameraZoom;
+            cameraPosY -= (mouseY - lastMouseY)/cameraZoom;
+
+            if (cameraPosX - viewWidth/1.99f/cameraZoom < -31.7f)
+            {
+                cameraPosX = -31.7f+viewWidth/1.99f/cameraZoom;
+            }
+            else if (cameraPosX + viewWidth/1.99f/cameraZoom > 20.79f)
+            {
+                cameraPosX = 20.79f - viewWidth / 1.99f / cameraZoom;
+            }
+            if (cameraPosY - viewHeight/1.99f/cameraZoom < -19.0f)
+            {
+                cameraPosY = -19.0f+viewHeight/1.99f/cameraZoom;
+            }
+            else if (cameraPosY + viewHeight/1.99f/cameraZoom >6f)
+            {
+                cameraPosY = 6f-viewHeight/1.99f/cameraZoom;
+            }
+
         }
         else if (selectedVertexIdx >= 0)
         {   //Resize block
@@ -354,21 +436,38 @@ public class LevelBuilder  extends Application
             float y0 = selectedEntity.getY();
             float px = selectedEntity.getVertexX(selectedVertexIdx);
             float py = selectedEntity.getVertexY(selectedVertexIdx);
-            float dx = (((mouseX/zoomFactor)-offsetX) - x0) - (px - x0);
-            float dy = (((mouseY/zoomFactor)-offsetY) - y0) - (py - y0);
-            dx = Math.round(dx/10)*10;
-            dy = Math.round(dy/10)*10;
+            //float dx = (((mouseX/cameraZoom)-cameraOffsetX) - x0) - (px - x0);
+            //float dy = (((mouseY/cameraZoom)-cameraOffsetY) - y0) - (py - y0);
+
+            float dx = (((mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX) - x0) - (px - x0);
+            float dy = (((mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY) - y0) - (py - y0);
+
+            dx = snapGridSize*Math.round(dx/snapGridSize);
+            dy = snapGridSize*Math.round(dy/snapGridSize);
             selectedEntity.setPosition(x0+dx/2, y0+dy/2);
-            float width  = Math.max(20, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
-            float height = Math.max(20, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+
+            //float width  = Math.max(20, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
+            //float height = Math.max(20, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+            float width  = Math.max(snapGridSize, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
+            float height = Math.max(snapGridSize, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+
+
+            //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
             selectedEntity.setSize(width, height);
         }
         else if (selectedEntity != null)
         {  //Move block
-            float x = Math.round(((mouseX-offsetX)/zoomFactor-mouseDownOffsetWithinBlockX)/10)*10;
-            float y = Math.round(((mouseY-offsetY)/zoomFactor-mouseDownOffsetWithinBlockY)/10)*10;
-            if (selectedEntity.getWidth() % 20 != 0)  x+=5;
-            if (selectedEntity.getHeight() % 20 != 0) y+=5;
+            //cameraPosX -= (mouseX - lastMouseX)/cameraZoom;
+            //float x = Math.round(((mouseX-cameraOffsetX)/cameraZoom-mouseDownOffsetWithinBlockX)/10)*10;
+            //float y = Math.round(((mouseY-cameraOffsetY)/cameraZoom-mouseDownOffsetWithinBlockY)/10)*10;
+            float x = ((mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX )-mouseDownOffsetWithinBlockX;
+            float y = ((mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY )-mouseDownOffsetWithinBlockY;
+
+            x = Math.round(x/(snapGridSize/2))*(snapGridSize/2);
+            y = Math.round(y/(snapGridSize/2))*(snapGridSize/2);
+
+            //if (selectedEntity.getWidth() % 20 != 0)  x+=5;
+            //if (selectedEntity.getHeight() % 20 != 0) y+=5;
             selectedEntity.setPosition(x, y);
 
             if (selectedEntity instanceof Actor)
@@ -379,7 +478,7 @@ public class LevelBuilder  extends Application
                 {
                     if (weapons[i] != null && i > 0)
                     {
-                        weapons[i].setPosition(actor.getX(), actor.getY()/* - actor.getHeight() / 5F*/);
+                        weapons[i].setPosition(actor.getX(), actor.getY());
                     }
                 }
             }
@@ -387,11 +486,17 @@ public class LevelBuilder  extends Application
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
-        //renderAll();
+        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
+        gfx.setFill(Color.BLACK);
+        gfx.fillRect(0, 0, viewWidth/levelEditorScale, viewHeight/levelEditorScale);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
+
     }
 
     private void mousePressed(MouseEvent event)
     {
+        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
+
         mouseDownX = (float)event.getX();
         mouseDownY = (float)event.getY();
         lastMouseX = mouseDownX;
@@ -447,19 +552,23 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null)
             {
                 //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
-                mouseDownOffsetWithinBlockX = (mouseDownX - offsetX)/zoomFactor - selectedEntity.getX();
-                mouseDownOffsetWithinBlockY = (mouseDownY - offsetY)/zoomFactor - selectedEntity.getY();
+                mouseDownOffsetWithinBlockX = ((mouseDownX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX) - selectedEntity.getX();
+                mouseDownOffsetWithinBlockY = ((mouseDownY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY) - selectedEntity.getY();
             }
         }
-        //renderAll();
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
+
     }
 
 
 
     private void menuEvent(ActionEvent e)
     {
-        float x = Math.round(((mouseDownX / zoomFactor) - offsetX) / 10) * 10;
-        float y = Math.round(((mouseDownY / zoomFactor) - offsetY) / 10) * 10;
+
+        //float x = Math.round(((mouseDownX / cameraZoom) - cameraOffsetX) / 10) * 10;
+        //float y = Math.round(((mouseDownY / cameraZoom) - cameraOffsetY) / 10) * 10;
+        float x = mouseDownX/cameraZoom + cameraPosX - cameraOffsetX;
+        float y = mouseDownY/cameraZoom + cameraPosY - cameraOffsetY;
         MenuItem item = (MenuItem) e.getSource();
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
@@ -502,7 +611,8 @@ public class LevelBuilder  extends Application
             {
                 if (text.endsWith(shape.getText()))
                 {
-                    Block block = new Block(x, y, 100, 100, shape, 1.0F, null, null);
+                    float unitSize = 100f/cameraZoom;
+                    Block block = new Block(x, y, unitSize, unitSize, shape, 1.0F, null, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -541,7 +651,9 @@ public class LevelBuilder  extends Application
                 }
             }
         }
-        //renderAll();
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
+
+
     }
 
 
@@ -555,43 +667,11 @@ public class LevelBuilder  extends Application
     }
 
 
-    private void renderAll() {
-        int width  = (int)(canvas.getWidth()/zoomFactor);
-        int height = (int)(canvas.getHeight()/zoomFactor);
-
-        blockTexturePattern = new ImagePattern(blockTexture, offsetX, offsetY, 128, 128, false);
-        backgroundTexturePattern = new ImagePattern(backgroundTexture, offsetX, offsetY, 512, 512, false);
 
 
-        gtx.clearRect(0, 0, width, height);
-        gtx.setFill(backgroundTexturePattern);
-        gtx.fillRect(0, 0, width, height);
-        gtx.setFill(Color.BLACK);
-        gtx.setStroke(Color.BLACK);
-        gtx.setLineWidth(1);
-        int xStart = offsetX % 50;
-        int yStart = offsetY % 10;
-        for (int x = xStart; x < width; x += 50)
-        {
-            for (int y = yStart; y < height; y += 10)
-            {
-                gtx.strokeLine(x,y,x,y+1);
-            }
-        }
-        xStart = offsetX % 10;
-        yStart = offsetY % 50;
-        for (int y = yStart; y < height; y += 50)
-        {
-            for (int x = xStart; x < width; x += 10)
-            {
-                gtx.strokeLine(x,y,x+1,y);
-            }
-        }
 
-        for (Entity block : entityList) {
-            render(block);
-        }
-    }
+
+    /*
     private void render(Entity block) {
         //System.out.println("    render() "+block.getShape());
         //if (block instanceof Natural) return;
@@ -636,7 +716,7 @@ public class LevelBuilder  extends Application
             gtx.fillRect(x, y, block.getWidth(), block.getHeight());
         }
     }
-
+*/
 
 
     //============================================================================================
@@ -668,10 +748,10 @@ public class LevelBuilder  extends Application
                 // Then this will need to be modified.
                 if (entity instanceof Weapon) continue;
 
-                int x = Math.round(entity.getX());
-                int y = Math.round(entity.getY());
-                int w = Math.round(entity.getWidth());
-                int h = Math.round(entity.getHeight());
+                int x = Math.round(entity.getX()/Entity.SPRITE_TO_WORLD_SCALE);
+                int y = Math.round(entity.getY()/Entity.SPRITE_TO_WORLD_SCALE);
+                int w = Math.round(entity.getWidth()/Entity.SPRITE_TO_WORLD_SCALE);
+                int h = Math.round(entity.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                 String stats = x + "," + y;
                 String type = "";
                 if (entity instanceof Block)
@@ -708,13 +788,6 @@ public class LevelBuilder  extends Application
 
 
     //============================================================================================
-    //                               loadFile()
-    //
-    // Called when the user presses Ctrl-S button.
-    // Convert pixel coordinates to world (20 world = 1000 pixels)
-    //    center of scene is (0,0)
-    //    -y is up.
-    //
     //============================================================================================
     private void loadFile()
     {
@@ -723,7 +796,9 @@ public class LevelBuilder  extends Application
         String path = fileChooserOpenGetPath();
         if (path == null) return;
         entityList = loadLevel(path);
-
+        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
+        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
+        /*
         //Center the view of all entities
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
@@ -753,6 +828,8 @@ public class LevelBuilder  extends Application
 
         //renderAll();
         timeline.play();
+
+         */
     }
 
 
