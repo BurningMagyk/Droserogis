@@ -119,8 +119,8 @@ public abstract class Item extends Entity
         if (newVel.y > 0) unitPosVelYNew = 1;
         else if (newVel.y < 0) unitPosVelYNew = -1;
 
-        if (unitPosVelX != unitPosVelXNew) setVelocityX(
-                leftSlope ? -minSlopeSpeed : rightSlope ? minSlopeSpeed : 0);
+        if (unitPosVelX != unitPosVelXNew)
+            setVelocityX(leftSlope ? -minSlopeSpeed : rightSlope ? minSlopeSpeed : 0);
         if (unitPosVelY != unitPosVelYNew) setVelocityY(0);
 
         /* This is needed so that the Actor sinks when inactive in liquid */
