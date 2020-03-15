@@ -73,20 +73,14 @@ public class LevelBuilder  extends Application
     private int levelEditorOffsetX=0;
     private int levelEditorOffsetY=0;
 
-
-
     private float snapGridSize;
 
-    private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
+    private ContextMenu menuEntity, menuMaterial;
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
 
-    private MenuItem menuItemAddCameraZone;
+    private Timeline timeline;
 
-    private static final int[] CAMERA_ZOOM_PRESETS = {100, 90, 75, 60, 50, 40, 25};
-    private RadioMenuItem[] menuItemCameraZoom = new RadioMenuItem[CAMERA_ZOOM_PRESETS.length];
-
-    Timeline timeline;
 
     public static void main(String[] args)
     {
@@ -101,67 +95,6 @@ public class LevelBuilder  extends Application
     @Override
     public void start(Stage stage)
     {
-        menuEntity = new ContextMenu();
-        menuMaterial = new ContextMenu();
-        menuCameraZoom = new ContextMenu();
-
-        Menu menuAddPlayer = new Menu("Add Player");
-        menuAddPlayer.setOnAction(this::menuEvent);
-        menuEntity.getItems().add(menuAddPlayer);
-        for (Actor.EnumType actorType : Actor.EnumType.values()) {
-            MenuItem item = new MenuItem(actorType.name());
-            menuAddPlayer.getItems().add(item);
-            item.setOnAction(this::menuEvent);
-        }
-
-        Menu menuAddMonster = new Menu("Add Monster");
-        menuAddMonster.setOnAction(this::menuEvent);
-        menuEntity.getItems().add(menuAddMonster);
-        menuAddMonster.setDisable(true);
-
-
-        menuEntity.getItems().add(new SeparatorMenuItem());
-        for (Entity.ShapeEnum shape : Entity.ShapeEnum.values()) {
-            MenuItem item = new MenuItem("Add " + shape.getText());
-            menuEntity.getItems().add(item);
-            item.setOnAction(this::menuEvent);
-        }
-        menuEntity.getItems().add(new SeparatorMenuItem());
-        menuItemAddCameraZone = new MenuItem("Add Camera Zone");
-        menuItemAddCameraZone.setOnAction(this::menuEvent);
-        menuEntity.getItems().add(menuItemAddCameraZone);
-
-        ToggleGroup toggleGroupZoomLevel = new ToggleGroup();
-        int idx = 0;
-        for (int zoomValue : CAMERA_ZOOM_PRESETS) {
-            menuItemCameraZoom[idx] = new RadioMenuItem("Camera Zone zoom " + zoomValue);
-            menuCameraZoom.getItems().add(menuItemCameraZoom[idx]);
-            menuItemCameraZoom[idx].setToggleGroup(toggleGroupZoomLevel);
-            menuItemCameraZoom[idx].setOnAction(this::menuEvent);
-            idx++;
-        }
-        menuCameraZoom.getItems().add(new SeparatorMenuItem());
-        menuItemDeleteCameraZone = new MenuItem("Delete");
-        menuCameraZoom.getItems().add(menuItemDeleteCameraZone);
-        menuItemDeleteCameraZone.setOnAction(this::menuEvent);
-
-
-        menuItemStone = new RadioMenuItem("Stone");
-        menuItemWater = new RadioMenuItem("Water");
-
-        menuMaterial.getItems().add(menuItemStone);
-        menuMaterial.getItems().add(menuItemWater);
-        menuMaterial.getItems().add(new SeparatorMenuItem());
-        menuItemDeleteEntity = new MenuItem("Delete");
-        menuMaterial.getItems().add(menuItemDeleteEntity);
-        menuItemStone.setOnAction(this::menuEvent);
-        menuItemWater.setOnAction(this::menuEvent);
-        menuItemDeleteEntity.setOnAction(this::menuEvent);
-
-        ToggleGroup toggleGroupMaterial = new ToggleGroup();
-        menuItemStone.setToggleGroup(toggleGroupMaterial);
-        menuItemWater.setToggleGroup(toggleGroupMaterial);
-
         Pane root = new Pane();
         root.setStyle("-fx-background-color: #999999");
 
@@ -171,7 +104,8 @@ public class LevelBuilder  extends Application
         cameraOffsetY = 5.4f;
         cameraZoom =100.0f;
 
-        snapGridSize = 10f/cameraZoom;
+        //snapGridSize = 10f/cameraZoom;
+        snapGridSize = 16f*Entity.SPRITE_TO_WORLD_SCALE;
 
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
@@ -191,6 +125,40 @@ public class LevelBuilder  extends Application
         gfx.setFont(new Font("Verdana", 20));
 
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
+
+        menuEntity = new ContextMenu();
+        menuMaterial = new ContextMenu();
+
+
+
+        for (BlockType blockType : BlockType.blockTypeList)
+        {
+            MenuItem item = new MenuItem(blockType.toString());
+            menuEntity.getItems().add(item);
+            item.setOnAction(this::menuEvent);
+        }
+
+
+        menuItemDeleteCameraZone = new MenuItem("Delete");
+        menuItemDeleteCameraZone.setOnAction(this::menuEvent);
+
+
+        menuItemStone = new RadioMenuItem("Stone");
+        menuItemWater = new RadioMenuItem("Water");
+
+        menuMaterial.getItems().add(menuItemStone);
+        menuMaterial.getItems().add(menuItemWater);
+        menuMaterial.getItems().add(new SeparatorMenuItem());
+        menuItemDeleteEntity = new MenuItem("Delete");
+        menuMaterial.getItems().add(menuItemDeleteEntity);
+        menuItemStone.setOnAction(this::menuEvent);
+        menuItemWater.setOnAction(this::menuEvent);
+        menuItemDeleteEntity.setOnAction(this::menuEvent);
+
+        ToggleGroup toggleGroupMaterial = new ToggleGroup();
+        menuItemStone.setToggleGroup(toggleGroupMaterial);
+        menuItemWater.setToggleGroup(toggleGroupMaterial);
+
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom, levelEditorScale);
 
@@ -432,6 +400,7 @@ public class LevelBuilder  extends Application
         }
         else if (selectedVertexIdx >= 0)
         {   //Resize block
+            /*
             float x0 = selectedEntity.getX();
             float y0 = selectedEntity.getY();
             float px = selectedEntity.getVertexX(selectedVertexIdx);
@@ -454,6 +423,7 @@ public class LevelBuilder  extends Application
 
             //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
             selectedEntity.setSize(width, height);
+             */
         }
         else if (selectedEntity != null)
         {  //Move block
@@ -524,23 +494,8 @@ public class LevelBuilder  extends Application
                     //Show Menu to modify selected block
                     if (((Block) selectedEntity).isLiquid()) menuItemWater.setSelected(true);
                     else menuItemStone.setSelected(true);
-                    menuCameraZoom.hide();
                     menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
 
-                }
-                else if (selectedEntity instanceof CameraZone)
-                {
-                    //Show Menu to modify selected CameraZone
-                    int zoom = (int)((CameraZone) selectedEntity).getZoom();
-                    for (int i=0; i<CAMERA_ZOOM_PRESETS.length; i++)
-                    {   if (zoom == CAMERA_ZOOM_PRESETS[i])
-                        {
-                            menuItemCameraZoom[i].setSelected(true);
-                            break;
-                        }
-                    }
-                    menuMaterial.hide();
-                    menuCameraZoom.show(canvas, event.getScreenX(), event.getScreenY());
                 }
             }
         }
@@ -548,7 +503,6 @@ public class LevelBuilder  extends Application
         {
             menuEntity.hide();
             menuMaterial.hide();
-            menuCameraZoom.hide();
             if (selectedEntity != null)
             {
                 //Save location within the selected entity that the mouse is clicked so entity can be smoothly moved.
@@ -597,22 +551,15 @@ public class LevelBuilder  extends Application
             unselect();
         }
 
-        else if (item == menuItemAddCameraZone)
-        {
-            CameraZone zone = new CameraZone(x, y, 500, 300, 100);
-            entityList.add(zone);
-            unselect();
-        }
 
         else //check if selected menu item is add entity or modify camera zone
         {
             boolean addedEntity = false;
-            for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
+            for (BlockType blockType : BlockType.blockTypeList)
             {
-                if (text.endsWith(shape.getText()))
+                if (text.endsWith(blockType.toString()))
                 {
-                    float unitSize = 100f/cameraZoom;
-                    Block block = new Block(x, y, unitSize, unitSize, shape, 1.0F, null, null);
+                    Block block = new Block(x, y, blockType.hitWidth, blockType.hitHeight, blockType, 1.0F, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -660,63 +607,12 @@ public class LevelBuilder  extends Application
     private void unselect()
     {
         menuMaterial.hide();
-        menuCameraZoom.hide();
         menuEntity.hide();
         selectedEntity = null;
         selectedVertexIdx = -1;
     }
 
 
-
-
-
-
-    /*
-    private void render(Entity block) {
-        //System.out.println("    render() "+block.getShape());
-        //if (block instanceof Natural) return;
-        if (block instanceof Weapon) return;
-
-        Vec2 pos = block.getPosition();
-        if (block == selectedEntity)
-        {
-            if (block instanceof CameraZone) gtx.setFill(lightTranslucentGreen);
-            else gtx.setFill(Color.DARKGREEN);
-            System.out.println(block.getX()+", " + block.getY());
-        }
-        else if (block instanceof Block)
-        {
-            gtx.setFill(blockTexturePattern);
-        }
-        else if (block instanceof Actor)
-        {
-            float x = offsetX + pos.x;
-            float y = offsetY + pos.y;
-            swordFighterIdle.render(gtx, x, y, block.getHeight());
-            return;
-        }
-        else gtx.setFill(block.getColor());
-
-        if (block.getShape().isTriangle())
-        {
-            double[] xPos = new double[3];
-            double[] yPos = new double[3];
-
-            for (int i = 0; i < 3; i++)
-            {
-                xPos[i] = block.getVertexX(i)+offsetX;
-                yPos[i] = block.getVertexY(i)+offsetY;
-            }
-            gtx.fillPolygon(xPos, yPos, 3);
-        }
-        else if (block.getShape() == Entity.ShapeEnum.RECTANGLE)
-        {
-            float x = offsetX + pos.x - block.getWidth() / 2;
-            float y = offsetY + pos.y - block.getHeight() / 2;
-            gtx.fillRect(x, y, block.getWidth(), block.getHeight());
-        }
-    }
-*/
 
 
     //============================================================================================
@@ -905,9 +801,10 @@ public class LevelBuilder  extends Application
                     }
                     boolean isLiquid = Boolean.valueOf(data[5]);
                     Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                    BlockType blockType = new BlockType(shape);
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    entity = new Block(x, y, width, height, shape, 1.0F, null,null);
+                    entity = new Block(x, y, width, height, blockType, 1.0F, null);
                     ((Block)entity).setLiquid(isLiquid);
                 }
 

@@ -12,15 +12,14 @@ public class Block extends Entity
     private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
     private boolean isLiquid = false;
-    private Color liquidColor = Color.rgb(150, 180, 230, 0.5);
-    private int capType;
+    private BlockType type;
 
     public Block(float xPos, float yPos, float width, float height,
-                 ShapeEnum shape, float hazardRating, Infliction.InflictionType[] infMaterials,
-                 String[] spritePaths)
+                 BlockType type, float hazardRating, Infliction.InflictionType[] infMaterials)
     {
-        super(xPos, yPos, width, height, shape, spritePaths);
+        super(xPos, yPos, width, height, type.shape, null);
 
+        this.type = type;
         this.hazardRating = hazardRating;
         if (infMaterials == null || infMaterials.length == 0)
         {
@@ -40,10 +39,8 @@ public class Block extends Entity
     @Override
     public Color getColor()
     {
-        if (isLiquid) return liquidColor;
         return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
 
-    public int getCapType() {return capType;}
-    public void setCapType(int capType) {this.capType = capType;}
+    public BlockType getBlockType() {return type;}
 }

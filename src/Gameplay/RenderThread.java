@@ -17,7 +17,6 @@ public class RenderThread
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image textureBlock = new Image("/Image/SkullTexture.png");
     private Image textureShadow = new Image("/Image/shadowTexture.png");
 
     private ImagePattern texturePatternBlock;
@@ -47,13 +46,15 @@ public class RenderThread
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             String name = "/Image/MossyWoods-Background_"+i+".png";
-            Print.purple("Loading Image: ["+name +"]");
+            //Print.purple("Loading Image: ["+name +"]");
             backgroundLayer[i] = new Image(name);
         }
         backgroundLayerOffsetY[0] = 0;
         backgroundLayerOffsetY[1] = 20;
         backgroundLayerOffsetY[2] = 60;
         backgroundLayerOffsetY[3] = 140;
+
+        BlockType.loadBlockTypes();
     }
 
     public void renderAll(EntityCollection<Entity> entityList, float cameraPosX , float cameraPosY, float cameraOffsetX, float cameraOffsetY, float cameraZoom, float levelEditorScale)
@@ -92,7 +93,7 @@ public class RenderThread
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
             double layerZoom = cameraZoom/(1+BACKGROUND_LAYER_COUNT-i);
-            double x = 66+ viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
+            double x = 66 + viewWidth/2 - backgroundLayer[0].getWidth()/2 - (cameraPosX + cameraOffsetX)*layerZoom;
             double y = -120;
             if (i>0) y = (y - (cameraPosY + cameraOffsetY)*layerZoom/2) - backgroundLayerOffsetY[i];
             if (i == 3)
@@ -107,7 +108,6 @@ public class RenderThread
 
         double offsetX = -(cameraPosX + cameraOffsetX)*cameraZoom;
         double offsetY = -(cameraPosY + cameraOffsetY)*cameraZoom;
-        texturePatternBlock = new ImagePattern(textureBlock, offsetX, offsetY, 256, 256, false);
         texturePatternShadow = new ImagePattern(textureShadow, offsetX, offsetY, 256, 256, false);
 
         gfx.setFill(Color.BLACK);
@@ -147,7 +147,7 @@ public class RenderThread
                 gfx.setFill(texturePatternShadow);
                 continue;
             }
-
+            if (true) continue;
             Entity.ShapeEnum shape = entity.getShape();
             double shadowL = (x-viewWidth/2)/30.0;
             double shadowR = (x+width-viewWidth/2)/30.0;
@@ -224,30 +224,6 @@ public class RenderThread
         double[] yPos = new double[3];
         for (Entity entity : entityList)
         {
-            //TODO: Right now the image loader loads every image size 35x70
-            //TODO: Java doesn't like resizing images after you've loaded them, but it doesn't mind doing so at load time
-            ImageResource sprite = entity.getSprite();
-            //if (entity instanceof Actor)
-            //{
-            //    System.out.println(entity + "   sprite="+sprite);
-            //}
-            if (false)
-            //if (sprite != null)
-            {
-            /*double xPos = (entity.getPosition().x - cameraPosX + cameraOffsetX) * cameraZoom;
-            xPos = xPos - Sprite.getRequestedWidth() / 2; //this is set in the Importer
-
-            double yPos = (entity.getPosition().y - cameraPosY + cameraOffsetY) * cameraZoom;
-            yPos = yPos - Sprite.getRequestedHeight() / 2; //this is set in the Importer
-
-            context.drawImage(Sprite,xPos,yPos);*/
-                //System.out.println("drawing sprite");
-                sprite.draw((entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom,
-                        (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom,
-                        entity.getWidth() * cameraZoom, entity.getHeight() * cameraZoom);
-            }
-            else
-            {
                 gfx.setFill(entity.getColor());
 
                 if (entity.getShape().isTriangle())
@@ -257,7 +233,7 @@ public class RenderThread
                         xPos[i] = (entity.getVertexX(i) - cameraPosX + cameraOffsetX) * cameraZoom;
                         yPos[i] = (entity.getVertexY(i) - cameraPosY + cameraOffsetY) * cameraZoom;
                     }
-                    gfx.setFill(texturePatternBlock);
+                    //gfx.setFill(texturePatternBlock);
                     gfx.fillPolygon(xPos, yPos, 3);
                 }
                 else if (entity.getShape() == Entity.ShapeEnum.RECTANGLE)
@@ -292,7 +268,7 @@ public class RenderThread
                         }
                         gfx.fillPolygon(xCorners, yCorners, 4);
                     }
-                    else
+                    else //not weapon
                     {
                         double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
                         double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
@@ -301,12 +277,23 @@ public class RenderThread
 
                         if (entity instanceof Block)
                         {
-                            if (((Block) entity).isLiquid()) continue;
-                            else gfx.setFill(texturePatternBlock);
+                            Block block = (Block) entity;
+                            if (block.isLiquid()) continue;
+                            if (block.getBlockType().name == null)
+                            {
+                                gfx.setFill(entity.getColor());
+                                gfx.fillRect(x, y, width, height);
+                            }
+                            else
+                            {
+                                gfx.drawImage(block.getBlockType().image, x, y);
+                            }
                         }
-                        else gfx.setFill(entity.getColor());
-
-                        gfx.fillRect(x, y, width, height);
+                        else
+                        {
+                            gfx.setFill(entity.getColor());
+                            gfx.fillRect(x, y, width, height);
+                        }
                     }
                 }
 
@@ -315,7 +302,7 @@ public class RenderThread
                 //gfx.strokeLine(0, viewHeight / 2F, viewWidth, viewHeight / 2F);
                 //gfx.strokeLine(viewWidth / 2F, 0, viewWidth / 2F, viewHeight);
             }
-        }
+
     }
 
 
@@ -339,5 +326,4 @@ public class RenderThread
             }
         }
     }
-
 }
