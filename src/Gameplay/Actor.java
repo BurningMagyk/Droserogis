@@ -1060,14 +1060,16 @@ public class Actor extends Item
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
                 if ((dirVert == UP || dirHoriz == RIGHT)
-                        && touchEntity[RIGHT] instanceof Block)
+                        && touchEntity[RIGHT] instanceof Block
+                        && canRun())
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
             if (getVelocityX() < 0 && touchEntity[LEFT] != null)
             {
                 if ((dirVert == UP || dirHoriz == LEFT)
-                        && touchEntity[LEFT] instanceof Block)
+                        && touchEntity[LEFT] instanceof Block
+                        && canRun())
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
@@ -1082,8 +1084,10 @@ public class Actor extends Item
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
         {
-            if (getVelocityY() < 0) return getVelocityY() > -maxClimbSpeed ? State.WALL_CLIMB : State.RISE;
-            return getVelocityY() < maxClimbSpeed ? State.WALL_STICK : State.FALL;
+            if (getVelocityY() < 0) return (getVelocityY() > -maxClimbSpeed && canRun())
+                    ? State.WALL_CLIMB : State.RISE;
+            return (getVelocityY() < maxClimbSpeed && canRun())
+                    ? State.WALL_STICK : State.FALL;
         }
         else
         {
@@ -1117,7 +1121,7 @@ public class Actor extends Item
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
-            //Print.blue(this.state + " -> " + state);
+            Print.blue(this.state + " -> " + state);
             this.state = state;
             return true;
         }
@@ -1132,7 +1136,7 @@ public class Actor extends Item
         else if (state == State.SWIM) interruptRushes(RushOperation.RushFinish.HIT_WATER);
         if (state.isLow()) interruptRushes(RushOperation.RushFinish.MAKE_LOW);
 
-        //Print.blue(this.state + " -> " + state);
+        Print.blue(this.state + " -> " + state);
 
         this.state = state;
         return false;
