@@ -199,8 +199,16 @@ abstract public class Entity
     public float getDefHeight() { return defHeight; }
     public Vec2 getDims() { return new Vec2(width, height); }
 
-    void setWidth(float width) { this.width = width; }
-    void setHeight(float height) { this.height = height; }
+    void setWidth(float width)
+    {
+        this.setPositionX(getPosition().x + ((this.width - width) / 2));
+        this.width = width;
+    }
+    void setHeight(float height)
+    {
+        this.setPositionY(getPosition().y + ((this.height - height) / 2));
+        this.height = height;
+    }
 
     public Vec2 getVelocity() { return new Vec2(velocity); }
     public float getVelocityX() { return velocity.x; }

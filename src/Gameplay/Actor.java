@@ -330,7 +330,7 @@ public class Actor extends Item
                 else if (vx > -topSpeed)
                 {
                     addAccelerationX(-accel);
-                    addVelocityX(((float) -minThreshSpeed * 1.5F));
+                    addVelocityX((float) -minThreshSpeed * 1.5F);
                 }
                 if (has(Condition.DASH) && getVelocityX() > -rushSpeed
                         && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
@@ -658,8 +658,24 @@ public class Actor extends Item
         Vec2 beforeFriction = applyAcceleration(determineFriction(), deltaSec);
         neutralizeVelocity(beforeFriction, slopeLeft, slopeRight);
         Vec2 contactVelocity = applyVelocity(deltaSec, entities);
-        if (setState(determineState()) && contactVelocity != null)
-            addVelocityY(-Math.abs(contactVelocity.x));
+
+        // Vertical boost you get when you collide with a wall
+        if (setState(determineState()) && contactVelocity != null && canRun()) {
+            if (touchEntity[LEFT] != null) {
+                if (touchEntity[LEFT].getTopEdge() < getTopEdge()) {
+                    if (touchEntity[LEFT].getTopEdge() < getTopEdge() - getHeight())
+                        addVelocityY(-Math.abs(contactVelocity.x));
+                    else addVelocityY(-Math.abs(contactVelocity.x / 2));
+                }
+            }
+            else if (touchEntity[RIGHT] != null) {
+                if (touchEntity[RIGHT].getTopEdge() < getTopEdge()) {
+                    if (touchEntity[RIGHT].getTopEdge() < getTopEdge() - getHeight())
+                        addVelocityY(-Math.abs(contactVelocity.x));
+                    else addVelocityY(-Math.abs(contactVelocity.x / 2));
+                }
+            }
+        }
     }
 
     /* Used for airborne and swimming, horizontal */
@@ -739,7 +755,7 @@ public class Actor extends Item
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        goal.add(getVelocity().mul(deltaSec * 80));
+        goal.add(getVelocity().mul(deltaSec * 60));
 
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(deltaSec, goal, entities);
@@ -1087,14 +1103,16 @@ public class Actor extends Item
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
             {
                 if ((dirVert == UP || dirHoriz == RIGHT)
-                        && touchEntity[RIGHT] instanceof Block)
+                        && touchEntity[RIGHT] instanceof Block
+                        && canRun())
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
             if (getVelocityX() < 0 && touchEntity[LEFT] != null)
             {
                 if ((dirVert == UP || dirHoriz == LEFT)
-                        && touchEntity[LEFT] instanceof Block)
+                        && touchEntity[LEFT] instanceof Block
+                        && canRun())
                     return State.WALL_CLIMB;
                 else return State.STAND;
             }
@@ -1109,25 +1127,25 @@ public class Actor extends Item
         }
         else if (touchEntity[LEFT] != null || touchEntity[RIGHT] != null)
         {
-            if (getVelocityY() < 0) return getVelocityY() > -maxClimbSpeed ? State.WALL_CLIMB : State.RISE;
-            return getVelocityY() < maxClimbSpeed ? State.WALL_STICK : State.FALL;
+            if (getVelocityY() < 0) return (getVelocityY() > -maxClimbSpeed && canRun())
+                    ? State.WALL_CLIMB : State.RISE;
+            return (getVelocityY() < maxClimbSpeed && canRun())
+                    ? State.WALL_STICK : State.FALL;
         }
         else
         {
-            if (getVelocityY() < 0)
+            if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
             {
-                if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
-                {
-                    setWidth(ORIGINAL_WIDTH);
-                    setHeight(ORIGINAL_HEIGHT / 2);
-                }
-                else
-                {
-                    setWidth(ORIGINAL_WIDTH);
-                    setHeight(ORIGINAL_HEIGHT);
-                }
-                return State.RISE;
+                setWidth(ORIGINAL_WIDTH);
+                setHeight(ORIGINAL_HEIGHT / 2);
             }
+            else
+            {
+                setWidth(ORIGINAL_WIDTH);
+                setHeight(ORIGINAL_HEIGHT);
+            }
+
+            if (getVelocityY() < 0) return State.RISE;
             else return State.FALL;
         }
     }
@@ -1144,7 +1162,7 @@ public class Actor extends Item
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
-            //Print.blue(this.state + " -> " + state);
+            Print.blue(this.state + " -> " + state);
             this.state = state;
             return true;
         }
@@ -1159,7 +1177,7 @@ public class Actor extends Item
         else if (state == State.SWIM) interruptRushes(RushOperation.RushFinish.HIT_WATER);
         if (state.isLow()) interruptRushes(RushOperation.RushFinish.MAKE_LOW);
 
-        //Print.blue(this.state + " -> " + state);
+        Print.blue(this.state + " -> " + state);
 
         this.state = state;
         return false;
