@@ -1,7 +1,6 @@
 package Menus;
 
-import Gameplay.Actor;
-import Util.Print;
+import Gameplay.Entities.Actor;
 import javafx.application.Platform;
 import org.lwjgl.glfw.GLFWGamepadState;
 

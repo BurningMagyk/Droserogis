@@ -1,9 +1,6 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
-import Gameplay.Characters.CharacterStat;
 import Util.GradeEnum;
-import Util.Print;
-import Util.Vec2;
 
 import static Util.GradeEnum.parseGrade;
 

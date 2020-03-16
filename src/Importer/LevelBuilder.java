@@ -1,11 +1,10 @@
 package Importer;
 
 import Gameplay.*;
-import Gameplay.Weapons.Weapon;
+import Gameplay.Entities.*;
+import Gameplay.Entities.Weapons.Weapon;
 
 import Util.Print;
-import Util.Sprite;
-import Util.Vec2;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,11 +13,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -28,7 +24,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -37,11 +32,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 
 
 public class LevelBuilder  extends Application

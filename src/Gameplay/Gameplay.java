@@ -1,24 +1,22 @@
 package Gameplay;
 //Game Title: The Lie Made Flesh
-import Gameplay.Weapons.Weapon;
+import Gameplay.Entities.Actor;
+import Gameplay.Entities.Entity;
+import Gameplay.Entities.EntityCollection;
+import Gameplay.Entities.Item;
+import Gameplay.Entities.Weapons.Weapon;
 import Importer.LevelBuilder;
-import Importer.ImageResource;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
-import Util.Print;
 import Util.Reactor;
-import Util.Vec2;
-import Gameplay.Entity.ShapeEnum;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 

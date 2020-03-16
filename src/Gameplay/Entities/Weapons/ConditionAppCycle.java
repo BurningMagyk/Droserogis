@@ -1,4 +1,4 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
 public class ConditionAppCycle
 {

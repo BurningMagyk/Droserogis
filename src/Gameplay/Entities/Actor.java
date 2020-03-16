@@ -1,16 +1,16 @@
-package Gameplay;
+package Gameplay.Entities;
 
-import Gameplay.Characters.CharacterStat;
-import Gameplay.Weapons.*;
-import Gameplay.Weapons.ConditionApp;
-import Gameplay.Weapons.Infliction;
+import Gameplay.DirEnum;
+import Gameplay.Entities.Characters.CharacterStat;
+import Gameplay.Entities.Weapons.*;
+import Gameplay.Entities.Weapons.ConditionApp;
+import Gameplay.Entities.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Rect;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -188,7 +188,7 @@ public class Actor extends Item
 
     public CharacterStat getCharacterStat() { return charStat;}
 
-    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    public void update(EntityCollection<Entity> entities, float deltaSec)
     {
         resetAcceleration();
         applyInflictions();
@@ -1232,7 +1232,7 @@ public class Actor extends Item
     }
 
     /**
-     * @param cameraZoneList -
+     * @param -
      * @return - The zoom value that this Actor should have based on what
      *          camera zone it's inside of. Only applicable if being controlled
      *          by a player.
@@ -1262,7 +1262,7 @@ public class Actor extends Item
         return totalZoom;
     }
     */
-    boolean shouldVertCam()
+    public boolean shouldVertCam()
     {
         return state.isGrounded() || state.isOnWall() || state == State.SWIM
                 || fromWall || getY() - getHeight() > fromGround;

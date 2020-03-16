@@ -1,9 +1,9 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.Entities.Actor;
 import Gameplay.DirEnum;
 
-import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
+import static Gameplay.Entities.Weapons.MeleeOperation.MeleeEnum.*;
 
 public class Command
 {

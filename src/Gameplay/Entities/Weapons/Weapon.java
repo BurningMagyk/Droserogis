@@ -1,7 +1,11 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
 import Gameplay.*;
-import Gameplay.Characters.CharacterStat;
+import Gameplay.Entities.Characters.CharacterStat;
+import Gameplay.Entities.Actor;
+import Gameplay.Entities.Entity;
+import Gameplay.Entities.EntityCollection;
+import Gameplay.Entities.Item;
 import Util.*;
 import javafx.scene.paint.Color;
 
@@ -391,7 +395,7 @@ public class Weapon extends Item
     /*=======================================================================*/
 
     @Override
-    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    public void update(EntityCollection<Entity> entities, float deltaSec)
     {
         if (currentOp != null)
         {
