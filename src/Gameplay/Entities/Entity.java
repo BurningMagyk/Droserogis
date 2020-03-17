@@ -2,6 +2,7 @@ package Gameplay.Entities;
 
 import Importer.ImageResource;
 import Menus.Main;
+import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
@@ -381,18 +382,18 @@ abstract public class Entity
         }
     }
 
-
+    private float boundsDiv = 1.999F;
 
     boolean withinBoundsX(Entity other)
     {
-        return other.getX() - other.width / 2 <= pos.x + width / 1.999
-                && other.getX() + other.width / 2 >= pos.x - width / 1.999;
+        return other.getX() - other.width / 2 <= pos.x + width / boundsDiv
+                && other.getX() + other.width / 2 >= pos.x - width / boundsDiv;
     }
 
     boolean withinBoundsY(Entity other)
     {
-        return other.getY() - other.height / 2 <= pos.y + height / 1.999
-                && other.getY() + other.width / 2 >= pos.y - height / 1.999;
+        return other.getY() - other.height / 2 <= pos.y + height / boundsDiv
+                && other.getY() + other.width / 2 >= pos.y - height / boundsDiv;
     }
 
     protected boolean withinBounds(Entity other)
@@ -441,10 +442,10 @@ abstract public class Entity
     {
         int[] directions = {-1, -1};
 
-        if (goal.x + other.width / 2 <= pos.x - width / 1.999) return directions;
-        if (goal.x - other.width / 2 >= pos.x + width / 1.999) return  directions;
-        if (goal.y + other.height / 2 <= pos.y - height / 1.999) return  directions;
-        if (goal.y - other.height / 2 >= pos.y + height / 1.999) return  directions;
+        if (goal.x + other.width / 2 <= pos.x - width / boundsDiv) return directions;
+        if (goal.x - other.width / 2 >= pos.x + width / boundsDiv) return  directions;
+        if (goal.y + other.height / 2 <= pos.y - height / boundsDiv) return  directions;
+        if (goal.y - other.height / 2 >= pos.y + height / boundsDiv) return  directions;
 
         boolean[] shapeDirs = shape.getDirs();
 
@@ -455,7 +456,7 @@ abstract public class Entity
             if (shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge()
-                    && goal.y - other.height / 1.999 < getBottomEdge())
+                    && goal.y - other.height / boundsDiv < getBottomEdge())
             {
                 directions[0] = UP;
                 return directions;
@@ -465,7 +466,7 @@ abstract public class Entity
             if (shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge()
-                    && goal.y + other.height / 1.999 > getTopEdge())
+                    && goal.y + other.height / boundsDiv > getTopEdge())
             {
                 directions[0] = DOWN;
                 return directions;
@@ -475,7 +476,7 @@ abstract public class Entity
             if (!shapeDirs[LEFT] && !shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge(other.getX())
-                    && goal.y + other.height / 1.999 > getTopEdge(goal.x))
+                    && goal.y + other.height / boundsDiv > getTopEdge(goal.x))
             {
                 directions[0] = DOWN;
                 directions[1] = RIGHT;
@@ -486,7 +487,7 @@ abstract public class Entity
             if (!shapeDirs[RIGHT] && !shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge(other.getX())
-                    && goal.y + other.height / 1.999 > getTopEdge(goal.x))
+                    && goal.y + other.height / boundsDiv > getTopEdge(goal.x))
             {
                 directions[0] = DOWN;
                 directions[1] = LEFT;
@@ -497,7 +498,7 @@ abstract public class Entity
             if (!shapeDirs[LEFT] && !shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge(other.getX())
-                    && goal.y - other.height / 1.999 < getBottomEdge(goal.x))
+                    && goal.y - other.height / boundsDiv < getBottomEdge(goal.x))
             {
                 directions[0] = UP;
                 directions[1] = RIGHT;
@@ -508,7 +509,7 @@ abstract public class Entity
             if (!shapeDirs[RIGHT] && !shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge(other.getX())
-                    && goal.y - other.height / 1.999 < getBottomEdge(goal.x))
+                    && goal.y - other.height / boundsDiv < getBottomEdge(goal.x))
             {
                 directions[0] = UP;
                 directions[1] = LEFT;
@@ -523,7 +524,7 @@ abstract public class Entity
             if (shapeDirs[LEFT]
                     /* And the other is in contact with it */
                     && other.getX() < getLeftEdge()
-                    && goal.x + other.width /1.999 > getLeftEdge())
+                    && goal.x + other.width / boundsDiv > getLeftEdge())
             {
                 directions[0] = RIGHT;
                 return directions;
@@ -533,7 +534,7 @@ abstract public class Entity
             if (shapeDirs[RIGHT]
                     /* And the other is in contact with it */
                     && other.getX() > getRightEdge()
-                    && goal.x - other.width / 1.999 < getRightEdge())
+                    && goal.x - other.width / boundsDiv < getRightEdge())
             {
                 directions[0] = LEFT;
                 return directions;
