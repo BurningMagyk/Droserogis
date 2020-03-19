@@ -1,4 +1,4 @@
-package Gameplay.Characters;
+package Gameplay.Entities.Characters;
 
 public class CharacterClass
 {

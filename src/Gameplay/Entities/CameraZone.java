@@ -1,4 +1,4 @@
-package Gameplay;
+package Gameplay.Entities;
 
 import javafx.scene.paint.Color;
 

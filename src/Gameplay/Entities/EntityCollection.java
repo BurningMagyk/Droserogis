@@ -1,4 +1,4 @@
-package Gameplay;
+package Gameplay.Entities;
 
 // This class is used to hold the collection of entities.
 // For the most part, it is populated by the level reader and accessed by Gameplay.
@@ -11,7 +11,7 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import Gameplay.Weapons.Weapon;
+import Gameplay.Entities.Weapons.Weapon;
 
 public class EntityCollection<Entity> extends AbstractCollection<Entity>
 {

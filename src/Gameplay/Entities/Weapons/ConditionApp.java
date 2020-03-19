@@ -1,6 +1,6 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
-import Gameplay.Actor;
+import Gameplay.Entities.Actor;
 
 public class ConditionApp
 {

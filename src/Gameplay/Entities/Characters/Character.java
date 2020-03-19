@@ -1,7 +1,6 @@
-package Gameplay.Characters;
+package Gameplay.Entities.Characters;
 
-import Gameplay.Actor;
-import Gameplay.Weapons.WeaponStat;
+import Gameplay.Entities.Actor;
 import Util.GradeEnum;
 
 import java.util.Arrays;

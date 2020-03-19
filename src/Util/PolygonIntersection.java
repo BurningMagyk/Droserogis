@@ -1,6 +1,6 @@
 package Util;
 
-import Gameplay.Entity;
+import Gameplay.Entities.Entity;
 
 import java.awt.geom.Line2D;
 import java.util.ArrayList;

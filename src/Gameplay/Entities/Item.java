@@ -1,6 +1,6 @@
-package Gameplay;
+package Gameplay.Entities;
 
-import Gameplay.Weapons.Infliction;
+import Gameplay.Entities.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
@@ -42,7 +42,7 @@ public abstract class Item extends Entity
         this.hitPoints = hitPoints;
     }
 
-    protected void update(EntityCollection<Entity> entities, float deltaSec)
+    public void update(EntityCollection<Entity> entities, float deltaSec)
     {
         resetAcceleration();
         applyInflictions();

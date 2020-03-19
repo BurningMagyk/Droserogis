@@ -1,6 +1,6 @@
 package Util;
 
-import Gameplay.Characters.CharacterStat;
+import Gameplay.Entities.Characters.CharacterStat;
 
 public enum GradeEnum
 {

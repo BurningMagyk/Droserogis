@@ -1,6 +1,9 @@
 package Gameplay;
 
-import Gameplay.Weapons.Weapon;
+import Gameplay.Entities.Block;
+import Gameplay.Entities.Entity;
+import Gameplay.Entities.EntityCollection;
+import Gameplay.Entities.Weapons.Weapon;
 import Importer.ImageResource;
 import Util.Print;
 import Util.Vec2;

@@ -1,4 +1,4 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
 import Util.Vec2;
 

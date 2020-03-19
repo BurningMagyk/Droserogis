@@ -1,8 +1,7 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
 import Gameplay.DirEnum;
 import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
 
 public class Infliction

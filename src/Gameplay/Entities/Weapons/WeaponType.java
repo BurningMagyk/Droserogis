@@ -1,15 +1,14 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
-import Gameplay.Actor;
-import Gameplay.Characters.CharacterStat;
+import Gameplay.Entities.Actor;
+import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
-import Gameplay.Item;
-import Util.GradeEnum;
+import Gameplay.Entities.Item;
 import Util.Print;
 import Util.Vec2;
 
-import static Gameplay.Weapons.MeleeOperation.MeleeEnum.*;
-import static Gameplay.Actor.Condition.*;
+import static Gameplay.Entities.Weapons.MeleeOperation.MeleeEnum.*;
+import static Gameplay.Entities.Actor.Condition.*;
 
 public class WeaponType
 {

@@ -1,9 +1,9 @@
-package Gameplay.Weapons;
+package Gameplay.Entities.Weapons;
 
-import Gameplay.Actor;
-import Gameplay.Characters.CharacterStat;
+import Gameplay.Entities.Actor;
+import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
-import Gameplay.Item;
+import Gameplay.Entities.Item;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;

@@ -1,23 +1,18 @@
-package Gameplay;
+package Gameplay.Entities;
 
 import Importer.ImageResource;
 import Menus.Main;
-import Util.GradeEnum;
-import Util.Print;
 import Util.Vec2;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-
-import static Menus.Main.IMPORTER;
 
 abstract public class Entity
 {
     public static final float SPRITE_TO_WORLD_SCALE = 1f/50f;
 
-    static final int UP = 0;
-    static final int RIGHT = 1;
-    static final int DOWN = 2;
-    static final int LEFT = 3;
+    public static final int UP = 0;
+    public static final int RIGHT = 1;
+    public static final int DOWN = 2;
+    public static final int LEFT = 3;
 
     int opp(int dir)
     {
@@ -296,7 +291,7 @@ abstract public class Entity
 
     public Color getColor() {return color;}
 
-    void resetFlags() { triggered = false; }
+    public void resetFlags() { triggered = false; }
     boolean getTriggered() { return triggered;}
     boolean setTriggered(boolean triggered)
     {
