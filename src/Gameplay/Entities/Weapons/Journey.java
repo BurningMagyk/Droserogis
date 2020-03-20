@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Gameplay.Entities.Weapons;
 
 import Gameplay.DirEnum;
@@ -18,14 +24,6 @@ public class Journey
         this.end = end;
         this.totalTime = totalTime;
 
-        /* All this mess here is just for making sure it rotates in the
-         * correct direction. */
-//        double endMinimal = Math.min(end.getTheta(), (Math.PI * 2) - end.getTheta());
-//        double startMinimal = Math.min(start.getTheta(), (Math.PI * 2) - start.getTheta());
-//        double thetaDistance;
-//        if (Math.abs(end.getTheta() - start.getTheta()) < endMinimal + startMinimal)
-//            thetaDistance = end.getTheta() - start.getTheta();
-//        else thetaDistance = (endMinimal + startMinimal) * start.getTheta() > end.getTheta() ? 1 : -1;
         float thetaDistance = end.getTheta() - start.getTheta();
 
         distance = new Orient(

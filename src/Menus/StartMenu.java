@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Menus;
 
 import Importer.AudioResource;
@@ -40,7 +46,7 @@ class StartMenu implements Menu
 
         /* Try importing image file */
         image = Main.IMPORTER.getImage(
-                "start_background.png", Color.GREY).getImage();
+                "human-skull-lot.png", Color.GREY).getImage();
 
         /* Try importing the Planewalker and Kaisho font */
         float fontSize = Math.min(WIDTH, HEIGHT) / 12;
@@ -53,9 +59,10 @@ class StartMenu implements Menu
                 "Drücke zum Starten eine Taste",
                 "任意のキーを押して開始"};
         message = Main.TRANSLATOR.getText(font, messages);
+        message.setFill(Color.WHITE);
 
         /* Try importing music */
-        audio = Main.IMPORTER.getAudio("start_background.mp3");
+        audio = Main.IMPORTER.getAudio("robin_song_2.aiff");
     }
 
     @Override

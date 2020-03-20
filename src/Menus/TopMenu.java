@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Menus;
 
 import Importer.FontResource;
@@ -184,7 +190,7 @@ class TopMenu implements Menu
     {
         /* Try importing background image file */
         backgroundImage = Main.IMPORTER.getImage(
-                "top_background.png").getImage();
+                "orange-and-gray-clouds.png").getImage();
     }
 
     private void clearContext()
