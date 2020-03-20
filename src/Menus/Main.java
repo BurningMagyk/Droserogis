@@ -92,7 +92,7 @@ public class Main extends Application
         /* Add the canvas and widgets in order */
         root.getChildren().add(CANVAS);
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
-        root.getStylesheets().add("CSS/opening.css");
+        root.getStylesheets().add("StyleSheets/opening.css");
 
         /* Set the stage at the center of the screen.
          * ">> 2" divides by 4 */
