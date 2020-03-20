@@ -42,11 +42,11 @@
    * <h6><i>--to be decided--</i></h6>
 
 <br>
-<h5>"orange-and-gray-clouds" by Oleg from pexels.com<\h5>
-<h5>"human-skull-lot" by Jayberreytech from pexels.com<\h5>
-<h5>"robin song 1" by Guhtika<\h5>
-<h5>"robin song 1" by Guhtika<\h5>
-<h5>Other works from Guhtika: https://guhtika.bandcamp.com/<\h5>
+<h5>"orange-and-gray-clouds" by Oleg from pexels.com</h5>
+<h5>"human-skull-lot" by Jayberreytech from pexels.com</h5>
+<h5>"robin song 1" by Guhtika</h5>
+<h5>"robin song 1" by Guhtika</h5>
+<h5>Other works from Guhtika: https://guhtika.bandcamp.com/</h5>
 
 <br><br>
 
