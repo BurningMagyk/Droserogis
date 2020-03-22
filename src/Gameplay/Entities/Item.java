@@ -25,7 +25,7 @@ public abstract class Item extends Entity
 
 //    float gravity = 17.0F;
     //float gravity = 0.25F;
-    float gravity = 0.4F;
+    float gravity = 0.5F;
 
 //    float airDrag = 1F;
     float airDrag = 0.25F;
