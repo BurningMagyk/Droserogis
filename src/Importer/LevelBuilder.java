@@ -10,6 +10,8 @@ import Gameplay.*;
 import Gameplay.Entities.*;
 import Gameplay.Entities.Weapons.Weapon;
 
+import Gameplay.Entities.Weapons.WeaponStat;
+import Gameplay.Entities.Weapons.WeaponType;
 import Util.Print;
 
 import java.io.BufferedReader;
@@ -78,7 +80,8 @@ public class LevelBuilder  extends Application
 
     private ContextMenu menuEntity, menuMaterial,  menuCameraZoom;
     private RadioMenuItem menuItemStone, menuItemWater;
-    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
+    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone,
+        menuItemRod;
 
     private MenuItem menuItemAddCameraZone;
 
@@ -117,6 +120,13 @@ public class LevelBuilder  extends Application
         menuAddMonster.setOnAction(this::menuEvent);
         menuEntity.getItems().add(menuAddMonster);
         menuAddMonster.setDisable(true);
+
+        Menu menuAddWeapon = new Menu("Add Weapon");
+        menuAddWeapon.setOnAction(this::menuEvent);
+        menuEntity.getItems().add(menuAddWeapon);
+        menuItemRod = new MenuItem("Rod");
+        menuAddWeapon.getItems().add(menuItemRod);
+        menuItemRod.setOnAction(this::menuEvent);
 
 
         menuEntity.getItems().add(new SeparatorMenuItem());
@@ -641,6 +651,18 @@ public class LevelBuilder  extends Application
                     }
                 }
             }
+            if (!addedEntity)
+            {
+                if (text.equals("Rod"))
+                {
+                    WeaponStat weaponStat = new WeaponStat(
+                            "C", "C", "C", "C", 1, null, null, "C", "D");
+                    Weapon sword = new Weapon(x, y, 0.5F, 0.1F, 0.2F,
+                            WeaponType.SWORD, weaponStat, null);
+                    entityList.add(sword);
+                    addedEntity = true;
+                }
+            }
             if ((!addedEntity) && selectedEntity instanceof CameraZone)
             {
                 if (text.startsWith("Camera Zone"))
@@ -745,7 +767,7 @@ public class LevelBuilder  extends Application
                 // This is needed to prevent the natural weapons from being saved as separate weapon records
                 // If we ever get the game to a point where there are weapons created and stored in the level builder
                 // Then this will need to be modified.
-                if (entity instanceof Weapon) continue;
+                if (entity instanceof Weapon && ((Weapon) entity).getActor() != null) continue;
 
                 int x = Math.round(entity.getX()/Entity.SPRITE_TO_WORLD_SCALE);
                 int y = Math.round(entity.getY()/Entity.SPRITE_TO_WORLD_SCALE);
@@ -767,6 +789,11 @@ public class LevelBuilder  extends Application
                 {
                     type =  "Player";
                     stats += ","+((Actor)entity).getActorType();
+                }
+                else if (entity instanceof Weapon)
+                {
+                    type =  "Weapon";
+                    stats += "," + w + "," + h;
                 }
                 else
                 {
@@ -878,6 +905,18 @@ public class LevelBuilder  extends Application
                     }
                     Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
                     entity = new Actor(x, y, actorType);
+                }
+                else if (data[0].equals("Weapon"))
+                {
+                    if (data.length != 5)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("Weapon record must have 3 fields.");
+                    }
+                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
+                    entity = new Weapon(x, y, width, height, 0.2F, WeaponType.SWORD,
+                            new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D"), null);
                 }
                 /* TODO: someday, when weapons are added, the format will need to be figured out.
                 else if (data[0].equals("WeaponAttacks"))
