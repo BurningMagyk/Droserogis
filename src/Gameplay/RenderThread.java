@@ -1,11 +1,10 @@
 package Gameplay;
 
 import Gameplay.Entities.Block;
+import Gameplay.Entities.BlockType;
 import Gameplay.Entities.Entity;
 import Gameplay.Entities.EntityCollection;
 import Gameplay.Entities.Weapons.Weapon;
-import Importer.ImageResource;
-import Util.Print;
 import Util.Vec2;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
