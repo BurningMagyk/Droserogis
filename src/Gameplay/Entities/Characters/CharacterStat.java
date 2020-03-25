@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Gameplay.Entities.Characters;
 
 import Util.GradeEnum;
@@ -331,7 +337,7 @@ public class CharacterStat
 
     public float slopeAccelDiv() { return 2; } // strength + agility
 
-    public float jumpVel() { return 0.1F; } // strength + agility
+    public float jumpVel() { return 0.15F; } // strength + agility
 
     public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]

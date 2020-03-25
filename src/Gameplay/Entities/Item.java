@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Gameplay.Entities;
 
 import Gameplay.Entities.Weapons.Infliction;
@@ -19,7 +25,7 @@ public abstract class Item extends Entity
 
 //    float gravity = 17.0F;
     //float gravity = 0.25F;
-    float gravity = 0.4F;
+    float gravity = 0.5F;
 
 //    float airDrag = 1F;
     float airDrag = 0.25F;
@@ -174,16 +180,13 @@ public abstract class Item extends Entity
     {
         Vec2 posOriginal = getPosition();
         Vec2 goal = getPosition();
-        goal.add(getVelocity().mul(deltaSec * 80));
+        goal.add(getVelocity().mul(deltaSec * 60));
         /* triggerContacts() returns null if the actor does not hit anything */
         Vec2 contactVel = triggerContacts(goal, entities);
         setPosition(goal);
 
-        /* Stop horizontal velocity from building up by setting it to match change in
-         * position. Needed for jumping to work correctly and when falling off block. */
-        if (touchEntity[DOWN] != null
-                && !touchEntity[DOWN].getShape().getDirs()[UP])
-            setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
+        /* Set velocity to be accurate to change in position */
+        setVelocity(getPosition().minus(posOriginal));
 
         return contactVel;
     }
@@ -193,8 +196,12 @@ public abstract class Item extends Entity
         Vec2 originalVel = null;
         boolean bumpingCeiling = touchEntity[UP] == null;
         float fromSlope = 0;
-        if (touchEntity[DOWN] != null  && !touchEntity[DOWN].getShape().getDirs()[UP])
+        if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
             fromSlope = touchEntity[DOWN].applySlopeX(getVelocityX()).y;
+
+        /* Used for the yPos correction when bumping down slopes */
+        Entity prevTouchEntityDown = touchEntity[DOWN];
+
         inWater = false; submerged = false;
 
         touchEntity[UP] = null;
@@ -222,13 +229,22 @@ public abstract class Item extends Entity
             /* Actor made no contact with the entity */
             if (edge[0] < 0)
             {
-                /* Fell off an upward slope and not jumping, correct y-velocity.
-                 * Warning: Don't make moving platforms that are sloped. */
+                /* Fell off upward slope is is bumping down upward slope */
                 if (fromSlope > 0 && getVelocityY() > 0)
                 {
-                    goal.y -= getVelocityY();
-                    goal.y += fromSlope;
-                    setVelocityY(fromSlope);
+                    /* Bumping down upward slope, snap yPos to top edge off slope. */
+                    if (getVelocityY() >= 0
+                            && getX() >= prevTouchEntityDown.getLeftEdge()
+                            && getX() <= prevTouchEntityDown.getRightEdge())
+                        goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
+                    else
+                    {
+                        /* Fell off an upward slope and not jumping, correct y-velocity.
+                         * Warning: Don't make moving platforms that are sloped. */
+                        goal.y -= getVelocityY();
+                        goal.y += fromSlope;
+                        setVelocityY(fromSlope);
+                    }
                 }
 
                 continue;

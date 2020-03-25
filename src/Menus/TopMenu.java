@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Menus;
 
 import Importer.FontResource;
@@ -66,14 +72,14 @@ class TopMenu implements Menu
         clearContext();
 
         /* Title */
-        context.setFill(Color.DARKBLUE);
-        title[2].draw(STUFFING, titleBoundaries[0], "Droserogis");
-        context.setFill(Color.BLACK);
-        title[1].draw(fontSize * 1.8 + STUFFING,
-                titleBoundaries[1], "VS");
-        context.setFill(Color.PURPLE);
-        title[0].draw(fontSize * 1.25 + STUFFING,
-                titleBoundaries[2], "Sothli");
+        context.setFill(Color.MEDIUMPURPLE);
+        title[2].draw(fontSize * 1.25 + STUFFING, titleBoundaries[0], "made Flesh");
+//        context.setFill(Color.BLACK);
+//        title[1].draw(fontSize * 1.8 + STUFFING,
+//                titleBoundaries[1], "VS");
+//        context.setFill(Color.PURPLE);
+        title[0].draw(STUFFING,
+                titleBoundaries[2], "The Lie");
 
         /* Widgets */
         for (JutWidget widget : widgets)
@@ -184,7 +190,7 @@ class TopMenu implements Menu
     {
         /* Try importing background image file */
         backgroundImage = Main.IMPORTER.getImage(
-                "top_background.png").getImage();
+                "orange-and-gray-clouds.png").getImage();
     }
 
     private void clearContext()
@@ -203,13 +209,13 @@ class TopMenu implements Menu
         titleBoundaries[1] = titleBoundaries[2]
                 + (int) (fontSize / 2.5) + STUFFING / 2;
         titleBoundaries[0] = titleBoundaries[1]
-                + (int) (fontSize / 1.5) + STUFFING / 2;
+                + (int) (fontSize / 1.5) - STUFFING / 2;
 
         title = new FontResource[3];
         title[2] = Main.IMPORTER.getFont("scurlock.ttf", fontSize);
         title[1] = Main.IMPORTER.getFont("supernatural_knight.ttf",
                 fontSize / 2.5);
-        title[0] = Main.IMPORTER.getFont("cardinal.ttf",
+        title[0] = Main.IMPORTER.getFont("scurlock.ttf",//"cardinal.ttf",
                 fontSize / 1.2);
     }
 

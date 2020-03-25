@@ -1,0 +1,79 @@
+#start-button
+{
+    -fx-background-color:
+        linear-gradient(rgba(0, 125, 30), rgba(100, 175, 10));
+    -fx-background-radius: 30 0 30 0;
+}
+
+#start-button:focused , #start-button:hover
+{
+    -fx-background-color:
+        linear-gradient(rgba(100, 175, 10), rgba(0, 125, 30));
+}
+
+#start-button:armed
+{
+    -fx-background-color:
+        linear-gradient(rgba(225, 100, 0), rgba(0, 125, 30));
+}
+
+#exit-button
+{
+    -fx-background-color:
+        linear-gradient(rgba(175, 0, 0), rgba(200, 100, 100));
+    -fx-background-radius: 30 0 30 0;
+}
+
+#exit-button:focused , #exit-button:hover
+{
+    -fx-background-color:
+        linear-gradient(rgba(200, 100, 100), rgba(175, 0, 0));
+}
+
+#exit-button:armed
+{
+    -fx-background-color:
+        linear-gradient(rgba(200, 50, 200), rgba(175, 0, 0));
+}
+
+.button
+{
+    -fx-text-fill: black;
+}
+
+.button .text
+{
+    -fx-min-height: 200;
+}
+
+.combo-box
+{
+    -fx-background-color: transparent;
+    -fx-border-color: black;
+}
+
+.combo-box:focused , .combo-box:hover
+{
+    -fx-border-color: white;
+}
+
+.combo-box-popup .list-view
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view .list-cell
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .scroll-bar
+{
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .scroll-bar:vertical .thumb
+{
+    -fx-background-color: transparent;
+    -fx-border-color: black;
+}

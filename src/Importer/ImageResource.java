@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Importer;
 
 import javafx.scene.canvas.GraphicsContext;

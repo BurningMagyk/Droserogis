@@ -21,10 +21,9 @@
 + <h6>Dustin Loughrin</h6>
 
 ### Graphic Artists:
-+ <h6>Alex Dineen</h6>
++ <h6>Brian</h6>
 
 ### Composers:
-+ <h6>Mariano Pokagon</h6>
 + <h6>Alan Gatica</h6>
 
 ### Voice Actors:
@@ -41,28 +40,13 @@
    * <h6><i>--to be decided--</i></h6>
 + Wapanese
    * <h6><i>--to be decided--</i></h6>
+
 <br>
-
-|     | OFFICIAL CANON POWER RANKINGS |
-|:---:|-------------------------------|
-| <H1>SSS</H1> |![alt text][instinct]          |
-| <H1>SS</H1>  |![alt text][verde]             |
-| <H1>S</H1>   |![alt text][rojo]              |
-| <H1>A</H1>   |![alt text][brennan] ![alt text][pooh]|
-| <H1>B</H1>   |![alt text][cynthia] ![alt text][fuu]|
-| <H1>C</H1>   |![alt text][lyra]              |
-| <H1>D</H1>   |![alt text][ghost]             |
-| <H1>E</H1>   |                               |
-
-[instinct]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Ultra_Instrinct.png
-[verde]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Verde.png
-[rojo]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Shaggy_Rojo.png
-[brennan]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Brennan.png
-[lyra]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Lyra.png
-[cynthia]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Cynthia.png
-[fuu]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Fuu.png
-[ghost]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Ghost_Boss.png
-[pooh]: https://github.com/magyk81/Gathering_the_Roses/blob/master/Resources/Images/Pooh.png
+<h5>"orange-and-gray-clouds" by Oleg from pexels.com</h5>
+<h5>"human-skull-lot" by Jayberreytech from pexels.com</h5>
+<h5>"robin song 1" by Guhtika</h5>
+<h5>"robin song 1" by Guhtika</h5>
+<h5>Other works from Guhtika: https://guhtika.bandcamp.com/</h5>
 
 <br><br>
 

@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Menus;
 
 import Importer.Importer;
@@ -92,7 +98,7 @@ public class Main extends Application
         /* Add the canvas and widgets in order */
         root.getChildren().add(CANVAS);
         setWidgets(stage, root, SCENE_WIDTH, SCENE_HEIGHT);
-        root.getStylesheets().add("CSS/opening.css");
+        root.getStylesheets().add("StyleSheets/opening.css");
 
         /* Set the stage at the center of the screen.
          * ">> 2" divides by 4 */
@@ -212,7 +218,7 @@ public class Main extends Application
         int fontSize = Math.min(width, height) / 7;
         boundary[0] = height - fontSize / 10 - STUFFING;
         boundary[1] = boundary[0] - (int) (fontSize / 1.5) - STUFFING / 2;
-        boundary[2] = boundary[1] - (int) (fontSize / 2.5) - STUFFING / 2;
+        boundary[2] = boundary[1] - (int) (fontSize / 2.5) + STUFFING;
         drawLogo(context, fontSize, boundary, STUFFING);
     }
 
@@ -249,18 +255,18 @@ public class Main extends Application
     {
         /* Try importing the Scurlock font file */
         FontResource font = IMPORTER.getFont("scurlock.ttf", fontSize);
-        context.setFill(Color.DARKBLUE);
-        font.draw(STUFFING, boundary[0], "Droserogis");
+        context.setFill(Color.PURPLE);
+        font.draw(fontSize * 1.25 + STUFFING, boundary[0], "made Flesh");
 
         /* Try importing the Supernatural Knight font file */
-        font = IMPORTER.getFont("supernatural_knight.ttf", fontSize / 2.5);
-        context.setFill(Color.BLACK);
-        font.draw(fontSize * 1.75 + STUFFING, boundary[1], "VS");
+//        font = IMPORTER.getFont("supernatural_knight.ttf", fontSize / 2.5);
+//        context.setFill(Color.BLACK);
+//        font.draw(fontSize * 1.75 + STUFFING, boundary[1], "VS");
 
         /* Try importing the Cardinal font file */
-        font = IMPORTER.getFont("cardinal.ttf", fontSize / 1.2);
+        font = IMPORTER.getFont("scurlock.ttf", fontSize / 1.2);
         context.setFill(Color.PURPLE);
-        font.draw(fontSize * 1.25 + STUFFING, boundary[2], "Sothli");
+        font.draw(STUFFING, boundary[2], "The Lie");
     }
 
     /* A custom ListCell that displays an image and string */

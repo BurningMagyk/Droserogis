@@ -1,3 +1,9 @@
+/* Copyright (C) All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Robin Campos <magyk81@gmail.com>, 2018 - 2020
+ */
+
 package Gameplay;
 //Game Title: The Lie Made Flesh
 import Gameplay.Entities.Actor;
@@ -5,6 +11,7 @@ import Gameplay.Entities.Entity;
 import Gameplay.Entities.EntityCollection;
 import Gameplay.Entities.Item;
 import Gameplay.Entities.Weapons.Weapon;
+import Importer.AudioResource;
 import Importer.LevelBuilder;
 import Menus.Gamepad;
 import Menus.Main;
@@ -42,6 +49,8 @@ public class Gameplay implements Reactor
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
     private RenderThread renderThread;
 
+    private AudioResource audio;
+
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
 
@@ -60,6 +69,8 @@ public class Gameplay implements Reactor
             }
         };
 
+        /* Try importing music */
+        audio = Main.IMPORTER.getAudio("robin_song_1.aiff");
     }
 
     // Gameplay stats would go in here
@@ -84,6 +95,8 @@ public class Gameplay implements Reactor
         //System.out.println("Level Bottom Bounds: " + entities.getBoundsBottom());
 
         timer.start();
+
+        audio.play();
     }
 
     private void mainGameLoop(long now)
