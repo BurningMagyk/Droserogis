@@ -323,15 +323,19 @@ public class LevelBuilder  extends Application
         {
             Entity entity = entityList.get(i);
 
-            if (!(entity instanceof Weapon) && !(entity instanceof Actor))
+            //if (!(entity instanceof Weapon) && !(entity instanceof Actor))
+            if (entity instanceof Block)
             {
-                int vertexIdx = entity.getVertexNear(x, y, 1f/cameraZoom);
-                if (vertexIdx >= 0)
+                if (((Block) entity).getBlockType().isResizeable)
                 {
-                    if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
-                    selectedVertexIdx = vertexIdx;
-                    selectedEntity = entity;
-                    break;
+                    int vertexIdx = entity.getVertexNear(x, y, 1f / cameraZoom);
+                    if (vertexIdx >= 0)
+                    {
+                        if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
+                        selectedVertexIdx = vertexIdx;
+                        selectedEntity = entity;
+                        break;
+                    }
                 }
             }
 
@@ -392,30 +396,43 @@ public class LevelBuilder  extends Application
         }
         else if (selectedVertexIdx >= 0)
         {   //Resize block
-            /*
-            float x0 = selectedEntity.getX();
-            float y0 = selectedEntity.getY();
-            float px = selectedEntity.getVertexX(selectedVertexIdx);
-            float py = selectedEntity.getVertexY(selectedVertexIdx);
-            //float dx = (((mouseX/cameraZoom)-cameraOffsetX) - x0) - (px - x0);
-            //float dy = (((mouseY/cameraZoom)-cameraOffsetY) - y0) - (py - y0);
+            if (selectedEntity instanceof Block)
+            {
+                BlockType type = ((Block) selectedEntity).getBlockType();
+                if (type.isResizeable)
+                {
+                    float x0 = selectedEntity.getX();
+                    float y0 = selectedEntity.getY();
+                    float px = selectedEntity.getVertexX(selectedVertexIdx);
+                    float py = selectedEntity.getVertexY(selectedVertexIdx);
+                    //float dx = (((mouseX/cameraZoom)-cameraOffsetX) - x0) - (px - x0);
+                    //float dy = (((mouseY/cameraZoom)-cameraOffsetY) - y0) - (py - y0);
 
-            float dx = (((mouseX/cameraZoom)/levelEditorScale + cameraPosX - cameraOffsetX) - x0) - (px - x0);
-            float dy = (((mouseY/cameraZoom)/levelEditorScale + cameraPosY - cameraOffsetY) - y0) - (py - y0);
+                    float dx = (((mouseX / cameraZoom) / levelEditorScale + cameraPosX - cameraOffsetX) - x0) - (px - x0);
+                    float dy = (((mouseY / cameraZoom) / levelEditorScale + cameraPosY - cameraOffsetY) - y0) - (py - y0);
 
-            dx = snapGridSize*Math.round(dx/snapGridSize);
-            dy = snapGridSize*Math.round(dy/snapGridSize);
-            selectedEntity.setPosition(x0+dx/2, y0+dy/2);
+                    //dx = Math.round(dx/snapGridSize)*snapGridSize;
+                    //dy = Math.round(dy/snapGridSize)*snapGridSize;
 
-            //float width  = Math.max(20, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
-            //float height = Math.max(20, selectedEntity.getHeight() + dy*Math.signum(py - y0));
-            float width  = Math.max(snapGridSize, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
-            float height = Math.max(snapGridSize, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+                    float x = x0 + dx / 2;
+                    float y = y0 + dy / 2;
+                    //x = Math.round(x/(snapGridSize/2))*(snapGridSize/2);
+                    //y = Math.round(y/(snapGridSize/2))*(snapGridSize/2);
+
+                    //selectedEntity.setPosition(x0 + dx / 2, y0 + dy / 2);
+                    selectedEntity.setPosition(x, y);
+
+                    //float width  = Math.max(20, selectedEntity.getWidth()  + dx*Math.signum(px - x0));
+                    //float height = Math.max(20, selectedEntity.getHeight() + dy*Math.signum(py - y0));
+                    float width = Math.max(snapGridSize, selectedEntity.getWidth() + dx * Math.signum(px - x0));
+                    float height = Math.max(snapGridSize, selectedEntity.getHeight() + dy * Math.signum(py - y0));
 
 
-            //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
-            selectedEntity.setSize(width, height);
-             */
+                    //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
+                    selectedEntity.setSize(width, height);
+                }
+            }
+
         }
         else if (selectedEntity != null)
         {  //Move block
@@ -549,7 +566,7 @@ public class LevelBuilder  extends Application
             boolean addedEntity = false;
             for (BlockType blockType : BlockType.blockTypeList)
             {
-                if (blockType.toString().endsWith(text))
+                if (blockType.toString().equals(text))
                 {
                     float width = blockType.pixelHitWidth/cameraZoom;
                     float height = blockType.pixelHitHeight/cameraZoom;
@@ -800,7 +817,7 @@ public class LevelBuilder  extends Application
                     BlockType blockType = null;
                     for (BlockType type : BlockType.blockTypeList)
                     {
-                        if (type.toString().endsWith(data[0]))
+                        if (type.toString().equals(data[0]))
                         {
                             blockType = type;
                             break;
@@ -888,7 +905,7 @@ public class LevelBuilder  extends Application
     {
         System.out.println("LevelBuilder.fileChooserRead()");
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Hermano Level File");
+        fileChooser.setTitle("Open Level File");
         fileChooser.setInitialDirectory(new File("Resources/Levels"));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV", "*.csv"));
         File selectedFile = fileChooser.showOpenDialog(null);

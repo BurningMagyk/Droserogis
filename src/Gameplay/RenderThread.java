@@ -43,6 +43,8 @@ public class RenderThread
     private GraphicsContext gfx;
     private EntityCollection<Entity> entityList;
 
+    private static final Color NEARBLACK = Color.rgb(10,5,4);
+
     public RenderThread(GraphicsContext gfx, int viewWidth, int viewHeight)
     {
         this.gfx = gfx;
@@ -288,9 +290,10 @@ public class RenderThread
                             Block block = (Block) entity;
                             if (block.isLiquid()) continue;
                             BlockType type = block.getBlockType();
-                            if (type.name == "RECTANGLE")
+                            if (type.name.equals("RECTANGLE"))
                             {
-                                gfx.setFill(entity.getColor());
+                                //gfx.setFill(entity.getColor());
+                                gfx.setFill(NEARBLACK);
                                 gfx.fillRect(x, y, width, height);
                             }
                             else

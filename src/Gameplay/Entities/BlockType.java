@@ -11,6 +11,7 @@ public class BlockType
     public final int left;
     public final int top;
     public final Entity.ShapeEnum shape;
+    public final boolean isResizeable;
     public Image image;
 
     public static BlockType[] blockTypeList;
@@ -24,6 +25,7 @@ public class BlockType
         this.left = left;
         this.top = top;
         this.shape = Entity.ShapeEnum.RECTANGLE;
+        this.isResizeable = false;
 
         //String path = "Resources/Image/block/"+fileName+".png";
         String path = "Image/block/"+fileName+".png";
@@ -39,6 +41,7 @@ public class BlockType
         this.pixelHitHeight = Float.NaN;
         this.left = 0;
         this.top = 0;
+        this.isResizeable = true;
     }
 
     public String toString()
@@ -71,7 +74,7 @@ public class BlockType
         blockTypeList[16] = new BlockType("Top6",  16,32,0,1);
 
         blockTypeList[17] = new BlockType("Top-Left0",  32,32,2,3);
-        blockTypeList[18] = new BlockType("Top-Left1",  32,32,1,1);
+        blockTypeList[18] = new BlockType("Top-Left1",  32,32,3,1);
         blockTypeList[19] = new BlockType("Top-Right0",  32,32,0,3);
         blockTypeList[20] = new BlockType("Top-Right1",  32,32,0,1);
 

@@ -1,39 +1,32 @@
 Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom
-RECTANGLE,300,188,300,170,true
-RECTANGLE,-735,100,1710,30,false
-RECTANGLE,-395,-205,30,150,false
+RECTANGLE,300,188,297,168,true
+RECTANGLE,-1167,96,846,22,false
 RECTANGLE,-675,-785,50,30,false
 RECTANGLE,-875,-785,50,30,false
 RECTANGLE,-1125,-785,50,30,false
-RECTANGLE,205,-105,30,350,false
 RECTANGLE,-600,-440,440,40,false
 RECTANGLE,390,-287,20,65,false
 TRIANGLE_DW_L,470,-390,100,100,false
 TRIANGLE_UP_R,450,-270,100,100,false
 TRIANGLE_UP_L,580,-175,100,50,false
-RECTANGLE,845,35,30,165,false
+RECTANGLE,936,40,213,132,false
 RECTANGLE,755,-340,90,40,false
 RECTANGLE,-1580,-430,20,1040,false
-RECTANGLE,873,-110,35,180,false
-RECTANGLE,905,-260,30,180,false
-RECTANGLE,910,-935,220,30,false
+RECTANGLE,960,-88,178,132,false
+RECTANGLE,976,-220,147,132,false
 RECTANGLE,-920,75,80,30,false
 RECTANGLE,-840,85,80,10,false
-RECTANGLE,935,-405,30,190,false
-RECTANGLE,965,-553,30,195,false
-RECTANGLE,995,-698,30,205,false
-RECTANGLE,1025,-325,30,1250,false
-RECTANGLE,463,193,25,210,false
-RECTANGLE,300,285,300,25,false
+RECTANGLE,988,-332,110,102,false
+RECTANGLE,1020,-664,38,563,false
+RECTANGLE,748,204,590,201,false
+RECTANGLE,299,285,307,27,false
 RECTANGLE,290,-267,180,25,false
 TRIANGLE_UP_R,-1130,70,240,40,false
-TRIANGLE_UP_R,-560,-4,340,185,false
-RECTANGLE,-740,-5,20,185,false
-RECTANGLE,135,190,30,210,false
+TRIANGLE_UP_R,-532,12,340,177,false
+RECTANGLE,-712,12,20,177,false
+RECTANGLE,-716,200,1734,202,false
 RECTANGLE,-1410,70,320,40,false
-RECTANGLE,653,103,355,30,false
 TRIANGLE_UP_R,-643,-560,355,200,false
-RECTANGLE,-210,-312,30,180,false
 Bottom-Left 0: 32x32,-216,12,16,16,false
 Bottom-Right 0: 32x32,-200,12,16,16,false
 Left 0: 32x32,-216,-4,16,16,false
@@ -72,5 +65,126 @@ Top 3: 32x32,-328,92,16,16,false
 Top 5: 48x32,-348,92,24,16,false
 Top 0: 32x32,-368,92,16,16,false
 Top 2: 32x32,-384,92,16,16,false
+Top 3: 32x32,128,92,16,16,false
+Top-Right 0: 32x32,144,92,16,16,false
+Top-Left 1: 32x32,456,96,16,16,false
+Top 0: 32x32,512,96,16,16,false
+Top 1: 32x32,568,96,16,16,false
+Top 2: 32x32,496,96,16,16,false
+Top 3: 32x32,528,96,16,16,false
+Top 4: 48x32,548,96,24,16,false
+Top 5: 48x32,476,96,24,16,false
+Top 5: 48x32,612,96,24,16,false
+Top 4: 48x32,588,96,24,16,false
+Top 1: 32x32,632,96,16,16,false
+Top 0: 32x32,648,96,16,16,false
+Top 5: 48x32,668,96,24,16,false
+Top 2: 32x32,688,96,16,16,false
+Top 5: 48x32,708,96,24,16,false
+Top 0: 32x32,728,96,16,16,false
+Top 1: 32x32,744,96,16,16,false
+Top 3: 32x32,760,96,16,16,false
+Top 5: 48x32,780,96,24,16,false
+Top 0: 32x32,800,96,16,16,false
+Top 3: 32x32,816,96,16,16,false
+Top-Left-Inside 0: 32x32,832,96,16,16,false
+Left 0: 32x32,832,80,16,16,false
+Left 1: 32x32,832,64,16,16,false
+Left 2: 32x32,832,48,16,16,false
+Left 1: 32x32,832,32,16,16,false
+Left 0: 32x32,832,16,16,16,false
+Left 2: 32x32,832,0,16,16,false
+Left 2: 32x32,832,-16,16,16,false
+Top-Left 0: 32x32,832,-32,16,16,false
+Top 1: 32x32,848,-32,16,16,false
+Top-Left-Inside 0: 32x32,864,-32,16,16,false
+Left 2: 32x32,864,-48,16,16,false
+Left 1: 32x32,864,-64,16,16,false
+Left 0: 32x32,864,-80,16,16,false
+Left 0: 32x32,864,-96,16,16,false
+Left 2: 32x32,864,-112,16,16,false
+Left 1: 32x32,864,-128,16,16,false
+Left 1: 32x32,864,-144,16,16,false
+Top-Left 1: 32x32,864,-160,16,16,false
+Top 1: 32x32,880,-160,16,16,false
+Top-Left-Inside 0: 32x32,896,-160,16,16,false
+Left 4: 32x16,896,-172,16,8,false
+Left 2: 32x32,896,-184,16,16,false
+Left 1: 32x32,896,-200,16,16,false
+Left 1: 32x32,896,-216,16,16,false
+Left 2: 32x32,896,-232,16,16,false
+Left 1: 32x32,896,-248,16,16,false
+Left 4: 32x16,896,-260,16,8,false
+Left 1: 32x32,896,-272,16,16,false
+Top-Left 0: 32x32,896,-288,16,16,false
+Top 3: 32x32,912,-288,16,16,false
+Top-Left-Inside 0: 32x32,928,-288,16,16,false
+Left 0: 32x32,928,-304,16,16,false
+Left 2: 32x32,928,-320,16,16,false
+Left 1: 32x32,928,-336,16,16,false
+Left 2: 32x32,928,-352,16,16,false
+Left 2: 32x32,928,-368,16,16,false
+Top-Left 1: 32x32,928,-384,16,16,false
+Top 5: 48x32,948,-384,24,16,false
+Top 4: 48x32,972,-384,24,16,false
+Top 1: 32x32,992,-384,16,16,false
+Top-Left-Inside 0: 32x32,1008,-384,16,16,false
+Left 2: 32x32,1008,-400,16,16,false
+Left 1: 32x32,1008,-416,16,16,false
+Left 0: 32x32,1008,-432,16,16,false
+Left 1: 32x32,1008,-448,16,16,false
+Left 2: 32x32,1008,-464,16,16,false
+Left 1: 32x32,1008,-480,16,16,false
+Left 1: 32x32,1008,-496,16,16,false
+Left 0: 32x32,1008,-512,16,16,false
+Left 1: 32x32,1008,-528,16,16,false
+Left 4: 32x16,1008,-540,16,8,false
+Left 3: 32x16,1008,-548,16,8,false
+Left 2: 32x32,1008,-560,16,16,false
+Left 0: 32x32,1008,-576,16,16,false
+Bottom-Left 0: 32x32,-404,-136,16,16,false
+Bottom-Right 0: 32x32,-388,-136,16,16,false
+Left 0: 32x32,-404,-168,16,16,false
+Left 1: 32x32,-404,-152,16,16,false
+Left 2: 32x32,-404,-184,16,16,false
+Left 2: 32x32,-404,-200,16,16,false
+Left 0: 32x32,-404,-216,16,16,false
+Left 1: 32x32,-404,-232,16,16,false
+Left 1: 32x32,-404,-248,16,16,false
+Left 4: 32x16,-404,-260,16,8,false
+Top-Left 1: 32x32,-404,-272,16,16,false
+Top-Right 0: 32x32,-388,-272,16,16,false
+Right 4: 32x16,-388,-164,16,8,false
+Right 1: 32x32,-388,-152,16,16,false
+Right 2: 32x32,-388,-176,16,16,false
+Right 2: 32x32,-388,-192,16,16,false
+Right 0: 32x32,-388,-208,16,16,false
+Right 1: 32x32,-388,-224,16,16,false
+Right 1: 32x32,-388,-240,16,16,false
+Right 2: 32x32,-388,-256,16,16,false
+Bottom-Left 0: 32x32,-220,-228,16,16,false
+Bottom-Right 0: 32x32,-204,-228,16,16,false
+Left 1: 32x32,-220,-348,16,16,false
+Left 2: 32x32,-220,-252,16,16,false
+Left 3: 32x16,-220,-240,16,8,false
+Left 2: 32x32,-220,-268,16,16,false
+Left 1: 32x32,-220,-284,16,16,false
+Left 1: 32x32,-220,-300,16,16,false
+Left 2: 32x32,-220,-316,16,16,false
+Left 0: 32x32,-220,-332,16,16,false
+Left 1: 32x32,-220,-364,16,16,false
+Left 2: 32x32,-220,-380,16,16,false
+Top-Left 0: 32x32,-220,-396,16,16,false
+Top-Right 0: 32x32,-204,-396,16,16,false
+Right 0: 32x32,-204,-380,16,16,false
+Right 1: 32x32,-204,-348,16,16,false
+Right 1: 32x32,-204,-324,16,16,false
+Right 2: 32x32,-204,-308,16,16,false
+Right 2: 32x32,-204,-244,16,16,false
+Right 1: 32x32,-204,-292,16,16,false
+Right 2: 32x32,-204,-276,16,16,false
+Right 3: 32x16,-204,-336,16,8,false
+Right 2: 32x32,-204,-364,16,16,false
+Right 2: 32x32,-204,-260,16,16,false
 Player,-250,-150,Igon
 Player,-300,-250,Zuzen
