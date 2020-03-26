@@ -471,6 +471,7 @@ public class Weapon extends Item
             for (Item item : items)
             {
                 if (item != this && item != actor && !collidedItems.contains(item)
+                        && (!(item instanceof Weapon) || ((Weapon) item).idle || ((Weapon) item).ballistic)
                         && PolygonIntersection.isIntersect(currentOp instanceof RushOperation
                         ? getActorCorners() : getShapeCorners(), item))
                 {
