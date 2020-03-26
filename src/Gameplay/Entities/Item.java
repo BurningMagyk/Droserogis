@@ -265,21 +265,47 @@ public abstract class Item extends Entity
             /* Normal physical collisions only occur with Blocks */
             if (!withBlock) continue;
 
-            touchEntity[edge[0]] = entity;
+            Block block = (Block) entity;
+
+            /* Replace touchEntity[x] only if entity here is closer */
+            if (touchEntity[edge[0]] != null)
+            {
+                if (edge[0] == UP)
+                {
+                    if (block.getBottomEdge() > touchEntity[edge[0]].getBottomEdge())
+                        touchEntity[edge[0]] = entity;
+                }
+                else if (edge[0] == DOWN)
+                {
+                    if (block.getTopEdge() < touchEntity[edge[0]].getTopEdge())
+                        touchEntity[edge[0]] = entity;
+                }
+                else if (edge[0] == LEFT)
+                {
+                    if (block.getLeftEdge() > touchEntity[edge[0]].getLeftEdge())
+                        touchEntity[edge[0]] = entity;
+                }
+                else if (edge[0] == RIGHT)
+                {
+                    if (block.getRightEdge() < touchEntity[edge[0]].getRightEdge())
+                        touchEntity[edge[0]] = entity;
+                }
+            }
+            else touchEntity[edge[0]] = entity;
 
             if (edge[0] == UP)
             {
-                goal.y = entity.getBottomEdge(goal.x) + getHeight() / 2;
+                goal.y = block.getBottomEdge(goal.x) + getHeight() / 2;
 
                 /* Colliding with down-right slope or down-left slope */
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (this.bumpingCeiling)
                     {
-                        Vec2 newVel = entity.applySlope(originalVel);
+                        Vec2 newVel = block.applySlope(originalVel);
                         damage((float) newVel.minus(originalVel).mag()
-                                        * ((Block) entity).getHazardRating(),
-                                ((Block) entity).getInfMaterials());
+                                        * block.getHazardRating(),
+                                block.getInfMaterials());
                         setVelocity(newVel);
                     }
                 }
@@ -287,24 +313,24 @@ public abstract class Item extends Entity
                 else
                 {
                     damage(Math.abs(getVelocityY())
-                                    * ((Block) entity).getHazardRating(),
-                            ((Block) entity).getInfMaterials());
+                                    * block.getHazardRating(),
+                            block.getInfMaterials());
                     setVelocityY(0);
                 }
             }
             else if (edge[0] == DOWN)
             {
-                goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
+                goal.y = block.getTopEdge(goal.x) - getHeight() / 2;
 
                 /* Colliding with up-right slope or up-left slope */
                 if (edge[1] == LEFT || edge[1] == RIGHT)
                 {
                     if (!isGrounded)
                     {
-                        Vec2 newVel = entity.applySlope(originalVel);
+                        Vec2 newVel = block.applySlope(originalVel);
                         damage((float) newVel.minus(originalVel).mag()
-                                        * ((Block) entity).getHazardRating(),
-                                ((Block) entity).getInfMaterials());
+                                        * block.getHazardRating(),
+                                block.getInfMaterials());
                         setVelocity(newVel);
                     }
                 }
@@ -312,25 +338,25 @@ public abstract class Item extends Entity
                 else
                 {
                     damage(Math.abs(getVelocityY())
-                                    * ((Block) entity).getHazardRating(),
-                            ((Block) entity).getInfMaterials());
+                                    * block.getHazardRating(),
+                            block.getInfMaterials());
                     setVelocityY(0);
                 }
             }
             else if (edge[0] == LEFT)
             {
-                goal.x = entity.getRightEdge() + getWidth() / 2;
+                goal.x = block.getRightEdge() + getWidth() / 2;
                 damage(Math.abs(getVelocityX())
-                                * ((Block) entity).getHazardRating(),
-                        ((Block) entity).getInfMaterials());
+                                * block.getHazardRating(),
+                        block.getInfMaterials());
                 setVelocityX(0);
             }
             else if (edge[0] == RIGHT)
             {
-                goal.x = entity.getLeftEdge() - getWidth() / 2;
+                goal.x = block.getLeftEdge() - getWidth() / 2;
                 damage(Math.abs(getVelocityX())
-                                * ((Block) entity).getHazardRating(),
-                        ((Block) entity).getInfMaterials());
+                                * block.getHazardRating(),
+                        block.getInfMaterials());
                 setVelocityX(0);
             }
         }

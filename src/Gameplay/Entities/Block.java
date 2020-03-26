@@ -8,6 +8,7 @@ package Gameplay.Entities;
 
 import Gameplay.Entities.Weapons.Infliction;
 import Util.Print;
+import Util.Vec2;
 import javafx.scene.paint.Color;
 
 

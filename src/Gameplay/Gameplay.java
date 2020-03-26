@@ -6,10 +6,7 @@
 
 package Gameplay;
 //Game Title: The Lie Made Flesh
-import Gameplay.Entities.Actor;
-import Gameplay.Entities.Entity;
-import Gameplay.Entities.EntityCollection;
-import Gameplay.Entities.Item;
+import Gameplay.Entities.*;
 import Gameplay.Entities.Weapons.Weapon;
 import Importer.AudioResource;
 import Importer.LevelBuilder;
@@ -85,6 +82,34 @@ public class Gameplay implements Reactor
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
         entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+
+        /* Set coveredDirs for every block */
+        for (Entity entity : entityList)
+        {
+            if (entity instanceof Block)
+            {
+                for (Entity ent : entityList)
+                {
+                    if (ent instanceof Block)
+                    {
+                        if (ent.getX() == entity.getX())
+                        {
+                            if (ent.getTopEdge() == entity.getBottomEdge())
+                                entity.setCoveredDirs(Entity.DOWN);
+                            else if (ent.getBottomEdge() == entity.getTopEdge())
+                                entity.setCoveredDirs(Entity.UP);
+                        }
+                        else if (ent.getY() == entity.getY())
+                        {
+                            if (ent.getLeftEdge() == entity.getRightEdge())
+                                entity.setCoveredDirs(Entity.RIGHT);
+                            else if (ent.getRightEdge() == entity.getLeftEdge())
+                                entity.setCoveredDirs(Entity.LEFT);
+                        }
+                    }
+                }
+            }
+        }
 
 
         /* Set up initial position and zoom of the camera */

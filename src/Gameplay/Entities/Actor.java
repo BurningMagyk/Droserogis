@@ -1495,7 +1495,7 @@ public class Actor extends Item
     {
         int mag = 0;
         float staggerTime = proneRecoverTime / 2;
-        Print.blue(grade);
+        //Print.blue(grade);
         if (grade.ordinal() >= staggerThresh[0].ordinal())
         {
             staggerTime = proneRecoverTime * 0.75F;
@@ -1620,7 +1620,7 @@ public class Actor extends Item
                     damageGradeOrd -= armor.getResistanceTo(inf).ordinal();
             }
             GradeEnum newDamageGrade = GradeEnum.getGrade(damageGradeOrd);
-            Print.yellow("Damage: " + newDamageGrade);
+            //Print.yellow("Damage: " + newDamageGrade);
 
             // Stagger a different way if hit ground/wall
             boolean landedTooHard = false;

@@ -84,6 +84,7 @@ abstract public class Entity
     private double sinTheta, cosTheta;
     private Vec2 normal = null;
     private Vec2[] vertexList;
+    boolean[] coveredDirs = { false, false, false, false };
 
     private final ShapeEnum shape;
     private Color color = Color.BLACK;
@@ -388,7 +389,7 @@ abstract public class Entity
         }
     }
 
-    private float boundsDiv = 1.999F;
+    float boundsDiv = 1.999F;
 
     boolean withinBoundsX(Entity other)
     {
@@ -443,26 +444,27 @@ abstract public class Entity
         return -1;
     }
 
-
-    public int[] getTouchEdge(Entity other, Vec2 goal)
+    public void setCoveredDirs(int ...dirs)
     {
-        int[] directions = {-1, -1};
+        for (int i = 0; i < coveredDirs.length; i++)
+        {
+            coveredDirs[i] = false;
+        }
+        for (int dir : dirs)
+        {
+            coveredDirs[dir] = true;
+        }
+    }
 
-        if (goal.x + other.width / 2 <= pos.x - width / boundsDiv) return directions;
-        if (goal.x - other.width / 2 >= pos.x + width / boundsDiv) return  directions;
-        if (goal.y + other.height / 2 <= pos.y - height / boundsDiv) return  directions;
-        if (goal.y - other.height / 2 >= pos.y + height / boundsDiv) return  directions;
-
-        boolean[] shapeDirs = shape.getDirs();
-
-        /* The Actor is within the x-bounds */
+    private int[] getTouchEdgeX(Item other, Vec2 goal, boolean[] shapeDirs, int[] directions)
+    {
         if (withinBoundsX(other))
         {
             /* If this Entity has a level bottom side */
             if (shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge()
-                    && goal.y - other.height / boundsDiv < getBottomEdge())
+                    && goal.y - other.getHeight() / boundsDiv < getBottomEdge())
             {
                 directions[0] = UP;
                 return directions;
@@ -472,7 +474,7 @@ abstract public class Entity
             if (shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge()
-                    && goal.y + other.height / boundsDiv > getTopEdge())
+                    && goal.y + other.getHeight() / boundsDiv > getTopEdge())
             {
                 directions[0] = DOWN;
                 return directions;
@@ -482,7 +484,7 @@ abstract public class Entity
             if (!shapeDirs[LEFT] && !shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge(other.getX())
-                    && goal.y + other.height / boundsDiv > getTopEdge(goal.x))
+                    && goal.y + other.getHeight() / boundsDiv > getTopEdge(goal.x))
             {
                 directions[0] = DOWN;
                 directions[1] = RIGHT;
@@ -493,7 +495,7 @@ abstract public class Entity
             if (!shapeDirs[RIGHT] && !shapeDirs[UP]
                     /* And the other is in contact with it */
                     && other.getY() < getTopEdge(other.getX())
-                    && goal.y + other.height / boundsDiv > getTopEdge(goal.x))
+                    && goal.y + other.getHeight() / boundsDiv > getTopEdge(goal.x))
             {
                 directions[0] = DOWN;
                 directions[1] = LEFT;
@@ -504,7 +506,7 @@ abstract public class Entity
             if (!shapeDirs[LEFT] && !shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge(other.getX())
-                    && goal.y - other.height / boundsDiv < getBottomEdge(goal.x))
+                    && goal.y - other.getHeight() / boundsDiv < getBottomEdge(goal.x))
             {
                 directions[0] = UP;
                 directions[1] = RIGHT;
@@ -515,7 +517,7 @@ abstract public class Entity
             if (!shapeDirs[RIGHT] && !shapeDirs[DOWN]
                     /* And the other is in contact with it */
                     && other.getY() > getBottomEdge(other.getX())
-                    && goal.y - other.height / boundsDiv < getBottomEdge(goal.x))
+                    && goal.y - other.getHeight() / boundsDiv < getBottomEdge(goal.x))
             {
                 directions[0] = UP;
                 directions[1] = LEFT;
@@ -523,15 +525,20 @@ abstract public class Entity
             }
         }
 
-        /* This Actor is within the y-bounds */
+        return null;
+    }
+
+    private int[] getTouchEdgeY(Item other, Vec2 goal, boolean[] shapeDirs, int[] directions)
+    {
         if (withinBoundsY(other))
         {
             /* This Entity has a level left side */
             if (shapeDirs[LEFT]
                     /* And the other is in contact with it */
                     && other.getX() < getLeftEdge()
-                    && goal.x + other.width / boundsDiv > getLeftEdge())
+                    && goal.x + other.getWidth() / boundsDiv > getLeftEdge())
             {
+                if (coveredDirs[LEFT]) { Print.blue("test"); return null; }
                 directions[0] = RIGHT;
                 return directions;
             }
@@ -540,11 +547,47 @@ abstract public class Entity
             if (shapeDirs[RIGHT]
                     /* And the other is in contact with it */
                     && other.getX() > getRightEdge()
-                    && goal.x - other.width / boundsDiv < getRightEdge())
+                    && goal.x - other.getWidth() / boundsDiv < getRightEdge())
             {
+                if (coveredDirs[RIGHT]) return null;
                 directions[0] = LEFT;
                 return directions;
             }
+        }
+
+        return null;
+    }
+
+    public int[] getTouchEdge(Item other, Vec2 goal)
+    {
+        int[] directions = {-1, -1};
+
+        if (goal.x + other.getWidth() / 2 <= pos.x - width / boundsDiv) return directions;
+        if (goal.x - other.getWidth() / 2 >= pos.x + width / boundsDiv) return  directions;
+        if (goal.y + other.getHeight() / 2 <= pos.y - height / boundsDiv) return  directions;
+        if (goal.y - other.getHeight() / 2 >= pos.y + height / boundsDiv) return  directions;
+
+        boolean[] shapeDirs = shape.getDirs();
+
+        if (other.getVelocityX() > other.getVelocityY())
+        {
+            /* The Item is within the x-bounds */
+            int[] result = getTouchEdgeX(other, goal, shapeDirs, directions);
+            if (result != null) return result;
+
+            /* The Item is within the y-bounds */
+            result = getTouchEdgeY(other, goal, shapeDirs, directions);
+            if (result != null) return result;
+        }
+        else
+        {
+            /* The Item is within the y-bounds */
+            int[] result = getTouchEdgeY(other, goal, shapeDirs, directions);
+            if (result != null) return result;
+
+            /* The Item is within the x-bounds */
+            result = getTouchEdgeX(other, goal, shapeDirs, directions);
+            if (result != null) return result;
         }
 
         return directions;
