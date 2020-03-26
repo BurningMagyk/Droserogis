@@ -37,7 +37,7 @@ public class Weapon extends Item
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
-    private final String name;
+    private final WeaponType weaponType;
     private final WeaponStat weaponStat;
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
@@ -53,13 +53,13 @@ public class Weapon extends Item
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
 
+        this.weaponType = weaponType;
         ops = weaponType.getOps();
-        name = weaponType.getName();
 
         this.weaponStat = weaponStat;
     }
 
-    public String getName() { return name; }
+    public String getName() { return weaponType.getName(); }
     public String getStatDataString() { return weaponStat.toDataString(); }
 
     public Actor getActor() { return actor; }
@@ -412,7 +412,7 @@ public class Weapon extends Item
         {
             if (currentOp.run(deltaSec))
             {
-                if (currentOp.getName().equals("Interact")) actor.interact(null);
+                if (currentOp.getName().equals("Interact")) actor.interact();
 
                 Print.blue("Finished \"" + currentOp.getName() + "\"");
                 currentOp = null;

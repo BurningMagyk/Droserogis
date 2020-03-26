@@ -72,6 +72,7 @@ public class LevelBuilder  extends Application
     private ContextMenu menuEntity, menuMaterial;
     private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
+    private MenuItem menuItemCreateSword;
 
     private Timeline timeline;
 
@@ -124,6 +125,9 @@ public class LevelBuilder  extends Application
         menuMaterial = new ContextMenu();
 
 
+        menuItemCreateSword = new MenuItem("Sword");
+        menuEntity.getItems().add(menuItemCreateSword);
+        menuItemCreateSword.setOnAction(this::menuEvent);
 
         for (BlockType blockType : BlockType.blockTypeList)
         {
@@ -521,6 +525,7 @@ public class LevelBuilder  extends Application
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
 
+
         if (item == menuItemStone)
         {
             if ((selectedEntity != null) && (selectedEntity instanceof Block))
@@ -549,18 +554,31 @@ public class LevelBuilder  extends Application
         else //check if selected menu item is add entity or modify camera zone
         {
             boolean addedEntity = false;
-            for (BlockType blockType : BlockType.blockTypeList)
+
+            if (item == menuItemCreateSword)
             {
-                if (blockType.toString().endsWith(text))
+                WeaponStat stat = new WeaponStat(
+                        "C", "C", "C", "C", 2, null, null, "C", "D");
+                Weapon weapon = new Weapon(x, y, 0.5F, 0.1F, 0.2F, WeaponType.SWORD, stat, null);
+                entityList.add(weapon);
+                addedEntity = true;
+            }
+            else
+            {
+                for (BlockType blockType : BlockType.blockTypeList)
                 {
-                    float width = blockType.pixelHitWidth/cameraZoom;
-                    float height = blockType.pixelHitHeight/cameraZoom;
-                    Block block = new Block(x, y, width, height, blockType, 1.0F, null);
-                    entityList.add(block);
-                    addedEntity = true;
-                    break;
+                    if (blockType.toString().endsWith(text))
+                    {
+                        float width = blockType.pixelHitWidth/cameraZoom;
+                        float height = blockType.pixelHitHeight/cameraZoom;
+                        Block block = new Block(x, y, width, height, blockType, 1.0F, null);
+                        entityList.add(block);
+                        addedEntity = true;
+                        break;
+                    }
                 }
             }
+
             if (!addedEntity)
             {
                 for (Actor.EnumType actorType : Actor.EnumType.values())
@@ -644,11 +662,15 @@ public class LevelBuilder  extends Application
 
                 if (entity instanceof Weapon)
                 {
-                    Weapon weapon = (Weapon)entity;
-                    Print.green("save: " +weapon.getName());
-                    type = "Weapon";
-                    stats += "," + w + "," + h + "," + weapon.getMass() + "," + weapon.getName()
-                            + weapon.getStatDataString();
+                    if (!((Weapon) entity).getName().equals("Natural"))
+                    {
+                        Weapon weapon = (Weapon) entity;
+                        Print.green("save: " + weapon.getName());
+                        type = "Weapon";
+                        stats += "," + w + "," + h + "," + weapon.getMass() + "," + weapon.getName() + ","
+                                + weapon.getStatDataString();
+                    }
+                    else continue;
                 }
                 else if (entity instanceof Block)
                 {

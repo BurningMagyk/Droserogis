@@ -74,3 +74,4 @@ Top 0: 32x32,-368,92,16,16,false
 Top 2: 32x32,-384,92,16,16,false
 Player,-250,-150,Igon
 Player,-300,-250,Zuzen
+Weapon,-2,-10,25,5,0.2,Sword,C,C,C,C,2,null,null,C,D,null
