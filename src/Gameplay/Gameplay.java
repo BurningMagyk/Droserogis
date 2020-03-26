@@ -80,14 +80,16 @@ public class Gameplay implements Reactor
          * Sets up all of the blocks, entities, and players that appear in the level.
          * Should later utilize procedural generation.
          */
-        entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         Font font = gfx.getFont();
         System.out.println ("Using Font " +font.getName());
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
+        renderThread = new RenderThread(gfx, viewWidth, viewHeight);
+        entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+
 
         /* Set up initial position and zoom of the camera */
         moveCamera(0, 0, 100, true, 1);
-        renderThread = new RenderThread(gfx, viewWidth, viewHeight);
+
 
         //System.out.println("Level Left Bounds: " + entities.getBoundsLeft());
         //System.out.println("Level Right Bounds: " + entities.getBoundsRight());

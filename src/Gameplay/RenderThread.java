@@ -287,13 +287,16 @@ public class RenderThread
                         {
                             Block block = (Block) entity;
                             if (block.isLiquid()) continue;
-                            if (block.getBlockType().name == null)
+                            BlockType type = block.getBlockType();
+                            if (type.name == "RECTANGLE")
                             {
                                 gfx.setFill(entity.getColor());
                                 gfx.fillRect(x, y, width, height);
                             }
                             else
                             {
+                                x-=type.left;
+                                y-=type.top;
                                 gfx.drawImage(block.getBlockType().image, x, y);
                             }
                         }

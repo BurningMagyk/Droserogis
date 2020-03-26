@@ -1,12 +1,13 @@
 package Gameplay.Entities;
 
+import Util.Print;
 import javafx.scene.image.Image;
 
 
 public class BlockType
 {
     public final String name;
-    public final float hitWidth, hitHeight;
+    public final float pixelHitWidth, pixelHitHeight;
     public final int left;
     public final int top;
     public final Entity.ShapeEnum shape;
@@ -18,23 +19,24 @@ public class BlockType
     {
         int numIdx = fileName.length()-1;
         this.name = fileName.substring(0,numIdx)+" "+fileName.charAt(numIdx) + ": " + pixelHitWidth + "x" + pixelHitHeight;
-        this.hitWidth = pixelHitWidth*Entity.SPRITE_TO_WORLD_SCALE;
-        this.hitHeight = pixelHitHeight*Entity.SPRITE_TO_WORLD_SCALE;
+        this.pixelHitWidth = pixelHitWidth;
+        this.pixelHitHeight = pixelHitHeight;
         this.left = left;
         this.top = top;
         this.shape = Entity.ShapeEnum.RECTANGLE;
 
         //String path = "Resources/Image/block/"+fileName+".png";
         String path = "Image/block/"+fileName+".png";
+        //Print.cyan("BlockType: Load image ["+path+"]");
         image = new Image(path);
     }
 
     public BlockType(Entity.ShapeEnum shape)
     {
         this.shape = shape;
-        this.name = null;
-        this.hitWidth = 0;
-        this.hitHeight = 0;
+        this.name = shape.toString();
+        this.pixelHitWidth = Float.NaN;
+        this.pixelHitHeight = Float.NaN;
         this.left = 0;
         this.top = 0;
     }
@@ -47,7 +49,7 @@ public class BlockType
 
     public static void loadBlockTypes()
     {
-        blockTypeList = new BlockType[27];
+        blockTypeList = new BlockType[29];
         blockTypeList[0] = new BlockType("Left0",  32,32,3,0);
         blockTypeList[1] = new BlockType("Left1",  32,32,2,0);
         blockTypeList[2] = new BlockType("Left2",  32,32,2,0);
@@ -69,9 +71,9 @@ public class BlockType
         blockTypeList[16] = new BlockType("Top6",  16,32,0,1);
 
         blockTypeList[17] = new BlockType("Top-Left0",  32,32,2,3);
-        blockTypeList[18] = new BlockType("Top-Left1",  32,32,1,3);
+        blockTypeList[18] = new BlockType("Top-Left1",  32,32,1,1);
         blockTypeList[19] = new BlockType("Top-Right0",  32,32,0,3);
-        blockTypeList[20] = new BlockType("Top-Right1",  32,32,0,3);
+        blockTypeList[20] = new BlockType("Top-Right1",  32,32,0,1);
 
         blockTypeList[21] = new BlockType("Left-Bend0",  32,64,2,0);
         blockTypeList[22] = new BlockType("Right-Bend0",  32,64,0,0);
@@ -81,5 +83,8 @@ public class BlockType
 
         blockTypeList[25] = new BlockType("Top-Left-Inside0",  32,32,0,0);
         blockTypeList[26] = new BlockType("Top-Right-Inside0",  32,32,0,0);
+
+        blockTypeList[27] = new BlockType("Bottom-Left0",  32,32,1,0);
+        blockTypeList[28] = new BlockType("Bottom-Right0",  32,32,0,0);
     }
 }

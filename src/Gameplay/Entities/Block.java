@@ -7,6 +7,7 @@
 package Gameplay.Entities;
 
 import Gameplay.Entities.Weapons.Infliction;
+import Util.Print;
 import javafx.scene.paint.Color;
 
 
@@ -30,6 +31,9 @@ public class Block extends Entity
                     { Infliction.InflictionType.EARTH };
         }
         else this.infMaterials = infMaterials;
+
+
+        //Print.purple("new Block: pos=("+xPos + ", " + yPos +")   size=("+width+", "+height+")  "+ type);
     }
 
     public void setLiquid(boolean liquid) { isLiquid = liquid; }

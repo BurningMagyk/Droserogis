@@ -97,7 +97,7 @@ public class LevelBuilder  extends Application
         cameraZoom =100.0f;
 
         //snapGridSize = 10f/cameraZoom;
-        snapGridSize = 16f*Entity.SPRITE_TO_WORLD_SCALE;
+        snapGridSize = 8f*Entity.SPRITE_TO_WORLD_SCALE;
 
         scene = new Scene(root);
         scene.setCursor(Cursor.CROSSHAIR);
@@ -549,9 +549,11 @@ public class LevelBuilder  extends Application
             boolean addedEntity = false;
             for (BlockType blockType : BlockType.blockTypeList)
             {
-                if (text.endsWith(blockType.toString()))
+                if (blockType.toString().endsWith(text))
                 {
-                    Block block = new Block(x, y, blockType.hitWidth, blockType.hitHeight, blockType, 1.0F, null);
+                    float width = blockType.pixelHitWidth/cameraZoom;
+                    float height = blockType.pixelHitHeight/cameraZoom;
+                    Block block = new Block(x, y, width, height, blockType, 1.0F, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -644,7 +646,9 @@ public class LevelBuilder  extends Application
                 String type = "";
                 if (entity instanceof Block)
                 {
-                    type = entity.getShape().toString();
+                    Block block = (Block)entity;
+                    Print.green("save: " +block.getBlockType().name);
+                    type = block.getBlockType().name;
                     stats += "," + w + "," + h + ","+((Block)entity).isLiquid();
                 }
                 else if (entity instanceof CameraZone)
@@ -792,8 +796,22 @@ public class LevelBuilder  extends Application
                         throw new IOException("Block record must have 6 fields.");
                     }
                     boolean isLiquid = Boolean.valueOf(data[5]);
-                    Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                    BlockType blockType = new BlockType(shape);
+
+                    BlockType blockType = null;
+                    for (BlockType type : BlockType.blockTypeList)
+                    {
+                        if (type.toString().endsWith(data[0]))
+                        {
+                            blockType = type;
+                            break;
+                        }
+                    }
+
+                    if (blockType == null)
+                    {
+                        Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                        blockType = new BlockType(shape);
+                    }
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, blockType, 1.0F, null);
@@ -828,7 +846,7 @@ public class LevelBuilder  extends Application
     {
         BufferedWriter writer = null;
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Hermano Level File");
+        fileChooser.setTitle("Save Level File");
         fileChooser.setInitialDirectory(new File("Resources/Levels"));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         File selectedFile = fileChooser.showSaveDialog(null);
