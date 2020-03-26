@@ -650,7 +650,7 @@ public class Actor extends Item
         return new Infliction.InflictionType[]{Infliction.InflictionType.BLUNT};
     }
 
-    void applyPhysics(EntityCollection<Entity> entities, float deltaSec)
+    protected void applyPhysics(EntityCollection entities, float deltaSec)
     {
         boolean slopeLeft = false, slopeRight = false;
         if (touchEntity[DOWN] != null && touchEntity[DOWN].getShape().getDirs()[DOWN])
@@ -1042,9 +1042,10 @@ public class Actor extends Item
     }
 
     private boolean setToInteract = false;
-    public void interact(EntityCollection<Entity> entities)
+    public void interact() { setToInteract = true; }
+    private void interact(EntityCollection<Entity> entities)
     {
-        if (entities != null && setToInteract)
+        if (setToInteract && entities != null)
         {
             setToInteract = false;
 
@@ -1064,7 +1065,6 @@ public class Actor extends Item
                 }
             }
         }
-        else setToInteract = true;
     }
 
     private State determineState()

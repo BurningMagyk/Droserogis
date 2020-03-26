@@ -143,4 +143,11 @@ public class WeaponStat
     {
         return strGrade.ordinal() >= grades[Ability.SPEED_DEP.ordinal()].ordinal();
     }
+
+    public String toDataString()
+    {
+        return "" + grades[0] + "," + grades[1] + "," + grades[2] + "," + grades[3]
+                + "," + blockRating + "," + "null" + "," + "null" + "," + grades[4]
+                + "," + grades[5] + "," + "null";
+    }
 }

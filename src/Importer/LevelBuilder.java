@@ -4,6 +4,8 @@ import Gameplay.*;
 import Gameplay.Entities.*;
 import Gameplay.Entities.Weapons.Weapon;
 
+import Gameplay.Entities.Weapons.WeaponStat;
+import Gameplay.Entities.Weapons.WeaponType;
 import Util.Print;
 
 import java.io.BufferedReader;
@@ -661,7 +663,20 @@ public class LevelBuilder  extends Application
                 int h = Math.round(entity.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
                 String stats = x + "," + y;
                 String type = "";
-                if (entity instanceof Block)
+
+                if (entity instanceof Weapon)
+                {
+                    if (!((Weapon) entity).getName().equals("Natural"))
+                    {
+                        Weapon weapon = (Weapon) entity;
+                        Print.green("save: " + weapon.getName());
+                        type = "Weapon";
+                        stats += "," + w + "," + h + "," + weapon.getMass() + "," + weapon.getName() + ","
+                                + weapon.getStatDataString();
+                    }
+                    else continue;
+                }
+                else if (entity instanceof Block)
                 {
                     Block block = (Block)entity;
                     Print.green("save: " +block.getBlockType().name);
@@ -788,6 +803,22 @@ public class LevelBuilder  extends Application
                     }
                     Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
                     entity = new Actor(x, y, actorType);
+                }
+                else if (data[0].equals("Weapon"))
+                {
+                    if (data.length != 17)
+                    {
+                        System.out.println("Error Reading Line: ["+line+"]");
+                        throw new IOException("Weapon record must have 16 fields.");
+                    }
+                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float mass = Float.valueOf(data[5]);
+                    WeaponType type = WeaponType.NATURAL;
+                    if (data[6].equals("Sword")) type = WeaponType.SWORD;
+                    WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],
+                            Integer.valueOf(data[11]), null, null, data[14], data[15], null);
+                    entity = new Weapon(x, y, width, height, mass, type, stat, null);
                 }
                 /* TODO: someday, when weapons are added, the format will need to be figured out.
                 else if (data[0].equals("WeaponAttacks"))

@@ -18,14 +18,18 @@ import static Gameplay.Entities.Actor.Condition.*;
 
 public class WeaponType
 {
+    private final String name;
     private final Orient DEF_ORIENT;
     private final Weapon.Operation[] OPS;
 
-    WeaponType(Orient orient,  Weapon.Operation...ops)
+    WeaponType(String name, Orient orient,  Weapon.Operation...ops)
     {
+        this.name = name;
         DEF_ORIENT = orient.copy();
         OPS = ops;
     }
+
+    public String getName() { return name; }
 
     Orient getDefaultOrient() { return DEF_ORIENT; }
     Weapon.Operation[] getOps()
@@ -285,6 +289,7 @@ public class WeaponType
     }
 
     public final static WeaponType NATURAL = new WeaponType(
+            "Natural",
             new Orient(new Vec2(0.2F, -0.1F), 0),
             NATURAL__PUNCH, NATURAL__UPPERCUT,
             NATURAL__PUNCH_UP, NATURAL__POUNCE,
@@ -443,6 +448,7 @@ public class WeaponType
             null, SWORD__SWING_DOWN_BACKWARD__EXEC);
 
     public final static WeaponType SWORD = new WeaponType(
+            "Sword",
             new Orient(new Vec2(0.4F, 0.1F), -PI4),
             SWORD__THRUST, SWORD__THRUST_UNTERHAU,
             SWORD__THRUST_UP, SWORD__THRUST_DOWN,

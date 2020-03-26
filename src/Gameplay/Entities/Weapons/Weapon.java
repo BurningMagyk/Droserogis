@@ -37,6 +37,7 @@ public class Weapon extends Item
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
+    private final WeaponType weaponType;
     private final WeaponStat weaponStat;
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
@@ -52,10 +53,14 @@ public class Weapon extends Item
         DEF_ORIENT = new Orient(weaponType.getDefaultOrient());
         orient = DEF_ORIENT.copy();
 
+        this.weaponType = weaponType;
         ops = weaponType.getOps();
 
         this.weaponStat = weaponStat;
     }
+
+    public String getName() { return weaponType.getName(); }
+    public String getStatDataString() { return weaponStat.toDataString(); }
 
     public Actor getActor() { return actor; }
 
@@ -403,31 +408,41 @@ public class Weapon extends Item
     @Override
     public void update(EntityCollection<Entity> entities, float deltaSec)
     {
-        if (currentOp != null)
+        if (idle || ballistic)
         {
-            if (currentOp.run(deltaSec))
-            {
-                if (currentOp.getName().equals("Interact")) actor.interact(null);
-
-                Print.blue("Finished \"" + currentOp.getName() + "\"");
-                currentOp = null;
-                orient = DEF_ORIENT.copy();
-                collidedItems.clear();
-            }
-            else
-            {
-                if (currentOp instanceof RushOperation) orient = DEF_ORIENT;
-                else orient = currentOp.getOrient();
-                dirOp = currentOp.getDir();
-
-                /* Current operation may inflict something to the wielder */
-                actor.inflict(currentOp.getSelfInfliction());
-            }
-
-            updateClashes(entities.getWeaponList());
+            resetAcceleration();
+            applyPhysics(entities, deltaSec);
+            updateCornersOffset(); // Weapons are drawn using their corners, unlike other items
+            // So their corners need to be updated whenever they move
         }
-        else orient = DEF_ORIENT.copy();
-        updateCorners();
+        else
+        {
+            if (currentOp != null)
+            {
+                if (currentOp.run(deltaSec))
+                {
+                    if (currentOp.getName().equals("Interact")) actor.interact();
+
+                    Print.blue("Finished \"" + currentOp.getName() + "\"");
+                    currentOp = null;
+                    orient = DEF_ORIENT.copy();
+                    collidedItems.clear();
+                }
+                else
+                {
+                    if (currentOp instanceof RushOperation) orient = DEF_ORIENT;
+                    else orient = currentOp.getOrient();
+                    dirOp = currentOp.getDir();
+
+                    /* Current operation may inflict something to the wielder */
+                    actor.inflict(currentOp.getSelfInfliction());
+                }
+
+                updateClashes(entities.getWeaponList());
+            }
+            else orient = DEF_ORIENT.copy();
+            updateCorners();
+        }
     }
 
     private void updateClashes(ArrayList<Weapon> otherWeapons)
@@ -471,6 +486,7 @@ public class Weapon extends Item
             for (Item item : items)
             {
                 if (item != this && item != actor && !collidedItems.contains(item)
+                        && (!(item instanceof Weapon) || ((Weapon) item).idle || ((Weapon) item).ballistic)
                         && PolygonIntersection.isIntersect(currentOp instanceof RushOperation
                         ? getActorCorners() : getShapeCorners(), item))
                 {
