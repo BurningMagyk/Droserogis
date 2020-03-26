@@ -60,7 +60,7 @@ public abstract class Item extends Entity
      * Acceleration, however exists only when there is a force.
      * Thus, each frame, we set acceleration to 0, figure out which forces
      * are acting on it and add in acceleration for those forces. */
-    void resetAcceleration()
+    protected void resetAcceleration()
     {
         setAcceleration(0,0);
         if (touchEntity[DOWN] == null) setAccelerationY(gravity);
@@ -71,7 +71,7 @@ public abstract class Item extends Entity
 
     protected abstract void applyInflictions();
 
-    private void applyPhysics(EntityCollection entities, float deltaSec)
+    protected void applyPhysics(EntityCollection entities, float deltaSec)
     {
         boolean slopeLeft = false, slopeRight = false;
         if (touchEntity[DOWN] != null)

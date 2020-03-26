@@ -650,7 +650,7 @@ public class Actor extends Item
         return new Infliction.InflictionType[]{Infliction.InflictionType.BLUNT};
     }
 
-    void applyPhysics(EntityCollection<Entity> entities, float deltaSec)
+    protected void applyPhysics(EntityCollection entities, float deltaSec)
     {
         boolean slopeLeft = false, slopeRight = false;
         if (touchEntity[DOWN] != null && touchEntity[DOWN].getShape().getDirs()[DOWN])
