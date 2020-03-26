@@ -54,7 +54,7 @@ public class BlockType
     {
         blockTypeList = new BlockType[30];
         blockTypeList[0] = new BlockType(Entity.ShapeEnum.RECTANGLE);
-        blockTypeList[1] = new BlockType("Left0",  32,32,3,0);
+        blockTypeList[1] = new BlockType("Left0",  32,32,4,0);
         blockTypeList[2] = new BlockType("Left1",  32,32,2,0);
         blockTypeList[3] = new BlockType("Left2",  32,32,2,0);
         blockTypeList[4] = new BlockType("Left3",  32,16,2,0);
