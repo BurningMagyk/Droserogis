@@ -37,6 +37,7 @@ public class Weapon extends Item
     private Command currentCommand;
     Operation currentOp;
     private final Operation[] ops;
+    private final String name;
     private final WeaponStat weaponStat;
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
@@ -53,9 +54,13 @@ public class Weapon extends Item
         orient = DEF_ORIENT.copy();
 
         ops = weaponType.getOps();
+        name = weaponType.getName();
 
         this.weaponStat = weaponStat;
     }
+
+    public String getName() { return name; }
+    public String getStatDataString() { return weaponStat.toDataString(); }
 
     public Actor getActor() { return actor; }
 
