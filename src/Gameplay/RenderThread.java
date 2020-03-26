@@ -43,7 +43,8 @@ public class RenderThread
     private GraphicsContext gfx;
     private EntityCollection<Entity> entityList;
 
-    private static final Color NEARBLACK = Color.rgb(10,5,4);
+    private static final Color NEARBLACK = Color.rgb(10,4,3);
+    //private static final Color NEARBLACK = Color.rgb(200,4,3);
 
     public RenderThread(GraphicsContext gfx, int viewWidth, int viewHeight)
     {
