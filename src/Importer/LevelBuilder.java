@@ -568,7 +568,16 @@ public class LevelBuilder  extends Application
             boolean addedEntity = false;
             for (BlockType blockType : BlockType.blockTypeList)
             {
-                if (blockType.toString().equals(text))
+                if (blockType.toString().equals("RECTANGLE"))
+                {
+                    float width = 100/cameraZoom;
+                    float height = 100/cameraZoom;
+                    Block block = new Block(x, y, width, height, blockType, 1.0F, null);
+                    entityList.add(block);
+                    addedEntity = true;
+                    break;
+                }
+                else if (blockType.toString().equals(text))
                 {
                     float width = blockType.pixelHitWidth/cameraZoom;
                     float height = blockType.pixelHitHeight/cameraZoom;

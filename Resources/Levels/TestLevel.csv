@@ -1,6 +1,5 @@
 Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom
 RECTANGLE,300,188,297,168,true
-RECTANGLE,-1167,96,846,22,false
 RECTANGLE,-675,-785,50,30,false
 RECTANGLE,-875,-785,50,30,false
 RECTANGLE,-1125,-785,50,30,false
@@ -11,21 +10,18 @@ TRIANGLE_UP_R,450,-270,100,100,false
 TRIANGLE_UP_L,580,-175,100,50,false
 RECTANGLE,936,40,213,132,false
 RECTANGLE,755,-340,90,40,false
-RECTANGLE,-1580,-430,20,1040,false
-RECTANGLE,960,-88,178,132,false
-RECTANGLE,976,-220,147,132,false
-RECTANGLE,-920,75,80,30,false
-RECTANGLE,-840,85,80,10,false
-RECTANGLE,988,-332,110,102,false
+RECTANGLE,-1327,74,514,43,false
+RECTANGLE,957,-88,172,132,false
+RECTANGLE,972,-220,139,134,false
+RECTANGLE,-1577,-37,17,180,false
+RECTANGLE,986,-332,106,102,false
 RECTANGLE,1020,-664,38,563,false
-RECTANGLE,748,204,590,201,false
+RECTANGLE,745,204,595,201,false
 RECTANGLE,299,285,307,27,false
 RECTANGLE,290,-267,180,25,false
-TRIANGLE_UP_R,-1130,70,240,40,false
-TRIANGLE_UP_R,-532,12,340,177,false
-RECTANGLE,-712,12,20,177,false
-RECTANGLE,-716,200,1734,202,false
-RECTANGLE,-1410,70,320,40,false
+TRIANGLE_UP_R,-1135,24,234,80,false
+TRIANGLE_UP_R,-533,12,342,176,false
+RECTANGLE,-716,196,1734,202,false
 TRIANGLE_UP_R,-643,-560,355,200,false
 Bottom-Left 0: 32x32,-216,12,16,16,false
 Bottom-Right 0: 32x32,-200,12,16,16,false
@@ -186,6 +182,72 @@ Right 2: 32x32,-204,-276,16,16,false
 Right 3: 32x16,-204,-336,16,8,false
 Right 2: 32x32,-204,-364,16,16,false
 Right 2: 32x32,-204,-260,16,16,false
+Top-Left 0: 32x32,-712,-68,16,16,false
+Left 0: 32x32,-712,-52,16,16,false
+Left 1: 32x32,-712,-36,16,16,false
+Left 2: 32x32,-712,-20,16,16,false
+Left 3: 32x16,-712,-8,16,8,false
+Left 2: 32x32,-712,4,16,16,false
+Left 1: 32x32,-712,20,16,16,false
+Left 2: 32x32,-712,36,16,16,false
+Left 1: 32x32,-712,52,16,16,false
+Left 4: 32x16,-712,60,16,8,false
+Top-Left-Inside 0: 32x32,-712,72,16,16,false
+Top 1: 32x32,-728,72,16,16,false
+Top 0: 32x32,-744,72,16,16,false
+Top 2: 32x32,-760,72,16,16,false
+Top 4: 48x32,-780,72,24,16,false
+Top 5: 48x32,-804,72,24,16,false
+Top 1: 32x32,-824,72,16,16,false
+Top 2: 32x32,-840,72,16,16,false
+Top 0: 32x32,-856,72,16,16,false
+Top-Right-Bend 0: 32x48,-872,68,16,24,false
+Top 0: 32x32,-888,64,16,16,false
+Top-Right-Bend 0: 32x48,-904,60,16,24,false
+Top 5: 48x32,-924,56,24,16,false
+Top 4: 48x32,-948,56,24,16,false
+Top-Left 0: 32x32,-968,56,16,16,false
+Top 1: 32x32,-984,72,16,16,false
+Top-Left-Inside 0: 32x32,-968,72,16,16,false
+Top 4: 48x32,-1004,72,24,16,false
+Top-Right-Inside 0: 32x32,-1024,72,16,16,false
+Top-Left 1: 32x32,-1260,-8,16,16,false
+Left 2: 32x32,-1260,8,16,16,false
+Left 1: 32x32,-1260,24,16,16,false
+Left 4: 32x16,-1260,36,16,8,false
+Top-Left-Inside 0: 32x32,-1260,48,16,16,false
+Top 4: 48x32,-1280,48,24,16,false
+Top 4: 48x32,-1328,48,24,16,false
+Top 5: 48x32,-1304,48,24,16,false
+Top 1: 32x32,-1348,48,16,16,false
+Top 0: 32x32,-1364,48,16,16,false
+Top 3: 32x32,-1380,48,16,16,false
+Top 2: 32x32,-1396,48,16,16,false
+Top 5: 48x32,-1416,48,24,16,false
+Top 0: 32x32,-1436,48,16,16,false
+Top 5: 48x32,-1456,48,24,16,false
+Top 0: 32x32,-1476,48,16,16,false
+Top 1: 32x32,-1492,48,16,16,false
+Top 2: 32x32,-1508,48,16,16,false
+Top 4: 48x32,-1528,48,24,16,false
+Top 1: 32x32,-1548,48,16,16,false
+Top-Right-Inside 0: 32x32,-1564,48,16,16,false
+Right 2: 32x32,-1564,32,16,16,false
+Right 1: 32x32,-1564,16,16,16,false
+Right 0: 32x32,-1564,0,16,16,false
+Right 1: 32x32,-1564,-16,16,16,false
+Right 2: 32x32,-1564,-32,16,16,false
+Right 1: 32x32,-1564,-48,16,16,false
+Right 3: 32x16,-1564,-60,16,8,false
+Right 1: 32x32,-1564,-72,16,16,false
+Right 2: 32x32,-1564,-88,16,16,false
+Right 1: 32x32,-1564,-104,16,16,false
+Right 4: 32x16,-1564,-116,16,8,false
+Top-Right 0: 32x32,-1564,-128,16,16,false
+Top 0: 32x32,-1580,-128,16,16,false
+RECTANGLE,-1050,91,45,53,false
+RECTANGLE,-868,87,325,18,false
+RECTANGLE,-932,72,60,22,false
+RECTANGLE,-888,76,30,15,false
 Player,-250,-150,Igon
 Player,-300,-250,Zuzen
-Weapon,-2,-10,25,5,0.2,Sword,C,C,C,C,2,null,null,C,D,null
