@@ -13,6 +13,7 @@ import Importer.LevelBuilder;
 import Menus.Gamepad;
 import Menus.Main;
 import Util.DebugEnum;
+import Util.Print;
 import Util.Reactor;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -92,19 +93,19 @@ public class Gameplay implements Reactor
                 {
                     if (ent instanceof Block)
                     {
-                        if (ent.getX() == entity.getX())
+                        if (ent.surroundsEitherX(entity))
                         {
-                            if (ent.getTopEdge() == entity.getBottomEdge())
-                                entity.setCoveredDirs(Entity.DOWN);
-                            else if (ent.getBottomEdge() == entity.getTopEdge())
-                                entity.setCoveredDirs(Entity.UP);
+                            if (ent.getY() > entity.getY() && ent.getTopEdge() <= entity.getBottomEdge() + 0.001)
+                                entity.addCoveredDirs(Entity.DOWN);
+                            if (ent.getY() < entity.getY() && ent.getBottomEdge() >= entity.getTopEdge() - 0.001)
+                                entity.addCoveredDirs(Entity.UP);
                         }
-                        else if (ent.getY() == entity.getY())
+                        if (ent.surroundsEitherY(entity))
                         {
-                            if (ent.getLeftEdge() == entity.getRightEdge())
-                                entity.setCoveredDirs(Entity.RIGHT);
-                            else if (ent.getRightEdge() == entity.getLeftEdge())
-                                entity.setCoveredDirs(Entity.LEFT);
+                            if (ent.getX() > entity.getX() && ent.getLeftEdge() <= entity.getRightEdge() + 0.001)
+                                entity.addCoveredDirs(Entity.RIGHT);
+                            if (ent.getX() < entity.getX() && ent.getRightEdge() >= entity.getLeftEdge() - 0.001)
+                                entity.addCoveredDirs(Entity.LEFT);
                         }
                     }
                 }

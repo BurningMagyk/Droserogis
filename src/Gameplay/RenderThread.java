@@ -11,6 +11,8 @@ import Gameplay.Entities.BlockType;
 import Gameplay.Entities.Entity;
 import Gameplay.Entities.EntityCollection;
 import Gameplay.Entities.Weapons.Weapon;
+import Menus.Main;
+import Util.DebugEnum;
 import Util.Vec2;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -291,10 +293,10 @@ public class RenderThread
                             Block block = (Block) entity;
                             if (block.isLiquid()) continue;
                             BlockType type = block.getBlockType();
-                            if (type.name.equals("RECTANGLE"))
+                            if (type.name.equals("RECTANGLE"))// || Main.debugEnum == DebugEnum.GAMEPLAY)
                             {
-                                //gfx.setFill(entity.getColor());
                                 gfx.setFill(NEARBLACK);
+                                //if (Main.debugEnum == DebugEnum.GAMEPLAY) gfx.setFill(entity.getColor());
                                 gfx.fillRect(x, y, width, height);
                             }
                             else

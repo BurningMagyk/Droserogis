@@ -391,6 +391,16 @@ abstract public class Entity
 
     float boundsDiv = 1.999F;
 
+    public boolean surroundsEitherX(Entity other)
+    {
+        return surroundsX(other) || other.surroundsX(this);
+    }
+
+    public boolean surroundsEitherY(Entity other)
+    {
+        return surroundsY(other) || other.surroundsY(this);
+    }
+
     boolean withinBoundsX(Entity other)
     {
         return other.getX() - other.width / 2 <= pos.x + width / boundsDiv
@@ -444,12 +454,12 @@ abstract public class Entity
         return -1;
     }
 
-    public void setCoveredDirs(int ...dirs)
+    public void addCoveredDirs(int ...dirs)
     {
-        for (int i = 0; i < coveredDirs.length; i++)
-        {
-            coveredDirs[i] = false;
-        }
+//        for (int i = 0; i < coveredDirs.length; i++)
+//        {
+//            coveredDirs[i] = false;
+//        }
         for (int dir : dirs)
         {
             coveredDirs[dir] = true;
@@ -466,6 +476,7 @@ abstract public class Entity
                     && other.getY() > getBottomEdge()
                     && goal.y - other.getHeight() / boundsDiv < getBottomEdge())
             {
+                if (coveredDirs[DOWN]) return null;
                 directions[0] = UP;
                 return directions;
             }
@@ -476,6 +487,7 @@ abstract public class Entity
                     && other.getY() < getTopEdge()
                     && goal.y + other.getHeight() / boundsDiv > getTopEdge())
             {
+                if (coveredDirs[UP]) return null;
                 directions[0] = DOWN;
                 return directions;
             }
@@ -538,7 +550,7 @@ abstract public class Entity
                     && other.getX() < getLeftEdge()
                     && goal.x + other.getWidth() / boundsDiv > getLeftEdge())
             {
-                if (coveredDirs[LEFT]) { Print.blue("test"); return null; }
+                if (coveredDirs[LEFT]) return null;
                 directions[0] = RIGHT;
                 return directions;
             }

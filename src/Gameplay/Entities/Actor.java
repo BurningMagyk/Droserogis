@@ -179,7 +179,11 @@ public class Actor extends Item
     @Override
     public Color getColor()
     {
-        return state.getColor();
+        if (touchEntity[LEFT] != null) return Color.GREEN;
+        return Color.GREY;
+
+        //return state.getColor();
+
         /*if (has(Condition.NEGATE_ACTIVITY)) return Color.RED;
         if (has(Condition.NEGATE_STABILITY)) return Color.ORANGE;
         if (!canWalk()) return Color.GOLD;
