@@ -96,16 +96,16 @@ public class Gameplay implements Reactor
                         if (ent.surroundsEitherX(entity))
                         {
                             if (ent.getY() > entity.getY() && ent.getTopEdge() <= entity.getBottomEdge() + 0.001)
-                                entity.addCoveredDirs(Entity.DOWN);
+                                entity.setTouchBlock(Entity.DOWN, (Block) ent);
                             if (ent.getY() < entity.getY() && ent.getBottomEdge() >= entity.getTopEdge() - 0.001)
-                                entity.addCoveredDirs(Entity.UP);
+                                entity.setTouchBlock(Entity.UP, (Block) ent);
                         }
                         if (ent.surroundsEitherY(entity))
                         {
                             if (ent.getX() > entity.getX() && ent.getLeftEdge() <= entity.getRightEdge() + 0.001)
-                                entity.addCoveredDirs(Entity.RIGHT);
+                                entity.setTouchBlock(Entity.RIGHT, (Block) ent);
                             if (ent.getX() < entity.getX() && ent.getRightEdge() >= entity.getLeftEdge() - 0.001)
-                                entity.addCoveredDirs(Entity.LEFT);
+                                entity.setTouchBlock(Entity.LEFT, (Block) ent);
                         }
                     }
                 }

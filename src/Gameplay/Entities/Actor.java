@@ -494,18 +494,23 @@ public class Actor extends Item
                 if (touchEntity[dirHoriz] != null) _dirHoriz = dirHoriz;
                 else if (touchEntity[LEFT] != null && touchEntity[LEFT] instanceof Block) _dirHoriz = LEFT;
                 else if (touchEntity[RIGHT] != null && touchEntity[RIGHT] instanceof Block) _dirHoriz = RIGHT;
-                if (_dirHoriz != -1
-                        && getPosition().y - (getHeight() / 2)
-                        < touchEntity[_dirHoriz].getPosition().y - (touchEntity[_dirHoriz].getHeight() / 2)
-                        && Math.abs(velY) < walkSpeed
-                        && velY >= 0)
+
+                if (_dirHoriz != -1)
                 {
-                    addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
-                    float xPos = touchEntity[_dirHoriz].getPosition().x
-                            + ((touchEntity[_dirHoriz].getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
-                    float yPos = touchEntity[_dirHoriz].getPosition().y
-                            - (touchEntity[_dirHoriz].getHeight() / 2) - (getHeight() / 2);
-                    setPosition(new Vec2(xPos, yPos));
+                    Block ledgeBlock = touchEntity[_dirHoriz].getTouchBlock(UP);
+
+                    if (getPosition().y - (getHeight() / 2)
+                            < ledgeBlock.getPosition().y - (ledgeBlock.getHeight() / 2)
+                            && Math.abs(velY) < walkSpeed
+                            && velY >= 0)
+                    {
+                        addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
+                        float xPos = ledgeBlock.getPosition().x
+                                + ((ledgeBlock.getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
+                        float yPos = ledgeBlock.getPosition().y
+                                - (ledgeBlock.getHeight() / 2) - (getHeight() / 2);
+                        setPosition(new Vec2(xPos, yPos));
+                    }
                 }
             }
         }

@@ -84,7 +84,7 @@ abstract public class Entity
     private double sinTheta, cosTheta;
     private Vec2 normal = null;
     private Vec2[] vertexList;
-    boolean[] coveredDirs = { false, false, false, false };
+    Block[] touchBlock = { null, null, null, null };
 
     private final ShapeEnum shape;
     private Color color = Color.BLACK;
@@ -204,7 +204,7 @@ abstract public class Entity
 
     void setWidth(float width)
     {
-        this.setPositionX(getPosition().x + ((this.width - width) / 2));
+        //this.setPositionX(getPosition().x + ((this.width - width) / 2));
         this.width = width;
     }
     void setHeight(float height)
@@ -454,16 +454,26 @@ abstract public class Entity
         return -1;
     }
 
-    public void addCoveredDirs(int ...dirs)
+    public Block getTouchBlock(int dir)
     {
-//        for (int i = 0; i < coveredDirs.length; i++)
+        if (touchBlock[dir] == null) return (Block) this;
+        return touchBlock[dir].getTouchBlock(dir);
+    }
+
+//    public void addCoveredDirs(int ...dirs)
+//    {
+////        for (int i = 0; i < coveredDirs.length; i++)
+////        {
+////            coveredDirs[i] = false;
+////        }
+//        for (int dir : dirs)
 //        {
-//            coveredDirs[i] = false;
+//            coveredDirs[dir] = true;
 //        }
-        for (int dir : dirs)
-        {
-            coveredDirs[dir] = true;
-        }
+//    }
+    public void setTouchBlock(int dir, Block block)
+    {
+        touchBlock[dir] = block;
     }
 
     private int[] getTouchEdgeX(Item other, Vec2 goal, boolean[] shapeDirs, int[] directions)
@@ -476,7 +486,7 @@ abstract public class Entity
                     && other.getY() > getBottomEdge()
                     && goal.y - other.getHeight() / boundsDiv < getBottomEdge())
             {
-                if (coveredDirs[DOWN]) return null;
+                if (touchBlock[DOWN] != null) return null;
                 directions[0] = UP;
                 return directions;
             }
@@ -487,7 +497,7 @@ abstract public class Entity
                     && other.getY() < getTopEdge()
                     && goal.y + other.getHeight() / boundsDiv > getTopEdge())
             {
-                if (coveredDirs[UP]) return null;
+                if (touchBlock[UP] != null) return null;
                 directions[0] = DOWN;
                 return directions;
             }
@@ -550,7 +560,7 @@ abstract public class Entity
                     && other.getX() < getLeftEdge()
                     && goal.x + other.getWidth() / boundsDiv > getLeftEdge())
             {
-                if (coveredDirs[LEFT]) return null;
+                if (touchBlock[LEFT] != null) return null;
                 directions[0] = RIGHT;
                 return directions;
             }
@@ -561,7 +571,7 @@ abstract public class Entity
                     && other.getX() > getRightEdge()
                     && goal.x - other.getWidth() / boundsDiv < getRightEdge())
             {
-                if (coveredDirs[RIGHT]) return null;
+                if (touchBlock[RIGHT] != null) return null;
                 directions[0] = LEFT;
                 return directions;
             }

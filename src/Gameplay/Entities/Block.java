@@ -47,7 +47,7 @@ public class Block extends Entity
     @Override
     public Color getColor()
     {
-        return coveredDirs[RIGHT] ? Color.ORANGE : Color.YELLOW;
+        return touchBlock[RIGHT] != null ? Color.ORANGE : Color.YELLOW;
 
         //return getTriggered() ? Color.ORANGE : Color.YELLOW;
     }
