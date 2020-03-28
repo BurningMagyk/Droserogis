@@ -70,7 +70,6 @@ public class LevelBuilder  extends Application
     private float snapGridSize;
 
     private ContextMenu menuEntity, menuMaterial;
-    private RadioMenuItem menuItemStone, menuItemWater;
     private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
 
     private Timeline timeline;
@@ -136,22 +135,10 @@ public class LevelBuilder  extends Application
         menuItemDeleteCameraZone = new MenuItem("Delete");
         menuItemDeleteCameraZone.setOnAction(this::menuEvent);
 
-
-        menuItemStone = new RadioMenuItem("Stone");
-        menuItemWater = new RadioMenuItem("Water");
-
-        menuMaterial.getItems().add(menuItemStone);
-        menuMaterial.getItems().add(menuItemWater);
         menuMaterial.getItems().add(new SeparatorMenuItem());
         menuItemDeleteEntity = new MenuItem("Delete");
         menuMaterial.getItems().add(menuItemDeleteEntity);
-        menuItemStone.setOnAction(this::menuEvent);
-        menuItemWater.setOnAction(this::menuEvent);
         menuItemDeleteEntity.setOnAction(this::menuEvent);
-
-        ToggleGroup toggleGroupMaterial = new ToggleGroup();
-        menuItemStone.setToggleGroup(toggleGroupMaterial);
-        menuItemWater.setToggleGroup(toggleGroupMaterial);
 
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom, levelEditorScale);
@@ -502,11 +489,7 @@ public class LevelBuilder  extends Application
                 menuEntity.hide();
                 if (selectedEntity instanceof Block)
                 {
-                    //Show Menu to modify selected block
-                    if (((Block) selectedEntity).isLiquid()) menuItemWater.setSelected(true);
-                    else menuItemStone.setSelected(true);
                     menuMaterial.show(canvas, event.getScreenX(), event.getScreenY());
-
                 }
             }
         }
@@ -537,24 +520,6 @@ public class LevelBuilder  extends Application
         MenuItem item = (MenuItem) e.getSource();
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
-
-        if (item == menuItemStone)
-        {
-            if ((selectedEntity != null) && (selectedEntity instanceof Block))
-            {
-                ((Block) selectedEntity).setLiquid(false);
-                unselect();
-            }
-        }
-
-        else if (item == menuItemWater)
-        {
-            if ((selectedEntity != null) && (selectedEntity instanceof Block))
-            {
-                ((Block) selectedEntity).setLiquid(true);
-                unselect();
-            }
-        }
 
         else if ((item == menuItemDeleteEntity) || (item == menuItemDeleteCameraZone))
         {
@@ -656,7 +621,7 @@ public class LevelBuilder  extends Application
 
         try
         {
-            writer.write("Type,CenterX,CenterY,Width / Type / Parent,Height,Liquid / Zoom\n");
+            writer.write("Type,CenterX,CenterY,Width / Type / Parent,Height\n");
             for (Entity entity : entityList)
             {
                 if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
@@ -690,12 +655,7 @@ public class LevelBuilder  extends Application
                     Block block = (Block)entity;
                     Print.green("save: " +block.getBlockType().name);
                     type = block.getBlockType().name;
-                    stats += "," + w + "," + h + ","+((Block)entity).isLiquid();
-                }
-                else if (entity instanceof CameraZone)
-                {
-                    type =  "CameraZone";
-                    stats += "," + w + "," + h + ","+((CameraZone)entity).getZoom();
+                    stats += "," + w + "," + h;
                 }
                 else if (entity instanceof Actor)
                 {
@@ -791,19 +751,7 @@ public class LevelBuilder  extends Application
                 float x = (Float.valueOf(data[1]))*Entity.SPRITE_TO_WORLD_SCALE;
                 float y = (Float.valueOf(data[2]))*Entity.SPRITE_TO_WORLD_SCALE;
 
-                if (data[0].equals("CameraZone"))
-                {
-                    if (data.length != 6)
-                    {
-                        System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("CameraZone record must have 6 fields.");
-                    }
-                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float zoom = Float.valueOf(data[5]);
-                    entity = new CameraZone(x, y, width, height, zoom);
-                }
-                else if (data[0].equals("Player"))
+                if (data[0].equals("Player"))
                 {
                     if (data.length != 4)
                     {
@@ -847,12 +795,11 @@ public class LevelBuilder  extends Application
                 }
                 */
                 else {
-                    if (data.length != 6)
+                    if (data.length != 5)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Block record must have 6 fields.");
+                        throw new IOException("Block record must have 5 fields.");
                     }
-                    boolean isLiquid = Boolean.valueOf(data[5]);
 
                     BlockType blockType = null;
                     for (BlockType type : BlockType.blockTypeList)
@@ -864,15 +811,15 @@ public class LevelBuilder  extends Application
                         }
                     }
 
-                    if (blockType == null)
+                    if (blockType == null) //one of the 4 TRIANGLE types
                     {
                         Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                        blockType = new BlockType(shape);
+                        blockType = new BlockType(shape, false);
                     }
+                    Print.blue("LoadLevel: blockType="+blockType);
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, blockType, 1.0F, null);
-                    ((Block)entity).setLiquid(isLiquid);
                 }
 
                 entityList.add(entity);

@@ -16,7 +16,6 @@ public class Block extends Entity
 {
     private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
-    private boolean isLiquid = false;
     private BlockType type;
 
     public Block(float xPos, float yPos, float width, float height,
@@ -37,9 +36,7 @@ public class Block extends Entity
         //Print.purple("new Block: pos=("+xPos + ", " + yPos +")   size=("+width+", "+height+")  "+ type);
     }
 
-    public void setLiquid(boolean liquid) { isLiquid = liquid; }
-
-    public boolean isLiquid() { return isLiquid; }
+    public boolean isLiquid() { return type.isWater; }
 
     public float getHazardRating() { return hazardRating; }
     public Infliction.InflictionType[] getInfMaterials() { return infMaterials; }
