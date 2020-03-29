@@ -222,11 +222,7 @@ abstract public class Entity
         velocity.x = v.x;
         velocity.y = v.y;
     }
-    public void setPosition(Vec2 p)
-    {
-        pos.x = p.x;
-        pos.y = p.y;
-    }
+    public void setPosition(Vec2 p) { setPosition(p.x, p.y); }
     public void setPositionX(float x) { pos.x = x; }
     public void setPositionY(float y) { pos.y = y; }
 

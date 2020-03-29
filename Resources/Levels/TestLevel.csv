@@ -249,5 +249,6 @@ RECTANGLE,-1050,91,45,53
 RECTANGLE,-868,87,325,18
 RECTANGLE,-932,72,60,22
 RECTANGLE,-888,76,30,15
-Player,-250,-150,Igon,
-Player,-300,-250,Zuzen,
+Player,-250,-150,Igon
+Player,-300,-250,Zuzen
+Weapon,-208,-128,25,5,0.2,Sword,C,C,C,C,1,null,null,C,D,null

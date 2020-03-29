@@ -70,7 +70,8 @@ public class LevelBuilder  extends Application
     private float snapGridSize;
 
     private ContextMenu menuEntity, menuMaterial;
-    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone;
+    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone,
+        menuItemSword;
 
     private Timeline timeline;
 
@@ -122,8 +123,12 @@ public class LevelBuilder  extends Application
         menuEntity = new ContextMenu();
         menuMaterial = new ContextMenu();
 
+        /* Add weapon types */
+        menuItemSword = new MenuItem("SWORD");
+        menuEntity.getItems().add(menuItemSword);
+        menuItemSword.setOnAction(this::menuEvent);
 
-
+        /* Add block types */
         for (BlockType blockType : BlockType.blockTypeList)
         {
             MenuItem item = new MenuItem(blockType.toString());
@@ -273,6 +278,7 @@ public class LevelBuilder  extends Application
         if (key.getCode() == KeyCode.ESCAPE) System.exit(0);
         if (key.getCode() == KeyCode.L) loadFile();
         if (key.getCode() == KeyCode.S) saveFile();
+        if (key.getCode() == KeyCode.ENTER) Print.blue(selectedEntity);
     }
 
     //=================================================================================================================
@@ -512,7 +518,6 @@ public class LevelBuilder  extends Application
 
     private void menuEvent(ActionEvent e)
     {
-
         //float x = Math.round(((mouseDownX / cameraZoom) - cameraOffsetX) / 10) * 10;
         //float y = Math.round(((mouseDownY / cameraZoom) - cameraOffsetY) / 10) * 10;
         float x = mouseDownX/cameraZoom + cameraPosX - cameraOffsetX;
@@ -526,14 +531,12 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null) entityList.remove(selectedEntity);
             unselect();
         }
-
-
         else //check if selected menu item is add entity or modify camera zone
         {
             boolean addedEntity = false;
             for (BlockType blockType : BlockType.blockTypeList)
             {
-                if (blockType.toString().equals("RECTANGLE"))
+                if (text.equals("RECTANGLE"))
                 {
                     float width = 100/cameraZoom;
                     float height = 100/cameraZoom;
@@ -574,6 +577,18 @@ public class LevelBuilder  extends Application
                         addedEntity = true;
                         break;
                     }
+                }
+            }
+            if (!addedEntity)
+            {
+                if (text.equals("SWORD"))
+                {
+                    WeaponStat weaponStat = new WeaponStat(
+                            "C", "C", "C", "C", 1, null, null, "C", "D");
+                    Weapon sword = new Weapon(x, y, 0.5F, 0.1F, 0.2F,
+                            WeaponType.SWORD, weaponStat, null);
+                    entityList.add(sword);
+                    addedEntity = true;
                 }
             }
             if ((!addedEntity) && selectedEntity instanceof CameraZone)
@@ -626,11 +641,6 @@ public class LevelBuilder  extends Application
             {
                 if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
 
-                // This is needed to prevent the natural weapons from being saved as separate weapon records
-                // If we ever get the game to a point where there are weapons created and stored in the level builder
-                // Then this will need to be modified.
-                if (entity instanceof Weapon) continue;
-
                 int x = Math.round(entity.getX()/Entity.SPRITE_TO_WORLD_SCALE);
                 int y = Math.round(entity.getY()/Entity.SPRITE_TO_WORLD_SCALE);
                 int w = Math.round(entity.getWidth()/Entity.SPRITE_TO_WORLD_SCALE);
@@ -640,7 +650,7 @@ public class LevelBuilder  extends Application
 
                 if (entity instanceof Weapon)
                 {
-                    if (!((Weapon) entity).getName().equals("Natural"))
+                    if (((Weapon) entity).isIdle())
                     {
                         Weapon weapon = (Weapon) entity;
                         Print.green("save: " + weapon.getName());
@@ -777,24 +787,8 @@ public class LevelBuilder  extends Application
                             Integer.valueOf(data[11]), null, null, data[14], data[15], null);
                     entity = new Weapon(x, y, width, height, mass, type, stat, null);
                 }
-                /* TODO: someday, when weapons are added, the format will need to be figured out.
-                else if (data[0].equals("WeaponAttacks"))
+                else
                 {
-                    if (data.length != 4)
-                    {
-                        System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Weapon record must have 4 fields.");
-                    }
-                    int parent = Integer.valueOf(data[3]);
-                    WeaponStat temp = new WeaponStat("F", "F", "F", "F", 1, null, null, "F", "D");
-                    entity = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, temp, null);
-                    if (parent >= 0)
-                    {
-                        entityList.getPlayer(parent).equip((Weapon)entity);
-                    }
-                }
-                */
-                else {
                     if (data.length != 5)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");

@@ -135,6 +135,13 @@ public class Weapon extends Item
         updateCornersOffset(dims, dir);
     }
 
+    @Override
+    public void setPosition(float x, float y)
+    {
+        super.setPosition(x, y);
+        updateCornersOffset();
+    }
+
 
     /*=======================================================================*/
     /*                               Clashing                                */
