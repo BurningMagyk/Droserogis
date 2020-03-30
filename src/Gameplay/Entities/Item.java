@@ -25,7 +25,7 @@ public abstract class Item extends Entity
 
 //    float gravity = 17.0F;
     //float gravity = 0.25F;
-    float gravity = 0.5F;
+    float gravity = 0.1F;
 
 //    float airDrag = 1F;
     float airDrag = 0.25F;
@@ -199,10 +199,14 @@ public abstract class Item extends Entity
         if (touchEntity[DOWN] != null && !touchEntity[DOWN].getShape().getDirs()[UP])
             fromSlope = touchEntity[DOWN].applySlopeX(getVelocityX()).y;
 
-        /* Used for the yPos correction when bumping down slopes */
-        Entity prevTouchEntityDown = touchEntity[DOWN];
-
         inWater = false; submerged = false;
+
+        /* Used for the yPos correction when bumping down slopes */
+        Entity prevTouchEntity[] = new Entity[4];
+        prevTouchEntity[UP] = touchEntity[UP];
+        prevTouchEntity[DOWN] = touchEntity[DOWN];
+        prevTouchEntity[LEFT] = touchEntity[LEFT];
+        prevTouchEntity[RIGHT] = touchEntity[RIGHT];
 
         touchEntity[UP] = null;
         touchEntity[DOWN] = null;
@@ -232,11 +236,17 @@ public abstract class Item extends Entity
                 /* Fell off upward slope is is bumping down upward slope */
                 if (fromSlope > 0 && getVelocityY() > 0)
                 {
-                    /* Bumping down upward slope, snap yPos to top edge off slope. */
+                    /* Bumping down upward slope, snap yPos to top edge of slope. */
                     if (getVelocityY() >= 0
-                            && getX() >= prevTouchEntityDown.getLeftEdge()
-                            && getX() <= prevTouchEntityDown.getRightEdge())
-                        goal.y = entity.getTopEdge(goal.x) - getHeight() / 2;
+                            && prevTouchEntity[DOWN] != null
+                            && prevTouchEntity[DOWN] == entity
+                            && getX() >= prevTouchEntity[DOWN].getLeftEdge()
+                            && getX() <= prevTouchEntity[DOWN].getRightEdge())
+                    {
+                        goal.y = entity.getTopEdge(goal.x) - getHeight() / 2 + 0.01F;
+                        touchEntity[DOWN] = entity;
+                        isGrounded = true;
+                    }
                     else
                     {
                         /* Fell off an upward slope and not jumping, correct y-velocity.
@@ -268,30 +278,32 @@ public abstract class Item extends Entity
             Block block = (Block) entity;
 
             /* Replace touchEntity[x] only if entity here is closer */
-            if (touchEntity[edge[0]] != null)
-            {
-                if (edge[0] == UP)
-                {
-                    if (block.getBottomEdge() > touchEntity[edge[0]].getBottomEdge())
-                        touchEntity[edge[0]] = entity;
-                }
-                else if (edge[0] == DOWN)
-                {
-                    if (block.getTopEdge() < touchEntity[edge[0]].getTopEdge())
-                        touchEntity[edge[0]] = entity;
-                }
-                else if (edge[0] == LEFT)
-                {
-                    if (block.getLeftEdge() > touchEntity[edge[0]].getLeftEdge())
-                        touchEntity[edge[0]] = entity;
-                }
-                else if (edge[0] == RIGHT)
-                {
-                    if (block.getRightEdge() < touchEntity[edge[0]].getRightEdge())
-                        touchEntity[edge[0]] = entity;
-                }
-            }
-            else touchEntity[edge[0]] = entity;
+//            if (prevTouchEntity[edge[0]] != null)
+//            {
+//                if (edge[0] == UP)
+//                {
+//                    if (block.getBottomEdge() > prevTouchEntity[edge[0]].getBottomEdge())
+//                        touchEntity[edge[0]] = entity;
+//                }
+//                else if (edge[0] == DOWN)
+//                {
+//                    if (block.getTopEdge() < prevTouchEntity[edge[0]].getTopEdge())
+//                        touchEntity[edge[0]] = entity;
+//                }
+//                else if (edge[0] == LEFT)
+//                {
+//                    if (block.getLeftEdge() > prevTouchEntity[edge[0]].getLeftEdge())
+//                        touchEntity[edge[0]] = entity;
+//                }
+//                else if (edge[0] == RIGHT)
+//                {
+//                    if (block.getRightEdge() < prevTouchEntity[edge[0]].getRightEdge())
+//                        touchEntity[edge[0]] = entity;
+//                }
+//            }
+//            else touchEntity[edge[0]] = entity;
+
+            touchEntity[edge[0]] = entity;
 
             if (edge[0] == UP)
             {
