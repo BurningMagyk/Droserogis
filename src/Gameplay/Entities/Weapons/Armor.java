@@ -31,6 +31,12 @@ public class Armor extends Item
         return this;
     }
 
+    public void unequip()
+    {
+        this.actor = null;
+        idle = true;
+    }
+
     public void updatePosition(Vec2 p, Vec2 v)
     {
         setPosition(p);
@@ -83,6 +89,12 @@ public class Armor extends Item
     {
         if (infliction != null) inflictions.add(infliction);
         Print.yellow("Armor: " + infliction + " added");
+    }
+
+    @Override
+    protected void destroy()
+    {
+        // TODO: unequip armor and drop
     }
 
     public boolean isIdle() { return idle; }

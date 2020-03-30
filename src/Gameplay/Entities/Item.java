@@ -389,6 +389,14 @@ public abstract class Item extends Entity
         return false;
     }
 
+    void damage(GradeEnum grade, float percent)
+    {
+        // TODO: should use something other than .ordinal()
+        if (hitPoints > 0) hitPoints -= grade.ordinal() * percent;
+        if (hitPoints <= 0) destroy();
+        else Print.blue("hitpoints left: " + hitPoints);
+    }
+
     /* Only called for damage caused by colliding with Blocks */
     void damage(float amount, Infliction.InflictionType... infType)
     {
@@ -404,6 +412,8 @@ public abstract class Item extends Entity
     protected ArrayList<Infliction> inflictions = new ArrayList<>();
 
     public abstract void inflict(Infliction infliction);
+
+    protected abstract void destroy();
 
     /* This is the speed the player gets automatically when running or
      * crawling. Also used for the threshold when neutralizing velocity.

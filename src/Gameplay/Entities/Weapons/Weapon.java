@@ -77,6 +77,14 @@ public class Weapon extends Item
 
         return this;
     }
+    public void unequip()
+    {
+        this.actor = null;
+        ballistic = false;
+        idle = true;
+
+        updateCorners();
+    }
 
 
     /*=======================================================================*/
@@ -404,9 +412,16 @@ public class Weapon extends Item
     {
         GradeEnum damage = inf.getDamage();
         if (damage != null)
-            Print.yellow("Damage: " + damage);
+        {
+            //Print.yellow("Damage: " + damage);
+        }
     }
 
+    @Override
+    protected void destroy()
+    {
+        // TODO: unequip weapon and drop
+    }
 
     /*=======================================================================*/
     /*                                Loops                                  */

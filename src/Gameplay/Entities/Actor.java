@@ -1177,7 +1177,7 @@ public class Actor extends Item
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
-            Print.blue(this.state + " -> " + state);
+            //Print.blue(this.state + " -> " + state);
             this.state = state;
             return true;
         }
@@ -1192,7 +1192,7 @@ public class Actor extends Item
         else if (state == State.SWIM) interruptRushes(RushOperation.RushFinish.HIT_WATER);
         if (state.isLow()) interruptRushes(RushOperation.RushFinish.MAKE_LOW);
 
-        Print.blue(this.state + " -> " + state);
+        //Print.blue(this.state + " -> " + state);
 
         this.state = state;
         return false;
@@ -1215,6 +1215,23 @@ public class Actor extends Item
             return true;
         }
         return false;
+    }
+    public void unequip(Item item)
+    {
+        if (item instanceof Weapon)
+        {
+            for (Weapon weapon : weapons)
+            {
+                if (weapon == item) weapon.unequip();
+            }
+        }
+        else if (item instanceof Armor)
+        {
+            for (Armor armor : armors)
+            {
+                if (armor == item) armor.unequip();
+            }
+        }
     }
 
     //===============================================================================================================
@@ -1406,7 +1423,8 @@ public class Actor extends Item
         NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
         NEGATE_STABILITY, NEGATE_ACTIVITY,
         DASH,
-        FORCE_STAND, FORCE_CROUCH
+        FORCE_STAND, FORCE_CROUCH,
+        DEAD
     }
     private void addConditionApp(Infliction inf)
     {
@@ -1482,7 +1500,12 @@ public class Actor extends Item
             }
         }
 
+        /* Being dead doesn't go away */
+        boolean isDead = conditionsB[Condition.DEAD.ordinal()];
+
         Arrays.fill(conditionsB, false);
+
+        conditionsB[Condition.DEAD.ordinal()] = isDead;
 
         if (wasTumbling)
         {
@@ -1643,7 +1666,15 @@ public class Actor extends Item
             }
             if (landedTooHard) staggerLanding(newDamageGrade);
             //else stagger(newDamageGrade);
+
+            damage(newDamageGrade, 1);
         }
+    }
+
+    @Override
+    protected void destroy()
+    {
+        addCondition(Condition.DEAD);
     }
 
     public boolean isBlockingUp() { return pressingUp; }
