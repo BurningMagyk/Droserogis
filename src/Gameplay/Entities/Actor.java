@@ -8,6 +8,7 @@ package Gameplay.Entities;
 
 import Gameplay.DirEnum;
 import Gameplay.Entities.Characters.CharacterStat;
+import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Weapons.*;
 import Gameplay.Entities.Weapons.ConditionApp;
 import Gameplay.Entities.Weapons.Infliction;
@@ -32,72 +33,6 @@ import java.util.Arrays;
  */
 public class Actor extends Item
 {
-    public enum EnumType
-    {
-        Igon
-                {
-                    public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
-                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
-                    public float mass() {return 1;}
-                    public String[] spritePaths() {return new String[]{"super_neckbeard.png"};}
-                    public CharacterStat createPlayerStat()
-                    {
-                        return new CharacterStat(
-                                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-                    }
-                    public WeaponStat createNaturalWeaponStat()
-                    {
-                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
-                    }
-                    public float naturalWeaponMass() {return mass() * 0.1f;}
-                },
-        Lyra
-                {
-                    public float width()  {return 20 * SPRITE_TO_WORLD_SCALE;}
-                    public float height() {return 40 * SPRITE_TO_WORLD_SCALE;}
-                    public float mass() {return 1;}
-                    public String[] spritePaths() {return null;}
-                    public CharacterStat createPlayerStat()
-                    {
-                        return new CharacterStat(
-                                "D-", "D", "B-", "C", "D+", "E", "C-", "C+", "C+", "D", "A-");
-                    }
-                    public WeaponStat createNaturalWeaponStat()
-                    {
-                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
-                    }
-                    public float naturalWeaponMass() {return mass() * 0.1f;}
-                },
-        Zuzen
-                {
-                    public float width()  {return 18 * SPRITE_TO_WORLD_SCALE;}
-                    public float height() {return 35 * SPRITE_TO_WORLD_SCALE;}
-                    public float mass() {return 0.79f;}
-                    public String[] spritePaths() {return null;}
-                    public CharacterStat createPlayerStat()
-                    {
-                        return new CharacterStat(
-                                "C", "C", "C", "C", "C", "C", "C", "C", "C", "C", "C");
-                    }
-                    public WeaponStat createNaturalWeaponStat()
-                    {
-                        return new WeaponStat("C", "C", "C", "C", 1, null, null, "C", "D");
-                    }
-                    public float naturalWeaponMass() {return mass() * 0.1f;}
-                };
-
-
-        public abstract float width();
-        public abstract float height();
-        public abstract float mass();
-        public abstract String[] spritePaths();
-        public abstract CharacterStat createPlayerStat();
-        public abstract WeaponStat createNaturalWeaponStat();
-        public abstract float naturalWeaponMass();
-    }
-
-    private EnumType actorType;
-
     private final float
             NORMAL_GRAVITY = gravity,
             REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
@@ -106,6 +41,7 @@ public class Actor extends Item
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
+    private String name;
     private CharacterStat charStat;
 
     /* The horizontal direction that the player intends to move towards */
@@ -146,29 +82,29 @@ public class Actor extends Item
     private boolean[] conditionsB = new boolean[Condition.values().length];
 
 
-    public Actor(float xPos, float yPos, EnumType type)
+    public Actor(float xPos, float yPos, Character character)
     {
-        super(xPos, yPos, type.width(), type.height(), type.mass(),
-                type.createPlayerStat().hitPoints(), type.spritePaths());
+        super(xPos, yPos, character.getWidth(), character.getHeight(),
+                character.getMass(), character.getStat().hitPoints(), character.getSpritePaths());
 
-        ORIGINAL_WIDTH = type.width();
-        ORIGINAL_HEIGHT = type.height();
+        name = character.getName();
 
-        this.actorType = type;
-        this.charStat = type.createPlayerStat();
-        System.out.println("Actor("+type+")"+this.charStat);
+        ORIGINAL_WIDTH = character.getWidth();
+        ORIGINAL_HEIGHT = character.getHeight();
+
+        this.charStat = character.getStat();
+        System.out.println("Actor(" + character.getName() + ")" + this.charStat);
         setCharacterStats();
 
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                type.mass() * 0.1F, WeaponType.NATURAL, type.createNaturalWeaponStat(), null);
+                character.getMass() * 0.1F, WeaponType.NATURAL,
+                new WeaponStat("C", "C", "C", "C",
+                        1, null, null, "C", "D"),
+                null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
-
-//        weapons[WeaponSlot.PRIMARY.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-//                type.mass() * 0.1F, WeaponType.SWORD, null);
-//        weapons[WeaponSlot.PRIMARY.ordinal()].equip(this);
     }
 
-    public EnumType getActorType() { return actorType;}
+    public String getName() { return name; }
 
     // TODO: this only works for standing or crouching, needs to work with prone
     public Rect getTopRect() { return new Rect(getX(), getY(),
@@ -1934,7 +1870,7 @@ public class Actor extends Item
     {
         // applyPhysics(EntityCollection entities, float deltaSec)
         EntityCollection entityList = new EntityCollection();
-        Actor player = new Actor(0,0, Actor.EnumType.Lyra);
+        Actor player = new Actor(0,0, Character.get("Nathan"));
         player.setVelocity(10,10);
         player.setAcceleration(-1,1);
         player.setFriction(0);

@@ -2,6 +2,7 @@ package Importer;
 
 import Gameplay.*;
 import Gameplay.Entities.*;
+import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Weapons.Weapon;
 
 import Gameplay.Entities.Weapons.WeaponStat;
@@ -557,26 +558,36 @@ public class LevelBuilder  extends Application
             }
             if (!addedEntity)
             {
-                for (Actor.EnumType actorType : Actor.EnumType.values())
+//                for (Actor.EnumType actorType : Actor.EnumType.values())
+//                {
+//                    //System.out.println("    test=["+text +"]      actorType.name()=["+actorType.name()+"]");
+//                    if (text.equals(actorType.name()))
+//                    {
+//                        //System.out.println("    New Actor at: "+x +", "+y);
+//                        Actor actor = new Actor(x, y, actorType);
+//                        actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+//                        actor.setPosition(x, y);
+//
+//                        //Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
+//                        //sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+//                        //sword.setPosition(x, y);
+//                        //actor.equip(sword);
+//
+//                        entityList.add(actor);
+//                        //entityList.add(sword);
+//                        addedEntity = true;
+//                        break;
+//                    }
+//                }
+                Character character = Character.get(text);
+                if (character != Character.character_)
                 {
-                    //System.out.println("    test=["+text +"]      actorType.name()=["+actorType.name()+"]");
-                    if (text.equals(actorType.name()))
-                    {
-                        //System.out.println("    New Actor at: "+x +", "+y);
-                        Actor actor = new Actor(x, y, actorType);
-                        actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-                        actor.setPosition(x, y);
+                    Actor actor = new Actor(x, y, character);
+                    actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
+                    actor.setPosition(x, y);
 
-                        //Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
-                        //sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-                        //sword.setPosition(x, y);
-                        //actor.equip(sword);
-
-                        entityList.add(actor);
-                        //entityList.add(sword);
-                        addedEntity = true;
-                        break;
-                    }
+                    entityList.add(actor);
+                    addedEntity = true;
                 }
             }
             if (!addedEntity)
@@ -670,7 +681,7 @@ public class LevelBuilder  extends Application
                 else if (entity instanceof Actor)
                 {
                     type =  "Player";
-                    stats += ","+((Actor)entity).getActorType();
+                    stats += ","+((Actor)entity).getName();
                 }
                 else
                 {
@@ -758,8 +769,8 @@ public class LevelBuilder  extends Application
                 }
 
                 Entity entity = null;
-                float x = (Float.valueOf(data[1]))*Entity.SPRITE_TO_WORLD_SCALE;
-                float y = (Float.valueOf(data[2]))*Entity.SPRITE_TO_WORLD_SCALE;
+                float x = Float.parseFloat(data[1])*Entity.SPRITE_TO_WORLD_SCALE;
+                float y = Float.parseFloat(data[2])*Entity.SPRITE_TO_WORLD_SCALE;
 
                 if (data[0].equals("Player"))
                 {
@@ -768,8 +779,8 @@ public class LevelBuilder  extends Application
                         System.out.println("Error Reading Line: ["+line+"]");
                         throw new IOException("Player record must have 4 fields.");
                     }
-                    Actor.EnumType actorType = Actor.EnumType.valueOf(data[3]);
-                    entity = new Actor(x, y, actorType);
+
+                    entity = new Actor(x, y, Character.get(data[3]));
                 }
                 else if (data[0].equals("Weapon"))
                 {
@@ -778,13 +789,13 @@ public class LevelBuilder  extends Application
                         System.out.println("Error Reading Line: ["+line+"]");
                         throw new IOException("Weapon record must have 16 fields.");
                     }
-                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float mass = Float.valueOf(data[5]);
+                    float width = Float.parseFloat(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.parseFloat(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float mass = Float.parseFloat(data[5]);
                     WeaponType type = WeaponType.NATURAL;
                     if (data[6].equals("Sword")) type = WeaponType.SWORD;
                     WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],
-                            Integer.valueOf(data[11]), null, null, data[14], data[15], null);
+                            Integer.parseInt(data[11]), null, null, data[14], data[15], null);
                     entity = new Weapon(x, y, width, height, mass, type, stat, null);
                 }
                 else

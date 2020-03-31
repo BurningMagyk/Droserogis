@@ -8,31 +8,60 @@ package Gameplay.Entities.Characters;
 
 public class CharacterClass
 {
-    private static int uniqueID = 0;
-    private int myUID;
     private String name;
-    private int statEXPForLevel[];
+    private int[] statEXPForLevel;
 
     //TODO: Abilities for certain levels?
 
-    public CharacterClass(String n, int sEXP[])
+    public CharacterClass(String name, int... sEXP)
     {
-        name = n;
+        this.name = name;
         statEXPForLevel = sEXP;
-        myUID = uniqueID;
-        uniqueID++;
     }
 
-    public String getClassName() { return name; }
-    public int getUID() { return myUID; }
+    public String getName() { return name; }
 
-    public int[] adjustStatEXP(int cStatEXP[])
+    public int[] adjustStatEXP(int[] cStatEXP)
     {
-        int newStats[] = cStatEXP;
+        int[] newStats = new int[cStatEXP.length];
         for(int i = 0; i < cStatEXP.length; i++)
         {
-            newStats[i] += statEXPForLevel[i];
+            newStats[i] = cStatEXP[i] + statEXPForLevel[i];
         }
         return newStats;
     }
+
+
+    /*=======================================================================*/
+    /*                                Roster                                 */
+    /*=======================================================================*/
+
+    static CharacterClass class_Fighter = new CharacterClass("Fighter",
+            10,5,
+            35,30,
+            5,0,
+            0,10,
+            5,0,
+            0);
+    static CharacterClass class_Wizard = new CharacterClass("Wizard",
+            10,5,
+            35,30,
+            5,0,
+            0,10,
+            5,0,
+            0);
+    static CharacterClass class_Rogue = new CharacterClass("Rogue",
+            10,5,
+            35,30,
+            5,0,
+            0,10,
+            5,0,
+            0);
+    static CharacterClass class_Ranger = new CharacterClass("Ranger",
+            10,5,
+            35,30,
+            5,0,
+            0,10,
+            5,0,
+            0);
 }

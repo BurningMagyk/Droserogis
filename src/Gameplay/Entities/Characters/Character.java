@@ -8,130 +8,90 @@ package Gameplay.Entities.Characters;
 
 import Gameplay.Entities.Actor;
 import Util.GradeEnum;
+import Util.Print;
+import Util.Vec2;
 
 import java.util.Arrays;
 
+import static Gameplay.Entities.Entity.SPRITE_TO_WORLD_SCALE;
+
 public class Character
 {
-    private static int uniqueID = 0;
-    private int myUID;
-    private Actor actor;
-    private CharacterStat stats;
+    private CharacterStat stat;
     private String name;
-    private int level;
+    private int level = 0;
     private GradeEnum characterGrade;
+    private Vec2 dims;
+    private float mass;
+    private String[] spritePaths;
 
-    private int statEXP[];
-    private String baseStats[]; //In order listed in the CharacterStat class
-    private CharacterClass classes[];
+    private int[] statEXP;
+    private CharacterClass[] classes;
 
-    public Character(String n, Actor a, CharacterStat cs, String bStats[], CharacterClass starterClass)
+    public Character(String name, CharacterStat stat, CharacterClass starterClass,
+                     Vec2 dims, float mass, String[] spritePaths)
     {
-        actor = a;
-        stats = cs;
-        baseStats = bStats;
-        level = 0;
+        this.name = name;
+        this.stat = stat;
 
         statEXP = new int[11];
         classes = new CharacterClass[40];
 
-        name = n;
-        myUID = uniqueID;
-        uniqueID++;
-
-        stats.setGrades(bStats);
         levelUp(starterClass);
-        //updateAllActor();
+
+        this.dims = dims;
+        this.mass = mass;
+        this.spritePaths = spritePaths;
     }
 
     /*****************************************************************************/
     /****************************** Variable Access ******************************/
     /*****************************************************************************/
 
-    public int getUID() { return myUID; }
     public String getName() { return name;}
-    public Actor getActor() { return actor;}
-    public GradeEnum[] getStats() { return stats.getGrades(); }
+    public CharacterStat getStat() { return stat; }
 
     public void levelUp(CharacterClass newClass)
     {
-        if(level >= classes.length) return;
+        if (level >= classes.length) return;
         classes[level] = newClass;
         statEXP = newClass.adjustStatEXP(statEXP);
         level++;
 
-        if((level%4) == 0)
+        if ((level % 4) == 0)
         {
-            int indexArray[] = stats.increaseGrades(sortStats(),4); //Set the number of increases here
-            CharacterStat.Ability abilityArr[] = CharacterStat.Ability.values();
+            int[] indexArray = stat.increaseGrades(sortStats(),4); // Set the number of increases here
+            CharacterStat.Ability[] abilityArr = CharacterStat.Ability.values();
             for(int i = 0; i < indexArray.length; i++)
             {
                 statEXP[indexArray[i]] = 0;
-                System.out.println("Increased " + CharacterStat.getAbilityString(abilityArr[indexArray[i]]));
+                Print.blue("Increased " + CharacterStat.getAbilityString(abilityArr[indexArray[i]]));
             }
             updateCharacterGrade();
             //updateAllActor();
         }
     }
 
-    /*Need to be public variables or make setters
-    public void updateAllActor()
-    {
-        //actor.mass = stats.mass();
-        //actor.width = stats.width();
-        //actor.height =  stats.height();
-
-        //float airSpeed() { return agility(0.4F, dexterity(0.6,0)); } - For two? (40%/60% split)
-
-        actor.airSpeed = stats.airSpeed();
-        actor.swimSpeed = stats.swimSpeed();
-        actor.crawlSpeed = stats.crawlSpeed();
-        actor.walkSpeed = stats.walkSpeed();
-        actor.runSpeed = stats.runSpeed();
-        actor.lowerSprintSpeed = stats.lowerSprintSpeed();
-        actor.sprintSpeed = stats.sprintSpeed();
-        actor.rushSpeed = stats.rushSpeed();
-
-        actor.maxClimbSpeed = stats.maxClimbSpeed();
-        actor.maxStickSpeed = stats.maxStickSpeed();
-        actor.maxSlideSpeed = stats.maxSlideSpeed();
-        actor.maxLowerGroundSpeed = stats.maxLowerGroundSpeed();
-        actor.maxGroundSpeed = stats.maxGroundSpeed();
-        actor.maxTotalSpeed = stats.maxTotalSpeed();
-
-        actor.airAccel = stats.airAccel();
-        actor.swimAccel = stats.swimAccel();
-        actor.crawlAccel = stats.crawlAccel();
-        actor.climbAccel = stats.climbAccel();
-        actor.runAccel = stats.runAccel();
-
-        actor.jumpVel = stats.jumpVel();
-
-        actor.climbLedgeTime = stats.climbLedgeTime();
-        actor.dashRecoverTime = stats.dashRecoverTime();
-        actor.minTumbleTime = stats.minTumbleTime();
-
-        actor.proneRecoverTime = stats.proneRecoverTime();
-        actor.staggerAttackedTime = stats.staggerAttackedTime();
-        actor.staggerBlockedMod = stats.staggerBlockedMod();
-
-        // friction
-
-        actor.maxCommandChain = (int) stats.maxCommandChain();
-    }*/
-
     /*****************************************************************************/
     /******************************* Utility Stuff *******************************/
     /*****************************************************************************/
 
-    private void updateCharacterGrade() { characterGrade = GradeEnum.B; }
+    private void updateCharacterGrade()
+    {
+        float sum = 0;
+        for (GradeEnum grade : stat.getGrades())
+        {
+            sum += grade.ordinal();
+        }
+        characterGrade = GradeEnum.getGrade(sum / stat.getGrades().length);
+    }
 
-    //Returns an array of indices that sorts the stat increases for use
+    // Returns an array of indices that sorts the stat increases for use
     private int[] sortStats()
     {
-        int top[] = new int[statEXP.length];
-        int temp[] = new int[statEXP.length];
-        int holder[] = new int[temp.length];
+        int[] top = new int[statEXP.length];
+        int[] temp = new int[statEXP.length];
+        int[] holder = new int[temp.length];
 
         for(int i = 0; i < statEXP.length; i++) temp[i] = statEXP[i];
         Arrays.sort(temp);
@@ -158,9 +118,91 @@ public class Character
         return top;
     }
 
+    public float getWidth() { return dims.x; }
+    public float getHeight() { return dims.y; }
+    public float getMass() { return mass; }
+    public String[] getSpritePaths() { return spritePaths; }
+
+
+    /*****************************************************************************/
+    /*********************************** Roster **********************************/
+    /*****************************************************************************/
+
+    private static Character character_Nathan = new Character("Nathan",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Jacob = new Character("Jacob",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Tetsuya = new Character("Tetsuya",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Kevin = new Character("Kevin",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Orget = new Character("Orget",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Vritak = new Character("Vritak",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Let = new Character("Let",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    private static Character character_Lugu = new Character("Lugu",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    public static Character character_ = new Character("",
+            new CharacterStat("F", "F", "F", "F", "F", "F",
+                    "F", "F", "F", "F", "F"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+
+    public static Character get(String name)
+    {
+        if (name.equals("Nathan")) return character_Nathan;
+        if (name.equals("Jacob")) return character_Jacob;
+        if (name.equals("Tetsuya")) return character_Tetsuya;
+        if (name.equals("Kevin")) return character_Kevin;
+        if (name.equals("Orget")) return character_Orget;
+        if (name.equals("Vritak")) return character_Vritak;
+        if (name.equals("Let")) return character_Let;
+        if (name.equals("Lugu")) return character_Lugu;
+        return character_;
+    }
+
+
+    /*****************************************************************************/
+    /******************************** Test example *******************************/
+    /*****************************************************************************/
+
     public static void main(String[] args)
     {
-        String grades[] = {
+        String[] grades = {
                 "D-", "D",
                 "B-", "C",
                 "D+", "E",
@@ -168,28 +210,25 @@ public class Character
                 "C+", "D",
                 "A-"
         };
-        Actor lyraA = new Actor(0, 0, Actor.EnumType.Lyra);
+        Actor lyraA = new Actor(0, 0, character_Jacob);
         CharacterStat lyraStats = new CharacterStat(grades);
         //For this test, 100 increase points for the class total (basically for %)
         CharacterClass assassin = new CharacterClass("Assassin",
-                new int[] {
-                        10,5,
-                        35,30,
-                        5,0,
-                        0,10,
-                        5,0,
-                        0
-        });
+                10,5,
+                35,30,
+                5,0,
+                0,10,
+                5,0,
+                0);
         CharacterClass eMage = new CharacterClass("Erudian Mage",
-                new int[] {
-                        0,0,
-                        5,0,
-                        0,0,
-                        10,5,
-                        15,20,
-                        45
-                });
-        Character lyra = new Character("Lyra",lyraA,lyraStats,grades,assassin);
+                0,0,
+                5,0,
+                0,0,
+                10,5,
+                15,20,
+                45);
+        Character lyra = new Character("Lyra", lyraStats, assassin,
+                new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
 
         boolean print = false;
 
@@ -204,16 +243,16 @@ public class Character
             if((level%4) == 0) print = true;
 
             if(print) System.out.println(lyra.name + ", level " + lyra.level);
-            int exps[] = lyra.statEXP;
+            int[] exps = lyra.statEXP;
 
             for (int i = 0; i < lyra.classes.length; i++)
             {
                 if(lyra.classes[i] == null) break;
-                if(print) System.out.println("  " + (1+i) + ": " + lyra.classes[i].getClassName());
+                if(print) System.out.println("  " + (1+i) + ": " + lyra.classes[i].getName());
             }
 
             if(print) System.out.println("Stats:");
-            GradeEnum lgrades[] = lyra.stats.getGrades();
+            GradeEnum[] lgrades = lyra.stat.getGrades();
             for (int i = 0; i < lgrades.length; i++)
             {
                 if(lgrades[i] == null) break;
