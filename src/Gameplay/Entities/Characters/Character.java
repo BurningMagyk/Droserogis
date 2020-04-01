@@ -11,6 +11,7 @@ import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static Gameplay.Entities.Entity.SPRITE_TO_WORLD_SCALE;
@@ -23,13 +24,13 @@ public class Character
     private GradeEnum characterGrade;
     private Vec2 dims;
     private float mass;
-    private String[] spritePaths;
+    private ArrayList<String[]> spritePaths;
 
     private int[] statEXP;
     private CharacterClass[] classes;
 
     public Character(String name, CharacterStat stat, CharacterClass starterClass,
-                     Vec2 dims, float mass, String[] spritePaths)
+                     Vec2 dims, float mass, ArrayList<String[]> spritePaths)
     {
         this.name = name;
         this.stat = stat;
@@ -121,7 +122,7 @@ public class Character
     public float getWidth() { return dims.x; }
     public float getHeight() { return dims.y; }
     public float getMass() { return mass; }
-    public String[] getSpritePaths() { return spritePaths; }
+    public ArrayList<String[]> getSpritePaths() { return spritePaths; }
 
 
     /*****************************************************************************/

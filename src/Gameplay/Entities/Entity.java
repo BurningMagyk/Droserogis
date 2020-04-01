@@ -12,6 +12,8 @@ import Util.Print;
 import Util.Vec2;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+
 abstract public class Entity
 {
     public static final float SPRITE_TO_WORLD_SCALE = 1f/50f;
@@ -71,7 +73,7 @@ abstract public class Entity
                 {true, true, true, true};}
     }
 
-    private final ImageResource[] SPRITES;
+    private final ArrayList<ImageResource[]> SPRITES;
 
     //pos is the position of the entity.
     //  For a rectangle, pos is the intersection of the two diagonals.
@@ -93,22 +95,27 @@ abstract public class Entity
     //private float friction = 3F;
     private float friction = 0.5F;
 
-    public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, String[] spritePaths)
+    public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, ArrayList<String[]> spritePaths)
     {
         this.shape = shape;
         pos = new Vec2(xPos, yPos);
         if (shape != ShapeEnum.RECTANGLE) normal = new Vec2(0,0);
 
-        if (spritePaths == null || spritePaths.length == 0)
+        if (spritePaths == null || spritePaths.size() == 0)
         {
             SPRITES = null;
         }
         else
         {
-            SPRITES = new ImageResource[spritePaths.length];
-            for (int i = 0; i < spritePaths.length; i++)
+            SPRITES = new ArrayList<>();
+            for (int i = 0; i < spritePaths.size(); i++)
             {
-                SPRITES[i] = Main.IMPORTER.getImage(spritePaths[i]);
+                ImageResource[] temp = new ImageResource[spritePaths.get(i).length];
+                for (int j = 0; j < spritePaths.get(i).length; j++)
+                {
+                    temp[j] = Main.IMPORTER.getImage(spritePaths.get(i)[j]);
+                }
+                SPRITES.add(temp);
             }
         }
 
@@ -456,17 +463,6 @@ abstract public class Entity
         return touchBlock[dir].getTouchBlock(dir);
     }
 
-//    public void addCoveredDirs(int ...dirs)
-//    {
-////        for (int i = 0; i < coveredDirs.length; i++)
-////        {
-////            coveredDirs[i] = false;
-////        }
-//        for (int dir : dirs)
-//        {
-//            coveredDirs[dir] = true;
-//        }
-//    }
     public void setTouchBlock(int dir, Block block)
     {
         touchBlock[dir] = block;
@@ -694,6 +690,9 @@ abstract public class Entity
         return false;
     }
 
-    public int spriteIndex = 0;
-    public ImageResource getSprite() { return SPRITES == null ? null : SPRITES[spriteIndex]; }
+    private int spriteStateIndex = 0, spriteFrameIndex = 0;
+    public ImageResource getSprite()
+    {
+        return SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+    }
 }

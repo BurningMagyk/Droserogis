@@ -12,13 +12,15 @@ import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
+import java.util.ArrayList;
+
 public class Armor extends Item
 {
     private Actor actor = null;
     private boolean idle = true;
 
     protected Armor(float xPos, float yPos, float width, float height, float mass,
-                    ArmorStat armorStat, String[] spritePaths) {
+                    ArmorStat armorStat, ArrayList<String[]> spritePaths) {
         super(xPos, yPos, width, height, mass, armorStat.getDurability(), spritePaths);
     }
 

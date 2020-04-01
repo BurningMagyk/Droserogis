@@ -57,7 +57,7 @@ public class Actor extends Item
     private LateSurface[] touchLateSurface = new LateSurface[4];
 
     /* The only purpose of this class is for climbing stairs */
-    private class PrevGround
+    private static class PrevGround
     {
         Entity ground = null; float pos;
         float getTopEdge() { return ground.getTopEdge(pos); }

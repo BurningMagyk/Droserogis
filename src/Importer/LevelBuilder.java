@@ -558,27 +558,6 @@ public class LevelBuilder  extends Application
             }
             if (!addedEntity)
             {
-//                for (Actor.EnumType actorType : Actor.EnumType.values())
-//                {
-//                    //System.out.println("    test=["+text +"]      actorType.name()=["+actorType.name()+"]");
-//                    if (text.equals(actorType.name()))
-//                    {
-//                        //System.out.println("    New Actor at: "+x +", "+y);
-//                        Actor actor = new Actor(x, y, actorType);
-//                        actor.setSize(actor.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, actor.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-//                        actor.setPosition(x, y);
-//
-//                        //Weapon sword = new Weapon(x, y, 0.1F, 0.5F, 1F, WeaponType.SWORD, null);
-//                        //sword.setSize(sword.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, sword.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-//                        //sword.setPosition(x, y);
-//                        //actor.equip(sword);
-//
-//                        entityList.add(actor);
-//                        //entityList.add(sword);
-//                        addedEntity = true;
-//                        break;
-//                    }
-//                }
                 Character character = Character.get(text);
                 if (character != Character.character_)
                 {

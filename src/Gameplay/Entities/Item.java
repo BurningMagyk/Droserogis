@@ -40,7 +40,7 @@ public abstract class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    protected Item(float xPos, float yPos, float width, float height, float mass, int hitPoints, String[] spritePaths)
+    protected Item(float xPos, float yPos, float width, float height, float mass, int hitPoints, ArrayList<String[]> spritePaths)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, spritePaths);
         this.mass = mass;

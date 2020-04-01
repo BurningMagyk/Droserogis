@@ -43,7 +43,7 @@ public class Weapon extends Item
 
 
     public Weapon(float xPos, float yPos, float width, float height, float mass,
-           WeaponType weaponType, WeaponStat weaponStat, String[] spritePaths)
+           WeaponType weaponType, WeaponStat weaponStat, ArrayList<String[]> spritePaths)
     {
         super(xPos, yPos, width, height, mass, weaponStat.durability(), spritePaths);
 
