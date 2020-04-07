@@ -279,6 +279,7 @@ public class Weapon extends Item
     {
         currentCommand = command;
         currentOp = newOp;
+        collidedItems.clear();
         currentOp.start(DEF_ORIENT, warmBoost,
                 actor.getCharacterStat(), weaponStat, command);
     }
@@ -448,7 +449,6 @@ public class Weapon extends Item
                     Print.blue("Finished \"" + currentOp.getName() + "\"");
                     currentOp = null;
                     orient = DEF_ORIENT.copy();
-                    collidedItems.clear();
                 }
                 else
                 {

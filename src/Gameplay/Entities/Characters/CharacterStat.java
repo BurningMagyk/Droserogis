@@ -337,7 +337,7 @@ public class CharacterStat
 
     public float slopeAccelDiv() { return 2; } // strength + agility
 
-    public float jumpVel() { return 0.15F; } // strength + agility
+    public float jumpVel() { return 0.1F; } // strength + agility
 
     public float climbLedgeTime() { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]

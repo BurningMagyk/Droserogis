@@ -146,9 +146,6 @@ class MeleeOperation implements Weapon.Operation
         totalSec = 0;
         state = State.VOID;
 
-        // TODO: needs access to collidedItems and inflictionsDealt
-        //collidedItems.clear();
-        //clearInflictionsDealt();
         return true;
     }
 
