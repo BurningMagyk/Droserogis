@@ -15,6 +15,7 @@ public class Print
     {
         String ANSI_RESET = "\u001B[0m";
         System.out.println(color.ANSI() + string + ANSI_RESET);
+        if (consoleBox != null) consoleBox.print(string);
     }
 
     private enum Color
@@ -54,4 +55,7 @@ public class Print
 
         String ANSI() { return ""; }
     }
+
+    private static ConsoleBox consoleBox = null;
+    public static void setConsoleBox(ConsoleBox box) { consoleBox = box; }
 }

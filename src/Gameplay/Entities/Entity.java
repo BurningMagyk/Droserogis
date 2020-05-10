@@ -617,12 +617,12 @@ abstract public class Entity
         /* Up-left */
         if (shape.getDirs()[RIGHT])
         {
-            return (pos.y-height/2) + (xRatio * height);
+            return Math.max((pos.y-height/2) + (xRatio * height), getTopEdge());
         }
         /* Up-right */
         else // if (shape.getDirs()[LEFT])
         {
-            return (pos.y+height/2) - (xRatio * height);
+            return Math.max((pos.y+height/2) - (xRatio * height), getTopEdge());
         }
     }
 
@@ -636,12 +636,12 @@ abstract public class Entity
         /* Down-left */
         if (shape.getDirs()[RIGHT])
         {
-            return (pos.y+height/2) - (xRatio * height);
+            return Math.min((pos.y+height/2) - (xRatio * height), getBottomEdge());
         }
         /* Down-right */
         else // if (shape.getDirs()[LEFT])
         {
-            return (pos.y-height/2) + (xRatio * height);
+            return Math.min((pos.y-height/2) + (xRatio * height), getBottomEdge());
         }
     }
 

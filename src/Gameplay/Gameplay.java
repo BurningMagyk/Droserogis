@@ -12,6 +12,7 @@ import Importer.AudioResource;
 import Importer.LevelBuilder;
 import Menus.Gamepad;
 import Menus.Main;
+import Util.ConsoleBox;
 import Util.DebugEnum;
 import Util.Print;
 import Util.Reactor;
@@ -42,19 +43,20 @@ public class Gameplay implements Reactor
     private EntityCollection<Entity> entityList = new EntityCollection();
 
     private long lastUpdateTime = -1;
+    private int startupFrames = 120;
 
     private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
     private RenderThread renderThread;
 
     private AudioResource audio;
+    private ConsoleBox consoleBox;
 
     public Gameplay(Group root, GraphicsContext context, Gamepad[] gamepads)
     {
-
         gfx = context;
-        this.viewWidth = (int) gfx.getCanvas().getWidth();
-        this.viewHeight = (int) gfx.getCanvas().getHeight();
+        viewWidth = (int) gfx.getCanvas().getWidth();
+        viewHeight = (int) gfx.getCanvas().getHeight();
 
         GAMEPADS = gamepads;
 
@@ -69,6 +71,11 @@ public class Gameplay implements Reactor
 
         /* Try importing music */
         audio = Main.IMPORTER.getAudio("robin_song_1.aiff");
+
+        /* Add ConsoleBox */
+        consoleBox = new ConsoleBox(viewWidth, viewHeight);
+        root.getChildren().addAll(consoleBox.getNodes());
+        Print.setConsoleBox(consoleBox);
     }
 
     // Gameplay stats would go in here
@@ -149,15 +156,19 @@ public class Gameplay implements Reactor
         }
         deltaSec = 1.0f/fps;
 
-        queryGamepads();
+        if (startupFrames > 0) startupFrames--;
+        else
+        {
+            queryGamepads();
 
-        for (Entity entity : entityList) entity.resetFlags();
+            for (Entity entity : entityList) entity.resetFlags();
 
-        for (Weapon weapon : entityList.getWeaponList()) weapon.applyInflictions();
+            for (Weapon weapon : entityList.getWeaponList()) weapon.applyInflictions();
 
-        for (Item item : entityList.getDynamicItems()) item.update(entityList, deltaSec);
+            for (Item item : entityList.getDynamicItems()) item.update(entityList, deltaSec);
 
-        for (Weapon weapon : entityList.getWeaponList()) weapon.update(entityList.getDynamicItems());
+            for (Weapon weapon : entityList.getWeaponList()) weapon.update(entityList.getDynamicItems());
+        }
 
         Actor player1 = entityList.getPlayer(0);
         float x = player1.getPosition().x;
@@ -187,11 +198,6 @@ public class Gameplay implements Reactor
             glfwSetErrorCallback(null).free();
             Platform.exit();
             System.exit(0);
-        }
-        else if (code == KeyCode.ENTER && pressed)
-        {
-            entityList.getPlayer(0).debug();
-            return;
         }
 
         if (!GAMEPADS[1].isConnected())
@@ -290,6 +296,7 @@ public class Gameplay implements Reactor
                 entityList.getPlayer(0).pressAttackMod(pressed);
             }
         }
+        if (code == KeyCode.BACK_QUOTE && pressed) consoleBox.toggleActive();
     }
 
     @Override
