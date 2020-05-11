@@ -10,6 +10,7 @@ import Gameplay.Entities.Actor;
 import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entities.Item;
+import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
 
@@ -266,7 +267,7 @@ public class WeaponType
         private Orient orient = new Orient(new Vec2(0, 0), 0);
         public String getName() { return "Interact"; }
         public DirEnum getDir() { return DirEnum.NONE; }
-        public Infliction getInfliction(Actor actor, float mass) { return null; }
+        public Infliction getInfliction(Actor actor, GradeEnum mass) { return null; }
         public Infliction getSelfInfliction() { return null; }
         public State getState() { return state; }
         public Orient getOrient() { return orient; }

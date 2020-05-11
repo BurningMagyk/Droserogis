@@ -252,8 +252,8 @@ abstract public class Entity
 
     public void addVelocity(Vec2 v) { velocity.add(v); }
     void addVelocity(float x, float y) { velocity.add(new Vec2(x, y)); }
-    void addVelocityX(float x) { velocity.x += x; }
-    void addVelocityY(float y) { velocity.y += y; }
+    public void addVelocityX(float x) { velocity.x += x; }
+    public void addVelocityY(float y) { velocity.y += y; }
     void addToVelocityY(float y, int allow, boolean positive)
     {
         if (positive && y * allow > velocity.y)

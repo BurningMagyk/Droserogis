@@ -81,4 +81,20 @@ public enum GradeEnum
         }
         return new GradeEnum[]{vals[vals.length - 1], vals[vals.length - 1]};
     }
+
+    public static GradeEnum velToGrade(Vec2 vel)
+    {
+        float mag = (float) vel.mag();
+        for (int i = 0; i < GradeEnum.values().length; i++)
+        {
+            if (mag / 10F > i && mag / 10F < i + 1) return GradeEnum.values()[i];
+        }
+
+        // If mag was zero, it will go through the whole loop without returning
+        return GradeEnum.F;
+    }
+    public static float gradeToVel(GradeEnum grade)
+    {
+        return 0.2F; // TODO: decide good formula
+    }
 }

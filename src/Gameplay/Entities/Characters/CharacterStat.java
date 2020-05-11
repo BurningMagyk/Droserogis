@@ -332,14 +332,14 @@ public class CharacterStat
     public float airAccel() { return 0.1F; } // dexterity
     public float swimAccel() { return 0.3F; } // agility
     public float crawlAccel() { return 0.15F; } // agility
-    public float climbAccel() { return 0.1F; } // agility
+    public float climbAccel(GradeEnum mass) { return 0.1F; } // agility
     public float runAccel() { return 0.2F; } // agility
 
     public float slopeAccelDiv() { return 2; } // strength + agility
 
-    public float jumpVel() { return 0.1F; } // strength + agility
+    public float jumpVel(GradeEnum mass) { return 0.1F; } // strength + agility
 
-    public float climbLedgeTime() { return 0.85F; } // agility
+    public float climbLedgeTime(GradeEnum mass) { return 0.85F; } // agility
     public float[] stairRecoverTime() { return new float[]
             { agility(0.25F), dexterity(0.2F),
                     stamina(0.25F) + constitution(0.25F) }; }
@@ -361,5 +361,5 @@ public class CharacterStat
 
     public float friction() { return 0.35F; } // agility
 
-    public float weaponGrip() { return 0.02F; } // strength
+    public GradeEnum weaponGrip() { return grades[Ability.STRENGTH.ordinal()]; } // strength
 }

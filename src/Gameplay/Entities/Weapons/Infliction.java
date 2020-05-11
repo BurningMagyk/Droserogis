@@ -20,7 +20,8 @@ public class Infliction
 
     private final GradeEnum damage, precision;
     private final ConditionApp[] conditionApps;
-    private final Vec2 momentum;
+    private final GradeEnum momentumMag;
+    private final DirEnum momentumDir;
     private final InflictionType[] types;
 
     /* For colliding with blocks */
@@ -30,7 +31,8 @@ public class Infliction
         this.precision = null;
 
         conditionApps = null;
-        momentum = null;
+        momentumMag = null;
+        momentumDir = DirEnum.NONE;
 
         this.types = types;
     }
@@ -51,7 +53,8 @@ public class Infliction
 
         damage = null;
         precision = null;
-        momentum = null;
+        momentumMag = null;
+        momentumDir = null;
 
         this.types = types;
     }
@@ -71,20 +74,25 @@ public class Infliction
 
     /* For inflictions dealt by attacks */
     public Infliction(GradeEnum damage, GradeEnum precision, ConditionApp[] conditionApps,
-                      Vec2 actorSpeed, float actorMass, float actorGrip,
-                      DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
+                      DirEnum actorDir, GradeEnum actorSpeed, GradeEnum actorMass, GradeEnum actorGrip,
+                      DirEnum weaponDir, GradeEnum weaponSpeed, GradeEnum weaponMass, InflictionType...types)
     {
         this.damage = damage;
         this.precision = precision;
         this.conditionApps = conditionApps;
-        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
-        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
-        Vec2 ridiculous = actorMomentum.add(weaponMomentum);
+//        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
 
-        // Differences in momentum are ridiculous so here I'm curbing them
-        int xSign = (ridiculous.x < 0) ? -1 : 1, ySign = (ridiculous.y < 0) ? -1 : 1;
-        momentum = new Vec2(Math.sqrt(Math.abs(ridiculous.x) * 100) / 50 * xSign,
-                Math.sqrt(Math.abs(ridiculous.y) * 100) / 50 * ySign);
+        momentumMag = GradeEnum.getGrade((actorSpeed.ordinal() + actorMass.ordinal() + actorGrip.ordinal()
+                + weaponSpeed.ordinal() + weaponMass.ordinal()) / 4);
+        momentumDir = DirEnum.add(actorDir, weaponDir);
+
+//        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
+//        Vec2 ridiculous = actorMomentum.add(weaponMomentum);
+
+//        // Differences in momentum are ridiculous so here I'm curbing them
+//        int xSign = (ridiculous.x < 0) ? -1 : 1, ySign = (ridiculous.y < 0) ? -1 : 1;
+//        momentum = new Vec2(Math.sqrt(Math.abs(ridiculous.x) * 100) / 50 * xSign,
+//                Math.sqrt(Math.abs(ridiculous.y) * 100) / 50 * ySign);
 
         this.types = types;
     }
@@ -95,29 +103,30 @@ public class Infliction
 
     public ConditionApp[] getConditionApps() { return conditionApps; }
 
-    public Vec2 getMomentum() { return momentum; }
+    public GradeEnum getMomentum() { return momentumMag; }
 
     public DirEnum getDir()
     {
-        if (momentum == null) return DirEnum.NONE;
-        if (momentum.x == 0)
-        {
-            if (momentum.y == 0) return DirEnum.NONE;
-            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
-            else return DirEnum.UP;
-        }
-        else if (momentum.x > 0)
-        {
-            if (momentum.y == 0) return DirEnum.RIGHT;
-            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
-            else return DirEnum.UPRIGHT;
-        }
-        else // if (momentum.x < 0)
-        {
-            if (momentum.y == 0) return DirEnum.LEFT;
-            else if (momentum.y > 0) return DirEnum.DOWNLEFT;
-            else return DirEnum.UPLEFT;
-        }
+        return momentumDir;
+//        if (momentum == null) return DirEnum.NONE;
+//        if (momentum.x == 0)
+//        {
+//            if (momentum.y == 0) return DirEnum.NONE;
+//            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
+//            else return DirEnum.UP;
+//        }
+//        else if (momentum.x > 0)
+//        {
+//            if (momentum.y == 0) return DirEnum.RIGHT;
+//            else if (momentum.y > 0) return DirEnum.DOWNRIGHT;
+//            else return DirEnum.UPRIGHT;
+//        }
+//        else // if (momentum.x < 0)
+//        {
+//            if (momentum.y == 0) return DirEnum.LEFT;
+//            else if (momentum.y > 0) return DirEnum.DOWNLEFT;
+//            else return DirEnum.UPLEFT;
+//        }
     }
 
     public boolean isDisruptive()

@@ -7,6 +7,7 @@ import Gameplay.Entities.Weapons.Weapon;
 
 import Gameplay.Entities.Weapons.WeaponStat;
 import Gameplay.Entities.Weapons.WeaponType;
+import Util.GradeEnum;
 import Util.Print;
 
 import java.io.BufferedReader;
@@ -575,7 +576,7 @@ public class LevelBuilder  extends Application
                 {
                     WeaponStat weaponStat = new WeaponStat(
                             "C", "C", "C", "C", 1, null, null, "C", "D");
-                    Weapon sword = new Weapon(x, y, 0.5F, 0.1F, 0.2F,
+                    Weapon sword = new Weapon(x, y, 0.5F, 0.1F, GradeEnum.F__,
                             WeaponType.SWORD, weaponStat, null);
                     entityList.add(sword);
                     addedEntity = true;
@@ -770,7 +771,7 @@ public class LevelBuilder  extends Application
                     }
                     float width = Float.parseFloat(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.parseFloat(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float mass = Float.parseFloat(data[5]);
+                    GradeEnum mass = GradeEnum.parseGrade(data[5]);
                     WeaponType type = WeaponType.NATURAL;
                     if (data[6].equals("Sword")) type = WeaponType.SWORD;
                     WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],

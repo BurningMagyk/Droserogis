@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public abstract class Item extends Entity
 {
-    float mass;
+    GradeEnum mass;
     private int hitPoints;
 
     /* The entities that are in contact from each of 4 directions */
@@ -39,7 +39,7 @@ public abstract class Item extends Entity
         Print.blue("velX: " + getVelocityX() + ", velY: " + getVelocityY());
     }
 
-    protected Item(float xPos, float yPos, float width, float height, float mass, int hitPoints, ArrayList<String[]> spritePaths)
+    protected Item(float xPos, float yPos, float width, float height, GradeEnum mass, int hitPoints, ArrayList<String[]> spritePaths)
     {
         super(xPos, yPos, width, height, ShapeEnum.RECTANGLE, spritePaths);
         this.mass = mass;
@@ -65,8 +65,8 @@ public abstract class Item extends Entity
         if (touchEntity[DOWN] == null) setAccelerationY(gravity);
     }
 
-    public float getMass() { return mass; }
-    public void setMass(float mass) { this.mass = mass; }
+    public GradeEnum getMass() { return mass; }
+    public void setMass(GradeEnum mass) { this.mass = mass; }
 
     protected abstract void applyInflictions();
 

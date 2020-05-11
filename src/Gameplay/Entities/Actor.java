@@ -97,7 +97,7 @@ public class Actor extends Item
         setCharacterStats();
 
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
-                character.getMass() * 0.1F, WeaponType.NATURAL,
+                GradeEnum.getGrade(character.getMass().ordinal() / 10), WeaponType.NATURAL,
                 new WeaponStat("C", "C", "C", "C",
                         1, null, null, "C", "D"),
                 null);
@@ -252,9 +252,8 @@ public class Actor extends Item
 
             if (onUpwardSlope)
             {
-                float slopeAccel = gravity * getMass();
-                if (state == State.CROUCH || state == State.CRAWL) slopeAccel /= 2;
-                setAcceleration(touchEntity[DOWN].applySlopeY(slopeAccel));
+                if (state == State.CROUCH || state == State.CRAWL) gravity /= 2;
+                setAcceleration(touchEntity[DOWN].applySlopeY(gravity));
             }
 
             float accel, topSpeed;
@@ -587,7 +586,7 @@ public class Actor extends Item
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
-    public float getGrip() { return weaponGrip; }
+    public GradeEnum getGrip() { return weaponGrip; }
 
     public Infliction.InflictionType[] getRushInfTypes()
     {
@@ -1626,10 +1625,25 @@ public class Actor extends Item
 
             damage(inf);
             addConditionApp(inf);
-            Vec2 momentum = inf.getMomentum();
+            GradeEnum momentum = inf.getMomentum() == null
+                    ? null : GradeEnum.getGrade(inf.getMomentum().ordinal() - mass.ordinal());
+            DirEnum dir = inf.getDir();
             if (momentum != null)
             {
-                addVelocity(momentum.div(getMass()));
+                if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
+                {
+                    float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
+                    addVelocityX(speed * dir.getHoriz().getSign());
+                    addVelocityY(speed * dir.getVert().getSign());
+                }
+                else
+                {
+                    if (dir.getHoriz() != DirEnum.NONE)
+                        addVelocityX(GradeEnum.gradeToVel(momentum));
+                    else if (dir.getVert() != DirEnum.NONE)
+                        addVelocityY(GradeEnum.gradeToVel(momentum));
+                }
+
                 Print.yellow("Momentum: " + momentum);
             }
 
@@ -1651,18 +1665,18 @@ public class Actor extends Item
         }
     }
 
-    public float getMass()
+    public GradeEnum getMass()
     {
-        float totalMass = mass;
+        int totalMass = mass.ordinal();
         for (int i = 1; i < weapons.length; i++)
         {
-            if (weapons[i] != null) totalMass += weapons[i].getMass();
+            if (weapons[i] != null) totalMass += weapons[i].getMass().ordinal();
         }
         for (Armor armor : armors)
         {
-            if (armor != null) totalMass += armor.getMass();
+            if (armor != null) totalMass += armor.getMass().ordinal();
         }
-        return totalMass;
+        return GradeEnum.getGrade(totalMass);
     }
 
     boolean setTriggered(boolean triggered)
@@ -1815,7 +1829,7 @@ public class Actor extends Item
     GradeEnum[] staggerThresh = { GradeEnum.F, GradeEnum.F };
 
     /* How much blocks resist momentum and how much attacks give momentum */
-    float weaponGrip = 0.03F;
+    GradeEnum weaponGrip = GradeEnum.F;
 
     private void setCharacterStats()
     {
@@ -1838,14 +1852,14 @@ public class Actor extends Item
         airAccel = charStat.airAccel();
         swimAccel = charStat.swimAccel();
         crawlAccel = charStat.crawlAccel();
-        climbAccel = charStat.climbAccel() / getMass();
+        climbAccel = charStat.climbAccel(getMass());
         runAccel = charStat.runAccel();
 
         slopeAccelDiv = charStat.slopeAccelDiv();
 
-        jumpVel = charStat.jumpVel() / getMass();
+        jumpVel = charStat.jumpVel(getMass());
 
-        climbLedgeTime = charStat.climbLedgeTime() / getMass();
+        climbLedgeTime = charStat.climbLedgeTime(getMass());
 
         stairRecoverTime = charStat.stairRecoverTime();
         dashRecoverTime = charStat.dashRecoverTime();

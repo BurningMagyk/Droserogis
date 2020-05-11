@@ -6,6 +6,7 @@
 
 package Gameplay.Entities.Weapons;
 
+import Gameplay.DirEnum;
 import Gameplay.Entities.Actor;
 import Gameplay.Entities.Item;
 import Util.GradeEnum;
@@ -19,7 +20,7 @@ public class Armor extends Item
     private Actor actor = null;
     private boolean idle = true;
 
-    protected Armor(float xPos, float yPos, float width, float height, float mass,
+    protected Armor(float xPos, float yPos, float width, float height, GradeEnum mass,
                     ArmorStat armorStat, ArrayList<String[]> spritePaths) {
         super(xPos, yPos, width, height, mass, armorStat.getDurability(), spritePaths);
     }
@@ -61,10 +62,25 @@ public class Armor extends Item
             Print.yellow("----------Armor-----------");
 
             damage(inf);
-            Vec2 momentum = inf.getMomentum();
+            GradeEnum momentum = inf.getMomentum();
+            DirEnum dir = inf.getDir();
+
             if (momentum != null && actor == null)
             {
-                addVelocity(momentum.div(getMass()));
+                if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
+                {
+                    float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
+                    addVelocityX(speed * dir.getHoriz().getSign());
+                    addVelocityY(speed * dir.getVert().getSign());
+                }
+                else
+                {
+                    if (dir.getHoriz() != DirEnum.NONE)
+                        addVelocityX(GradeEnum.gradeToVel(momentum));
+                    else if (dir.getVert() != DirEnum.NONE)
+                        addVelocityY(GradeEnum.gradeToVel(momentum));
+                }
+
                 Print.yellow("Momentum: " + momentum);
             }
 

@@ -204,6 +204,14 @@ public enum DirEnum
         if (horiz == RIGHT) return RIGHT;
         return NONE;
     }
+    static public DirEnum add(DirEnum a, DirEnum b)
+    {
+        DirEnum horiz = DirEnum.NONE;
+        DirEnum vert = DirEnum.NONE;
+        if (a.getHoriz() == b.getHoriz()) horiz = a.getHoriz();
+        if (a.getVert() == b.getVert()) vert = b.getVert();
+        return get(horiz, vert);
+    }
 
     public int getSign() { return 0; }
     public DirEnum getHoriz() { return NONE; }

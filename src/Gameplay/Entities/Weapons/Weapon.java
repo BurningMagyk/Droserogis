@@ -42,7 +42,7 @@ public class Weapon extends Item
     private ArrayList<Item> collidedItems = new ArrayList<Item>();
 
 
-    public Weapon(float xPos, float yPos, float width, float height, float mass,
+    public Weapon(float xPos, float yPos, float width, float height, GradeEnum mass,
            WeaponType weaponType, WeaponStat weaponStat, ArrayList<String[]> spritePaths)
     {
         super(xPos, yPos, width, height, mass, weaponStat.durability(), spritePaths);
@@ -348,13 +348,13 @@ public class Weapon extends Item
         if (currentOp != null && currentOp instanceof RushOperation)
             ((RushOperation) currentOp).interrupt(rushFinish);
     }
-    private void interrupt(Vec2 momentum)
+    private void interrupt(GradeEnum momentum)
     {
         if (momentum != null)
         {
             if (currentOpExec())
             {
-                if (momentum.mag() > currentOp.getInfliction(actor, getMass()).getMomentum().mag())
+                if (momentum.ordinal() > currentOp.getInfliction(actor, getMass()).getMomentum().ordinal())
                     interrupt();
             }
             else interrupt();
@@ -373,20 +373,36 @@ public class Weapon extends Item
             Print.yellow("----------Weapon----------");
 
             damage(inf);
-            Vec2 momentum = inf.getMomentum();
+            GradeEnum momentum = inf.getMomentum();
+            DirEnum dir = inf.getDir();
+
             if (momentum != null)
             {
                 /* Weapon got parried */
                 if (actor != null)
                 {
-                    Vec2 momentumCopy = momentum.copy();
-                    actor.addVelocity(momentumCopy.div(actor.getMass()));
+//                    Vec2 momentumCopy = momentum.copy();
+//                    actor.addVelocity(momentumCopy.div(actor.getMass()));
+
+                    if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
+                    {
+                        float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
+                        actor.addVelocityX(speed * dir.getHoriz().getSign());
+                        addVelocityY(speed * dir.getVert().getSign());
+                    }
+                    else
+                    {
+                        if (dir.getHoriz() != DirEnum.NONE)
+                            addVelocityX(GradeEnum.gradeToVel(momentum));
+                        else if (dir.getVert() != DirEnum.NONE)
+                            addVelocityY(GradeEnum.gradeToVel(momentum));
+                    }
 
                     /* Stagger actor */
                     actor.staggerParry(inf.getDamage(), inf.getDir());
                 }
 
-                interrupt(momentum.div(getMass()));
+                interrupt(GradeEnum.getGrade(momentum.ordinal() - getMass().ordinal()));
             }
 
             Print.yellow("--------------------------");
@@ -566,7 +582,7 @@ public class Weapon extends Item
     {
         String getName();
         DirEnum getDir();
-        Infliction getInfliction(Actor actor, float mass);
+        Infliction getInfliction(Actor actor, GradeEnum mass);
         Infliction getSelfInfliction();
         State getState();
         Orient getOrient();

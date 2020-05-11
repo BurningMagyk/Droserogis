@@ -113,10 +113,9 @@ public class WeaponStat
         int avg = (grades[Ability.WAIT_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
         return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg] * 2;
     }
-    float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
+    GradeEnum attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
-        int avg = (grades[Ability.ATTACK_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
-        return speedDep(strGrade) ? ATTACK_SPEED[avg] : ATTACK_SPEED[avg] / 2;
+        return GradeEnum.getGrade(strGrade.ordinal() + agiGrade.ordinal() / (speedDep(strGrade) ? 2 : 4));
     }
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }

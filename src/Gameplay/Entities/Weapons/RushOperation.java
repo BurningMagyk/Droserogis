@@ -22,13 +22,14 @@ public class RushOperation implements Weapon.Operation
 
     private Infliction selfInfliction;
     @Override
-    public Infliction getInfliction(Actor actor, float mass)
+    public Infliction getInfliction(Actor actor, GradeEnum mass)
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
         return new Infliction(damage, null, conditionApps,
-                actor.getVelocity(), actor.getMass(), actor.getGrip(),
-                infDir, 0, mass, actor.getRushInfTypes());
+                actor.getTravelDir(), GradeEnum.velToGrade(actor.getVelocity()),
+                actor.getMass(), actor.getGrip(),
+                infDir, GradeEnum.F, mass, actor.getRushInfTypes());
     }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }

@@ -23,14 +23,14 @@ public class Character
     private int level = 0;
     private GradeEnum characterGrade;
     private Vec2 dims;
-    private float mass;
+    private GradeEnum mass;
     private ArrayList<String[]> spritePaths;
 
     private int[] statEXP;
     private CharacterClass[] classes;
 
     public Character(String name, CharacterStat stat, CharacterClass starterClass,
-                     Vec2 dims, float mass, ArrayList<String[]> spritePaths)
+                     Vec2 dims, GradeEnum mass, ArrayList<String[]> spritePaths)
     {
         this.name = name;
         this.stat = stat;
@@ -121,7 +121,7 @@ public class Character
 
     public float getWidth() { return dims.x; }
     public float getHeight() { return dims.y; }
-    public float getMass() { return mass; }
+    public GradeEnum getMass() { return mass; }
     public ArrayList<String[]> getSpritePaths() { return spritePaths; }
 
 
@@ -133,55 +133,55 @@ public class Character
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Jacob = new Character("Jacob",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Tetsuya = new Character("Tetsuya",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Kevin = new Character("Kevin",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Orget = new Character("Orget",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Vritak = new Character("Vritak",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Let = new Character("Let",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Lugu = new Character("Lugu",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     public static Character character_ = new Character("",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     public static Character get(String name)
     {
@@ -229,7 +229,7 @@ public class Character
                 15,20,
                 45);
         Character lyra = new Character("Lyra", lyraStats, assassin,
-                new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), 1, null);
+                new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
         boolean print = false;
 

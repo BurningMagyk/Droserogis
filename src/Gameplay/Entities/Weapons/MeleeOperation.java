@@ -23,13 +23,14 @@ class MeleeOperation implements Weapon.Operation
 
     private Infliction selfInfliction;
     @Override
-    public Infliction getInfliction(Actor actor, float mass)
+    public Infliction getInfliction(Actor actor, GradeEnum mass)
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
         return new Infliction(damage, precision, conditionApps,
-                actor.getVelocity(), actor.getMass() - mass, actor.getGrip(),
-                infDir, execSpeed / 10, mass, infTypes); }
+                actor.getTravelDir(), GradeEnum.velToGrade(actor.getVelocity()),
+                GradeEnum.getGrade(actor.getMass().ordinal() - mass.ordinal()), actor.getGrip(),
+                infDir, execSpeedGrade, mass, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
@@ -61,6 +62,7 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private float waitSpeed, execSpeed;
+    private GradeEnum execSpeedGrade;
     @Override
     public void start(Orient startOrient, float warmBoost, CharacterStat characterStat,
                       WeaponStat weaponStat, Command command)
@@ -78,7 +80,8 @@ class MeleeOperation implements Weapon.Operation
         GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
 
         waitSpeed = weaponStat.waitSpeed(strGrade, agiGrade);
-        execSpeed = weaponStat.attackSpeed(strGrade, agiGrade);
+        execSpeedGrade = weaponStat.attackSpeed(strGrade, agiGrade);
+        execSpeed = 10;//execSpeedGrade();
 
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
