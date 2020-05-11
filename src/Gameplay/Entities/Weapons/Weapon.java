@@ -583,9 +583,9 @@ public class Weapon extends Item
                             /* If other item is an actor and they're facing you */
                             if ((other.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
                                     || (other.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
-                                    && PolygonIntersection.isIntersect(getShapeCorners(), other.getTopRect()))
+                                        && PolygonIntersection.isIntersect(getShapeCorners(), other.getTopRect()))
                                     || (!other.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
-                                    && PolygonIntersection.isIntersect(getShapeCorners(), other.getBottomRect())))
+                                        && PolygonIntersection.isIntersect(getShapeCorners(), other.getBottomRect())))
                             {
                                 actor.staggerBlock(inf.getDamage(), dir);
                                 ((Actor) item).getBlockingWeapon().inflict(inf);

@@ -107,9 +107,9 @@ public class Actor extends Item
     public String getName() { return name; }
 
     // TODO: this only works for standing or crouching, needs to work with prone
-    public Rect getTopRect() { return new Rect(getX(), getY(),
+    public Rect getTopRect() { return new Rect(getX() - getWidth() / 2, getY() - getHeight() / 2,
             getWidth(), getHeight() / 2); }
-    public Rect getBottomRect() { return new Rect(getX(), getY() + getHeight() / 2,
+    public Rect getBottomRect() { return new Rect(getX() - getWidth() / 2, getY(),
             getWidth(), getHeight() / 2); }
 
     @Override

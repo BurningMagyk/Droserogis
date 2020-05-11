@@ -26,7 +26,7 @@ public class Tick
         tickOrient = new Orient(new Vec2(posX, posY), Weapon.reduceTheta(theta));
     }
 
-    boolean check(float totalSec, DirEnum dir)
+    boolean check(float totalSec)
     {
         if (totalSec < this.sec || !used)
         {
@@ -50,6 +50,7 @@ public class Tick
     }
 
     Tick getCopy(float totalSec) { return new Tick(totalSec, tickOrient); }
+    Tick getCopy() { return new Tick(sec, tickOrient.copy()); }
 
     Tick getRotatedCopy(boolean up)
     {

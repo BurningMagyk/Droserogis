@@ -122,12 +122,13 @@ class MeleeOperation implements Weapon.Operation
 
         for (Tick tick : execJourney)
         {
-            if (tick.check(totalSec, face))
+            if (tick.check(totalSec))
             {
                 orient = tick.getOrient();
                 return false;
             }
         }
+
         totalSec = 0;
         state = State.COOLDOWN;
         coolJourney = warmJourney.makeCoolJourney(
@@ -286,8 +287,19 @@ class MeleeOperation implements Weapon.Operation
         this.parrying = parrying;
         this.permeating = permeating;
         this.conditionApps = new ConditionApp[] {conditionApp};
-        this.execJourney = execJourney;
+        this.execJourney = cabooseExecJourney(execJourney);
         this.infTypes = infTypes;
+    }
+
+    private Tick[] cabooseExecJourney(Tick[] ej)
+    {
+        Tick[] withCaboose = new Tick[ej.length + 1];
+        for (int i = 0; i < ej.length; i++)
+        {
+            withCaboose[i] = ej[i].getCopy();
+        }
+        withCaboose[ej.length] = ej[ej.length - 1].getCopy();
+        return withCaboose;
     }
 
     MeleeOperation(String name, MeleeOperation op)
