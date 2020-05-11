@@ -6,10 +6,7 @@
 
 package Gameplay;
 
-import Gameplay.Entities.Block;
-import Gameplay.Entities.BlockType;
-import Gameplay.Entities.Entity;
-import Gameplay.Entities.EntityCollection;
+import Gameplay.Entities.*;
 import Gameplay.Entities.Weapons.Weapon;
 import Menus.Main;
 import Util.DebugEnum;
@@ -310,6 +307,17 @@ public class RenderThread
                         {
                             gfx.setFill(entity.getColor());
                             gfx.fillRect(x, y, width, height);
+
+                            // Draw text over items
+                            if (entity instanceof Item)
+                            {
+                                for (DebugText debugText : ((Item) entity).getDebugText())
+                                {
+                                    gfx.setFill(debugText.getColor());
+                                    gfx.fillText(debugText.getText(),
+                                            x, y + ((0.5F - debugText.getDist()) * height / 2));
+                                }
+                            }
                         }
                     }
                 }

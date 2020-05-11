@@ -142,6 +142,7 @@ public class Actor extends Item
         act(deltaSec);
         applyPhysics(entities, deltaSec);
         countdownCondition(deltaSec);
+        stepDebugText(deltaSec);
     }
 
     /**
@@ -1630,6 +1631,7 @@ public class Actor extends Item
             DirEnum dir = inf.getDir();
             if (momentum != null)
             {
+                addDebugText(dir.toString());
                 if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
                 {
                     float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
@@ -1639,9 +1641,9 @@ public class Actor extends Item
                 else
                 {
                     if (dir.getHoriz() != DirEnum.NONE)
-                        addVelocityX(GradeEnum.gradeToVel(momentum));
+                        addVelocityX(GradeEnum.gradeToVel(momentum) * dir.getHoriz().getSign());
                     else if (dir.getVert() != DirEnum.NONE)
-                        addVelocityY(GradeEnum.gradeToVel(momentum));
+                        addVelocityY(GradeEnum.gradeToVel(momentum) * dir.getVert().getSign());
                 }
 
                 Print.yellow("Momentum: " + momentum);

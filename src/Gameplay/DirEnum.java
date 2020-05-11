@@ -209,7 +209,11 @@ public enum DirEnum
         DirEnum horiz = DirEnum.NONE;
         DirEnum vert = DirEnum.NONE;
         if (a.getHoriz() == b.getHoriz()) horiz = a.getHoriz();
+        else if (a.getHoriz() == DirEnum.NONE) horiz = b.getHoriz();
+        else if (b.getHoriz() == DirEnum.NONE) horiz = a.getHoriz();
         if (a.getVert() == b.getVert()) vert = b.getVert();
+        else if (a.getVert() == DirEnum.NONE) vert = b.getVert();
+        else if (b.getVert() == DirEnum.NONE) vert = a.getVert();
         return get(horiz, vert);
     }
 

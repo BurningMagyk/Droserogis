@@ -8,6 +8,7 @@ package Gameplay.Entities.Weapons;
 
 import Gameplay.DirEnum;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class Infliction
@@ -59,18 +60,18 @@ public class Infliction
         this.types = types;
     }
 
-    /*public Infliction(Vec2 actorSpeed, float actorMass, float actorGrip,
-                      DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
-    {
-        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
-        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
-        momentum = actorMomentum.add(weaponMomentum);
-
-        damage = null;
-        conditionApps = null;
-
-        this.types = types;
-    }*/
+//    public Infliction(Vec2 actorSpeed, float actorMass, float actorGrip,
+//                      DirEnum weaponDir, float weaponSpeed, float weaponMass, InflictionType...types)
+//    {
+//        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
+//        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * weaponMass);
+//        momentum = actorMomentum.add(weaponMomentum);
+//
+//        damage = null;
+//        conditionApps = null;
+//
+//        this.types = types;
+//    }
 
     /* For inflictions dealt by attacks */
     public Infliction(GradeEnum damage, GradeEnum precision, ConditionApp[] conditionApps,
@@ -84,7 +85,9 @@ public class Infliction
 
         momentumMag = GradeEnum.getGrade((actorSpeed.ordinal() + actorMass.ordinal() + actorGrip.ordinal()
                 + weaponSpeed.ordinal() + weaponMass.ordinal()) / 4);
+        Print.green(weaponDir);
         momentumDir = DirEnum.add(actorDir, weaponDir);
+        Print.green(momentumDir);
 
 //        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
 //        Vec2 ridiculous = actorMomentum.add(weaponMomentum);

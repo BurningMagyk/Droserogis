@@ -62,7 +62,8 @@ public class Armor extends Item
             Print.yellow("----------Armor-----------");
 
             damage(inf);
-            GradeEnum momentum = inf.getMomentum();
+            GradeEnum momentum = inf.getMomentum() == null
+                    ? null : GradeEnum.getGrade(inf.getMomentum().ordinal() - mass.ordinal());
             DirEnum dir = inf.getDir();
 
             if (momentum != null && actor == null)
@@ -76,9 +77,9 @@ public class Armor extends Item
                 else
                 {
                     if (dir.getHoriz() != DirEnum.NONE)
-                        addVelocityX(GradeEnum.gradeToVel(momentum));
+                        addVelocityX(GradeEnum.gradeToVel(momentum) * dir.getHoriz().getSign());
                     else if (dir.getVert() != DirEnum.NONE)
-                        addVelocityY(GradeEnum.gradeToVel(momentum));
+                        addVelocityY(GradeEnum.gradeToVel(momentum) * dir.getVert().getSign());
                 }
 
                 Print.yellow("Momentum: " + momentum);

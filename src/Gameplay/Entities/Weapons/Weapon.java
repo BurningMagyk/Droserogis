@@ -373,34 +373,60 @@ public class Weapon extends Item
             Print.yellow("----------Weapon----------");
 
             damage(inf);
-            GradeEnum momentum = inf.getMomentum();
+            GradeEnum momentum = inf.getMomentum() == null
+                    ? null : GradeEnum.getGrade(inf.getMomentum().ordinal() - mass.ordinal());
             DirEnum dir = inf.getDir();
 
             if (momentum != null)
             {
-                /* Weapon got parried */
-                if (actor != null)
-                {
-//                    Vec2 momentumCopy = momentum.copy();
-//                    actor.addVelocity(momentumCopy.div(actor.getMass()));
+                boolean gotParried = currentOpExec() && actor != null;
 
-                    if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
+                if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
+                {
+                    float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
+                    addVelocityX(speed * dir.getHoriz().getSign());
+                    addVelocityY(speed * dir.getVert().getSign());
+
+                    if (gotParried)
                     {
-                        float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
-                        actor.addVelocityX(speed * dir.getHoriz().getSign());
-                        addVelocityY(speed * dir.getVert().getSign());
+                        GradeEnum momentumForActor = GradeEnum.getGrade(Math.max(0,
+                                momentum.ordinal() - actor.getMass().ordinal() - actor.getGrip().ordinal()));
+                        actor.addVelocityX(GradeEnum.gradeToVel(momentumForActor) * dir.getHoriz().getSign());
+                        actor.addVelocityY(GradeEnum.gradeToVel(momentumForActor) * dir.getVert().getSign());
                     }
-                    else
+                    else if (actor != null)
+                    {
+                        actor.addVelocityX(speed * dir.getHoriz().getSign());
+                        actor.addVelocityY(speed * dir.getVert().getSign());
+                    }
+                }
+                else
+                {
+                    if (dir.getHoriz() != DirEnum.NONE)
+                        addVelocityX(GradeEnum.gradeToVel(momentum) * dir.getHoriz().getSign());
+                    else if (dir.getVert() != DirEnum.NONE)
+                        addVelocityY(GradeEnum.gradeToVel(momentum) * dir.getVert().getSign());
+
+                    if (gotParried)
+                    {
+                        GradeEnum momentumForActor = GradeEnum.getGrade(Math.max(0,
+                                momentum.ordinal() - actor.getMass().ordinal() - actor.getGrip().ordinal()));
+                        if (dir.getHoriz() != DirEnum.NONE)
+                            actor.addVelocityX(GradeEnum.gradeToVel(momentumForActor) * dir.getHoriz().getSign());
+                        else if (dir.getVert() != DirEnum.NONE)
+                            actor.addVelocityY(GradeEnum.gradeToVel(momentumForActor) * dir.getVert().getSign());
+                    }
+                    else if (actor != null)
                     {
                         if (dir.getHoriz() != DirEnum.NONE)
-                            addVelocityX(GradeEnum.gradeToVel(momentum));
+                            actor.addVelocityX(GradeEnum.gradeToVel(momentum) * dir.getHoriz().getSign());
                         else if (dir.getVert() != DirEnum.NONE)
-                            addVelocityY(GradeEnum.gradeToVel(momentum));
+                            actor.addVelocityY(GradeEnum.gradeToVel(momentum) * dir.getVert().getSign());
                     }
-
-                    /* Stagger actor */
-                    actor.staggerParry(inf.getDamage(), inf.getDir());
                 }
+
+                if (gotParried) /* Stagger actor */
+                    actor.staggerParry(inf.getDamage(), inf.getDir());
 
                 interrupt(GradeEnum.getGrade(momentum.ordinal() - getMass().ordinal()));
             }
@@ -481,6 +507,8 @@ public class Weapon extends Item
             else orient = DEF_ORIENT.copy();
             updateCorners();
         }
+
+        stepDebugText(deltaSec);
     }
 
     private void updateClashes(ArrayList<Weapon> otherWeapons)

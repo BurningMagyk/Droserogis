@@ -10,12 +10,14 @@ import Gameplay.Entities.Weapons.Infliction;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.paint.Color;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public abstract class Item extends Entity
 {
-    GradeEnum mass;
+    protected GradeEnum mass;
     private int hitPoints;
 
     /* The entities that are in contact from each of 4 directions */
@@ -52,6 +54,7 @@ public abstract class Item extends Entity
         resetAcceleration();
         applyInflictions();
         applyPhysics(entities, deltaSec);
+        stepDebugText(deltaSec);
     }
 
     /**
@@ -421,4 +424,22 @@ public abstract class Item extends Entity
 
     /* Minimum speed that they go down a slope after hitting terminally low speeds */
     private float minSlopeSpeed = 0.01F;
+
+    //--------------------------------------------------------//
+    //                Code for DebugText stuff                //
+    //--------------------------------------------------------//
+    private final ArrayList<DebugText> DEBUG_TEXT = new ArrayList<>();
+    public void addDebugText(String text) { DEBUG_TEXT.add(new DebugText(text, Color.WHITE)); }
+    public ArrayList<DebugText> getDebugText() { return DEBUG_TEXT; }
+    protected void stepDebugText(float deltaSec)
+    {
+        for (int i = 0; i < DEBUG_TEXT.size(); i++)
+        {
+            if (DEBUG_TEXT.get(i).step(deltaSec))
+            {
+                DEBUG_TEXT.remove(i);
+                i--;
+            }
+        }
+    }
 }
