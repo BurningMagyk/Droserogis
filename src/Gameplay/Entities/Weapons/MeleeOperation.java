@@ -258,8 +258,6 @@ class MeleeOperation implements Weapon.Operation
     private Orient orient;
     private float totalSec = 0;
 
-    // TODO: easyToBlock set in WeaponTypeEnum (sword thrusts harder to block than hammer thrusts)
-
     MeleeOperation(
             String name,
             MeleeEnum[][] next,
@@ -291,6 +289,13 @@ class MeleeOperation implements Weapon.Operation
         this.infTypes = infTypes;
     }
 
+    /**
+     * This copies the array of ticks into a new array but with a copy of the
+     * last tick appended at the end. This is needed to bandage a glitch with
+     * weapon-on-actor collision.
+     * @param ej - The original array of ticks
+     * @return The copy of the array
+     */
     private Tick[] cabooseExecJourney(Tick[] ej)
     {
         Tick[] withCaboose = new Tick[ej.length + 1];
