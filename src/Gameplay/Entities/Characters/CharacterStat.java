@@ -126,6 +126,8 @@ public class CharacterStat
         }
     }
 
+    int clamp(int ord) { return Math.min(Math.max(0, ord), ord); }
+
     /*****************************************************************************/
     /************************ Ability Score Charts *******************************/
     /*****************************************************************************/
@@ -270,42 +272,50 @@ public class CharacterStat
 
     /***************************** Ability Score Chart Access *****************************/
 
-    private float strength(float base) { return STRENGTH[grades[Ability.STRENGTH.ordinal()].ordinal()] * base; }
+    private int strength() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int stamina() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int dexterity() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int agility() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int constitution() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int vitality() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int wisdom() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int will() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int intelligence() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int knowledge() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+    private int presence() { return grades[Ability.STRENGTH.ordinal()].ordinal(); }
+
+    private float strength(float base) { return STRENGTH[strength()] * base; }
     private float stamina(float base)
     {
-        return STAMINA[grades[Ability.STAMINA.ordinal()].ordinal()] * base;
+        return STAMINA[stamina()] * base;
     }
     private float dexterity(float base)
     {
-        return DEXTERITY[grades[Ability.DEXTERITY.ordinal()].ordinal()] * base;
+        return DEXTERITY[dexterity()] * base;
     }
     private float agility(float base)
     {
-        return AGILITY[grades[Ability.AGILITY.ordinal()].ordinal()] * base;
+        return AGILITY[agility()] * base;
     }
-    private float constitution(float base) { return CONSTITUTION[grades[Ability.CONSTITUTION.ordinal()].ordinal()] * base; }
-    private float vitality(float base)
-    {
-        return VITALITY[grades[Ability.VITALITY.ordinal()].ordinal()] * base;
-    }
+    private float constitution(float base) { return CONSTITUTION[constitution()] * base; }
+    private float vitality(float base) { return VITALITY[vitality()] * base; }
     private float wisdom(float base)
     {
-        return WISDOM[grades[Ability.WISDOM.ordinal()].ordinal()] * base;
+        return WISDOM[wisdom()] * base;
     }
     private float will(float base)
     {
-        return WILL[grades[Ability.WILL.ordinal()].ordinal()] * base;
+        return WILL[will()] * base;
     }
-    private float intelligence(float base) { return INTELLIGENCE[grades[Ability.INTELLIGENCE.ordinal()].ordinal()] * base; }
+    private float intelligence(float base) { return INTELLIGENCE[intelligence()] * base; }
     private float knowledge(float base)
     {
-        return KNOWLEDGE[grades[Ability.KNOWLEDGE.ordinal()].ordinal()] * base;
+        return KNOWLEDGE[knowledge()] * base;
     }
     private float presence(float base)
     {
-        return PRESENCE[grades[Ability.PRESENCE.ordinal()].ordinal()] * base;
+        return PRESENCE[presence()] * base;
     }
-    private float agility(GradeEnum grade) { return AGILITY[grade.ordinal()]; }
 
     /*****************************************************************************/
     /****************************** Balancing Tools ******************************/
@@ -313,53 +323,55 @@ public class CharacterStat
 
     public int hitPoints() { return (int) (vitality(90) + constitution(10)); }
 
-    public float airSpeed() { return 0.12F; } // dexterity
+    public float airSpeed() { return dexterity(0.12F); }
     public float swimSpeed() { return agility(3F); }
-    public float crawlSpeed() { return 0.02F; } // agility
-    public float walkSpeed() { return 0.03F; } // agility
-    public float runSpeed() { return 0.06F; } // agility
-    public float lowerSprintSpeed() { return 0.07F; } // agility
-    public float sprintSpeed() { return 0.11F; } // agility
-    public float rushSpeed() { return agility(0.18F); } // agility
+    public float crawlSpeed() { return agility(0.02F); }
+    public float walkSpeed() { return agility(0.03F); }
+    public float runSpeed() { return agility(0.06F); }
+    public float lowerSprintSpeed() { return agility(0.07F); }
+    public float sprintSpeed() { return agility(0.11F); }
+    public float rushSpeed() { return agility(0.18F); }
 
-    public float maxClimbSpeed() { return 0.3F; } // agility + dexterity
-    public float maxStickSpeed() { return 0.05F; } // agility + dexterity
-    public float maxSlideSpeed() { return 0.4F; } // agility + dexterity
-    public float maxLowerGroundSpeed() { return 0.1F; } // agility + dexterity
-    public float maxGroundSpeed() { return 0.2F; } // agility + dexterity
-    public float maxTotalSpeed() { return 3F; } // none
+    public float maxClimbSpeed() { return agility(0.15F) + dexterity(0.15F); }
+    public float maxStickSpeed() { return agility(0.025F) + dexterity(0.025F); }
+    public float maxSlideSpeed() { return agility(0.2F) + dexterity(0.2F); }
+    public float maxLowerGroundSpeed() { return agility(0.05F) + dexterity(0.05F); }
+    public float maxGroundSpeed() { return agility(0.1F) + dexterity(0.1F); }
+    public float maxTotalSpeed() { return 3F; }
 
-    public float airAccel() { return 0.1F; } // dexterity
-    public float swimAccel() { return 0.3F; } // agility
-    public float crawlAccel() { return 0.15F; } // agility
-    public float climbAccel(GradeEnum mass) { return 0.1F; } // agility
-    public float runAccel() { return 0.2F; } // agility
+    public float airAccel() { return dexterity(0.1F); }
+    public float swimAccel() { return agility(0.3F); }
+    public float crawlAccel() { return agility(0.15F); }
+    public float climbAccel(GradeEnum mass) {
+        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.1F;
+    }
+    public float runAccel() { return agility(0.2F); }
 
-    public float slopeAccelDiv() { return 2; } // strength + agility
+    public float slopeAccelDiv() { return strength(1) + agility(1); }
 
-    public float jumpVel(GradeEnum mass) { return 0.1F; } // strength + agility
+    public float jumpVel(GradeEnum mass) {
+        return STRENGTH[clamp(agility() + strength() - mass.ordinal())] * 0.1F;
+    }
 
-    public float climbLedgeTime(GradeEnum mass) { return 0.85F; } // agility
+    public float climbLedgeTime(GradeEnum mass) {
+        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.85F;
+    }
     public float[] stairRecoverTime() { return new float[]
             { agility(0.25F), dexterity(0.2F),
                     stamina(0.25F) + constitution(0.25F) }; }
-    public float dashRecoverTime() { return 0.5F; } // agility + constitution
-    public float minTumbleTime() { return 1F; } // agility + vitality
+    public float dashRecoverTime() { return agility(0.25F) + constitution(0.25F); }
+    public float minTumbleTime() { return agility(0.5F) + vitality(0.5F); }
 
-    public float proneRecoverTime() { return 0.85F; } // constitution + vitality + agility
+    public float proneRecoverTime() { return constitution(0.3F) + vitality(0.3F) + agility(0.3F); }
 
-    public GradeEnum[] landingThresh()
-    {
-        GradeEnum agilityGrade = grades[Ability.AGILITY.ordinal()];
-        return new GradeEnum[] { GradeEnum.getGrade(agilityGrade.ordinal() / 2), agilityGrade };
+    public GradeEnum[] landingThresh() {
+        return new GradeEnum[] { GradeEnum.getGrade(agility() / 2), GradeEnum.getGrade(agility()) };
     }
-    public GradeEnum[] staggerThresh()
-    {
-        GradeEnum strengthGrade = grades[Ability.STRENGTH.ordinal()];
-        return new GradeEnum[] { GradeEnum.getGrade(strengthGrade.ordinal() / 2), strengthGrade };
+    public GradeEnum[] staggerThresh() {
+        return new GradeEnum[] { GradeEnum.getGrade(strength() / 2), GradeEnum.getGrade(strength()) };
     }
 
-    public float friction() { return 0.35F; } // agility
+    public float friction() { return agility(0.35F); }
 
-    public GradeEnum weaponGrip() { return grades[Ability.STRENGTH.ordinal()]; } // strength
+    public GradeEnum weaponGrip() { return GradeEnum.getGrade(strength()); }
 }

@@ -147,12 +147,6 @@ public class RushOperation implements Weapon.Operation
     public void release(int attackKey) { if (this.attackKey == attackKey) this.attackKey = -1; }
 
     @Override
-    public void apply(Item other)
-    {
-
-    }
-
-    @Override
     public boolean isParrying() { return true; }
     @Override
     public boolean isPermeating() { return false; }

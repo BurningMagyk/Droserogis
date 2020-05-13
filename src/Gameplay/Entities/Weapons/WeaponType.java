@@ -283,7 +283,6 @@ public class WeaponType
                 return true; }
             return false; }
         public void release(int attackKey) { if (attackKey == 3) state = State.EXECUTION; }
-        public void apply(Item other) { }
         public boolean isParrying() { return false; }
         public boolean isPermeating() { return false; }
         public Weapon.Operation copy() { return new InteractOperation(); }

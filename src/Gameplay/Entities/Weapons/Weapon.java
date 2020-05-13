@@ -463,7 +463,7 @@ public class Weapon extends Item
     @Override
     protected void destroy()
     {
-        // TODO: unequip weapon and drop
+        unequip();
     }
 
     /*=======================================================================*/
@@ -621,7 +621,6 @@ public class Weapon extends Item
                    WeaponStat weaponStat, Command command);
         boolean run(float deltaSec);
         void release(int attackKey);
-        void apply(Item other); // TODO: what's this for??
 
         /* For clashing */
         boolean isParrying();

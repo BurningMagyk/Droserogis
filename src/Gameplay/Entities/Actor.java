@@ -106,11 +106,30 @@ public class Actor extends Item
 
     public String getName() { return name; }
 
-    // TODO: this only works for standing or crouching, needs to work with prone
-    public Rect getTopRect() { return new Rect(getX() - getWidth() / 2, getY() - getHeight() / 2,
-            getWidth(), getHeight() / 2); }
-    public Rect getBottomRect() { return new Rect(getX() - getWidth() / 2, getY(),
-            getWidth(), getHeight() / 2); }
+    public Rect getTopRect()
+    {
+        if (has(Condition.NEGATE_STABILITY))
+        {
+            if (dirFace == 1) return new Rect(getX() - getWidth() / 2, getY() - getHeight() / 2,
+                    getWidth() / 2, getHeight());
+            else return new Rect(getX(), getY() - getHeight() / 2,
+                    getWidth() / 2, getHeight());
+        }
+        return new Rect(getX() - getWidth() / 2, getY() - getHeight() / 2,
+            getWidth(), getHeight() / 2);
+    }
+    public Rect getBottomRect()
+    {
+        if (has(Condition.NEGATE_STABILITY))
+        {
+            if (dirFace == -1) return new Rect(getX() - getWidth() / 2, getY() - getHeight() / 2,
+                    getWidth() / 2, getHeight());
+            else return new Rect(getX(), getY() - getHeight() / 2,
+                    getWidth() / 2, getHeight());
+        }
+        return new Rect(getX() - getWidth() / 2, getY(),
+            getWidth(), getHeight() / 2);
+    }
 
     @Override
     public Color getColor()
@@ -820,7 +839,7 @@ public class Actor extends Item
     {
         if (pressed && !pressingJump && canJump())
         {
-            pressedJumpTime = 1F; // TODO: decide this value
+            pressedJumpTime = 0.25F;
             addCondition(0.3F, Condition.FORCE_STAND);
         }
         else if (!pressed) pressedJumpTime = -1F;
@@ -1139,6 +1158,7 @@ public class Actor extends Item
         if (weapon.isIdle())
         {
             weapons[1] = weapon.equip(this);
+            setCharacterStats();
             return true;
         }
         return false;
@@ -1691,7 +1711,7 @@ public class Actor extends Item
     {
         private Entity entity;
         private Vec2 lateVel;
-        private float duration = 0.15F; // TODO: decide this value
+        private float duration = 0.2F;
 
         LateSurface(Entity entity, Vec2 lateVel)
         {
@@ -1822,8 +1842,6 @@ public class Actor extends Item
     /* How long the player tumbles */
     private float minTumbleTime = 1F;
 
-    // friction
-
     /* How easy it is to be forced to crouch or go prone after falling too hard */
     GradeEnum[] landingThresh = { GradeEnum.F, GradeEnum.F };
 
@@ -1833,6 +1851,10 @@ public class Actor extends Item
     /* How much blocks resist momentum and how much attacks give momentum */
     GradeEnum weaponGrip = GradeEnum.F;
 
+    /**
+     * This should get called whenever something is equipped, unequipped,
+     * or the characterStats is set/modified
+     */
     private void setCharacterStats()
     {
         airSpeed = charStat.airSpeed();
@@ -1881,7 +1903,9 @@ public class Actor extends Item
     }
 
 
-
+    /**
+     * This is for testing/debugging
+     */
     public static void main(String[] args)
     {
         // applyPhysics(EntityCollection entities, float deltaSec)

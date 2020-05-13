@@ -113,7 +113,7 @@ public class Armor extends Item
     @Override
     protected void destroy()
     {
-        // TODO: unequip armor and drop
+        unequip();
     }
 
     public boolean isIdle() { return idle; }

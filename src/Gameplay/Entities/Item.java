@@ -391,10 +391,15 @@ public abstract class Item extends Entity
         return false;
     }
 
+    private int gradeToDamage(GradeEnum grade)
+    {
+        if (grade == GradeEnum.F) return 0;
+        else return (int) Math.pow(2, grade.ordinal() - 1);
+    }
+
     void damage(GradeEnum grade, float percent)
     {
-        // TODO: should use something other than .ordinal()
-        if (hitPoints > 0) hitPoints -= grade.ordinal() * percent;
+        if (hitPoints > 0) hitPoints -= gradeToDamage(grade) * percent;
         if (hitPoints <= 0) destroy();
         else Print.blue("hitpoints left: " + hitPoints);
     }
@@ -403,10 +408,10 @@ public abstract class Item extends Entity
     void damage(float amount, Infliction.InflictionType... infType)
     {
         if (amount == 0) return;
-        // TODO: fix glitch where Actor gets hurt easily after successfully climbing a ledge
 
-        //Print.blue(amount);
-        damage(new Infliction(GradeEnum.getGrade(amount), infType));
+        GradeEnum grade = GradeEnum.getGrade(amount);
+        if (grade.ordinal() > 0)
+            damage(new Infliction(GradeEnum.getGrade(amount), infType));
     }
 
     public abstract void damage(Infliction inf);

@@ -182,12 +182,6 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
-    public void apply(Item other)
-    {
-
-    }
-
-    @Override
     public boolean isParrying() {
         return parrying;
     }
