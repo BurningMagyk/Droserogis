@@ -7,7 +7,9 @@
 package Gameplay;
 
 import Gameplay.Entities.*;
+
 import Gameplay.Entities.Weapons.Weapon;
+import Importer.ImageResource;
 import Menus.Main;
 import Util.DebugEnum;
 import Util.Vec2;
@@ -143,7 +145,7 @@ public class RenderThread
         gfx.setFill(texturePatternShadow);
         for (Entity entity : entityList)
         {
-            if ((entity instanceof Block) == false) continue;
+            if (!(entity instanceof Block)) continue;
             Block block = ((Block) entity);
             double x = (entity.getX() - entity.getWidth() / 2 - cameraPosX + cameraOffsetX) * cameraZoom;
             double y = (entity.getY() - entity.getHeight() / 2 - cameraPosY + cameraOffsetY) * cameraZoom;
@@ -157,7 +159,7 @@ public class RenderThread
                 gfx.setFill(texturePatternShadow);
                 continue;
             }
-            if (true) continue;
+//            if (true) continue;
             Entity.ShapeEnum shape = entity.getShape();
             double shadowL = (x-viewWidth/2)/30.0;
             double shadowR = (x+width-viewWidth/2)/30.0;
@@ -301,6 +303,20 @@ public class RenderThread
                                 x-=type.left;
                                 y-=type.top;
                                 gfx.drawImage(block.getBlockType().image, x, y);
+                            }
+                        }
+                        else if(entity instanceof Actor)
+                        {
+                            Actor actor = (Actor) entity;
+                            ImageResource imageResource = actor.getSprite();
+                            if(imageResource != null)
+                            {
+                                gfx.drawImage(imageResource.getImage(), x, y, -width, height);
+                            }
+                            else
+                            {
+                                gfx.setFill(entity.getColor());
+                                gfx.fillRect(x, y, width, height);
                             }
                         }
                         else

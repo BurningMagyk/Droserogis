@@ -108,12 +108,10 @@ abstract public class Entity
         else
         {
             SPRITES = new ArrayList<>();
-            for (int i = 0; i < spritePaths.size(); i++)
-            {
-                ImageResource[] temp = new ImageResource[spritePaths.get(i).length];
-                for (int j = 0; j < spritePaths.get(i).length; j++)
-                {
-                    temp[j] = Main.IMPORTER.getImage(spritePaths.get(i)[j]);
+            for (String[] spritePath : spritePaths) {
+                ImageResource[] temp = new ImageResource[spritePath.length];
+                for (int j = 0; j < spritePath.length; j++) {
+                    temp[j] = Main.IMPORTER.getImage(spritePath[j]);
                 }
                 SPRITES.add(temp);
             }
@@ -350,15 +348,11 @@ abstract public class Entity
     {
         switch (shape)
         {
-            case TRIANGLE_UP_L:
-                return new Vec2((float) (totalVel * cosTheta),
-                        (float) (-totalVel * sinTheta));
             case TRIANGLE_UP_R:
-                return new Vec2((float) (totalVel * cosTheta),
-                        (float) (totalVel * sinTheta));
             case TRIANGLE_DW_L:
                 return new Vec2((float) (totalVel * cosTheta),
                         (float) (totalVel * sinTheta));
+            case TRIANGLE_UP_L:
             case TRIANGLE_DW_R:
                 return new Vec2((float) (totalVel * cosTheta),
                         (float) (-totalVel * sinTheta));
@@ -375,15 +369,11 @@ abstract public class Entity
     {
         switch (shape)
         {
-            case TRIANGLE_UP_L:
-                return new Vec2((float) (-totalVel * sinTheta),
-                        (float) (totalVel * cosTheta));
             case TRIANGLE_UP_R:
-                return new Vec2((float) (totalVel * sinTheta),
-                        (float) (totalVel * cosTheta));
             case TRIANGLE_DW_L:
                 return new Vec2((float) (totalVel * sinTheta),
                         (float) (totalVel * cosTheta));
+            case TRIANGLE_UP_L:
             case TRIANGLE_DW_R:
                 return new Vec2((float) (-totalVel * sinTheta),
                         (float) (totalVel * cosTheta));
@@ -693,6 +683,11 @@ abstract public class Entity
     private int spriteStateIndex = 0, spriteFrameIndex = 0;
     public ImageResource getSprite()
     {
-        return SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+        if(SPRITES != null) {
+            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
+        }
+
+        return currSprite;
     }
 }

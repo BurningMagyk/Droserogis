@@ -128,12 +128,29 @@ public class Character
     /*****************************************************************************/
     /*********************************** Roster **********************************/
     /*****************************************************************************/
+    static ArrayList<String[]> nathanSpritePaths = new ArrayList<>();
+
+    public static ArrayList<String[]> getNathanSpritePaths() {
+        String[] spriteArray = new String[90];
+        for(int i = 0 ; i < 90; i++){
+            String imageIndex = i+1 < 10 ? "0"+(i+1) : ""+(i+1);
+            spriteArray[i] = "NathanAnimationsBasicA/NathanBounceFightIdle/NathanBounceFightIdle.png00"+imageIndex+".png";
+        }
+        nathanSpritePaths.add(spriteArray);
+        spriteArray = new String[90];
+        for(int i = 0 ; i < 90; i++){
+            String imageIndex = i+1 < 10 ? "0"+(i+1) : ""+(i+1);
+            spriteArray[i] = "NathanAnimationsBasicA/NathanBounceFightIdle/NathanBounceFightIdleNormal.png00"+imageIndex+".png";
+        }
+        nathanSpritePaths.add(spriteArray);
+        return nathanSpritePaths;
+    }
 
     private static Character character_Nathan = new Character("Nathan",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getNathanSpritePaths());
 
     private static Character character_Jacob = new Character("Jacob",
             new CharacterStat("F", "F", "F", "F", "F", "F",

@@ -22,7 +22,7 @@ public class Importer
 
     private final ResourceComp COMP = new ResourceComp();
 
-    private String fontDir = "/Fonts/";
+    private final String fontDir = "/Fonts/";
     private String imageDir = "/Uncontrolled/";
     private String audioDir = "/Audio/";
 

@@ -214,7 +214,7 @@ public class Main extends Application
                 image.getHeight() * sizeScale);
 
         /* Draw the logo */
-        int boundary[] = new int[3];
+        int[] boundary = new int[3];
         int fontSize = Math.min(width, height) / 7;
         boundary[0] = height - fontSize / 10 - STUFFING;
         boundary[1] = boundary[0] - (int) (fontSize / 1.5) - STUFFING / 2;
@@ -237,10 +237,10 @@ public class Main extends Application
         Button exitButton = buttons[1];
 
         /* Calculate boundary values */
-        int boundsX[] = new int[2];
+        int[] boundsX = new int[2];
         boundsX[0] = width - (int) exitButton.getPrefWidth() - STUFFING;
         boundsX[1] = boundsX[0] - (int) startButton.getPrefWidth() - STUFFING;
-        int boundsY[] = new int[1];
+        int[] boundsY = new int[1];
         boundsY[0] = height - (int) (startButton.getPrefHeight() * 1.3) - STUFFING;
 
         /* Set widget locations */
@@ -251,7 +251,7 @@ public class Main extends Application
     }
 
     private void drawLogo(GraphicsContext context, int fontSize,
-                          int boundary[], final int STUFFING)
+                          int[] boundary, final int STUFFING)
     {
         /* Try importing the Scurlock font file */
         FontResource font = IMPORTER.getFont("scurlock.ttf", fontSize);
@@ -296,8 +296,7 @@ public class Main extends Application
                 setText(item.toString());
                 ImageView imageView = new ImageView(item.getFlag());
                 label = new Label("", imageView);
-                if (item == LanguageEnum.WAPANESE) font.switchFont(true);
-                else font.switchFont(false);
+                font.switchFont(item == LanguageEnum.WAPANESE);
                 setFont(font.getFont());
                 setGraphic(label);
                 setPrefSize(width, height);
@@ -309,12 +308,12 @@ public class Main extends Application
     {
         switch (Locale.getDefault().getLanguage())
         {
-            case ("en") : { return LanguageEnum.ENGLISH; }
             case ("es") : { return LanguageEnum.SPANISH; }
             case ("it") : { return LanguageEnum.ITALIAN; }
             case ("fr") : { return LanguageEnum.FRENCH; }
             case ("de") : { return LanguageEnum.GERMAN; }
             case ("ja") : { return LanguageEnum.WAPANESE; }
+            case ("en") :
             default : { return LanguageEnum.ENGLISH; }
         }
     }
