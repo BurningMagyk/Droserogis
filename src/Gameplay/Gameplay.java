@@ -89,9 +89,9 @@ public class Gameplay implements Reactor
         System.out.println ("Using Font " +font.getName());
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
-        //entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
+        entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
         //entityList = LevelBuilder.loadLevel("Resources/Levels/ZestLevel.csv");
-        entityList = LevelBuilder.loadLevel("Resources/Levels/FestLevel.csv");
+//        entityList = LevelBuilder.loadLevel("Resources/Levels/FestLevel.csv");
 
         /* Set coveredDirs for every block */
         for (Entity entity : entityList)

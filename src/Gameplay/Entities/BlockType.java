@@ -1,5 +1,8 @@
 package Gameplay.Entities;
 
+import Importer.ImageResource;
+import Importer.Importer;
+import Menus.Main;
 import Util.Print;
 import javafx.scene.image.Image;
 
@@ -13,7 +16,8 @@ public class BlockType
     public final Entity.ShapeEnum shape;
     public final boolean isResizeable;
     public final boolean isWater;
-    public Image image;
+    //public Image image;
+    private ImageResource image;
 
     public static BlockType[] blockTypeList;
 
@@ -29,10 +33,7 @@ public class BlockType
         this.isResizeable = false;
         this.isWater = false;
 
-        //String path = "Resources/Image/block/"+fileName+".png";
-        String path = "Image/block/"+fileName+".png";
-        //Print.cyan("BlockType: Load image ["+path+"]");
-        image = new Image(path);
+        image = Main.IMPORTER.getImage("Block/" + fileName + ".png");
     }
 
     public BlockType(Entity.ShapeEnum shape, boolean isWater)
@@ -47,6 +48,8 @@ public class BlockType
         this.isResizeable = true;
         this.isWater = isWater;
     }
+
+    public Image getImage() { return image.getImage(); }
 
     public String toString()
     {

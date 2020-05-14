@@ -681,15 +681,13 @@ abstract public class Entity
     }
 
     private int spriteStateIndex = 0, spriteFrameIndex = 0;
-    public ImageResource getSprite()
+    public ImageResource getImage()
     {
-        return null;
+        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+        if(SPRITES != null) {
+            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
+        }
 
-//        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
-//        if(SPRITES != null) {
-//            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
-//        }
-//
-//        return currSprite;
+        return currSprite;
     }
 }

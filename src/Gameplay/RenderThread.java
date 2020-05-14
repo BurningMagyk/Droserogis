@@ -302,13 +302,13 @@ public class RenderThread
                         {
                             x-=type.left;
                             y-=type.top;
-                            gfx.drawImage(block.getBlockType().image, x, y);
+                            gfx.drawImage(block.getBlockType().getImage(), x, y);
                         }
                     }
-                    else if(entity instanceof Actor)
+                    else if (entity instanceof Actor)
                     {
                         Actor actor = (Actor) entity;
-                        ImageResource imageResource = actor.getSprite();
+                        ImageResource imageResource = actor.getImage();
                         if(imageResource != null)
                         {
                             gfx.drawImage(imageResource.getImage(), x, y, -width, height);
