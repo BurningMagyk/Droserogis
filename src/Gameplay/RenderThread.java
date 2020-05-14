@@ -311,7 +311,7 @@ public class RenderThread
                         ImageResource imageResource = actor.getImage();
                         if(imageResource != null)
                         {
-                            gfx.drawImage(imageResource.getImage(), x, y, -width, height);
+                            gfx.drawImage(imageResource.getImage(), x, y, width, height);
                         }
                         else
                         {

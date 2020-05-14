@@ -343,7 +343,7 @@ public class CharacterStat
     public float swimAccel() { return agility(0.3F); }
     public float crawlAccel() { return agility(0.15F); }
     public float climbAccel(GradeEnum mass) {
-        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.1F;
+        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.2F;
     }
     public float runAccel() { return agility(0.2F); }
 
