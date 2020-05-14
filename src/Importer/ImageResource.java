@@ -22,13 +22,20 @@ public class ImageResource extends Resource
     {
         super(path);
         this.context = context;
+
         InputStream input = getClass().getResourceAsStream(path);
         if (input != null) image = new Image(input);
         else
         {
-            image = null;
-            printFailure();
+            input = getClass().getResourceAsStream(setUncontrolled());
+            if (input != null) image = new Image(input);
+            else
+            {
+                image = null;
+                printFailure();
+            }
         }
+
         this.backup = backup;
     }
 

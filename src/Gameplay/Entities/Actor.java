@@ -37,7 +37,7 @@ public class Actor extends Item
             NORMAL_GRAVITY = gravity,
             REDUCED_GRAVITY = NORMAL_GRAVITY * 0.7F,
             WEAK_GRAVITY = NORMAL_GRAVITY * 0.1F,
-            GREATER_GRAVITY = NORMAL_GRAVITY / 0.5F;
+            GREATER_GRAVITY = NORMAL_GRAVITY * 4;
 
     private float NORMAL_FRICTION, GREATER_FRICTION, REDUCED_FRICTION;
 
@@ -134,7 +134,7 @@ public class Actor extends Item
     @Override
     public Color getColor()
     {
-        if (touchEntity[LEFT] != null) return Color.GREEN;
+        if (state == State.WALL_STICK) return Color.GREEN;
         return Color.GREY;
 
         //return state.getColor();
@@ -1127,6 +1127,7 @@ public class Actor extends Item
     {
         if (this.state == state) return false;
         else if (state == State.RISE) gravity = REDUCED_GRAVITY;
+        else if (state == State.FALL) gravity = NORMAL_GRAVITY;
         else if (state == State.WALL_CLIMB && getVelocityY() < 0)
             gravity = REDUCED_GRAVITY;
 

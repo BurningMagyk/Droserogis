@@ -146,6 +146,12 @@ public class Character
         return nathanSpritePaths;
     }
 
+    private static Character character_Chad = new Character("Chad",
+            new CharacterStat("A", "A", "A", "A", "A", "A",
+                    "A", "A", "A", "A", "A"),
+            CharacterClass.class_Fighter,
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
+
     private static Character character_Nathan = new Character("Nathan",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
@@ -202,6 +208,7 @@ public class Character
 
     public static Character get(String name)
     {
+        if (name.equals("Chad")) return character_Chad;
         if (name.equals("Nathan")) return character_Nathan;
         if (name.equals("Jacob")) return character_Jacob;
         if (name.equals("Tetsuya")) return character_Tetsuya;

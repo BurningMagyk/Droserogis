@@ -683,11 +683,13 @@ abstract public class Entity
     private int spriteStateIndex = 0, spriteFrameIndex = 0;
     public ImageResource getSprite()
     {
-        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
-        if(SPRITES != null) {
-            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
-        }
+        return null;
 
-        return currSprite;
+//        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+//        if(SPRITES != null) {
+//            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
+//        }
+//
+//        return currSprite;
     }
 }

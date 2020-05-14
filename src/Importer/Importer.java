@@ -7,6 +7,7 @@
 package Importer;
 
 import Util.LanguageEnum;
+import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -22,9 +23,9 @@ public class Importer
 
     private final ResourceComp COMP = new ResourceComp();
 
-    private final String fontDir = "/Fonts/";
-    private String imageDir = "/Uncontrolled/";
-    private String audioDir = "/Audio/";
+    private final String FONT_DIR = "/Fonts/";
+    private final String IMAGE_DIR = "/Image/";
+    private final String AUDIO_DIR = "/Audio/";
 
     public void setContext(GraphicsContext context)
     {
@@ -34,11 +35,11 @@ public class Importer
     public ImageResource getImage(String path, Color color)
     {
         int index = binarySearch(0, images.size() - 1,
-                imageDir + path, images);
+                IMAGE_DIR + path, images);
         if (index == -1)
         {
             ImageResource resource = new ImageResource(
-                     imageDir + path, context, color);
+                     IMAGE_DIR + path, context, color);
             images.add(resource);
             images.sort(COMP);
             return resource;
@@ -67,7 +68,7 @@ public class Importer
     public FontResource getFont(String path, double size)
     {
         FontResource font = new FontResource(
-                fontDir + path, size, context);
+                FONT_DIR + path, size, context);
         fonts.add(font);
         return font;
     }
@@ -75,8 +76,8 @@ public class Importer
     public FontResource getFont(String path, double size,
                                 String pathAlt, double sizeAlt)
     {
-        return new FontResource(fontDir + path, size,
-                fontDir + pathAlt, sizeAlt, context);
+        return new FontResource(FONT_DIR + path, size,
+                FONT_DIR + pathAlt, sizeAlt, context);
     }
 
     public FontResource getFont(String path, String pathAlt, double size)
@@ -94,7 +95,7 @@ public class Importer
 
     public AudioResource getAudio(String path)
     {
-        return new AudioResource(audioDir + path);
+        return new AudioResource(AUDIO_DIR + path);
     }
 
     private int binarySearch(int first, int last, String key, ArrayList<Resource> list)
@@ -107,7 +108,7 @@ public class Importer
         {
             int mid = (first + last) / 2;
 
-            int comp = key.compareToIgnoreCase(list.get(mid).path);
+            int comp = key.compareToIgnoreCase(list.get(mid).getPath());
 
             if (comp == 0)
                 result = mid;
@@ -124,7 +125,7 @@ public class Importer
         @Override
         public int compare(Resource res1, Resource res2)
         {
-            return res2.path.compareToIgnoreCase(res1.path);
+            return res2.getPath().compareToIgnoreCase(res1.getPath());
         }
     }
 }

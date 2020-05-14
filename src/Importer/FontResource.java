@@ -30,16 +30,20 @@ public class FontResource extends Resource
     {
         super(path);
         this.context = context;
+
         InputStream input = getClass().getResourceAsStream(path);
-        if (input != null)
-        {
-            font = Font.loadFont(input, size);
-        }
+        if (input != null) font = Font.loadFont(input, size);
         else
         {
-            font = Font.font(size);
-            printFailure();
+            input = getClass().getClass().getResourceAsStream(setUncontrolled());
+            if (input != null) font = Font.loadFont(input, size);
+            else
+            {
+                font = Font.font(size);
+                printFailure();
+            }
         }
+
         fontAlt = null;
         fontSize = size;
     }
@@ -48,13 +52,20 @@ public class FontResource extends Resource
                  double sizeAlt, GraphicsContext context)
     {
         this(path, size, context);
-        InputStream input = getClass().getResourceAsStream(pathAlt);
+
+        InputStream input = getClass().getResourceAsStream(setAltPath(pathAlt));
         if (input != null) fontAlt = Font.loadFont(input, size);
         else
         {
-            fontAlt = Font.font(sizeAlt);
-            Print.red("\"" + pathAlt + "\" was not imported");
+            input = getClass().getResourceAsStream(setUncontrolled());
+            if (input != null) font = Font.loadFont(input, size);
+            else
+            {
+                fontAlt = Font.font(sizeAlt);
+                Print.red("\"" + pathAlt + "\" was not imported");
+            }
         }
+
         fontSizeAlt = sizeAlt;
     }
 

@@ -29,6 +29,16 @@ public enum GradeEnum
         "SS-" , "SS" , "SS+" ,  // Super-human
         "SSS-", "SSS", "SSS+"}; // Transcendent
 
+    /* Weight based on grade */
+    /*
+       F - Sprites
+       E - Baby
+       D - Child
+       C - Adult
+       B - Goliath
+       A - Charles
+    */
+
 
     @Override
     public String toString() { return gradeStrings[ordinal()]; }

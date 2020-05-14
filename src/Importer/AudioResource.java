@@ -6,6 +6,7 @@
 
 package Importer;
 
+import Util.Print;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -22,24 +23,24 @@ public class AudioResource extends Resource
         super(path);
 
         URL url = getClass().getResource(path);
-        if (url != null)
+        if (url != null) setAudio(url);
+        else
         {
-            Media music;
-            try {
-                music = new Media(url.toURI().toString());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                music = null;
-                mediaPlayer = null;
-            }
-            if (music != null)
-            {
-                mediaPlayer = new MediaPlayer(music);
-
-                mediaPlayer.setOnEndOfMedia(() ->
-                        mediaPlayer.stop());
-            }
+            url = getClass().getResource(setUncontrolled());
+            if (url != null) setAudio(url);
             else printFailure();
+        }
+    }
+
+    private void setAudio(URL url)
+    {
+        Media audio = new Media(url.toExternalForm());
+        if (audio != null)
+        {
+            mediaPlayer = new MediaPlayer(audio);
+
+            mediaPlayer.setOnEndOfMedia(() ->
+                    mediaPlayer.stop());
         }
         else printFailure();
     }
