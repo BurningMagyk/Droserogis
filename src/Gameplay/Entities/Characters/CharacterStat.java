@@ -323,7 +323,7 @@ public class CharacterStat
 
     public int hitPoints() { return (int) (vitality(90) + constitution(10)); }
 
-    public float airSpeed() { return dexterity(0.15F); }
+    public float airSpeed() { return dexterity(0.10F); }
     public float swimSpeed() { return dexterity(3F); }
     public float crawlSpeed() { return agility(0.025F); }
     public float walkSpeed() { return agility(0.035F); }
@@ -339,15 +339,15 @@ public class CharacterStat
     public float maxGroundSpeed() { return agility(0.1F) + dexterity(0.1F); }
     public float maxTotalSpeed() { return 3F; }
 
-    public float airAccel() { return dexterity(0.2F); }
+    public float airAccel() { return dexterity(0.15F); }
     public float swimAccel() { return agility(0.3F); }
     public float crawlAccel() { return agility(0.15F); }
     public float climbAccel(GradeEnum mass) {
-        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.2F;
+        return AGILITY[clamp(agility() + strength() - mass.ordinal())] * 0.12F;
     }
     public float runAccel() { return agility(0.2F); }
 
-    public float slopeAccelDiv() { return strength(1) + agility(1); }
+    public float slopeAccelDiv() { return strength(0.3F) + agility(0.3F) + stamina(0.3F); }
 
     public float jumpVel(GradeEnum mass) {
         return STRENGTH[clamp(agility() + strength() - mass.ordinal())] * 0.15F;
@@ -371,7 +371,7 @@ public class CharacterStat
         return new GradeEnum[] { GradeEnum.getGrade(strength() / 2), GradeEnum.getGrade(strength()) };
     }
 
-    public float friction() { return agility(0.35F); }
+    public float friction(GradeEnum mass) { return AGILITY[clamp((agility() + mass.ordinal()) / 2)] * 1F; }
 
     public GradeEnum weaponGrip() { return GradeEnum.getGrade(strength()); }
 }

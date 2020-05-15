@@ -272,20 +272,21 @@ public class Actor extends Item
 
             if (onUpwardSlope)
             {
-                if (state == State.CROUCH || state == State.CRAWL) gravity /= 2;
-                setAcceleration(touchEntity[DOWN].applySlopeY(gravity));
+                float _gravity = gravity;
+                if (state == State.CROUCH || state == State.CRAWL) _gravity /= 2;
+                setAcceleration(touchEntity[DOWN].applySlopeY(_gravity));
             }
 
             float accel, topSpeed;
             MoveType moveType = getMoveType();
             if (state.isLow())
             {
-                accel = moveType == MoveType.STILL ? 0 : getTopAccel(true);//crawlAccel;
+                accel = moveType == MoveType.STILL ? 0 : getTopAccel(true); // crawlAccel;
                 topSpeed = getTopSpeed(moveType, true);
             }
             else
             {
-                accel = moveType == MoveType.STILL ? 0 : getTopAccel(false);//runAccel;
+                accel = moveType == MoveType.STILL ? 0 : getTopAccel(false); // runAccel;
                 topSpeed = getTopSpeed(moveType,false);
             }
 
@@ -442,7 +443,12 @@ public class Actor extends Item
                     && (dirVert == UP || touchEntity[dirHoriz] != null)
                     && velY >= -maxClimbSpeed && velY <= maxStickSpeed)
             {
-                addAccelerationY(-climbAccel * (velY > 0 && canRun() ? 5 : 1)); // TODO: decide this value (right now it's 5)
+                if (canClimb())
+                {
+                    // TODO: fill this in
+                }
+                else addAccelerationY(-climbAccel * (velY > 0.05 && canRun() ? 10 : 1));
+                // The 0.05 value is how fast the actor will sink down a wall before the boost kick in
 
                 /* Ledge-climbing */
                 int _dirHoriz = -1;
@@ -524,8 +530,8 @@ public class Actor extends Item
                     || (touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_R && getVelocityX() < 0))
             {
                 slopeFactor = touchEntity[DOWN].getWidth()
-                        / ((touchEntity[DOWN].getWidth() +  touchEntity[DOWN].getHeight())
-                        * slopeAccelDiv);
+                        / ((touchEntity[DOWN].getWidth() + touchEntity[DOWN].getHeight())
+                        / slopeAccelDiv);
             }
 
         }
@@ -596,6 +602,10 @@ public class Actor extends Item
         return canWalk() && canStand()
                 && !has(Condition.FORCE_CROUCH)
                 && !has(Condition.NEGATE_JUMP);
+    }
+    private boolean canClimb()
+    {
+        return false;
     }
 
     public boolean[] getBlockRating()
@@ -1895,7 +1905,7 @@ public class Actor extends Item
         landingThresh = charStat.landingThresh();
         staggerThresh = charStat.staggerThresh();
 
-        NORMAL_FRICTION = charStat.friction();
+        NORMAL_FRICTION = charStat.friction(getMass());
         GREATER_FRICTION = NORMAL_FRICTION * 3;
         REDUCED_FRICTION = NORMAL_FRICTION / 3;
         setFriction(NORMAL_FRICTION);
