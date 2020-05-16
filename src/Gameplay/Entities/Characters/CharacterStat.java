@@ -132,18 +132,31 @@ public class CharacterStat
     /************************ Ability Score Charts *******************************/
     /*****************************************************************************/
 
+//    private static float[] floatVals() { return new float[] {
+//            0.25F, 0.30F, 0.35F,
+//            0.40F, 0.45F, 0.50F,
+//            0.55F, 0.60F, 0.65F,
+//
+//            0.70F, 0.75F, 0.80F,
+//            0.85F, 0.90F, 0.95F,
+//            1.00F, 1.05F, 1.10F,
+//
+//            1.15F, 1.20F, 1.25F,
+//            1.30F, 1.35F, 1.40F,
+//            1.45F, 1.50F, 1.55F }; }
+
     private static float[] floatVals() { return new float[] {
-            0.25F, 0.30F, 0.35F,
-            0.40F, 0.45F, 0.50F,
-            0.55F, 0.60F, 0.65F,
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F,
 
-            0.70F, 0.75F, 0.80F,
-            0.85F, 0.90F, 0.95F,
-            1.00F, 1.05F, 1.10F,
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F,
 
-            1.15F, 1.20F, 1.25F,
-            1.30F, 1.35F, 1.40F,
-            1.45F, 1.50F, 1.55F }; }
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F,
+            1.00F, 1.00F, 1.00F }; }
 
     private final static float[] STRENGTH = floatVals();
     private final static float[] STAMINA = floatVals();
