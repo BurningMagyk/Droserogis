@@ -1903,7 +1903,7 @@ public class Actor extends Item
         proneRecoverTime = charStat.proneRecoverTime();
 
         landingThresh = charStat.landingThresh();
-        staggerThresh = charStat.staggerThresh();
+        staggerThresh = charStat.staggerThresh(getMass());
 
         NORMAL_FRICTION = charStat.friction(getMass());
         GREATER_FRICTION = NORMAL_FRICTION * 3;
