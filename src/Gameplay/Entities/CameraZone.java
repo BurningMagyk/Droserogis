@@ -6,6 +6,7 @@
 
 package Gameplay.Entities;
 
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class CameraZone extends Entity
@@ -24,6 +25,11 @@ public class CameraZone extends Entity
     private Color color = Color.color(1, 1, 1, 0.2);
     @Override
     public Color getColor() { return color; }
+
+    @Override
+    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom) {
+
+    }
 
     float getDistanceFromEdge(Actor actor)
     {

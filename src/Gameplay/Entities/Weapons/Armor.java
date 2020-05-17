@@ -12,6 +12,8 @@ import Gameplay.Entities.Item;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -117,4 +119,15 @@ public class Armor extends Item
     }
 
     public boolean isIdle() { return idle; }
+
+    @Override
+    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom) {
+        double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
+        double y = (this.getY() - this.getHeight() / 2 - camPosY + camOffY) * camZoom;
+        double width = this.getWidth() * camZoom;
+        double height = this.getHeight() * camZoom;
+        gfx.setFill(this.getColor());
+        gfx.fillRect(x, y, width, height);
+
+    }
 }

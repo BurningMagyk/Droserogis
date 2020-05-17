@@ -10,6 +10,7 @@ import Importer.ImageResource;
 import Menus.Main;
 import Util.Print;
 import Util.Vec2;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ abstract public class Entity
     {
         RECTANGLE
                 {
+                    public boolean isTriangle() {return false;}
                     public String getText() {return "Rectangle";}
                 },
         TRIANGLE_UP_R
@@ -690,4 +692,6 @@ abstract public class Entity
 
         return currSprite;
     }
+
+    public abstract void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom);
 }

@@ -12,10 +12,12 @@ import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Weapons.*;
 import Gameplay.Entities.Weapons.ConditionApp;
 import Gameplay.Entities.Weapons.Infliction;
+import Importer.ImageResource;
 import Util.GradeEnum;
 import Util.Print;
 import Util.Rect;
 import Util.Vec2;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.Arrays;
@@ -1716,6 +1718,24 @@ public class Actor extends Item
     {
         super.setTriggered(triggered);
         return true;
+    }
+
+    @Override
+    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom) {
+        double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
+        double y = (this.getY() - this.getHeight() / 2 - camPosY + camOffY) * camZoom;
+        double width = this.getWidth() * camZoom;
+        double height = this.getHeight() * camZoom;
+        ImageResource imageResource = this.getImage();
+        if(imageResource != null)
+        {
+            gfx.drawImage(imageResource.getImage(), x, y, width, height);
+        }
+        else
+        {
+            gfx.setFill(this.getColor());
+            gfx.fillRect(x, y, width, height);
+        }
     }
 
     private class LateSurface

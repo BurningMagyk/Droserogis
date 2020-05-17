@@ -13,6 +13,7 @@ import Gameplay.Entities.Entity;
 import Gameplay.Entities.EntityCollection;
 import Gameplay.Entities.Item;
 import Util.*;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -249,6 +250,37 @@ public class Weapon extends Item
             else if (actor.isBlockingUp()) return Color.RED;
         }
         return Color.BLACK;
+    }
+
+    @Override
+    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom) {
+        Vec2[][] cc = this.getClashShapeCorners();
+        if (cc != null)
+        {
+            gfx.setFill(Color.rgb(120, 170, 170));
+            for (int j = 0; j < cc.length; j++)
+            {
+                double[] xxCorners = {cc[j][0].x, cc[j][1].x, cc[j][2].x, cc[j][3].x};
+                double[] yyCorners = {cc[j][0].y, cc[j][1].y, cc[j][2].y, cc[j][3].y};
+                for (int i = 0; i < xxCorners.length; i++)
+                {
+                    xxCorners[i] = (xxCorners[i] - camPosX + camOffX) * camZoom;
+                    yyCorners[i] = (yyCorners[i] - camPosY + camOffY) * camZoom;
+                }
+                gfx.fillPolygon(xxCorners, yyCorners, 4);
+            }
+        }
+
+        gfx.setFill(this.getColor());
+        Vec2[] c = this.getShapeCorners();
+        double[] xCorners = {c[0].x, c[1].x, c[2].x, c[3].x};
+        double[] yCorners = {c[0].y, c[1].y, c[2].y, c[3].y};
+        for (int i = 0; i < xCorners.length; i++)
+        {
+            xCorners[i] = (xCorners[i] - camPosX + camOffX) * camZoom;
+            yCorners[i] = (yCorners[i] - camPosY + camOffY) * camZoom;
+        }
+        gfx.fillPolygon(xCorners, yCorners, 4);
     }
 
 
