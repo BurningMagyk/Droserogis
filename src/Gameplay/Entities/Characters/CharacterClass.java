@@ -50,6 +50,13 @@ public class CharacterClass
             0,10,
             5,0,
             0);
+    static CharacterClass class_Cleric = new CharacterClass("Cleric",
+            10,5,
+            35,30,
+            5,0,
+            0,10,
+            5,0,
+            0);
     static CharacterClass class_Rogue = new CharacterClass("Rogue",
             10,5,
             35,30,
