@@ -6,6 +6,8 @@
 
 package Importer;
 
+import Menus.Main;
+import Util.DebugEnum;
 import Util.Print;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -47,7 +49,7 @@ public class AudioResource extends Resource
 
     public void play()
     {
-        if (mediaPlayer == null) return;
+        if (mediaPlayer == null || Main.debugEnum == DebugEnum.GAMEPLAY) return;
         if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) return;
         mediaPlayer.play();
     }

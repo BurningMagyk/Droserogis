@@ -327,15 +327,15 @@ public class Actor extends Item
                     && prevGround.getTopEdge() > stairTopEdge)
             {
                 float diff = (prevGround.getTopEdge() - stairTopEdge) / getHeight();
-                if (diff < stairRecoverTime[0])
+                if (diff < 0.5F)
                 {
-                    if (diff < stairRecoverTime[1])
+                    if (diff < stairRecoverTime[0])
                     {
-                        addCondition(stairRecoverTime[2], Condition.NEGATE_SPRINT_LEFT, Condition.NEGATE_SPRINT_RIGHT);
+                        addCondition(stairRecoverTime[1], Condition.NEGATE_SPRINT_LEFT, Condition.NEGATE_SPRINT_RIGHT);
                     }
-                    else addCondition(stairRecoverTime[2], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
+                    else addCondition(stairRecoverTime[1], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT);
                 }
-                else addCondition(stairRecoverTime[2], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT, Condition.FORCE_CROUCH);
+                else addCondition(stairRecoverTime[1], Condition.NEGATE_RUN_LEFT, Condition.NEGATE_RUN_RIGHT, Condition.FORCE_CROUCH);
             }
 
             fromWall = false;
@@ -1817,7 +1817,7 @@ public class Actor extends Item
     /* How long it takes to climb over a ledge after grabbing it */
     private float climbLedgeTime = 1;
 
-    private float[] stairRecoverTime = { 0.05F, 0.05F, 0.05F };
+    private float[] stairRecoverTime = { 0.05F, 0.05F };
 
     /* This is the highest speed the player can move.
      * (In the air or anywhere) */

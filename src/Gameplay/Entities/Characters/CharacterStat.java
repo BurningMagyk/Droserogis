@@ -116,6 +116,11 @@ public class CharacterStat
         grades[6] = parseGrade(wil); grades[7] = parseGrade(wis);
         grades[8] = parseGrade(kno); grades[9] = parseGrade(nte);
         grades[10] = parseGrade(pre);
+
+//        for (int i = 0; i < grades.length; i++)
+//        {
+//            Print.blue(grades[i]);
+//        }
     }
     CharacterStat(String stats[])
     {
@@ -132,31 +137,19 @@ public class CharacterStat
     /************************ Ability Score Charts *******************************/
     /*****************************************************************************/
 
-//    private static float[] floatVals() { return new float[] {
-//            0.25F, 0.30F, 0.35F,
-//            0.40F, 0.45F, 0.50F,
-//            0.55F, 0.60F, 0.65F,
-//
-//            0.70F, 0.75F, 0.80F,
-//            0.85F, 0.90F, 0.95F,
-//            1.00F, 1.05F, 1.10F,
-//
-//            1.15F, 1.20F, 1.25F,
-//            1.30F, 1.35F, 1.40F,
-//            1.45F, 1.50F, 1.55F }; }
-
     private static float[] floatVals() { return new float[] {
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F,
+            0.25F, 0.30F, 0.35F,
+            0.40F, 0.45F, 0.50F,
+            0.55F, 0.60F, 0.65F,
 
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F,
+            0.70F, 0.75F, 0.80F,
+            0.85F, 0.90F, 0.95F,
+            1.00F, 1.05F, 1.10F,
 
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F,
-            1.00F, 1.00F, 1.00F }; }
+            1.15F, 1.20F, 1.25F,
+            1.30F, 1.35F, 1.40F,
+            1.45F, 1.50F, 1.55F }; }
+
 
     private final static float[] STRENGTH = floatVals();
     private final static float[] STAMINA = floatVals();
@@ -267,26 +260,25 @@ public class CharacterStat
     }
 
     public float climbLedgeTime(GradeEnum mass) {
-        return AGILITY[clamp(GradeEnum.SSS__.ordinal() - mass.ordinal() + agility() + strength())] * 0.85F;
+        return AGILITY[clamp(GradeEnum.SSS__.ordinal() + mass.ordinal() - agility() - strength())] * 0.5F;
     }
     public float[] stairRecoverTime() { return new float[]
-            { agilityNeg(0.25F), dexterityNeg(0.25F),
-                    staminaNeg(0.05F) + constitutionNeg(0.05F) }; }
-    public float dashRecoverTime() { return agilityNeg(0.25F) + constitutionNeg(0.25F); }
-    public float minTumbleTime() { return agilityNeg(0.5F) + vitalityNeg(0.5F); }
+            { dexterityNeg(0.4F), staminaNeg(0.1F) }; }
+    public float dashRecoverTime() { return agilityNeg(0.25F) + constitutionNeg(0.25F); }  // TODO: balance for chad
+    public float minTumbleTime() { return agilityNeg(0.5F) + vitalityNeg(0.5F); } // TODO: balance for chad
 
     public float proneRecoverTime() { return constitutionNeg(0.3F) + vitalityNeg(0.3F) + agilityNeg(0.3F); }
 
     public GradeEnum[] landingThresh() {
         return new GradeEnum[] { GradeEnum.getGrade(agility() / 2),
-                GradeEnum.getGrade(agility()) };
+                GradeEnum.getGrade(agility()) };  // TODO: balance for chad
     }
     public GradeEnum[] staggerThresh(GradeEnum mass) {
         return new GradeEnum[] { GradeEnum.getGrade(clamp((strength() + mass.ordinal()) / 4)),
-                GradeEnum.getGrade(clamp(strength() + mass.ordinal()) / 2) };
+                GradeEnum.getGrade(clamp(strength() + mass.ordinal()) / 2) };  // TODO: balance for chad
     }
 
-    public float friction(GradeEnum mass) { return AGILITY[clamp((agility() + mass.ordinal()) / 2)] * 1F; }
+    public float friction(GradeEnum mass) { return agility(1F); }
 
     public GradeEnum weaponGrip() { return GradeEnum.getGrade(strength()); }
 }

@@ -249,6 +249,6 @@ RECTANGLE,-1050,91,45,53
 RECTANGLE,-868,87,325,18
 RECTANGLE,-932,72,60,22
 RECTANGLE,-888,76,30,15
-Player,-250,-150,Nathan
+Player,-250,-150,Chad
 Player,-300,-250,Let
 Weapon,-472,-32,25,5,F+,Sword,C,C,C,C,1,null,null,C,D,null
