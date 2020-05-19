@@ -105,6 +105,6 @@ public enum GradeEnum
     }
     public static float gradeToVel(GradeEnum grade)
     {
-        return 0.2F; // TODO: decide good formula
+        return 0.05F; // TODO: decide good formula
     }
 }

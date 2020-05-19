@@ -618,6 +618,50 @@ public class Actor extends Item
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
+    /**
+     * Returns 0 or 1 depending on speed and direction
+     */
+    public int getSpeedRating(DirEnum dir)
+    {
+        if (dir.getHoriz() == DirEnum.LEFT)
+        {
+            if (dir.getVert() == DirEnum.UP)
+            {
+                if ((-getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return 1;
+            }
+            else if (dir.getVert() == DirEnum.DOWN)
+            {
+                if ((-getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return 1;
+            }
+            else if (-getVelocityX() > speedThresh) return 1;
+        }
+        else if (dir.getHoriz() == DirEnum.RIGHT)
+        {
+            if (dir.getVert() == DirEnum.UP)
+            {
+                if ((getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return 1;
+            }
+            else if (dir.getVert() == DirEnum.DOWN)
+            {
+                if ((getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return 1;
+            }
+            else if (getVelocityX() > speedThresh) return 1;
+        }
+        else
+        {
+            if (dir.getVert() == DirEnum.UP)
+            {
+                if (-getVelocityY() > speedThresh) return 1;
+            }
+            else if (dir.getVert() == DirEnum.DOWN)
+            {
+                if (getVelocityY() > speedThresh) return 1;
+            }
+        }
+
+        return 0;
+    }
+
     public GradeEnum getGrip() { return weaponGrip; }
 
     public Infliction.InflictionType[] getRushInfTypes()
@@ -1269,14 +1313,6 @@ public class Actor extends Item
                 || fromWall || getY() - getHeight() > fromGround;
     }
 
-    public int getSpeedRating()
-    {
-        double speed = Math.abs(getVelocity().mag());
-        if (speed > sprintSpeed) return 3;
-        if (speed > runSpeed) return 2;
-        if (speed > walkSpeed) return 1;
-        return 0;
-    }
     public DirEnum getTravelDir()
     {
         Vec2 vel = getVelocity();
@@ -1637,6 +1673,8 @@ public class Actor extends Item
             //else stagger(newDamageGrade);
 
             damage(newDamageGrade, 1);
+
+            addDebugText(newDamageGrade.toString());
         }
     }
 
@@ -1664,7 +1702,6 @@ public class Actor extends Item
             DirEnum dir = inf.getDir();
             if (momentum != null)
             {
-                addDebugText(dir.toString());
                 if (dir.getHoriz() != DirEnum.NONE && dir.getVert() != DirEnum.NONE)
                 {
                     float speed = GradeEnum.gradeToVel(momentum) * 0.7071F;
@@ -1727,7 +1764,7 @@ public class Actor extends Item
         double width = this.getWidth() * camZoom;
         double height = this.getHeight() * camZoom;
         ImageResource imageResource = this.getImage();
-        if(imageResource != null)
+        if (imageResource != null)
         {
             gfx.drawImage(imageResource.getImage(), x, y, width, height);
         }
@@ -1735,6 +1772,14 @@ public class Actor extends Item
         {
             gfx.setFill(this.getColor());
             gfx.fillRect(x, y, width, height);
+
+            // Draw text over items
+            for (DebugText debugText : getDebugText())
+            {
+                gfx.setFill(debugText.getColor());
+                gfx.fillText(debugText.getText(),
+                        x, y + ((0.5F - debugText.getDist()) * height / 2));
+            }
         }
     }
 
@@ -1882,6 +1927,9 @@ public class Actor extends Item
     /* How much blocks resist momentum and how much attacks give momentum */
     GradeEnum weaponGrip = GradeEnum.F;
 
+    /* Used only in getSpeedRating method */
+    float speedThresh = runSpeed + walkSpeed / 2;
+
     /**
      * This should get called whenever something is equipped, unequipped,
      * or the characterStats is set/modified
@@ -1896,6 +1944,7 @@ public class Actor extends Item
         lowerSprintSpeed = charStat.lowerSprintSpeed();
         sprintSpeed = charStat.sprintSpeed();
         rushSpeed = charStat.rushSpeed();
+        speedThresh = runSpeed + walkSpeed / 2;
 
         maxClimbSpeed = charStat.maxClimbSpeed();
         maxStickSpeed = charStat.maxStickSpeed();

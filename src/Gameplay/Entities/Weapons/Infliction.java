@@ -85,9 +85,7 @@ public class Infliction
 
         momentumMag = GradeEnum.getGrade((actorSpeed.ordinal() + actorMass.ordinal() + actorGrip.ordinal()
                 + weaponSpeed.ordinal() + weaponMass.ordinal()) / 4);
-        Print.green(weaponDir);
         momentumDir = DirEnum.add(actorDir, weaponDir);
-        Print.green(momentumDir);
 
 //        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));
 //        Vec2 ridiculous = actorMomentum.add(weaponMomentum);
