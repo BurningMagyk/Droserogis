@@ -19,7 +19,7 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public String getName() { return name; }
     @Override
-    public DirEnum getDir() { return face; }
+    public DirEnum getDir(boolean face) { return face ? this.face : funcDir; }
 
     private Infliction selfInfliction;
     @Override
@@ -27,10 +27,10 @@ class MeleeOperation implements Weapon.Operation
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, precision, conditionApps,
-                actor.getTravelDir(), GradeEnum.velToGrade(actor.getVelocity()),
-                GradeEnum.getGrade(actor.getMass().ordinal() - mass.ordinal()), actor.getGrip(),
-                infDir, execSpeedGrade, mass, infTypes); }
+        return new Infliction(damage, precision, knockback, conditionApps,
+                actor.getTravelDir(),
+                extraMomentum ? actor.getMass() : GradeEnum.F,
+                infDir, infTypes); }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
     @Override
@@ -62,14 +62,16 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private float waitSpeed, execSpeed;
-    private GradeEnum execSpeedGrade;
+    private boolean extraMomentum = false;
     @Override
     public void start(Orient startOrient, float warmBoost, CharacterStat characterStat,
-                      WeaponStat weaponStat, Command command)
+                      WeaponStat weaponStat, Command command, boolean extraMomentum)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
         face = command.FACE;
+        this.extraMomentum = extraMomentum;
+
         attackKey = command.ATTACK_KEY;
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
@@ -80,8 +82,7 @@ class MeleeOperation implements Weapon.Operation
         GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
 
         waitSpeed = weaponStat.waitSpeed(strGrade, agiGrade);
-        execSpeedGrade = weaponStat.attackSpeed(strGrade, agiGrade);
-        execSpeed = 10;//execSpeedGrade();
+        execSpeed = weaponStat.attackSpeed(strGrade, agiGrade);
 
         ConditionApp[] conditionAppsExtra = weaponStat.inflictionApp();
         ConditionApp conditionApp = conditionApps[0];
@@ -90,12 +91,10 @@ class MeleeOperation implements Weapon.Operation
                 conditionApps, 1, conditionAppsExtra.length);
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
-        damage = GradeEnum.getGrade(damageMod / 2 *
-                (weaponStat.damage(strGrade).ordinal()
-                + strGrade.ordinal()));
-        precision = GradeEnum.getGrade(precisionMod / 2 *
-                (weaponStat.precision(dexGrade).ordinal()
-                + characterStat.getGrade(CharacterStat.Ability.DEXTERITY).ordinal()));
+
+        damage = weaponStat.damage(strGrade, damageMod);
+        knockback = weaponStat.knockback(strGrade, knockbackMod);
+        precision = weaponStat.precision(dexGrade, precisionMod);
 
         Print.blue("Operating \"" + getName() + "\"");
     }
@@ -212,7 +211,7 @@ class MeleeOperation implements Weapon.Operation
     {
         return new MeleeOperation(
                 name, next, proceeds, cycle,
-                waits, funcDir, damageMod, precisionMod,
+                waits, funcDir, damageMod, knockbackMod, precisionMod,
                 parrying, permeating,
                 conditionApps[0], execJourney, infTypes);
     }
@@ -237,8 +236,8 @@ class MeleeOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage, precision;
-    private float damageMod, precisionMod;
+    private GradeEnum damage, knockback, precision;
+    private GradeEnum damageMod, knockbackMod, precisionMod;
     private boolean parrying, permeating;
     private ConditionApp[] conditionApps, selfApps;
     private Tick[] execJourney;
@@ -259,8 +258,9 @@ class MeleeOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            float damageMod,
-            float precisionMod,
+            GradeEnum damageMod,
+            GradeEnum knockbackMod,
+            GradeEnum precisionMod,
             boolean parrying,
             boolean permeating,
             ConditionApp conditionApp,
@@ -275,6 +275,7 @@ class MeleeOperation implements Weapon.Operation
         this.waits = waits.copy();
         this.funcDir = funcDir;
         this.damageMod = damageMod;
+        this.knockbackMod = knockbackMod;
         this.precisionMod = precisionMod;
         this.parrying = parrying;
         this.permeating = permeating;
@@ -304,31 +305,23 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.precisionMod,
+                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
                 op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
-    MeleeOperation(
-            String name,
-            MeleeOperation op,
-            MeleeEnum[][] next
-    )
+    MeleeOperation(String name, MeleeOperation op, MeleeEnum[][] next)
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.precisionMod,
+                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
                 op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }
 
-    MeleeOperation(
-            String name,
-            MeleeOperation op,
-            ConditionAppCycle cycle
-    )
+    MeleeOperation(String name, MeleeOperation op, ConditionAppCycle cycle)
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.precisionMod,
+                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
                 op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
     }

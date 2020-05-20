@@ -18,7 +18,7 @@ public class RushOperation implements Weapon.Operation
     @Override
     public String getName() { return name; }
     @Override
-    public DirEnum getDir() { return face; }
+    public DirEnum getDir(boolean face) { return face ? this.face : funcDir; }
 
     private Infliction selfInfliction;
     @Override
@@ -26,10 +26,10 @@ public class RushOperation implements Weapon.Operation
     {
         DirEnum infDir = (face.getHoriz() == DirEnum.LEFT)
                 ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
-        return new Infliction(damage, null, conditionApps,
-                actor.getTravelDir(), GradeEnum.velToGrade(actor.getVelocity()),
-                actor.getMass(), actor.getGrip(),
-                infDir, GradeEnum.F, mass, actor.getRushInfTypes());
+        return new Infliction(damage, null, null, conditionApps,
+                actor.getTravelDir(),
+                actor.getMass(),
+                infDir, actor.getRushInfTypes());
     }
     @Override
     public Infliction getSelfInfliction() { return selfInfliction; }
@@ -81,7 +81,7 @@ public class RushOperation implements Weapon.Operation
     private float waitSpeed;
     @Override
     public void start(Orient orient, float warmBoost, CharacterStat characterStat,
-                      WeaponStat weaponStat, Command command)
+                      WeaponStat weaponStat, Command command, boolean extraMomentum)
     {
         state = State.WARMUP;
         totalSec = warmBoost;
@@ -101,9 +101,8 @@ public class RushOperation implements Weapon.Operation
                 conditionApps, 1, conditionAppsExtra.length);
         conditionApps[0] = conditionApp;
         selfApps = weaponStat.selfInflictionApp();
-        damage = GradeEnum.getGrade(damageMod / 2 *
-                (weaponStat.damage(dexGrade).ordinal()
-                + strGrade.ordinal()));
+
+        damage = weaponStat.damage(strGrade, damageMod);
     }
 
     @Override
@@ -175,7 +174,7 @@ public class RushOperation implements Weapon.Operation
     private Vec2 waits;
     private DirEnum funcDir;
     private GradeEnum damage;
-    private float damageMod;
+    private GradeEnum damageMod;
     private ConditionApp[] conditionApps, selfApps;
     private RushFinish[] finishes;
 
@@ -191,7 +190,7 @@ public class RushOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            float damageMod,
+            GradeEnum damageMod,
             ConditionApp conditionApp,
             RushFinish ...finishes
     )

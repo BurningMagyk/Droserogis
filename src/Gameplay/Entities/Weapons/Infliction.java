@@ -74,17 +74,18 @@ public class Infliction
 //    }
 
     /* For inflictions dealt by attacks */
-    public Infliction(GradeEnum damage, GradeEnum precision, ConditionApp[] conditionApps,
-                      DirEnum actorDir, GradeEnum actorSpeed, GradeEnum actorMass, GradeEnum actorGrip,
-                      DirEnum weaponDir, GradeEnum weaponSpeed, GradeEnum weaponMass, InflictionType...types)
+    public Infliction(GradeEnum damage, GradeEnum knockback, GradeEnum precision, ConditionApp[] conditionApps,
+                      DirEnum actorDir, GradeEnum totalMass,
+                      DirEnum weaponDir, InflictionType...types)
     {
         this.damage = damage;
         this.precision = precision;
         this.conditionApps = conditionApps;
 //        Vec2 actorMomentum = actorSpeed.mul(actorMass + actorGrip);
 
-        momentumMag = GradeEnum.getGrade((actorSpeed.ordinal() + actorMass.ordinal() + actorGrip.ordinal()
-                + weaponSpeed.ordinal() + weaponMass.ordinal()) / 4);
+        if (knockback == null) momentumMag = totalMass;
+        else momentumMag = GradeEnum.getGrade(
+                (totalMass.ordinal() + knockback.ordinal()) / 2);
         momentumDir = DirEnum.add(actorDir, weaponDir);
 
 //        Vec2 weaponMomentum = weaponDir.unit().mul(weaponSpeed * (weaponMass + actorGrip));

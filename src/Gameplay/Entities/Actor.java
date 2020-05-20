@@ -101,7 +101,7 @@ public class Actor extends Item
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,
                 GradeEnum.getGrade(character.getMass().ordinal() / 10), WeaponType.NATURAL,
                 new WeaponStat("C", "C", "C", "C",
-                        1, null, null, "C", "D"),
+                        1, null, null, "C", "D", "D"),
                 null);
         weapons[WeaponSlot.NATURAL.ordinal()].equip(this);
     }
@@ -618,48 +618,45 @@ public class Actor extends Item
         return new boolean[] { able, prone, pressingUp, shield };
     }
 
-    /**
-     * Returns 0 or 1 depending on speed and direction
-     */
-    public int getSpeedRating(DirEnum dir)
+    public boolean getSpeedRating(DirEnum dir)
     {
         if (dir.getHoriz() == DirEnum.LEFT)
         {
             if (dir.getVert() == DirEnum.UP)
             {
-                if ((-getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return 1;
+                if ((-getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return true;
             }
             else if (dir.getVert() == DirEnum.DOWN)
             {
-                if ((-getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return 1;
+                if ((-getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return true;
             }
-            else if (-getVelocityX() > speedThresh) return 1;
+            else if (-getVelocityX() > speedThresh) return true;
         }
         else if (dir.getHoriz() == DirEnum.RIGHT)
         {
             if (dir.getVert() == DirEnum.UP)
             {
-                if ((getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return 1;
+                if ((getVelocityX() + getVelocityY()) * 0.707 >= speedThresh) return true;
             }
             else if (dir.getVert() == DirEnum.DOWN)
             {
-                if ((getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return 1;
+                if ((getVelocityX() - getVelocityY()) * 0.707 >= speedThresh) return true;
             }
-            else if (getVelocityX() > speedThresh) return 1;
+            else if (getVelocityX() > speedThresh) return true;
         }
         else
         {
             if (dir.getVert() == DirEnum.UP)
             {
-                if (-getVelocityY() > speedThresh) return 1;
+                if (-getVelocityY() > speedThresh) return true;
             }
             else if (dir.getVert() == DirEnum.DOWN)
             {
-                if (getVelocityY() > speedThresh) return 1;
+                if (getVelocityY() > speedThresh) return true;
             }
         }
 
-        return 0;
+        return false;
     }
 
     public GradeEnum getGrip() { return weaponGrip; }

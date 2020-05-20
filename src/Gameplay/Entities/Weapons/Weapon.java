@@ -124,9 +124,9 @@ public class Weapon extends Item
         {
             shapeCornersOffset = new Vec2(
                     getPosition().x + dims.x * orient.getX() * actor.getWeaponWidthRatio()
-                            * (currentOp == null || currentOp.getDir() == null
+                            * (currentOp == null || currentOp.getDir(true) == null
                             ? dir.getHoriz().getSign()
-                            : currentOp.getDir().getHoriz().getSign()),
+                            : currentOp.getDir(true).getHoriz().getSign()),
                     getPosition().y + dims.y * orient.getY());
         }
 
@@ -181,7 +181,7 @@ public class Weapon extends Item
 
                         Vec2 cornersOffset = new Vec2(
                                 getPosition().x + actor.getDefWidth() * tickOrients[i].getX() * actor.getWeaponWidthRatio()
-                                        * currentOp.getDir().getHoriz().getSign(),
+                                        * currentOp.getDir(true).getHoriz().getSign(),
                                 getPosition().y + actor.getDefHeight() * tickOrients[i].getY());
 
                         wieldDim.add(cornersOffset);
@@ -312,8 +312,13 @@ public class Weapon extends Item
         currentCommand = command;
         currentOp = newOp;
         collidedItems.clear();
+
+        DirEnum funcDir = currentOp.getDir(false);
+        DirEnum infDir = (command.FACE.getHoriz() == DirEnum.LEFT)
+                ? DirEnum.get(funcDir.getHoriz().getOpp(), funcDir.getVert()) : funcDir;
+
         currentOp.start(DEF_ORIENT, warmBoost,
-                actor.getCharacterStat(), weaponStat, command);
+                actor.getCharacterStat(), weaponStat, command, actor.getSpeedRating(infDir));
     }
 
     public boolean addCommand(Command command, boolean combo, boolean chain)
@@ -528,7 +533,7 @@ public class Weapon extends Item
                 {
                     if (currentOp instanceof RushOperation) orient = DEF_ORIENT;
                     else orient = currentOp.getOrient();
-                    dirOp = currentOp.getDir();
+                    dirOp = currentOp.getDir(true);
 
                     /* Current operation may inflict something to the wielder */
                     actor.inflict(currentOp.getSelfInfliction());
@@ -595,7 +600,7 @@ public class Weapon extends Item
                     if (item instanceof Actor)
                     {
                         Actor other = (Actor) item;
-                        DirEnum dir = currentOp.getDir();
+                        DirEnum dir = currentOp.getDir(true);
                         if (currentOp instanceof RushOperation)
                         {
                             /* If other item is an actor and they're facing you */
@@ -641,7 +646,7 @@ public class Weapon extends Item
     interface Operation
     {
         String getName();
-        DirEnum getDir();
+        DirEnum getDir(boolean face);
         Infliction getInfliction(Actor actor, GradeEnum mass);
         Infliction getSelfInfliction();
         State getState();
@@ -650,7 +655,7 @@ public class Weapon extends Item
         MeleeOperation.MeleeEnum getNext(MeleeOperation.MeleeEnum meleeEnum);
 
         void start(Orient orient, float warmBoost, CharacterStat characterStat,
-                   WeaponStat weaponStat, Command command);
+                   WeaponStat weaponStat, Command command, boolean extraMomentum);
         boolean run(float deltaSec);
         void release(int attackKey);
 

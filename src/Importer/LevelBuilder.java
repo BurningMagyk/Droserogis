@@ -575,7 +575,7 @@ public class LevelBuilder  extends Application
                 if (text.equals("SWORD"))
                 {
                     WeaponStat weaponStat = new WeaponStat(
-                            "C", "C", "C", "C", 1, null, null, "C", "D");
+                            "C", "C", "C", "C", 1, null, null, "C", "D", "D");
                     Weapon sword = new Weapon(x, y, 0.5F, 0.1F, GradeEnum.F__,
                             WeaponType.SWORD, weaponStat, null);
                     entityList.add(sword);
@@ -586,7 +586,7 @@ public class LevelBuilder  extends Application
             {
                 if (text.startsWith("Camera Zone"))
                 {
-                    int value = Integer.valueOf(text.substring(text.length() - 3).trim());
+                    int value = Integer.parseInt(text.substring(text.length() - 3).trim());
                     ((CameraZone) selectedEntity).setZoom(value);
                 }
             }
@@ -764,10 +764,10 @@ public class LevelBuilder  extends Application
                 }
                 else if (data[0].equals("Weapon"))
                 {
-                    if (data.length != 17)
+                    if (data.length != 18)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Weapon record must have 16 fields.");
+                        throw new IOException("Weapon record must have 17 fields.");
                     }
                     float width = Float.parseFloat(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.parseFloat(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
@@ -775,7 +775,7 @@ public class LevelBuilder  extends Application
                     WeaponType type = WeaponType.NATURAL;
                     if (data[6].equals("Sword")) type = WeaponType.SWORD;
                     WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],
-                            Integer.parseInt(data[11]), null, null, data[14], data[15], null);
+                            Integer.parseInt(data[11]), null, null, data[14], data[15], data[16], null);
                     entity = new Weapon(x, y, width, height, mass, type, stat, null);
                 }
                 else

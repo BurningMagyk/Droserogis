@@ -20,6 +20,7 @@ public class WeaponStat
         SPEED_DEP,
 
         DAMAGE,
+        KNOCKBACK,
         PRECISION
     }
 
@@ -33,7 +34,7 @@ public class WeaponStat
             String atk_spe, String spe_dep,
             int blo_rat,
             ConditionApp[] infApps, ConditionApp[] selfApps,
-            String dam, String pre,
+            String dam, String kno, String pre,
             Infliction.InflictionType... infTypes)
     {
         // Durability
@@ -44,6 +45,7 @@ public class WeaponStat
         // ConditionApp inflictions
         // ConditionApp self-inflictions
         // Damage
+        // Knockback
         // Precision
         // Infliction types
 
@@ -53,7 +55,8 @@ public class WeaponStat
         grades[2] = parseGrade(atk_spe);
         grades[3] = parseGrade(spe_dep);
         grades[4] = parseGrade(dam);
-        grades[5] = parseGrade(pre);
+        grades[5] = parseGrade(kno);
+        grades[6] = parseGrade(pre);
 
         blockRating = blo_rat;
         inflictApps = infApps == null ? new ConditionApp[]{} : infApps;
@@ -113,21 +116,26 @@ public class WeaponStat
         int avg = (grades[Ability.WAIT_SPEED.ordinal()].ordinal() + agiGrade.ordinal()) / 2;
         return speedDep(strGrade) ? WAIT_SPEED[avg] : WAIT_SPEED[avg] * 2;
     }
-    GradeEnum attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
+    float attackSpeed(GradeEnum strGrade, GradeEnum agiGrade)
     {
-        return GradeEnum.getGrade(strGrade.ordinal() + agiGrade.ordinal() / (speedDep(strGrade) ? 2 : 4));
+        return ATTACK_SPEED[(strGrade.ordinal() + agiGrade.ordinal() / (speedDep(strGrade) ? 2 : 4))];
     }
     ConditionApp[] inflictionApp() { return inflictApps; }
     ConditionApp[] selfInflictionApp() { return selfInflictApps; }
-    GradeEnum damage(GradeEnum strGrade)
+    GradeEnum damage(GradeEnum strGrade, GradeEnum opMod)
     {
         int damageVal = grades[Ability.DAMAGE.ordinal()].ordinal();
-        return GradeEnum.getGrade((damageVal + strGrade.ordinal()) / 2);
+        return GradeEnum.getGrade((damageVal + strGrade.ordinal() + opMod.ordinal()) / 3);
     }
-    GradeEnum precision(GradeEnum dexGrade)
+    GradeEnum knockback(GradeEnum strGrade, GradeEnum opMod)
+    {
+        int knockbackVal = grades[Ability.KNOCKBACK.ordinal()].ordinal();
+        return GradeEnum.getGrade((knockbackVal + strGrade.ordinal() + opMod.ordinal()) / 3);
+    }
+    GradeEnum precision(GradeEnum dexGrade, GradeEnum opMod)
     {
         int precisionVal = grades[Ability.PRECISION.ordinal()].ordinal();
-        return GradeEnum.getGrade((precisionVal + dexGrade.ordinal()) / 2);
+        return GradeEnum.getGrade((precisionVal + dexGrade.ordinal() + opMod.ordinal()) / 3);
     }
 
     /* 0 - can't block (eg. flail)
