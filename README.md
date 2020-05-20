@@ -12,7 +12,7 @@
 
 ### Programmers:
 + <h6>Joel Castellanos</h6>
-+ <h6>Dustin Loughrin</h6>
++ <h6>Chris Wu</h6>
 + <h6>Robin Campos</h6>
 
 ### Novelists:
