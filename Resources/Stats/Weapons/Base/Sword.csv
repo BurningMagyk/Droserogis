@@ -1,0 +1,37 @@
+Sword
+THRUST              , C , E , C
+THRUST_UNTERHAU     , C , F , D
+THRUST_UP           , C , E , C
+THRUST_DOWN         , C , E , C
+THRUST_DIAG_UP      , C , E , C
+THRUST_DIAG_DOWN    , C , E , C
+LUNGE               , B , D , D
+STAB                , B , F , B
+STAB_UNTERHAU       , C , F , B
+SWING               , C , D , E
+SWING_UNTERHAU      , C , D , E
+SWING_UNTERHAU_C    , B , C , E
+SWING_AERIAL        , C , D , E
+SWING_PRONE         , C , D , E
+SWING_UP_FORWARD    , C , D , E
+SWING_UP_BACKWARD   , C , D , E
+SWING_DOWN_FORWARD  , C , D , E
+SWING_DOWN_BACKWARD , C , D , E
+SHOVE               , _ , _ , _
+GRAB                , _ , _ , _
+GRAB_UP             , _ , _ , _
+GRAB_DIAG_UP        , _ , _ , _
+GRAB_ALT            , _ , _ , _
+POUNCE              , _ , _ , _
+TACKLE              , _ , _ , _
+TOSS                , F , F-, F
+THROW               , D , F , F
+THROW_UP            , D , F , F
+THROW_UP_DIAG       , D , F , F
+THROW_DOWN          , D , F , F
+THROW_DOWN_DIAG     , D , F , F
+DROP                , F , F-, F
+INTERACT            , _ , _ , _
+DRAW                , _ , _ , _
+LOAD                , _ , _ , _
+SHOOT               , _ , _ , _

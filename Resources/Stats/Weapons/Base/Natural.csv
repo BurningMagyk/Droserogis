@@ -1,0 +1,37 @@
+Natural
+THRUST              , F , E , F
+THRUST_UNTERHAU     , E , D , F
+THRUST_UP           , F , E , F
+THRUST_DOWN         , E , _ , _
+THRUST_DIAG_UP      , F , E , F
+THRUST_DIAG_DOWN    , E , _ , _
+LUNGE               , F-, _ , _
+STAB                , E , F , F
+STAB_UNTERHAU       , E , D , F
+SWING               , F , F , F
+SWING_UNTERHAU      , E , D , F
+SWING_UNTERHAU_C    , E , D , F
+SWING_AERIAL        , E , D , F
+SWING_PRONE         , F , E , F
+SWING_UP_FORWARD    , F , E , F
+SWING_UP_BACKWARD   , F , E , F
+SWING_DOWN_FORWARD  , E , _ , _
+SWING_DOWN_BACKWARD , E , _ , _
+SHOVE               , F , _ , _
+GRAB                , F-, F-, F-
+GRAB_UP             , F-, F-, F-
+GRAB_DIAG_UP        , F-, F-, F-
+GRAB_ALT            , F-, F-, F-
+POUNCE              , E , _ , _
+TACKLE              , F , _ , _
+TOSS                , _ , _ , _
+THROW               , _ , _ , _
+THROW_UP            , _ , _ , _
+THROW_UP_DIAG       , _ , _ , _
+THROW_DOWN          , _ , _ , _
+THROW_DOWN_DIAG     , _ , _ , _
+DROP                , _ , _ , _
+INTERACT            , F-, F-, F-
+DRAW                , _ , _ , _
+LOAD                , _ , _ , _
+SHOOT               , _ , _ , _

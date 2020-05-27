@@ -1,0 +1,37 @@
+Axe
+THRUST              , _ , _ , _
+THRUST_UNTERHAU     , _ , _ , _
+THRUST_UP           , _ , _ , _
+THRUST_DOWN         , _ , _ , _
+THRUST_DIAG_UP      , _ , _ , _
+THRUST_DIAG_DOWN    , _ , _ , _
+LUNGE               , _ , _ , _
+STAB                , _ , _ , _
+STAB_UNTERHAU       , _ , _ , _
+SWING               , +1, +1, +2
+SWING_UNTERHAU      , B+, D+, D-
+SWING_UNTERHAU_C    , +1, +1, +2
+SWING_AERIAL        , +1, +1, +2
+SWING_PRONE         , +1, +1, +2
+SWING_UP_FORWARD    , +1, +1, +2
+SWING_UP_BACKWARD   , B+, D+, D-
+SWING_DOWN_FORWARD  , +1, +1, +2
+SWING_DOWN_BACKWARD , C+, D+, D-
+SHOVE               , _ , _ , _
+GRAB                , _ , _ , _
+GRAB_UP             , _ , _ , _
+GRAB_DIAG_UP        , _ , _ , _
+GRAB_ALT            , _ , _ , _
+POUNCE              , _ , _ , _
+TACKLE              , _ , _ , _
+TOSS                ,  0,  0,  0
+THROW               , +1, +1,  0
+THROW_UP            , +1, +1,  0
+THROW_UP_DIAG       , +1, +1,  0
+THROW_DOWN          , +1, +1,  0
+THROW_DOWN_DIAG     , +1, +1,  0
+DROP                ,  0,  0,  0
+INTERACT            , _ , _ , _
+DRAW                , _ , _ , _
+LOAD                , _ , _ , _
+SHOOT               , _ , _ , _

@@ -256,7 +256,7 @@ public class CharacterStat
     public float slopeAccelDiv() { return strength(0.3F) + agility(0.3F) + stamina(0.3F); }
 
     public float jumpVel(GradeEnum mass) {
-        return STRENGTH[clamp(agility() + strength() - mass.ordinal())] * 0.15F;
+        return STRENGTH[clamp(agility() + strength() - mass.ordinal())] * 0.12F;
     }
 
     public float climbLedgeTime(GradeEnum mass) {
