@@ -26,6 +26,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.io.InputStream;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Gameplay implements Reactor
@@ -89,9 +91,13 @@ public class Gameplay implements Reactor
         System.out.println ("Using Font " +font.getName());
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
-        entityList = LevelBuilder.loadLevel("Resources/Levels/TestLevel.csv");
-        //entityList = LevelBuilder.loadLevel("Resources/Levels/ZestLevel.csv");
-//        entityList = LevelBuilder.loadLevel("Resources/Levels/FestLevel.csv");
+
+        String path = "/Levels/TestLevel.csv";
+//        String path = "/Levels/ZestLevel.csv";
+//        String path = "/Levels/FestLevel.csv";
+        InputStream input = getClass().getResourceAsStream(path);
+        if (input != null) entityList = LevelBuilder.loadLevel(input);
+        else Print.red("\"" + path + "\" was not imported");
 
         /* Set coveredDirs for every block */
         for (Entity entity : entityList)

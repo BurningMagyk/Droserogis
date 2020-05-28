@@ -10,12 +10,7 @@ import Gameplay.Entities.Weapons.WeaponType;
 import Util.GradeEnum;
 import Util.Print;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -27,6 +22,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -689,7 +685,10 @@ public class LevelBuilder  extends Application
 
         String path = fileChooserOpenGetPath();
         if (path == null) return;
-        entityList = loadLevel(path);
+        InputStream input = getClass().getResourceAsStream(path);
+        if (input != null) entityList = loadLevel(input);
+        else Print.red("\"" + path + "\" was not imported");
+
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
         /*
@@ -730,11 +729,11 @@ public class LevelBuilder  extends Application
 
     //============================================================================================
     //============================================================================================
-    public static EntityCollection<Entity> loadLevel(String path)
+    public static EntityCollection<Entity> loadLevel(InputStream input)
     {
         try
         {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
             EntityCollection<Entity> entityList = new EntityCollection();
 
             String line = reader.readLine(); //header line
