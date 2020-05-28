@@ -1,4 +1,4 @@
-Stick
+Stick _
 THRUST              , F , F , F
 THRUST_UNTERHAU     , F , F , F
 THRUST_UP           , F , F , F
@@ -8,15 +8,15 @@ THRUST_DIAG_DOWN    , F , F , F
 LUNGE               , _ , _ , _
 STAB                , _ , _ , _
 STAB_UNTERHAU       , _ , _ , _
-SWING               , F , F , F
-SWING_UNTERHAU      , F , F , F
-SWING_UNTERHAU_C    , F , F , F
-SWING_AERIAL        , F , F , F
-SWING_PRONE         , F , F , F
-SWING_UP_FORWARD    , F , F , F
-SWING_UP_BACKWARD   , F , F , F
-SWING_DOWN_FORWARD  , F , F , F
-SWING_DOWN_BACKWARD , F , F , F
+SWING               , E , E , F
+SWING_UNTERHAU      , E , E , F
+SWING_UNTERHAU_C    , E , E , F
+SWING_AERIAL        , E , E , F
+SWING_PRONE         , E , E , F
+SWING_UP_FORWARD    , E , E , F
+SWING_UP_BACKWARD   , E , E , F
+SWING_DOWN_FORWARD  , E , E , F
+SWING_DOWN_BACKWARD , E , E , F
 SHOVE               , _ , _ , _
 GRAB                , _ , _ , _
 GRAB_UP             , _ , _ , _

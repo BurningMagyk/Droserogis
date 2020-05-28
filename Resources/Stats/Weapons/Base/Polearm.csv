@@ -1,4 +1,4 @@
-Polearm
+Polearm _
 THRUST              , B , C , D
 THRUST_UNTERHAU     , B , D , F
 THRUST_UP           , B , C , D
@@ -25,11 +25,11 @@ GRAB_ALT            , _ , _ , _
 POUNCE              , _ , _ , _
 TACKLE              , _ , _ , _
 TOSS                , F-, F-, F-
-THROW               , B , D , F-
-THROW_UP            , B , D , F-
-THROW_UP_DIAG       , B , D , F-
-THROW_DOWN          , B , D , F-
-THROW_DOWN_DIAG     , B , D , F-
+THROW               , D , D , F-
+THROW_UP            , D , D , F-
+THROW_UP_DIAG       , D , D , F-
+THROW_DOWN          , D , D , F-
+THROW_DOWN_DIAG     , D , D , F-
 DROP                , F-, F-, F-
 INTERACT            , _ , _ , _
 DRAW                , _ , _ , _

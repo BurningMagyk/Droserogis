@@ -1,11 +1,11 @@
-Mace _
-THRUST              , E , D , F-
-THRUST_UNTERHAU     , F , E , F-
-THRUST_UP           , E , D , F-
-THRUST_DOWN         , E , D , F-
-THRUST_DIAG_UP      , E , D , F-
-THRUST_DIAG_DOWN    , E , D , F-
-LUNGE               , D , B , F-
+Mace
+THRUST              , F , E , F-
+THRUST_UNTERHAU     , E , F , F-
+THRUST_UP           , F , E , F-
+THRUST_DOWN         , F , E , F-
+THRUST_DIAG_UP      , F , E , F-
+THRUST_DIAG_DOWN    , F , E , F-
+LUNGE               , _ , _ , _
 STAB                , _ , _ , _
 STAB_UNTERHAU       , _ , _ , _
 SWING               , C , C , F-
