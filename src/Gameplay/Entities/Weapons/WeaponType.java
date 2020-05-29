@@ -33,7 +33,52 @@ public class WeaponType
         OPS = ops;
     }
 
-    public void setOpStats(BufferedReader reader, BufferedReader ext)
+    private void setOpStats(GradeEnum[][] opStats)
+    {
+        for (int i = 0; i < OPS.length; i++)
+        {
+            if (OPS[i] != null)
+                OPS[i].setStats(opStats[i][0], opStats[i][1], opStats[i][2]);
+        }
+    }
+
+    public void setOpStats(BufferedReader reader, GradeEnum[][] opStats)
+    {
+        GradeEnum[][] _opStats = new GradeEnum[OPS.length][];
+
+        try {
+            reader.readLine();
+            for (int i = 0; i < OPS.length; i++)
+            {
+                _opStats[i] = new GradeEnum[3];
+
+                String line = reader.readLine();
+                String[] data = line.split(",");
+                for (int j = 0; j < 3; j++)
+                {
+                    String gradeString = GradeEnum.removeSpaces(data[j + 1]);
+                    if (gradeString.equals("_")) _opStats[i][j] = null;
+                    else
+                    {
+                        GradeEnum extGrade = GradeEnum.parseGrade(gradeString);
+                        if (extGrade == null)
+                            _opStats[i][j] = opStats[i][j].add(Integer.parseInt(gradeString));
+                        else _opStats[i][j] = extGrade;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            _opStats = null;
+            e.printStackTrace();
+        }
+
+        if (_opStats != null)
+        {
+            setOpStats(_opStats);
+        }
+    }
+
+    public GradeEnum[][] setOpStats(BufferedReader reader)
     {
         GradeEnum[][] opStats = new GradeEnum[OPS.length][];
         try {
@@ -47,29 +92,6 @@ public class WeaponType
                 opStats[i][1] = GradeEnum.parseGrade(data[2]);
                 opStats[i][2] = GradeEnum.parseGrade(data[3]);
             }
-
-            if (ext != null)
-            {
-                ext.reset();
-                ext.readLine();
-                for (int i = 0; i < OPS.length; i++)
-                {
-                    String line = ext.readLine();
-                    String[] data = line.split(",");
-                    for (int j = 0; j < 3; j++)
-                    {
-                        String gradeString = GradeEnum.removeSpaces(data[j + 1]);
-                        if (gradeString.equals("_")) opStats[i][j] = null;
-                        else
-                        {
-                            GradeEnum extGrade = GradeEnum.parseGrade(gradeString);
-                            if (extGrade == null)
-                                opStats[i][j] = opStats[i][j].add(Integer.parseInt(gradeString));
-                            else opStats[i][j] = extGrade;
-                        }
-                    }
-                }
-            }
         } catch (IOException e) {
             opStats = null;
             e.printStackTrace();
@@ -77,12 +99,10 @@ public class WeaponType
 
         if (opStats != null)
         {
-            for (int i = 0; i < OPS.length; i++)
-            {
-                if (OPS[i] != null)
-                    OPS[i].setStats(opStats[i][0], opStats[i][1], opStats[i][2]);
-            }
+            setOpStats(opStats);
         }
+
+        return opStats;
     }
 
     public String getName() { return name; }
@@ -503,8 +523,8 @@ public class WeaponType
             DirEnum.DOWNLEFT, true, false,
             null, SWORD__SWING_DOWN_BACKWARD__EXEC);
 
-    public final static WeaponType LONG_SWORD = new WeaponType(
-            "Sword",
+    public final static WeaponType SWORD = new WeaponType(
+            "Long_Sword",
             new Orient(new Vec2(0.4F, 0.1F), -PI4),
             SWORD__THRUST, SWORD__THRUST_UNTERHAU,
             SWORD__THRUST_UP, SWORD__THRUST_DOWN,
@@ -518,4 +538,36 @@ public class WeaponType
             null, null, null, null, null, null, null, // empty ops (throwing)
             null // INTERACT
             );
+
+    public final static WeaponType GLAIVE = new WeaponType(
+            "Glaive",
+            new Orient(new Vec2(0.4F, 0.1F), -PI4),
+            SWORD__THRUST, SWORD__THRUST_UNTERHAU,
+            SWORD__THRUST_UP, SWORD__THRUST_DOWN,
+            SWORD__THRUST_DIAG_UP, SWORD__THRUST_DIAG_DOWN,
+            SWORD__LUNGE, SWORD__STAB, SWORD__STAB_UNTERHAU,
+            SWORD__SWING, null, SWORD__SWING_UNTERHAU_C,
+            SWORD__SWING_AERIAL, SWORD__SWING_PRONE,
+            SWORD__SWING_UP_FORWARD, null,
+            SWORD__SWING_DOWN_FORWARD, null,
+            null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, // empty ops (throwing)
+            null // INTERACT
+    );
+
+    public final static WeaponType STAFF = new WeaponType(
+            "Staff",
+            new Orient(new Vec2(0.4F, 0.1F), -PI4),
+            SWORD__THRUST, SWORD__THRUST_UNTERHAU,
+            SWORD__THRUST_UP, SWORD__THRUST_DOWN,
+            SWORD__THRUST_DIAG_UP, SWORD__THRUST_DIAG_DOWN,
+            SWORD__LUNGE, SWORD__STAB, SWORD__STAB_UNTERHAU,
+            SWORD__SWING, null, SWORD__SWING_UNTERHAU_C,
+            SWORD__SWING_AERIAL, SWORD__SWING_PRONE,
+            SWORD__SWING_UP_FORWARD, null,
+            SWORD__SWING_DOWN_FORWARD, null,
+            null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, // empty ops (throwing)
+            null // INTERACT
+    );
 }

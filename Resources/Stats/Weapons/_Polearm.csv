@@ -1,11 +1,11 @@
 Polearm _
 THRUST              , B , C , D
-THRUST_UNTERHAU     , B , D , F
+THRUST_UNTERHAU     , B , D , E
 THRUST_UP           , B , C , D
 THRUST_DOWN         , B , C , D
 THRUST_DIAG_UP      , B , C , D
 THRUST_DIAG_DOWN    , B , C , D
-LUNGE               , A , B , F
+LUNGE               , A , B , E
 STAB                , B , D , C
 STAB_UNTERHAU       , B , D , C
 SWING               , C , B , F

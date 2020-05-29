@@ -10,6 +10,7 @@ import Gameplay.Entities.Weapons.WeaponType;
 import Gameplay.Gameplay;
 import Gameplay.Battle;
 import Util.DebugEnum;
+import Util.GradeEnum;
 import Util.Print;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -123,10 +124,14 @@ class Controller extends AnimationTimer
 
         /* Set op stats for weapon types */
         String statPath = "/Stats/Weapons/";
-        BufferedReader opStatsNatural = Main.IMPORTER.getText(statPath + "_Natural.csv");
-        BufferedReader opStatsSword = Main.IMPORTER.getText(statPath + "_Sword.csv");
-        WeaponType.NATURAL.setOpStats(opStatsNatural, null);
-        WeaponType.LONG_SWORD.setOpStats(opStatsSword, null);
+        BufferedReader opStatsNatural_reader = Main.IMPORTER.getText(statPath + "_Natural.csv");
+        BufferedReader opStatsSword_reader = Main.IMPORTER.getText(statPath + "_Sword.csv");
+        BufferedReader opStatsPolearm_reader = IMPORTER.getText(statPath + "_Polearm.csv");
+        BufferedReader opStatsStaff_reader = IMPORTER.getText(statPath + "Staff.csv");
+        WeaponType.NATURAL.setOpStats(opStatsNatural_reader);
+        GradeEnum[][] opStatsSword = WeaponType.SWORD.setOpStats(opStatsSword_reader);
+        GradeEnum[][] opStatsPolearm = WeaponType.GLAIVE.setOpStats(opStatsPolearm_reader);
+        WeaponType.STAFF.setOpStats(opStatsStaff_reader, opStatsPolearm);
     }
 
     /**

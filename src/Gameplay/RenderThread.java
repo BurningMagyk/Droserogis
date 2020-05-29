@@ -53,7 +53,7 @@ public class RenderThread
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
 
-        System.out.println("view  =  ("+viewWidth+", "+viewHeight+")");
+        //System.out.println("view  =  ("+viewWidth+", "+viewHeight+")");
 
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {

@@ -95,7 +95,6 @@ public class Actor extends Item
         ORIGINAL_HEIGHT = character.getHeight();
 
         this.charStat = character.getStat();
-        System.out.println("Actor(" + character.getName() + ")" + this.charStat);
         setCharacterStats();
 
         weapons[WeaponSlot.NATURAL.ordinal()] = new Weapon(getX(), getY(), 0.2F, 0.1F,

@@ -88,7 +88,7 @@ public class Gameplay implements Reactor
          * Should later utilize procedural generation.
          */
         Font font = gfx.getFont();
-        System.out.println ("Using Font " +font.getName());
+        //System.out.println ("Using Font " +font.getName());
         gfx.setFont(Font.font(font.getName(), FontWeight.BOLD, 18));
         renderThread = new RenderThread(gfx, viewWidth, viewHeight);
 

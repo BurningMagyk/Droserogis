@@ -573,8 +573,17 @@ public class LevelBuilder  extends Application
                     WeaponStat weaponStat = new WeaponStat(
                             "C", "C", "C", "C", 1, null, null, "C", "D", "D");
                     Weapon sword = new Weapon(x, y, 0.5F, 0.1F, GradeEnum.F__,
-                            WeaponType.LONG_SWORD, weaponStat, null);
+                            WeaponType.SWORD, weaponStat, null);
                     entityList.add(sword);
+                    addedEntity = true;
+                }
+                else if (text.equals("GLAIVE"))
+                {
+                    WeaponStat weaponStat = new WeaponStat(
+                            "C", "C", "C", "C", 1, null, null, "C", "D","D");
+                    Weapon polearm = new Weapon(x, y, 0.7F, 0.1F, GradeEnum.F__,
+                            null, weaponStat, null); // TODO: put weaponType instead of null
+                    entityList.add(polearm);
                     addedEntity = true;
                 }
             }
@@ -772,7 +781,7 @@ public class LevelBuilder  extends Application
                     float height = Float.parseFloat(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     GradeEnum mass = GradeEnum.parseGrade(data[5]);
                     WeaponType type = WeaponType.NATURAL;
-                    if (data[6].equals("Long_Sword")) type = WeaponType.LONG_SWORD;
+                    if (data[6].equals("Long_Sword")) type = WeaponType.SWORD;
                     WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],
                             Integer.parseInt(data[11]), null, null, data[14], data[15], data[16], null);
                     entity = new Weapon(x, y, width, height, mass, type, stat, null);
@@ -800,7 +809,7 @@ public class LevelBuilder  extends Application
                         Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
                         blockType = new BlockType(shape, false);
                     }
-                    Print.blue("LoadLevel: blockType="+blockType);
+                    //Print.blue("LoadLevel: blockType="+blockType);
                     float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     entity = new Block(x, y, width, height, blockType, 1.0F, null);
