@@ -11,6 +11,7 @@ import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entities.Item;
 import Util.GradeEnum;
+import Util.Print;
 import Util.Vec2;
 
 public class RushOperation implements Weapon.Operation
@@ -155,11 +156,21 @@ public class RushOperation implements Weapon.Operation
         return false;
     }
 
+    /** knockback and precision parameters should be null */
+    @Override
+    public void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision)
+    {
+        damageMod = damage;
+    }
+
     @Override
     public Weapon.Operation copy()
     {
-        return new RushOperation(name, next, cycle,
-                waits, funcDir, damageMod, conditionApps[0], finishes);
+        RushOperation op = new RushOperation(name, next, cycle,
+                waits, funcDir, conditionApps[0], finishes);
+        op.setStats(damageMod, null, null);
+        return op;
+
     }
 
     public enum RushFinish
@@ -190,7 +201,6 @@ public class RushOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum damageMod,
             ConditionApp conditionApp,
             RushFinish ...finishes
     )
@@ -200,7 +210,6 @@ public class RushOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.damageMod = damageMod;
         this.conditionApps = new ConditionApp[] {conditionApp};
         this.finishes = finishes;
     }

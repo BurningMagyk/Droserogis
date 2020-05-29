@@ -2,14 +2,14 @@ package Util;
 
 public class Print
 {
-    public static void black(Object o) { print(o.toString(), Color.BLACK); }
-    public static void red(Object o) { print(o.toString(), Color.RED); }
-    public static void green(Object o) { print(o.toString(), Color.GREEN); }
-    public static void yellow(Object o) { print(o.toString(), Color.YELLOW); }
-    public static void blue(Object o) { print(o.toString(), Color.BLUE); }
-    public static void purple(Object o) { print(o.toString(), Color.PURPLE); }
-    public static void cyan(Object o) { print(o.toString(), Color.CYAN); }
-    public static void white(Object o) { print(o.toString(), Color.WHITE); }
+    public static void black(Object o) { print(o == null ? "null" : o.toString(), Color.BLACK); }
+    public static void red(Object o) { print(o == null ? "null" : o.toString(), Color.RED); }
+    public static void green(Object o) { print(o == null ? "null" : o.toString(), Color.GREEN); }
+    public static void yellow(Object o) { print(o == null ? "null" : o.toString(), Color.YELLOW); }
+    public static void blue(Object o) { print(o == null ? "null" : o.toString(), Color.BLUE); }
+    public static void purple(Object o) { print(o == null ? "null" : o.toString(), Color.PURPLE); }
+    public static void cyan(Object o) { print(o == null ? "null" : o.toString(), Color.CYAN); }
+    public static void white(Object o) { print(o == null ? "null" : o.toString(), Color.WHITE); }
 
     private static void print(String string, Color color)
     {

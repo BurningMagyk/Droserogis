@@ -6,6 +6,7 @@
 
 package Menus;
 
+import Gameplay.Entities.Weapons.WeaponType;
 import Gameplay.Gameplay;
 import Gameplay.Battle;
 import Util.DebugEnum;
@@ -25,9 +26,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.util.*;
 
+import static Menus.Main.IMPORTER;
 import static org.lwjgl.glfw.GLFW.*;
 
 class Controller extends AnimationTimer
@@ -68,7 +71,7 @@ class Controller extends AnimationTimer
         scene = new Scene(ROOT, WIDTH, HEIGHT, Color.GREY);
         final Canvas CANVAS = new Canvas(WIDTH, HEIGHT);
         GraphicsContext CONTEXT = CANVAS.getGraphicsContext2D();
-        Main.IMPORTER.setContext(CONTEXT);
+        IMPORTER.setContext(CONTEXT);
         BACKGROUND = new ImageView();
 
         /* Background image needs to be added before the canvas */
@@ -117,6 +120,13 @@ class Controller extends AnimationTimer
             cursor = null;
             Print.red("\"/Uncontrolled/cursor.png\" was not imported");
         }
+
+        /* Set op stats for weapon types */
+        String statPath = "/Stats/Weapons/";
+        BufferedReader opStatsNatural = Main.IMPORTER.getText(statPath + "_Natural.csv");
+        BufferedReader opStatsSword = Main.IMPORTER.getText(statPath + "_Sword.csv");
+        WeaponType.NATURAL.setOpStats(opStatsNatural, null);
+        WeaponType.LONG_SWORD.setOpStats(opStatsSword, null);
     }
 
     /**

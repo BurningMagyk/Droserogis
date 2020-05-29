@@ -207,13 +207,24 @@ class MeleeOperation implements Weapon.Operation
         return tickOrients;
     }
 
+    @Override
+    public void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision)
+    {
+        damageMod = damage;
+        knockbackMod = knockback;
+        precisionMod = precision;
+    }
+
+    @Override
     public Weapon.Operation copy()
     {
-        return new MeleeOperation(
+        MeleeOperation op = new MeleeOperation(
                 name, next, proceeds, cycle,
-                waits, funcDir, damageMod, knockbackMod, precisionMod,
+                waits, funcDir,
                 parrying, permeating,
                 conditionApps[0], execJourney, infTypes);
+        op.setStats(damageMod, knockbackMod, precisionMod);
+        return op;
     }
 
     enum MeleeEnum
@@ -236,8 +247,9 @@ class MeleeOperation implements Weapon.Operation
     private ConditionAppCycle cycle;
     private Vec2 waits;
     private DirEnum funcDir;
-    private GradeEnum damage, knockback, precision;
-    private GradeEnum damageMod, knockbackMod, precisionMod;
+    private GradeEnum damage, knockback, precision,
+            knockbackMod, precisionMod;
+    public GradeEnum damageMod;
     private boolean parrying, permeating;
     private ConditionApp[] conditionApps, selfApps;
     private Tick[] execJourney;
@@ -258,9 +270,6 @@ class MeleeOperation implements Weapon.Operation
             ConditionAppCycle cycle,
             Vec2 waits,
             DirEnum funcDir,
-            GradeEnum damageMod,
-            GradeEnum knockbackMod,
-            GradeEnum precisionMod,
             boolean parrying,
             boolean permeating,
             ConditionApp conditionApp,
@@ -274,9 +283,6 @@ class MeleeOperation implements Weapon.Operation
         this.cycle = cycle;
         this.waits = waits.copy();
         this.funcDir = funcDir;
-        this.damageMod = damageMod;
-        this.knockbackMod = knockbackMod;
-        this.precisionMod = precisionMod;
         this.parrying = parrying;
         this.permeating = permeating;
         this.conditionApps = new ConditionApp[] {conditionApp};
@@ -305,24 +311,24 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(String name, MeleeOperation op)
     {
         this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
-                op.parrying, op.permeating,
+                op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
+        setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 
     MeleeOperation(String name, MeleeOperation op, MeleeEnum[][] next)
     {
         this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
-                op.parrying, op.permeating,
+                op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
+        setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 
     MeleeOperation(String name, MeleeOperation op, ConditionAppCycle cycle)
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.damageMod, op.knockbackMod, op.precisionMod,
-                op.parrying, op.permeating,
+                op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
+        setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 }

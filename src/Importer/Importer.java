@@ -6,11 +6,17 @@
 
 package Importer;
 
+import Gameplay.Entities.Entity;
+import Gameplay.Entities.EntityCollection;
 import Util.LanguageEnum;
 import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -30,6 +36,16 @@ public class Importer
     public void setContext(GraphicsContext context)
     {
         this.context = context;
+    }
+
+    public BufferedReader getText(String path)
+    {
+        BufferedReader reader = null;
+        InputStream input = getClass().getResourceAsStream(path);
+        if (input != null)
+            reader = new BufferedReader(new InputStreamReader(input));
+        else Print.red("\"" + path + "\" was not imported");
+        return reader;
     }
 
     public ImageResource getImage(String path, Color color)

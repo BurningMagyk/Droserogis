@@ -663,6 +663,7 @@ public class Weapon extends Item
         boolean isParrying();
         boolean isPermeating();
 
+        void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision);
         Operation copy();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, VOID }

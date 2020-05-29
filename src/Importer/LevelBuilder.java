@@ -122,7 +122,7 @@ public class LevelBuilder  extends Application
         menuMaterial = new ContextMenu();
 
         /* Add weapon types */
-        menuItemSword = new MenuItem("SWORD");
+        menuItemSword = new MenuItem("LONG SWORD");
         menuEntity.getItems().add(menuItemSword);
         menuItemSword.setOnAction(this::menuEvent);
 
@@ -568,12 +568,12 @@ public class LevelBuilder  extends Application
             }
             if (!addedEntity)
             {
-                if (text.equals("SWORD"))
+                if (text.equals("LONG_SWORD"))
                 {
                     WeaponStat weaponStat = new WeaponStat(
                             "C", "C", "C", "C", 1, null, null, "C", "D", "D");
                     Weapon sword = new Weapon(x, y, 0.5F, 0.1F, GradeEnum.F__,
-                            WeaponType.SWORD, weaponStat, null);
+                            WeaponType.LONG_SWORD, weaponStat, null);
                     entityList.add(sword);
                     addedEntity = true;
                 }
@@ -772,7 +772,7 @@ public class LevelBuilder  extends Application
                     float height = Float.parseFloat(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     GradeEnum mass = GradeEnum.parseGrade(data[5]);
                     WeaponType type = WeaponType.NATURAL;
-                    if (data[6].equals("Sword")) type = WeaponType.SWORD;
+                    if (data[6].equals("Long_Sword")) type = WeaponType.LONG_SWORD;
                     WeaponStat stat = new WeaponStat(data[7], data[8], data[9], data[10],
                             Integer.parseInt(data[11]), null, null, data[14], data[15], data[16], null);
                     entity = new Weapon(x, y, width, height, mass, type, stat, null);

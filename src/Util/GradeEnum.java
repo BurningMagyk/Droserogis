@@ -2,6 +2,8 @@ package Util;
 
 import Gameplay.Entities.Characters.CharacterStat;
 
+import java.util.ArrayList;
+
 public enum GradeEnum
 {
         F    , F_   , F__  ,
@@ -43,14 +45,33 @@ public enum GradeEnum
     @Override
     public String toString() { return gradeStrings[ordinal()]; }
 
+    public GradeEnum add(int amount)
+    {
+        int sum = ordinal() + amount;
+        if (sum < 0) return GradeEnum.F;
+        else if (sum > GradeEnum.SSS__.ordinal()) return GradeEnum.SSS__;
+        return values()[sum];
+    }
+
     public static GradeEnum parseGrade(String string)
     {
         for (int i = 0; i < values().length; i++)
         {
-            if (string.equalsIgnoreCase(gradeStrings[i]))
+            if (removeSpaces(string).equalsIgnoreCase(gradeStrings[i]))
                 return values()[i];
         }
         return null;
+    }
+
+    public static String removeSpaces(String string)
+    {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < string.length(); i++)
+        {
+            char c = string.charAt(i);
+            if (c != ' ') out.append(c);
+        }
+        return out.toString();
     }
 
     public static String getGradeString(GradeEnum gr)
