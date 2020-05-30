@@ -1194,7 +1194,7 @@ public class Actor extends Item
         else if (state == State.SLIDE) setFriction(REDUCED_FRICTION);
         else setFriction(NORMAL_FRICTION);
 
-        /* Interrupt rushes here */
+        /* Interrupt rushes */
         if (state.isGrounded()) interruptRushes(RushOperation.RushFinish.HIT_FLOOR);
         else if (state.isOnWall()) interruptRushes(RushOperation.RushFinish.HIT_WALL);
         else if (state == State.SWIM) interruptRushes(RushOperation.RushFinish.HIT_WATER);
@@ -1753,16 +1753,43 @@ public class Actor extends Item
         return true;
     }
 
+    private boolean flipSprite = false;
+
     @Override
-    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom) {
+    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
+    {
+        /* Update sprite state */
+        if (state == State.RISE) setSpriteState(2,
+                (int) ((getVelocityY() / jumpVel + 1) * 7));
+        else if (state == State.FALL) setSpriteState(2,
+                (int) (Math.min(1, getVelocityY() / jumpVel) * 7) + 7);
+            //if (state == State.FALL) setSpriteState(2, true);
+        else if (state == State.RUN) setSpriteState(1, -1);
+        else setSpriteState(0, -1);
+        flipSprite = dirFace == LEFT;
+        //Print.blue((Math.min(-1, getVelocityY() / jumpVel) + 1) * 8);
+        //Print.blue(getVelocityY() + ", " + jumpVel);
+
+
         double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
         double y = (this.getY() - this.getHeight() / 2 - camPosY + camOffY) * camZoom;
         double width = this.getWidth() * camZoom;
         double height = this.getHeight() * camZoom;
-        ImageResource imageResource = this.getImage();
-        if (imageResource != null)
+        ImageResource ir = this.getImage();
+        if (ir != null)
         {
-            gfx.drawImage(imageResource.getImage(), x, y, width, height);
+            /* Temporary */
+            gfx.setFill(this.getColor());
+            gfx.fillRect(x, y, width, height);
+
+            int flipSign = flipSprite ? -1 : 1;
+            int flipOffset = flipSprite ? 1 : 0;
+            gfx.drawImage(
+                    ir.getImage(),
+                    x - (ir.getWidth() / 2.7F * flipSign) + (width * flipOffset),
+                    y - (ir.getHeight() / 4.2F),
+                    ir.getWidth() * flipSign,
+                    ir.getHeight());
         }
         else
         {

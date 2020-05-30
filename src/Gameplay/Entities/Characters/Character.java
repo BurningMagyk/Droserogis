@@ -128,41 +128,24 @@ public class Character
     /*****************************************************************************/
     /*********************************** Roster **********************************/
     /*****************************************************************************/
-    static ArrayList<String[]> nathanSpritePaths = new ArrayList<>();
-
-    public static ArrayList<String[]> getNathanSpritePaths() {
-        String[] spriteArray = new String[90];
-        for(int i = 0 ; i < 90; i++){
-            String imageIndex = i+1 < 10 ? "0"+(i+1) : ""+(i+1);
-            spriteArray[i] = "NathanAnimationsBasicA/NathanBounceFightIdle/NathanBounceFightIdle.png00"+imageIndex+".png";
-        }
-        nathanSpritePaths.add(spriteArray);
-        spriteArray = new String[90];
-        for(int i = 0 ; i < 90; i++){
-            String imageIndex = i+1 < 10 ? "0"+(i+1) : ""+(i+1);
-            spriteArray[i] = "NathanAnimationsBasicA/NathanBounceFightIdle/NathanBounceFightIdleNormal.png00"+imageIndex+".png";
-        }
-        nathanSpritePaths.add(spriteArray);
-        return nathanSpritePaths;
-    }
 
     private static Character character_Chad = new Character("Chad",
             new CharacterStat("A", "A", "A", "A", "A", "A",
                     "A", "A", "A", "A", "A"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
+            new Vec2(20, 49).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getJacobSpritePaths());
 
     private static Character character_Nathan = new Character("Nathan",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getNathanSpritePaths());
+            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Jacob = new Character("Jacob",
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
+            new Vec2(20, 45).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getJacobSpritePaths());
 
     private static Character character_Tetsuya = new Character("Tetsuya",
             new CharacterStat("F", "F", "F", "F", "F", "F",
@@ -218,6 +201,63 @@ public class Character
         if (name.equals("Let")) return character_Let;
         if (name.equals("Lugu")) return character_Lugu;
         return character_;
+    }
+
+
+    /*****************************************************************************/
+    /******************************** Sprite Paths *******************************/
+    /*****************************************************************************/
+
+    public static ArrayList<String[]> getJacobSpritePaths() {
+        ArrayList<String[]> spritePaths = new ArrayList<>();
+        String[] spriteArray;
+
+        int idleFrames = 60;
+        spriteArray = new String[idleFrames];
+        for(int i = 0 ; i < idleFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/idle/Idle00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        int runFrames = 22;
+        spriteArray = new String[runFrames];
+        for(int i = 0 ; i < runFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/run/Run00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        int jumpFrames = 15;
+        spriteArray = new String[jumpFrames];
+        for(int i = 0 ; i < jumpFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/jump/Jump00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        spriteArray = new String[idleFrames];
+        for(int i = 0 ; i < idleFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/idle/IdleNormal00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        spriteArray = new String[runFrames];
+        for(int i = 0 ; i < runFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/run/RunNormal00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        spriteArray = new String[jumpFrames];
+        for(int i = 0 ; i < jumpFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/jump/JumpNormal00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        return spritePaths;
     }
 
 

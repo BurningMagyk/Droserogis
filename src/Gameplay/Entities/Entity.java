@@ -97,7 +97,8 @@ abstract public class Entity
     //private float friction = 3F;
     private float friction = 0.5F;
 
-    public Entity(float xPos, float yPos, float width, float height, ShapeEnum shape, ArrayList<String[]> spritePaths)
+    public Entity(float xPos, float yPos, float width, float height,
+                  ShapeEnum shape, ArrayList<String[]> spritePaths)
     {
         this.shape = shape;
         pos = new Vec2(xPos, yPos);
@@ -682,13 +683,30 @@ abstract public class Entity
         return false;
     }
 
+
+    /*****************************************************************************/
+    /********************************* Rendering *********************************/
+    /*****************************************************************************/
+
     private int spriteStateIndex = 0, spriteFrameIndex = 0;
+    private boolean autoSpriteFrame = true;
+    void setSpriteState(int stateIndex, int frameIndex)
+    {
+        spriteStateIndex = stateIndex;
+        if (frameIndex >= 0) spriteFrameIndex = frameIndex;
+        autoSpriteFrame = frameIndex < 0;
+    }
     public ImageResource getImage()
     {
-        ImageResource currSprite = SPRITES == null ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
-        if(SPRITES != null) {
-            spriteFrameIndex = spriteFrameIndex+1 >= SPRITES.get(spriteStateIndex).length ? 0 : spriteFrameIndex + 1;
+        if (SPRITES != null) {
+            if (autoSpriteFrame)
+            {
+                spriteFrameIndex = (spriteFrameIndex + 1 >= SPRITES.get(spriteStateIndex).length)
+                        ? 0 : spriteFrameIndex + 1;
+            }
         }
+        ImageResource currSprite = (SPRITES == null)
+                ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
 
         return currSprite;
     }
