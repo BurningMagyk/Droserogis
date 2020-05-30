@@ -13,10 +13,8 @@ import Gameplay.Entities.Weapons.*;
 import Gameplay.Entities.Weapons.ConditionApp;
 import Gameplay.Entities.Weapons.Infliction;
 import Importer.ImageResource;
-import Util.GradeEnum;
-import Util.Print;
-import Util.Rect;
-import Util.Vec2;
+import Menus.Main;
+import Util.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -1759,16 +1757,13 @@ public class Actor extends Item
     public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
     {
         /* Update sprite state */
-        if (state == State.RISE) setSpriteState(2,
+        if (state == State.RISE) setSpriteState(3,
                 (int) ((getVelocityY() / jumpVel + 1) * 7));
-        else if (state == State.FALL) setSpriteState(2,
+        else if (state == State.FALL) setSpriteState(3,
                 (int) (Math.min(1, getVelocityY() / jumpVel) * 7) + 7);
-            //if (state == State.FALL) setSpriteState(2, true);
-        else if (state == State.RUN) setSpriteState(1, -1);
-        else setSpriteState(0, -1);
+        else if (state == State.RUN) setSpriteState(2, -1);
+        else setSpriteState(1, -1);
         flipSprite = dirFace == LEFT;
-        //Print.blue((Math.min(-1, getVelocityY() / jumpVel) + 1) * 8);
-        //Print.blue(getVelocityY() + ", " + jumpVel);
 
 
         double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
@@ -1779,8 +1774,11 @@ public class Actor extends Item
         if (ir != null)
         {
             /* Temporary */
-            gfx.setFill(this.getColor());
-            gfx.fillRect(x, y, width, height);
+            if (Main.debugEnum == DebugEnum.GAMEPLAY)
+            {
+                gfx.setFill(this.getColor());
+                gfx.fillRect(x, y, width, height);
+            }
 
             int flipSign = flipSprite ? -1 : 1;
             int flipOffset = flipSprite ? 1 : 0;
