@@ -70,7 +70,8 @@ public class Actor extends Item
 
     private boolean
             pressingLeft = false, pressingRight = false,
-            pressingUp = false, pressingDown = false, pressingShift = false;
+            pressingUp = false, pressingDown = false,
+            pressingWalkKey = false, pressingSprintKey = false;
     // change to more when other attack buttons get implemented
     private boolean[] pressingAttack = new boolean[4];
 
@@ -264,6 +265,8 @@ public class Actor extends Item
             }
         }
 
+        moveType = getMoveType();
+
         if (state.isGrounded())
         {
             /* If the entity being stood on is an upward-slope triangle */
@@ -277,7 +280,6 @@ public class Actor extends Item
             }
 
             float accel, topSpeed;
-            MoveType moveType = getMoveType();
             if (state.isLow())
             {
                 accel = moveType == MoveType.STILL ? 0 : getTopAccel(true); // crawlAccel;
@@ -549,10 +551,11 @@ public class Actor extends Item
         }
         return 0;
     }
-    private float getTopSpeed(boolean low) { return getTopSpeed(getMoveType(), low); }
+    private float getTopSpeed(boolean low) { return getTopSpeed(moveType, low); }
     public float getTopSpeed() { return getTopSpeed(false); }
 
     private enum MoveType { STILL, WALK, RUN, SPRINT }
+    private MoveType moveType = MoveType.STILL;
     private MoveType getMoveType()
     {
         if (!has(Condition.NEGATE_STABILITY) && !has(Condition.NEGATE_ACTIVITY))
@@ -561,8 +564,9 @@ public class Actor extends Item
             {
                 if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_LEFT))
                 {
-                    if (pressingShift && !has(Condition.NEGATE_SPRINT_LEFT))
+                    if (pressingSprintKey && !has(Condition.NEGATE_SPRINT_LEFT))
                         return MoveType.SPRINT;
+                    if (pressingWalkKey) return MoveType.WALK;
                     return MoveType.RUN;
                 }
                 return MoveType.WALK;
@@ -571,8 +575,9 @@ public class Actor extends Item
             {
                 if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_RIGHT))
                 {
-                    if (pressingShift && !has(Condition.NEGATE_SPRINT_RIGHT))
+                    if (pressingSprintKey && !has(Condition.NEGATE_SPRINT_RIGHT))
                         return MoveType.SPRINT;
+                    if (pressingWalkKey) return MoveType.WALK;
                     return MoveType.RUN;
                 }
                 return MoveType.WALK;
@@ -816,14 +821,16 @@ public class Actor extends Item
             if (state.isOnWall()) dirFace = LEFT;
             /* It changes your primary direction regardless */
             dirHoriz = LEFT;
-            /* If you're not forcing a secondary direction,
-             * this will change it */
-            if (dirFace != LEFT && !pressingRight) dirFace = LEFT;
+            dirFace = LEFT;
         }
         /* If you release the key when already moving left */
         else if (dirHoriz == LEFT)
         {
-            if (pressingRight) dirHoriz = RIGHT;
+            if (pressingRight)
+            {
+                dirHoriz = RIGHT;
+                dirFace = RIGHT;
+            }
             else dirHoriz = -1;
             /* If you release the key when already moving left with a wall */
             if (state.isOnWall())
@@ -842,14 +849,16 @@ public class Actor extends Item
             if (state.isOnWall()) dirFace = RIGHT;
             /* It changes your primary direction regardless */
             dirHoriz = RIGHT;
-            /* If you're not forcing a secondary direction,
-             * this will change it */
-            if (dirFace != RIGHT && !pressingLeft) dirFace = RIGHT;
+            dirFace = RIGHT;
         }
         /* If you release the key when already moving right */
         else if (dirHoriz == RIGHT)
         {
-            if (pressingLeft) dirHoriz = LEFT;
+            if (pressingLeft)
+            {
+                dirHoriz = LEFT;
+                dirHoriz = RIGHT;
+            }
             else dirHoriz = -1;
             /* If you release the key when already moving right with a wall */
             if (state.isOnWall())
@@ -880,7 +889,8 @@ public class Actor extends Item
         }
         pressingDown = pressed;
     }
-    public void pressShift(boolean pressed) { pressingShift = pressed; }
+    public void pressWalkKey(boolean pressed) { pressingWalkKey = pressed; }
+    public void pressSprintKey(boolean pressed) { pressingSprintKey = pressed; }
 
     private boolean pressingJump = false;
     private float pressedJumpTime = 0F;
@@ -1109,7 +1119,7 @@ public class Actor extends Item
                 if (dirHoriz != -1)
                 {
                     if (Math.abs(getVelocityX()) > crawlSpeed
-                            && getMoveType() == MoveType.SPRINT) return State.LOWER_SPRINT;
+                            && moveType == MoveType.SPRINT) return State.LOWER_SPRINT;
                     return State.CRAWL;
                 }
                 return State.CROUCH;
@@ -1140,7 +1150,7 @@ public class Actor extends Item
             if (dirHoriz != -1)
             {
                 if (Math.abs(getVelocityX()) > runSpeed
-                        && getMoveType() == MoveType.SPRINT) return State.SPRINT;
+                        && moveType == MoveType.SPRINT) return State.SPRINT;
                 return State.RUN;
             }
             return State.STAND;
@@ -1165,8 +1175,21 @@ public class Actor extends Item
                 setHeight(ORIGINAL_HEIGHT);
             }
 
-            if (getVelocityY() < 0) return State.RISE;
-            else return State.FALL;
+            heightPerc = 1;
+            if (getVelocityY() < 0)
+            {
+                heightPerc = (getVelocityY() / jumpVel) + 1;
+                setHeight(ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2);
+                setWidth(ORIGINAL_WIDTH);
+                return State.RISE;
+            }
+            else
+            {
+                heightPerc = Math.min(1, getVelocityY() / jumpVel);
+                setHeight(ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F));
+                setWidth(ORIGINAL_WIDTH);
+                return State.FALL;
+            }
         }
     }
 
@@ -1752,17 +1775,25 @@ public class Actor extends Item
     }
 
     private boolean flipSprite = false;
+    private float heightPerc = 1;
 
     @Override
     public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
     {
         /* Update sprite state */
         if (state == State.RISE) setSpriteState(3,
-                (int) ((getVelocityY() / jumpVel + 1) * 7));
+                (int) (heightPerc * 7), 0);
         else if (state == State.FALL) setSpriteState(3,
-                (int) (Math.min(1, getVelocityY() / jumpVel) * 7) + 7);
-        else if (state == State.RUN) setSpriteState(2, -1);
-        else setSpriteState(1, -1);
+                (int) (heightPerc * 7) + 7, 0);
+        else if (state == State.RUN)
+        {
+            if (moveType == MoveType.WALK)
+                setSpriteState(1, -1, 0.5F);
+            else setSpriteState(2, -1, 0.5F);
+        }
+        else if (state == State.SPRINT)
+            setSpriteState(2, -1, 1);
+        else setSpriteState(0, -1, 1);
         flipSprite = dirFace == LEFT;
 
 
@@ -1948,7 +1979,7 @@ public class Actor extends Item
     /* How much blocks resist momentum and how much attacks give momentum */
     GradeEnum weaponGrip = GradeEnum.F;
 
-    /* Used only in getSpeedRating method */
+    /* Used mainly in getSpeedRating method */
     float speedThresh = runSpeed + walkSpeed / 2;
 
     /**

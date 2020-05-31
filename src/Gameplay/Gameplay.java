@@ -234,27 +234,30 @@ public class Gameplay implements Reactor
                 entityList.getPlayer(1).pressDown(pressed);
                 return;
             }
+            else if (code == KeyCode.NUMPAD3)
+            {
+                entityList.getPlayer(1).pressWalkKey(pressed);
+            }
+            else if (code == KeyCode.ENTER)
+            {
+                entityList.getPlayer(1).pressSprintKey(pressed);
+            }
             else if (code == KeyCode.NUMPAD0)
             {
                 entityList.getPlayer(1).pressJump(pressed);
                 return;
             }
-            else if (code == KeyCode.N)
-            {
-                entityList.getPlayer(1).pressJump(pressed);
-                return;
-            }
-            else if (code == KeyCode.M)
+            else if (code == KeyCode.NUMPAD1)
             {
                 entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_1);
                 return;
             }
-            else if (code == KeyCode.COMMA)
+            else if (code == KeyCode.NUMPAD2)
             {
                 entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_2);
                 return;
             }
-            else if (code == KeyCode.PERIOD)
+            else if (code == KeyCode.DECIMAL)
             {
                 entityList.getPlayer(1).pressAttack(pressed, Actor.ATTACK_KEY_3);
                 return;
@@ -283,9 +286,13 @@ public class Gameplay implements Reactor
             {
                 entityList.getPlayer(0).pressDown(pressed);
             }
+            else if (code == KeyCode.SHIFT)
+            {
+                entityList.getPlayer(0).pressWalkKey(pressed);
+            }
             else if (code == KeyCode.SPACE)
             {
-                entityList.getPlayer(0).pressShift(pressed);
+                entityList.getPlayer(0).pressSprintKey(pressed);
             }
             else if (code == KeyCode.K)
             {

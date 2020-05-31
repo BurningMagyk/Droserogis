@@ -212,19 +212,19 @@ public class Character
         ArrayList<String[]> spritePaths = new ArrayList<>();
         String[] spriteArray;
 
-        int walkFrames = 35;
-        spriteArray = new String[walkFrames];
-        for(int i = 0; i < walkFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/walk/Walk00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
         int idleFrames = 60;
         spriteArray = new String[idleFrames];
         for(int i = 0 ; i < idleFrames; i++){
             String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
             spriteArray[i] = "Characters/Jacob/idle/Idle00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        int walkFrames = 35;
+        spriteArray = new String[walkFrames];
+        for(int i = 0; i < walkFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/walk/Walk00" + imageIndex + ".png";
         }
         spritePaths.add(spriteArray);
 
@@ -244,17 +244,18 @@ public class Character
         }
         spritePaths.add(spriteArray);
 
-        spriteArray = new String[walkFrames];
-        for(int i = 0; i < walkFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/walk/WalkNormal00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
 
         spriteArray = new String[idleFrames];
         for(int i = 0 ; i < idleFrames; i++){
             String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
             spriteArray[i] = "Characters/Jacob/idle/IdleNormal00" + imageIndex + ".png";
+        }
+        spritePaths.add(spriteArray);
+
+        spriteArray = new String[walkFrames];
+        for(int i = 0; i < walkFrames; i++){
+            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+            spriteArray[i] = "Characters/Jacob/walk/WalkNormal00" + imageIndex + ".png";
         }
         spritePaths.add(spriteArray);
 

@@ -60,7 +60,7 @@
 |                        A | Jump                  |                  |                   |
 |                          |                       |                  |                   |
 |                        X | Thrust                | Thrust           | Thrust            |
-|        forward       + X | Thrust                | Thrust           | Thrust up diag    |
+|          forward     + X | Thrust                | Thrust           | Thrust up diag    |
 | up                   + X | Thrust up             | Thrust up        | Thrust up         |
 | down                 + X | Thrust unterhau       | Thrust down      | Thrust            |
 | up     + forward     + X | Thrust up diag        | Thrust up diag   | Thrust up diag    |
@@ -129,6 +129,26 @@
 |----------------|:----------:|
 | Start          | Pause menu |
 | Select         | ???        |
+<br>
+
+### Keyboard controls
+
+|   Keyboard 1   |   Keyboard 2   |    Gamepad     |       Action       |
+|----------------|:--------------:|:--------------:|:------------------:|
+| ESC            |                | Start          | Quit application   |
+| ~              |                | Select         | Toggle console box |
+| A              | Left arrow     | Right joystick | Go left            |
+| D              | Right arrow    | Right joystick | Go right           |
+| W              | Up arrow       | Right joystick | Block              |
+| S              | Down arrow     | Right joystick | Crouch             |
+| J              | Numpad 0       | A              | Jump               |
+| K              | Numpad 1       | X              | Thrust             |
+| L              | Numpad 2       | Y              | Swing              |
+| Semicolon      | Numpad .       | B              | Interact           |
+| Space          | Enter          | Left trigger   | Sprint             |
+| Shift          | Numpad 3       |                | Walk               |
+<h5>(Numpad key bindings assume num-lock is on)<h5>
+
 <br>
 
 ### Translations for use in Natural weapon:

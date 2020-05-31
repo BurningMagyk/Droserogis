@@ -150,7 +150,7 @@ public class Gamepad
         byte buttonLeftThumb_state = gamepadState.buttons(GLFW_GAMEPAD_BUTTON_LEFT_THUMB);
         if ( lastButtonLeftThumb != buttonLeftThumb_state)
         {
-            player.pressShift(buttonLeftThumb_state == GLFW_PRESS);
+            player.pressSprintKey(buttonLeftThumb_state == GLFW_PRESS);
             lastButtonLeftThumb = buttonLeftThumb_state;
         }
 

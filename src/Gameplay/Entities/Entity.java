@@ -688,25 +688,25 @@ abstract public class Entity
     /********************************* Rendering *********************************/
     /*****************************************************************************/
 
-    private int spriteStateIndex = 0, spriteFrameIndex = 0;
-    private boolean autoSpriteFrame = true;
-    void setSpriteState(int stateIndex, int frameIndex)
+    private int spriteStateIndex = 0;
+    private float spriteFrameIndex = 0, autoSpriteFrame = 1;
+    void setSpriteState(int stateIndex, int frameIndex, float auto)
     {
         spriteStateIndex = stateIndex;
         if (frameIndex >= 0) spriteFrameIndex = frameIndex;
-        autoSpriteFrame = frameIndex < 0;
+        autoSpriteFrame = auto;
     }
     public ImageResource getImage()
     {
         if (SPRITES != null) {
-            if (autoSpriteFrame)
+            if (autoSpriteFrame > 0)
             {
-                spriteFrameIndex = (spriteFrameIndex + 1 >= SPRITES.get(spriteStateIndex).length)
-                        ? 0 : spriteFrameIndex + 1;
+                spriteFrameIndex = (spriteFrameIndex + autoSpriteFrame >= SPRITES.get(spriteStateIndex).length)
+                        ? 0 : spriteFrameIndex + autoSpriteFrame;
             }
         }
         ImageResource currSprite = (SPRITES == null)
-                ? null : SPRITES.get(spriteStateIndex)[spriteFrameIndex];
+                ? null : SPRITES.get(spriteStateIndex)[(int) spriteFrameIndex];
 
         return currSprite;
     }
