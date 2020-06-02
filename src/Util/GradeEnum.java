@@ -53,6 +53,8 @@ public enum GradeEnum
         return values()[sum];
     }
 
+    public GradeEnum half() { return getGrade(ordinal() / 2); }
+
     public static GradeEnum parseGrade(String string)
     {
         for (int i = 0; i < values().length; i++)

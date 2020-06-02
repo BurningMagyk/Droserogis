@@ -603,30 +603,115 @@ public class Weapon extends Item
                         DirEnum dir = currentOp.getDir(true);
                         if (currentOp instanceof RushOperation)
                         {
-                            /* If other item is an actor and they're facing you */
-                            if ((other.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
-                                    || (other.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getTopRect()))
-                                    || (!other.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getBottomRect())))
+                            /* If the other actor is facing you */
+                            boolean facingEachOther = other.getWeaponFace().getHoriz().isOpp(dir.getHoriz());
+                            if (facingEachOther)
                             {
-                                actor.staggerBlock(inf.getDamage(), dir);
-                                ((Actor) item).getBlockingWeapon().inflict(inf);
+                                Weapon blockingWeapon = ((Actor) item).getBlockingWeapon();
+                                int blockingWeaponRating = blockingWeapon.getBlockRating();
+
+                                /* If the other actor is using the best type of blocking weapon */
+                                if (blockingWeaponRating == 4) blockingWeapon.inflict(inf);
+                                else
+                                {
+                                    /* If the other actor is making the correct block */
+                                    DirEnum dirVert = currentOp.getDir(false).getVert();
+                                    boolean blockingCorrectly =
+                                           ( other.isBlockingUp() && (dirVert == DirEnum.DOWN || dirVert == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getTopRect()))
+                                        || (!other.isBlockingUp() && (dirVert == DirEnum.UP || dirVert == DirEnum.NONE)
+                                        && PolygonIntersection.isIntersect(getActorCorners(), other.getBottomRect()));
+
+                                    if (blockingCorrectly)
+                                    {
+                                        /* If the other actor's best blocking weapon can block yours */
+                                        if (blockingWeaponRating == 0) item.inflict(inf);
+                                        else if (blockingWeaponRating == 1)
+                                        {
+                                            if (currentOp.isPermeating()) item.inflict(inf);
+                                            else
+                                            {
+                                                blockingWeapon.inflict(inf);
+                                                ((Actor) item).inflict(inf, true);
+                                                actor.staggerBlock(inf.getDamage().half(), dir);
+                                            }
+                                        }
+                                        else if (blockingWeaponRating == 2)
+                                        {
+                                            if (currentOp.isPermeating()) item.inflict(inf);
+                                            else
+                                            {
+                                                blockingWeapon.inflict(inf);
+                                                actor.staggerBlock(inf.getDamage(), dir);
+                                            }
+                                        }
+                                        else if (blockingWeaponRating == 3)
+                                        {
+                                            blockingWeapon.inflict(inf);
+                                            actor.staggerBlock(inf.getDamage(), dir);
+                                        }
+                                    }
+                                    /* If the other actor is NOT making the correct block */
+                                    else item.inflict(inf);
+                                }
                             }
+                            /* If not facing each other, no blocking happens */
                             else item.inflict(inf);
                         }
                         else
                         {
-                            /* If other item is an actor and they're facing you */
-                            if ((other.getWeaponFace().getHoriz().isOpp(dir.getHoriz()))
-                                    || (other.isBlockingUp() && (dir.getVert() == DirEnum.DOWN || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getShapeCorners(), other.getTopRect()))
-                                    || (!other.isBlockingUp() && (dir.getVert() == DirEnum.UP || dir == DirEnum.NONE)
-                                        && PolygonIntersection.isIntersect(getShapeCorners(), other.getBottomRect())))
+                            /* If the other actor is facing you */
+                            boolean facingEachOther = other.getWeaponFace().getHoriz().isOpp(dir.getHoriz());
+                            if (facingEachOther)
                             {
-                                actor.staggerBlock(inf.getDamage(), dir);
-                                ((Actor) item).getBlockingWeapon().inflict(inf);
+                                Weapon blockingWeapon = ((Actor) item).getBlockingWeapon();
+                                int blockingWeaponRating = blockingWeapon.getBlockRating();
+
+                                /* If the other actor is using the best type of blocking weapon */
+                                if (blockingWeaponRating == 4) blockingWeapon.inflict(inf);
+                                else
+                                {
+                                    /* If the other actor is making the correct block */
+                                    DirEnum dirVert = currentOp.getDir(false).getVert();
+                                    boolean blockingCorrectly =
+                                            ( other.isBlockingUp() && (dirVert == DirEnum.DOWN || dirVert == DirEnum.NONE)
+                                         && PolygonIntersection.isIntersect(getShapeCorners(), other.getTopRect()))
+                                         || (!other.isBlockingUp() && (dirVert == DirEnum.UP   || dirVert == DirEnum.NONE)
+                                         && PolygonIntersection.isIntersect(getShapeCorners(), other.getBottomRect()));
+                                    if (blockingCorrectly)
+                                    {
+                                        /* If the other actor's best blocking weapon can block yours */
+                                        if (blockingWeaponRating == 0) item.inflict(inf);
+                                        else if (blockingWeaponRating == 1)
+                                        {
+                                            if (currentOp.isPermeating()) item.inflict(inf);
+                                            else
+                                            {
+                                                blockingWeapon.inflict(inf);
+                                                ((Actor) item).inflict(inf, true);
+                                                actor.staggerBlock(inf.getDamage().half(), dir);
+                                            }
+                                        }
+                                        else if (blockingWeaponRating == 2)
+                                        {
+                                            if (currentOp.isPermeating()) item.inflict(inf);
+                                            else
+                                            {
+                                                blockingWeapon.inflict(inf);
+                                                actor.staggerBlock(inf.getDamage(), dir);
+                                            }
+                                        }
+                                        else if (blockingWeaponRating == 3)
+                                        {
+                                            blockingWeapon.inflict(inf);
+                                            actor.staggerBlock(inf.getDamage(), dir);
+                                        }
+                                    }
+                                    /* If the other actor is NOT making the correct block */
+                                    else item.inflict(inf);
+                                }
                             }
+                            /* If not facing each other, no blocking happens */
                             else item.inflict(inf);
                         }
                     }

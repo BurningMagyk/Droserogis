@@ -21,4 +21,20 @@ public class ConditionApp
     public Actor.Condition[] getConditions() { return conds; }
     public float getTime() { return time; }
     public boolean isSinglet() { return this.time == -1; }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < conds.length; i++)
+        {
+            out.append(conds[i]);
+            if (i < conds.length - 1) out.append(", ");
+            else out.append(".");
+        }
+        out.append(" Duration: ");
+        if (isSinglet()) out.append("singlet");
+        else out.append(time);
+        return out.toString();
+    }
 }

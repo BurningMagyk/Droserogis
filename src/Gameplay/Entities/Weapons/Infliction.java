@@ -48,6 +48,7 @@ public class Infliction
 
         if (operationState == 0) conditionApps[0] = cycle.getWarm();
         else if (operationState == 1) conditionApps[0] = cycle.getExec();
+        else if (operationState == -1) conditionApps[0] = cycle.getExecSingle();
         else conditionApps[0] = cycle.getCool();
 
         System.arraycopy(extraApps, 0, conditionApps, 1, extraApps.length);

@@ -303,8 +303,10 @@ public class Actor extends Item
                         && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
                 {
                     setVelocityX(-rushSpeed);
-                    addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                    addCondition(dashRecoverTime, Condition.NEGATE_SPRINT_LEFT, Condition.NEGATE_SPRINT_RIGHT);
                 }
+                else if (has(Condition.JUT) && getVelocityX() > - jutSpeed)
+                    setVelocityX(-jutSpeed);
             }
             else if (dirHoriz == RIGHT)
             {
@@ -318,8 +320,10 @@ public class Actor extends Item
                         && !has(Condition.NEGATE_WALK_LEFT) && !has(Condition.NEGATE_WALK_RIGHT))
                 {
                     setVelocityX(rushSpeed);
-                    addCondition(dashRecoverTime, Condition.NEGATE_WALK_LEFT, Condition.NEGATE_WALK_RIGHT);
+                    addCondition(dashRecoverTime, Condition.NEGATE_SPRINT_LEFT, Condition.NEGATE_SPRINT_RIGHT);
                 }
+                else if (has(Condition.JUT) && getVelocityX() < jutSpeed)
+                    setVelocityX(jutSpeed);
             }
 
             /* Going up stairs */
@@ -562,26 +566,25 @@ public class Actor extends Item
         {
             if (dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT))
             {
-                if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_LEFT))
+                if (!has(Condition.NEGATE_RUN_LEFT))
                 {
                     if (pressingSprintKey && !has(Condition.NEGATE_SPRINT_LEFT))
                         return MoveType.SPRINT;
                     if (pressingWalkKey) return MoveType.WALK;
                     return MoveType.RUN;
                 }
-                return MoveType.WALK;
             }
             if (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT))
             {
-                if (dirFace == dirHoriz && !has(Condition.NEGATE_RUN_RIGHT))
+                if (!has(Condition.NEGATE_RUN_RIGHT))
                 {
                     if (pressingSprintKey && !has(Condition.NEGATE_SPRINT_RIGHT))
                         return MoveType.SPRINT;
                     if (pressingWalkKey) return MoveType.WALK;
                     return MoveType.RUN;
                 }
-                return MoveType.WALK;
             }
+            return MoveType.WALK;
         }
         return MoveType.STILL;
     }
@@ -1444,7 +1447,7 @@ public class Actor extends Item
         NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT,
         NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT,
         NEGATE_STABILITY, NEGATE_ACTIVITY,
-        DASH,
+        JUT, DASH,
         FORCE_STAND, FORCE_CROUCH,
         DEAD
     }
@@ -1754,6 +1757,12 @@ public class Actor extends Item
         }
     }
 
+    public void inflict(Infliction infliction, boolean soakDamage)
+    {
+        inflict(infliction);
+        // TODO: save infliction index to keep track
+    }
+
     public GradeEnum getMass()
     {
         int totalMass = mass.ordinal();
@@ -1878,6 +1887,8 @@ public class Actor extends Item
 
     private float rushSpeed = 0.3F;
 
+    private float jutSpeed = 0.2F;
+
     /* This is the highest speed the player can get from sprinting alone.
      * They can go faster while sprinting with the help of external influences,
      * such as going down a slope or being pushed by a faster object. */
@@ -1996,6 +2007,7 @@ public class Actor extends Item
         lowerSprintSpeed = charStat.lowerSprintSpeed();
         sprintSpeed = charStat.sprintSpeed();
         rushSpeed = charStat.rushSpeed();
+        jutSpeed = charStat.jutSpeed();
         speedThresh = runSpeed + walkSpeed / 2;
 
         maxClimbSpeed = charStat.maxClimbSpeed();

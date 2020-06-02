@@ -230,19 +230,20 @@ public class CharacterStat
     public int hitPoints() { return (int) (vitality(90) + constitution(10)); }
 
     public float airSpeed() { return dexterity(0.10F); }
-    public float swimSpeed() { return dexterity(3F); }
+    public float swimSpeed() { return dexterity(0.1F); }
     public float crawlSpeed() { return agility(0.025F); }
     public float walkSpeed() { return agility(0.035F); }
     public float runSpeed() { return agility(0.07F); }
     public float lowerSprintSpeed() { return agility(0.05F); }
     public float sprintSpeed() { return agility(0.14F); }
-    public float rushSpeed() { return agility(0.3F); }
+    public float rushSpeed() { return agility(0.25F); }
+    public float jutSpeed() { return agility(0.2F); }
 
     public float maxClimbSpeed() { return agility(0.15F) + dexterity(0.15F); }
     public float maxStickSpeed() { return agility(0.1F) + dexterity(0.1F); }
     public float maxSlideSpeed() { return agility(0.2F) + dexterity(0.2F); }
     public float maxLowerGroundSpeed() { return agility(0.05F) + dexterity(0.05F); }
-    public float maxGroundSpeed() { return agility(0.1F) + dexterity(0.1F); }
+    public float maxGroundSpeed() { return agility(0.25F) + dexterity(0.25F); }
     public float maxTotalSpeed() { return 3F; }
 
     public float airAccel() { return dexterity(0.15F); }

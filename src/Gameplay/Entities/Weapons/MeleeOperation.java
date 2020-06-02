@@ -116,8 +116,9 @@ class MeleeOperation implements Weapon.Operation
 
     private boolean execute()
     {
+        int inflictionState = State.EXECUTION.ordinal() * (totalSec == 0 ? -1: 1);
         selfInfliction = new Infliction(
-                cycle, selfApps, State.EXECUTION.ordinal(), Infliction.InflictionType.METAL);
+                cycle, selfApps, inflictionState, Infliction.InflictionType.METAL);
 
         for (Tick tick : execJourney)
         {

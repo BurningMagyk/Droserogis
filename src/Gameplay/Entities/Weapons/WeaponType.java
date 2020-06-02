@@ -170,6 +170,8 @@ public class WeaponType
 
     private final static ConditionApp FORCE_WALK__FORCE_STAND = new ConditionApp(
             NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT, FORCE_STAND);
+    private final static ConditionApp FORCE_WALK__FORCE_STAND__JUT = new ConditionApp(
+            NEGATE_RUN_LEFT, NEGATE_RUN_RIGHT, FORCE_STAND, JUT);
     private final static ConditionApp
             LUNGE_START_CONDITION = new ConditionApp(
                     FORCE_STAND, DASH),
@@ -181,9 +183,13 @@ public class WeaponType
             NEGATE_WALK_LEFT, NEGATE_WALK_RIGHT, FORCE_CROUCH);
 
     private final static ConditionAppCycle STANDARD_CYCLE = new ConditionAppCycle(FORCE_WALK__FORCE_STAND);
+    private final static ConditionAppCycle JUT_CYCLE = new ConditionAppCycle(
+            FORCE_WALK__FORCE_STAND, FORCE_WALK__FORCE_STAND__JUT, FORCE_WALK__FORCE_STAND, FORCE_WALK__FORCE_STAND);
     private final static ConditionAppCycle LUNGE_CYCLE = new ConditionAppCycle(
             LUNGE_START_CONDITION, new ConditionApp(FORCE_STAND), LUNGE_END_CONDITION);
     private final static ConditionAppCycle STAB_CYCLE = new ConditionAppCycle(FORCE_STILL__FORCE_STAND);
+    private final static ConditionAppCycle SOCCER_CYCLE = new ConditionAppCycle(
+            FORCE_WALK__FORCE_STAND, FORCE_WALK__FORCE_STAND__JUT, FORCE_STILL__FORCE_STAND, FORCE_STILL__FORCE_STAND);
     private final static ConditionAppCycle STOMP_FALL_CYCLE = new ConditionAppCycle(FORCE_STILL__FORCE_CROUCH);
     private final static ConditionAppCycle POUNCE_CYCLE = new ConditionAppCycle(
             new ConditionApp(FORCE_CROUCH), new ConditionApp(NEGATE_ACTIVITY), new ConditionApp(FORCE_CROUCH));
@@ -203,8 +209,8 @@ public class WeaponType
             new Tick(0.75F, 0.6F, -0.2F, 0),
             new Tick(1, 0.8F, -0.2F, 0) };
     private final static MeleeOperation NATURAL__PUNCH = new MeleeOperation(
-            "Punch", EMPTY__NEXT, THRUST_2H__PROCEED, STANDARD_CYCLE, NATURAL__PUNCH_WAITS,
-            DirEnum.RIGHT, false, false,
+            "Punch", EMPTY__NEXT, THRUST_2H__PROCEED, JUT_CYCLE, NATURAL__PUNCH_WAITS,
+            DirEnum.RIGHT, false, true,
             null, NATURAL__PUNCH__EXEC);
 
     private final static Tick[] NATURAL__UPPERCUT__EXEC = new Tick[] {
@@ -251,7 +257,7 @@ public class WeaponType
             new Tick(0.66F, 0.5F, 0.25F, PI4),
             new Tick(1F, 0.75F, 0F, 0) };
     private final static MeleeOperation NATURAL__KICK_ARC = new MeleeOperation(
-            "Kick arc", EMPTY__NEXT, null, STAB_CYCLE, NATURAL__KICK_WAITS,
+            "Kick arc", EMPTY__NEXT, null, SOCCER_CYCLE, NATURAL__KICK_WAITS,
             DirEnum.UPRIGHT, true, false,
             null, NATURAL__KICK_ARC__EXEC);
 
@@ -391,7 +397,7 @@ public class WeaponType
             new Tick(0.75F, 1.25F, -0.1F, 0),
             new Tick(1, 1.5F, -0.1F, 0) };
     private final static MeleeOperation SWORD__THRUST = new MeleeOperation(
-            "Thrust", EMPTY__NEXT, null, STANDARD_CYCLE, SWORD__THRUST_WAITS,
+            "Thrust", EMPTY__NEXT, null, JUT_CYCLE, SWORD__THRUST_WAITS,
             DirEnum.RIGHT, false, true,
             null, SWORD__THRUST__EXEC);
 
@@ -481,13 +487,13 @@ public class WeaponType
             new Tick(0.12F, 1.5F, -0.1F, -0.1F),
             new Tick(0.16F, 1.4F, 0.2F, 0.2F) };
     private final static MeleeOperation SWORD__SWING = new MeleeOperation(
-            "Swing", UNTERHAU_SWING__NEXT, SWING__PROCEED, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            "Swing", UNTERHAU_SWING__NEXT, SWING__PROCEED, JUT_CYCLE, SWORD__SWING_WAITS,
             DirEnum.DOWNRIGHT, true, false,
             null, SWORD__SWING__EXEC);
 
     private final static Tick[] SWORD__SWING_UNTERHAU__EXEC = reverse(SWORD__SWING__EXEC);
     private final static MeleeOperation SWORD__SWING_UNTERHAU = new MeleeOperation(
-            "Swing unterhau", EMPTY__NEXT, SWING_UNTERHAU__PROCEED, STANDARD_CYCLE, SWORD__SWING_WAITS,
+            "Swing unterhau", EMPTY__NEXT, SWING_UNTERHAU__PROCEED, JUT_CYCLE, SWORD__SWING_WAITS,
             DirEnum.UPRIGHT, true, false,
             null, SWORD__SWING_UNTERHAU__EXEC);
     private final static MeleeOperation SWORD__SWING_UNTERHAU_C = new MeleeOperation(
