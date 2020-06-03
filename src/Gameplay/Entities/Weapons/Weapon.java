@@ -382,8 +382,14 @@ public class Weapon extends Item
     }
     public void interrupt(RushOperation.RushFinish rushFinish)
     {
-        if (currentOp != null && currentOp instanceof RushOperation)
-            ((RushOperation) currentOp).interrupt(rushFinish);
+        if (currentOp != null)
+        {
+            if (currentOp instanceof RushOperation)
+                ((RushOperation) currentOp).interrupt(rushFinish);
+            else if (currentOp instanceof MeleeOperation)
+                ((MeleeOperation) currentOp).interrupt(rushFinish);
+        }
+
     }
     private void interrupt(GradeEnum momentum)
     {
@@ -558,6 +564,10 @@ public class Weapon extends Item
             if (otherWeapon == this || otherWeapon.idle || otherWeapon.currentOp == null
                     || collidedItems.contains(otherWeapon)
                     || (!currentOpExec() && !otherWeapon.currentOpExec())) continue;
+
+            // Permeating attacks can only clash with parrying attacks
+            if (currentOp.isPermeating() && !otherWeapon.currentOp.isParrying()) continue;
+            if (!currentOp.isParrying() && otherWeapon.currentOp.isPermeating()) continue;
 
             Vec2[] otherPolygon = otherWeapon.getShapeCorners();
             for (Vec2[] polygon : clashShapeCorners)

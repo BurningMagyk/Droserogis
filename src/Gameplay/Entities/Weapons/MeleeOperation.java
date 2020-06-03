@@ -51,6 +51,24 @@ class MeleeOperation implements Weapon.Operation
 
         return boost;
     }
+
+    private RushOperation.RushFinish[] finishes;
+    public void interrupt(RushOperation.RushFinish rushFinish)
+    {
+        if (state.ordinal() >= State.COOLDOWN.ordinal() || finishes == null) return;
+
+        for (RushOperation.RushFinish finish : finishes)
+        {
+            if (finish == rushFinish)
+            {
+                state = State.COOLDOWN;
+                coolJourney = warmJourney.makeCoolJourney(
+                        execJourney[execJourney.length - 1].getOrient(), waits.y);
+                break;
+            }
+        }
+    }
+
     @Override
     public MeleeEnum getNext(MeleeEnum meleeEnum)
     {
@@ -220,7 +238,7 @@ class MeleeOperation implements Weapon.Operation
     public Weapon.Operation copy()
     {
         MeleeOperation op = new MeleeOperation(
-                name, next, proceeds, cycle,
+                name, next, proceeds, finishes, cycle,
                 waits, funcDir,
                 parrying, permeating,
                 conditionApps[0], execJourney, infTypes);
@@ -328,6 +346,30 @@ class MeleeOperation implements Weapon.Operation
     MeleeOperation(String name, MeleeOperation op, ConditionAppCycle cycle)
     {
         this(name, op.next, op.proceeds, cycle, op.waits.copy(),
+                op.funcDir, op.parrying, op.permeating,
+                op.conditionApps[0], op.execJourney, op.infTypes);
+        setStats(op.damageMod, op.knockbackMod, op.precisionMod);
+    }
+
+    MeleeOperation(String name, MeleeEnum[][] next, MeleeEnum[] proceeds,
+                   RushOperation.RushFinish[] finishes, ConditionAppCycle cycle,
+                   Vec2 waits, DirEnum funcDir, boolean parrying, boolean permeating,
+                   ConditionApp conditionApp, Tick[] execJourney,
+                   Infliction.InflictionType... infTypes
+    )
+    {
+        this(name, next, proceeds, cycle, waits, funcDir, parrying, permeating,
+                conditionApp, execJourney, infTypes);
+        if (finishes != null)
+        {
+            this.finishes = new RushOperation.RushFinish[finishes.length];
+            System.arraycopy(finishes, 0, this.finishes, 0, finishes.length);
+        }
+    }
+
+    MeleeOperation(String name, MeleeOperation op, Vec2 waits)
+    {
+        this(name, op.next, op.proceeds, op.cycle, waits,
                 op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
         setStats(op.damageMod, op.knockbackMod, op.precisionMod);

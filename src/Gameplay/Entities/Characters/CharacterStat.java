@@ -235,9 +235,9 @@ public class CharacterStat
     public float walkSpeed() { return agility(0.035F); }
     public float runSpeed() { return agility(0.07F); }
     public float lowerSprintSpeed() { return agility(0.05F); }
-    public float sprintSpeed() { return agility(0.14F); }
-    public float rushSpeed() { return agility(0.25F); }
-    public float jutSpeed() { return agility(0.2F); }
+    public float sprintSpeed() { return agility(0.12F); }
+    public float rushSpeed() { return agility(0.18F); }
+    public float jutSpeed() { return agility(0.13F); }
 
     public float maxClimbSpeed() { return agility(0.15F) + dexterity(0.15F); }
     public float maxStickSpeed() { return agility(0.1F) + dexterity(0.1F); }
