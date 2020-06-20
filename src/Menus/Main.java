@@ -20,6 +20,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -65,7 +66,8 @@ public class Main extends Application
         final String NAME = "The Lie Made Flesh";
         stage.setTitle(NAME + " - " + VERSION);
 
-        stage.getIcons().add(IMPORTER.getImage("Shaggy_Verde.png").getImage());
+        Image icon = IMPORTER.getImage("Shaggy_Verde.png").getImage();
+        if (icon != null) stage.getIcons().add(icon);
 
         /* Set up main game after the prompt is already set up */
         Stage mainGameStage = new Stage(StageStyle.UNDECORATED);
