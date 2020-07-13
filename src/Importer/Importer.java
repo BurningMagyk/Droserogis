@@ -50,6 +50,7 @@ public class Importer
 
     public ImageResource getImage(String path, Color color)
     {
+        System.out.println("Importer.Importer.getImage("+path+"]");
         int index = binarySearch(0, images.size() - 1,
                 IMAGE_DIR + path, images);
         if (index == -1)
