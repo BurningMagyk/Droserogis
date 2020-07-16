@@ -694,9 +694,16 @@ public class LevelBuilder  extends Application
 
         String path = fileChooserOpenGetPath();
         if (path == null) return;
-        InputStream input = getClass().getResourceAsStream(path);
-        if (input != null) entityList = loadLevel(input);
-        else Print.red("\"" + path + "\" was not imported");
+        try
+        {
+            InputStream input = new BufferedInputStream(new FileInputStream(path));
+            if (input != null) entityList = loadLevel(input);
+            else Print.red("\"" + path + "\" was not imported");
+        }
+        catch (IOException e)
+        {
+            Print.red("\"" + path + "\": Could not open file");
+        }
 
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,levelEditorScale);
@@ -740,6 +747,7 @@ public class LevelBuilder  extends Application
     //============================================================================================
     public static EntityCollection<Entity> loadLevel(InputStream input)
     {
+        System.out.println("LevelBuilder.loadLevel() Enter ======>");
         try
         {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
