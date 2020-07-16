@@ -88,7 +88,7 @@ public class BlockType
         blockTypeList[16] = new BlockType("Top1",  32,32,0,1);
         blockTypeList[17] = new BlockType("Top2",  32,32,0,1);
         blockTypeList[18] = new BlockType("Top3",  32,32,0,1);
-        blockTypeList[19] = new BlockType("Top4",  32,32,0,1);
+        blockTypeList[19] = new BlockType("Top4",  32,32,0,2);
         blockTypeList[20] = new BlockType("Top5",  32,32,0,2);
         blockTypeList[21] = new BlockType("Top6",  32,32,0,4);
         blockTypeList[22] = new BlockType("Top7",  32,32,0,1);
