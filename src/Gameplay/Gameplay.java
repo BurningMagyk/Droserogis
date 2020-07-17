@@ -45,7 +45,8 @@ public class Gameplay implements Reactor
     private EntityCollection<Entity> entityList = new EntityCollection();
 
     private long lastUpdateTime = -1;
-    private int startupFrames = 120;
+    private final int STARTUP_FRAMES = 10;
+    private int startupFrames = STARTUP_FRAMES;
 
     private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
@@ -164,7 +165,15 @@ public class Gameplay implements Reactor
         }
         deltaSec = 1.0f/fps;
 
-        if (startupFrames > 0) startupFrames--;
+        Print.blue("fps: " + fps);
+
+        if (startupFrames > 0 && fps >= 30)
+        {
+            if (fps >= 30) startupFrames--;
+            else startupFrames = STARTUP_FRAMES;
+
+
+        }
         else
         {
             queryGamepads();
@@ -176,20 +185,14 @@ public class Gameplay implements Reactor
             for (Item item : entityList.getDynamicItems()) item.update(entityList, deltaSec);
 
             for (Weapon weapon : entityList.getWeaponList()) weapon.update(entityList.getDynamicItems());
+
+            moveCamera(entityList.getPlayer(0), 100, deltaSec);
+
+            renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,1);
         }
 
-        Actor player1 = entityList.getPlayer(0);
-        float x = player1.getPosition().x;
-        float y = player1.getPosition().y;
-        moveCamera(x, y, 100, player1.shouldVertCam(), deltaSec);
-
-
-        //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  cameraZoom="+cameraZoom);
-
-        renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,1);
-
-        gfx.setFill(Color.BLACK);
-        gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight-5);
+        gfx.setFill(Color.WHITE);
+        gfx.fillText(String.format("%.1f fps", fps), 10, viewHeight - 10);
 
         // Testing
         //GLFWGamepadState gamepadState = GLFWGamepadState.create();
@@ -327,7 +330,10 @@ public class Gameplay implements Reactor
     }
 
 
-
+    private void moveCamera(Actor actor, float zoom, float deltaSec)
+    {
+        moveCamera(actor.getX(), actor.getY(), zoom, actor.shouldVertCam(), deltaSec);
+    }
 
     /**
      * Call every frame. Movement and zooming should be smooth.
