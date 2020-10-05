@@ -165,7 +165,7 @@ public class Gameplay implements Reactor
         }
         deltaSec = 1.0f/fps;
 
-        Print.blue("fps: " + fps);
+        //Print.blue("fps: " + fps);
 
         if (startupFrames > 0 && fps >= 30)
         {
@@ -188,7 +188,7 @@ public class Gameplay implements Reactor
 
             moveCamera(entityList.getPlayer(0), 100, deltaSec);
 
-            renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom,1);
+            renderThread.renderAll(entityList, cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY, cameraZoom);
         }
 
         gfx.setFill(Color.WHITE);

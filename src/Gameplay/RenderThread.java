@@ -8,11 +8,6 @@ package Gameplay;
 
 import Gameplay.Entities.*;
 
-import Gameplay.Entities.Weapons.Weapon;
-import Importer.ImageResource;
-import Menus.Main;
-import Util.DebugEnum;
-import Util.Vec2;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -39,8 +34,6 @@ public class RenderThread
     private float cameraPosX, cameraPosY, cameraOffsetX, cameraOffsetY;
     private float cameraZoom, cameraZoomGoal, cameraZoomLerp = 0.05F;
 
-    private float levelEditorScale = 1;
-
     private GraphicsContext gfx;
     private EntityCollection<Entity> entityList;
 
@@ -66,10 +59,10 @@ public class RenderThread
         backgroundLayerOffsetY[2] = 60;
         backgroundLayerOffsetY[3] = 140;
 
-        BlockType.loadBlockTypes();
+        BlockTexture.loadBlockTypes();
     }
 
-    public void renderAll(EntityCollection<Entity> entityList, float cameraPosX , float cameraPosY, float cameraOffsetX, float cameraOffsetY, float cameraZoom, float levelEditorScale)
+    public void renderAll(EntityCollection<Entity> entityList, float cameraPosX , float cameraPosY, float cameraOffsetX, float cameraOffsetY, float cameraZoom)
     {
         this.entityList = entityList;
         this.cameraPosX = cameraPosX;
@@ -77,8 +70,6 @@ public class RenderThread
         this.cameraOffsetX = cameraOffsetX;
         this.cameraOffsetY = cameraOffsetY;
         this.cameraZoom = cameraZoom;
-
-        this.levelEditorScale = levelEditorScale;
 
         renderBackground();
         renderShadows();
@@ -97,9 +88,9 @@ public class RenderThread
     {
         gfx.restore();
         gfx.save();
-        float backgroundScale = levelEditorScale + (1-levelEditorScale)/2f;
+        //float backgroundScale = 1 + (1-levelEditorScale)/2f;
 
-        gfx.scale(backgroundScale,backgroundScale);
+        //gfx.scale(backgroundScale,backgroundScale);
         double layer3Left = 0;
         double layer3Bottom = 0;
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
@@ -125,7 +116,8 @@ public class RenderThread
         gfx.setFill(Color.BLACK);
         //gfx.fillRect(layer3Left, layer3Bottom, viewWidth-layer3Left, viewHeight-layer3Bottom);
         //gfx.fillRect(0, layer3Bottom, viewWidth/levelEditorScale, (viewHeight-layer3Bottom)/levelEditorScale);
-        gfx.fillRect(0, layer3Bottom, viewWidth/levelEditorScale, 3000);
+        //gfx.fillRect(0, layer3Bottom, viewWidth/levelEditorScale, 3000);
+        gfx.fillRect(0, layer3Bottom, viewWidth, 3000);
 
         //Print.purple("levelEditorScale="+levelEditorScale+"      (viewHeight-layer3Bottom)/levelEditorScale="+(viewHeight-layer3Bottom)/levelEditorScale);
 
@@ -139,7 +131,7 @@ public class RenderThread
     {
         gfx.restore();
         gfx.save();
-        gfx.scale(levelEditorScale,levelEditorScale);
+        //gfx.scale(levelEditorScale,levelEditorScale);
         double[] xx = new double[4];
         double[] yy = new double[4];
         gfx.setFill(texturePatternShadow);
@@ -257,6 +249,23 @@ public class RenderThread
                     gfx.setFill(texturePatternWater1);
                     gfx.fillRect(x, y, width, height);
                 }
+            }
+        }
+    }
+
+    public void renderGrid(float size, float cameraPosX, float cameraPosY, float cameraOffsetX, float cameraOffsetY, float cameraZoom)
+    {
+       //Print.purple("( " + cameraPosX + " + " + cameraOffsetX + " )  ,  ( " + cameraPosY + " + " + cameraOffsetY + " )");
+
+        double x0 = ((cameraZoom * (cameraOffsetX-cameraPosX)) % size);
+        double y0 = ((cameraZoom * (cameraOffsetY-cameraPosY)) % size);
+
+        gfx.setFill(Color.LIGHTGRAY);
+        for (double x = x0; x<viewWidth; x+=size)
+        {
+            for (double y = y0; y<viewHeight; y+=size)
+            {
+                gfx.fillRect(x, y, 1, 1);
             }
         }
     }

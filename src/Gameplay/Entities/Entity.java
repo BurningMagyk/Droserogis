@@ -120,7 +120,7 @@ abstract public class Entity
             }
         }
 
-        setSize(width, height);
+        //setSize(width, height);
     }
 
     public void setSize(float width, float height)
@@ -210,14 +210,16 @@ abstract public class Entity
     public float getDefHeight() { return defHeight; }
     public Vec2 getDims() { return new Vec2(width, height); }
 
+    ////TODO: *****BUG****: this class also has a setSize method which does very different things
+    ////TODO:   in particular, setSize() calculates verticies while set size does not
     void setWidth(float width)
     {
-        //this.setPositionX(getPosition().x + ((this.width - width) / 2));
+        this.setPositionX(getPosition().x + ((this.width - width) / 2));
         this.width = width;
     }
     void setHeight(float height)
     {
-        this.setPositionY(getPosition().y + ((this.height - height) / 2));
+        //this.setPositionY(getPosition().y + ((this.height - height) / 2));
         this.height = height;
     }
 
