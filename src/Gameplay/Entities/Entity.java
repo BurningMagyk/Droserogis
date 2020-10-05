@@ -120,7 +120,7 @@ abstract public class Entity
             }
         }
 
-        //setSize(width, height);
+        setSize(width, height);
     }
 
     public void setSize(float width, float height)

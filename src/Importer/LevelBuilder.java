@@ -316,8 +316,8 @@ public class LevelBuilder  extends Application
                     // Depending on which vertex is selected, a positive value could mean an increase or decrease
                     //     in block size. In particular, moving the mouse farther form the box center makes it larger
                     //     and moving it nearer the center makes it smaller.
-                    float dx = (((mouseX / cameraZoom) + cameraPosX - cameraOffsetX) - x0) - (vertexX - x0);
-                    float dy = (((mouseY / cameraZoom) + cameraPosY - cameraOffsetY) - y0) - (vertexY - y0);
+                    float dx = Math.abs(((mouseX / cameraZoom) + cameraPosX - cameraOffsetX) - x0) - Math.abs(vertexX - x0);
+                    float dy = Math.abs(((mouseY / cameraZoom) + cameraPosY - cameraOffsetY) - y0) - Math.abs(vertexY - y0);
 
                     //int pixelDx = Math.round(dx * cameraZoom);
                     //int pixelDy = Math.round(dy * cameraZoom);
@@ -329,17 +329,19 @@ public class LevelBuilder  extends Application
                     //dx = (gridDx*gridPixels)/cameraZoom;
                     //dy = (gridDy*gridPixels)/cameraZoom;
                     //float minWorldDimension = gridPixels/cameraZoom;
-                    float width  = selectedEntity.getWidth()  + dx * Math.signum(vertexX - x0);
-                    float height = selectedEntity.getHeight() + dy * Math.signum(vertexY - y0);
+                    //float width  = selectedEntity.getWidth()  + dx * Math.signum(vertexX - x0);
+                    //float height = selectedEntity.getHeight() + dy * Math.signum(vertexY - y0);
+                    float width  = selectedEntity.getWidth()  + dx;
+                    float height = selectedEntity.getHeight() + dy;
 
                     width  = (gridPixels/cameraZoom) * Math.max(2, Math.round((width  * cameraZoom) / gridPixels));
                     height = (gridPixels/cameraZoom) * Math.max(2, Math.round((height * cameraZoom) / gridPixels));
 
                     //float x = x0 + dx / 2;
                     //float y = y0 + dy / 2;
-                    float x = x0 + (width - selectedEntity.getWidth()) / 2;
-                    float y = y0 + (height- selectedEntity.getHeight()) / 2;
-                    selectedEntity.setPosition(x, y);
+                    //float x = x0 + (width - selectedEntity.getWidth()) / 2;
+                    //float y = y0 + (height- selectedEntity.getHeight()) / 2;
+                    //selectedEntity.setPosition(x, y);
                     //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
                     selectedEntity.setSize(width, height);
                 }

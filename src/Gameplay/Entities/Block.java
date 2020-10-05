@@ -46,17 +46,22 @@ public class Block extends Entity
         }
         else this.infMaterials = infMaterials;
 
-        setSize(width, height);
+        defineTextures();
     }
 
 
     public void setSize(float width, float height)
     {
-        //if (width == getWidth() && height == getHeight()) return;
+        if (width == getWidth() && height == getHeight()) return;
         super.setSize(width, height);
+        defineTextures();
+    }
 
-        gridWidth = Math.round(width*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
-        gridHeight = Math.round(height*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
+    public void defineTextures()
+    {
+        if (type == null) return;
+        gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
+        gridHeight = Math.round(getHeight()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
         textureCount = 2*(gridWidth)+ 2*(gridHeight-2);
 
         if (type.name.equals("RECTANGLE"))
