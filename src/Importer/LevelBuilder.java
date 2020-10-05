@@ -111,15 +111,21 @@ public class LevelBuilder  extends Application
         menuEntity = new ContextMenu();
         menuMaterial = new ContextMenu();
 
-        /* Add weapon types */
+        // Add weapon types
         menuItemSword = new MenuItem("LONG SWORD");
         menuEntity.getItems().add(menuItemSword);
         menuItemSword.setOnAction(this::menuEvent);
 
         /* Add block types */
-        for (BlockTexture blockTexture : BlockTexture.blockTextureList)
+        //for (BlockTexture blockTexture : BlockTexture.blockTextureList)
+        //{
+        //    MenuItem item = new MenuItem(blockTexture.toString());
+        //    menuEntity.getItems().add(item);
+        //    item.setOnAction(this::menuEvent);
+        //}
+        for (Entity.ShapeEnum blockType : Entity.ShapeEnum.values())
         {
-            MenuItem item = new MenuItem(blockTexture.toString());
+            MenuItem item = new MenuItem(blockType.getText());
             menuEntity.getItems().add(item);
             item.setOnAction(this::menuEvent);
         }
@@ -231,8 +237,8 @@ public class LevelBuilder  extends Application
             //if (!(entity instanceof Weapon) && !(entity instanceof Actor))
             if (entity instanceof Block)
             {
-                if (((Block) entity).getBlockType().isResizeable)
-                {
+                //if (((Block) entity).getBlockType().isResizeable)
+                //{
                     int vertexIdx = entity.getVertexNear(x, y, 1f / cameraZoom);
                     if (vertexIdx >= 0)
                     {
@@ -241,7 +247,7 @@ public class LevelBuilder  extends Application
                         selectedEntity = entity;
                         break;
                     }
-                }
+                //}
             }
 
             if (entity.isInside(x, y))
@@ -303,9 +309,9 @@ public class LevelBuilder  extends Application
         {   //Resize block
             if (selectedEntity instanceof Block)
             {
-                BlockTexture type = ((Block) selectedEntity).getBlockType();
-                if (type.isResizeable)
-                {
+                //BlockTexture type = ((Block) selectedEntity).getBlockType();
+                //if (type.isResizeable)
+                //{
                     float x0 = selectedEntity.getX();
                     float y0 = selectedEntity.getY();
                     float vertexX = selectedEntity.getVertexX(selectedVertexIdx);
@@ -344,7 +350,7 @@ public class LevelBuilder  extends Application
                     //selectedEntity.setPosition(x, y);
                     //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
                     selectedEntity.setSize(width, height);
-                }
+                //}
             }
 
         }
@@ -450,24 +456,15 @@ public class LevelBuilder  extends Application
         else //check if selected menu item is add entity or modify camera zone
         {
             boolean addedEntity = false;
-            for (BlockTexture blockTexture : BlockTexture.blockTextureList)
+            for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
             {
-                if (text.equals("RECTANGLE"))
+                if (text.equals(shape.getText()))
                 {
                     x = (Math.round((x*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
                     y = (Math.round((y*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
                     float width = 4*gridPixels/cameraZoom;
                     float height = 2*gridPixels/cameraZoom;
-                    Block block = new Block(x, y, width, height, blockTexture, 1.0F, null);
-                    entityList.add(block);
-                    addedEntity = true;
-                    break;
-                }
-                else if (blockTexture.toString().equals(text))
-                {
-                    float width = blockTexture.pixelHitWidth/cameraZoom;
-                    float height = blockTexture.pixelHitHeight/cameraZoom;
-                    Block block = new Block(x, y, width, height, blockTexture, 1.0F, null);
+                    Block block = new Block(x, y, width, height, shape, 1.0F, null);
                     entityList.add(block);
                     addedEntity = true;
                     break;
@@ -578,8 +575,7 @@ public class LevelBuilder  extends Application
                 else if (entity instanceof Block)
                 {
                     Block block = (Block)entity;
-                    Print.green("save: " +block.getBlockType().name);
-                    type = block.getBlockType().name;
+                    type = block.getShape().getText();
                     stats += "," + w + "," + h;
                 }
                 else if (entity instanceof Actor)
@@ -593,6 +589,7 @@ public class LevelBuilder  extends Application
                     System.out.println("     LevelBuilder attempting to save file with unknown type:");
                     System.out.println("     "+entity);
                 }
+                Print.green("save: " +type+","+stats);
                 writer.write(type+","+stats+"\n");
             }
 
@@ -684,8 +681,8 @@ public class LevelBuilder  extends Application
                 }
 
                 Entity entity = null;
-                float x = Float.parseFloat(data[1])*Entity.SPRITE_TO_WORLD_SCALE;
-                float y = Float.parseFloat(data[2])*Entity.SPRITE_TO_WORLD_SCALE;
+                float x = Float.parseFloat(data[2])*Entity.SPRITE_TO_WORLD_SCALE;
+                float y = Float.parseFloat(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
 
                 if (data[0].equals("Player"))
                 {
@@ -695,7 +692,7 @@ public class LevelBuilder  extends Application
                         throw new IOException("Player record must have 4 fields.");
                     }
 
-                    entity = new Actor(x, y, Character.get(data[3]));
+                    entity = new Actor(x, y, Character.get(data[1]));
                 }
                 else if (data[0].equals("Weapon"))
                 {
@@ -715,31 +712,20 @@ public class LevelBuilder  extends Application
                 }
                 else
                 {
-                    if (data.length != 5)
+                    if (data.length != 6)
                     {
                         System.out.println("Error Reading Line: ["+line+"]");
-                        throw new IOException("Block record must have 5 fields.");
+                        throw new IOException("Block record must have 6 fields.");
                     }
 
-                    BlockTexture blockTexture = null;
-                    for (BlockTexture type : BlockTexture.blockTextureList)
-                    {
-                        if (type.toString().equals(data[0]))
-                        {
-                            blockTexture = type;
-                            break;
-                        }
-                    }
+                    Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
+                    float width = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
+                    float height = Float.valueOf(data[5])*Entity.SPRITE_TO_WORLD_SCALE;
+                    Block block = new Block(x, y, width, height, shape, 1.0F, null);
+                    Block.BlockEnum textureType = Block.BlockEnum.valueOf(data[1]);
+                    block.setTextureType(textureType);
+                    entity = block;
 
-                    if (blockTexture == null) //one of the 4 TRIANGLE types
-                    {
-                        Entity.ShapeEnum shape = Entity.ShapeEnum.valueOf(data[0]);
-                        blockTexture = new BlockTexture(shape, false);
-                    }
-                    //Print.blue("LoadLevel: blockType="+blockType);
-                    float width = Float.valueOf(data[3])*Entity.SPRITE_TO_WORLD_SCALE;
-                    float height = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
-                    entity = new Block(x, y, width, height, blockTexture, 1.0F, null);
                 }
 
                 entityList.add(entity);

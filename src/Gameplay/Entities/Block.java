@@ -14,17 +14,16 @@ import javafx.scene.paint.Color;
 
 public class Block extends Entity
 {
-    enum BlockEnum
+    public enum BlockEnum
     {
-       TOP, BOTTOM, LEFT, RIGHT, ALL, NONE
+       WATER, MOSS_ALL, MOSS_TOP, MOSS_TOPLEFT, MOSS_TOPRIGHT, MOSS_TOPSIDES, NONE
     }
 
 
     private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
-    private BlockTexture type;
     private static final Color NEARBLACK = Color.rgb(10,4,3);
-    private BlockEnum blockEnum;
+    private BlockEnum blockEnum = BlockEnum.NONE;
     private BlockTexture[] blockTextureList;
     int gridWidth, gridHeight, textureCount;
 
@@ -32,12 +31,11 @@ public class Block extends Entity
     private static final float WORLD_TO_PIXEL = 100;
 
     public Block(float xPos, float yPos, float width, float height,
-                 BlockTexture type, float hazardRating, Infliction.InflictionType[] infMaterials)
+                 ShapeEnum shape, float hazardRating, Infliction.InflictionType[] infMaterials)
     {
-        super(xPos, yPos, width, height, type.shape, null);
+        super(xPos, yPos, width, height, shape, null);
 
-        this.type = type;
-        this.blockEnum = BlockEnum.ALL;
+        this.blockEnum = BlockEnum.MOSS_ALL;
         this.hazardRating = hazardRating;
         if (infMaterials == null || infMaterials.length == 0)
         {
@@ -59,12 +57,12 @@ public class Block extends Entity
 
     public void defineTextures()
     {
-        if (type == null) return;
+        if (blockEnum == BlockEnum.NONE) return;
         gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
         gridHeight = Math.round(getHeight()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
         textureCount = 2*(gridWidth)+ 2*(gridHeight-2);
 
-        if (type.name.equals("RECTANGLE"))
+        if (getShape() == ShapeEnum.RECTANGLE)
         {
             blockTextureList = new BlockTexture[textureCount];
             for(int i=0; i<textureCount; i++)
@@ -117,7 +115,11 @@ public class Block extends Entity
         return (1+edgeIndex-startRight)*BLOCK_TEXTURE_PIXELS;
     }
 
-    public boolean isLiquid() { return type.isWater; }
+    public void setTextureType(BlockEnum type)
+    {
+        this.blockEnum = type;
+    }
+    public boolean isLiquid() { return blockEnum == BlockEnum.WATER; }
 
     public float getHazardRating() { return hazardRating; }
     public Infliction.InflictionType[] getInfMaterials() { return infMaterials; }
@@ -152,9 +154,9 @@ public class Block extends Entity
             double width = this.getWidth() * camZoom;
             double height = this.getHeight() * camZoom;
             if (this.isLiquid()) return;
-            BlockTexture type = this.getBlockType();
-            if (type.name.equals("RECTANGLE"))// || Main.debugEnum == DebugEnum.GAMEPLAY)
-            {
+            //BlockTexture type = this.getBlockType();
+            //if (type.name.equals("RECTANGLE"))// || Main.debugEnum == DebugEnum.GAMEPLAY)
+            //{
                 gfx.setFill(NEARBLACK);
                 //if (Main.debugEnum == DebugEnum.GAMEPLAY) gfx.setFill(entity.getColor());
                 gfx.fillRect(x, y, width, height);
@@ -165,15 +167,15 @@ public class Block extends Entity
                     double yy = y + getEdgeY(i) - subtype.top;
                     gfx.drawImage(subtype.getImage(), xx, yy);
                 }
-            }
-            else
-            {
-                x -= type.left;
-                y -= type.top;
-                gfx.drawImage(this.getBlockType().getImage(), x, y);
-            }
+            //}
+            //else
+            //{
+            //    x -= type.left;
+            //    y -= type.top;
+            //    gfx.drawImage(this.getBlockType().getImage(), x, y);
+            //}
         }
     }
 
-    public BlockTexture getBlockType() {return type;}
+    //public BlockTexture getBlockType() {return type;}
 }

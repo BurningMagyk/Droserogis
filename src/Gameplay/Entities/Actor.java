@@ -1098,8 +1098,7 @@ public class Actor extends Item
     {
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
         {
-            setWidth(ORIGINAL_WIDTH);
-            setHeight(ORIGINAL_HEIGHT);
+            setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
             return State.SWIM;
         }
         else if (touchEntity[DOWN] != null)
@@ -1107,15 +1106,13 @@ public class Actor extends Item
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
                 /* Width and height are switched */
-                setHeight(ORIGINAL_WIDTH);
-                setWidth(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_HEIGHT, ORIGINAL_WIDTH);
                 return State.SLIDE;
             }
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT / 2);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
 
                 if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
@@ -1129,8 +1126,7 @@ public class Actor extends Item
             }
             else // stand
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
             }
 
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
@@ -1169,28 +1165,26 @@ public class Actor extends Item
         {
             if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT / 2);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
             }
             else
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
             }
 
             heightPerc = 1;
             if (getVelocityY() < 0)
             {
                 heightPerc = (getVelocityY() / jumpVel) + 1;
-                setHeight(ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2);
-                setWidth(ORIGINAL_WIDTH);
+                float tmpHeight = ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2;
+                setSize(ORIGINAL_WIDTH, tmpHeight);
                 return State.RISE;
             }
             else
             {
                 heightPerc = Math.min(1, getVelocityY() / jumpVel);
-                setHeight(ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F));
-                setWidth(ORIGINAL_WIDTH);
+                float tmpHeight = ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F);
+                setSize(ORIGINAL_WIDTH, tmpHeight);
                 return State.FALL;
             }
         }
