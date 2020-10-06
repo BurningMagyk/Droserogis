@@ -21,7 +21,7 @@ public class BlockTexture
 
     public enum EdgeType
     {
-        TOP, BOT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, END_TOP_LEFT, END_TOP_RIGHT, RAMP_RIGHT18
+        TOP, BOT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CORNER_LEFT, CORNER_RIGHT, RAMP_RIGHT18
     }
     public static ArrayList<BlockTexture> edgeTextureList[] = new ArrayList[EdgeType.values().length];
     private static Random random = new Random();
@@ -98,15 +98,15 @@ public class BlockTexture
         blockTextureList[26] = new BlockTexture("Top-Right1",  0,1, EdgeType.TOP_RIGHT);
         blockTextureList[27] = new BlockTexture("Top-Right2",  0,1, EdgeType.TOP_RIGHT);
 
-        blockTextureList[28] = new BlockTexture("EndTop-Right0",  0,0, EdgeType.END_TOP_RIGHT);
-        blockTextureList[29] = new BlockTexture("EndTop-Right1",  0,0, EdgeType.END_TOP_RIGHT);
-        blockTextureList[30] = new BlockTexture("EndTop-Right2",  0,0, EdgeType.END_TOP_RIGHT);
+        blockTextureList[28] = new BlockTexture("Corner-Right0",  0,0, EdgeType.CORNER_RIGHT);
+        blockTextureList[29] = new BlockTexture("Corner-Right1",  0,0, EdgeType.CORNER_RIGHT);
+        blockTextureList[30] = new BlockTexture("Corner-Right2",  0,0, EdgeType.CORNER_RIGHT);
 
-        blockTextureList[31] = new BlockTexture("EndTop-Left0",  0,0, EdgeType.END_TOP_LEFT);
-        blockTextureList[32] = new BlockTexture("EndTop-Left1",  0,0, EdgeType.END_TOP_LEFT);
-        blockTextureList[33] = new BlockTexture("EndTop-Left2",  0,0, EdgeType.END_TOP_LEFT);
+        blockTextureList[31] = new BlockTexture("Corner-Left0",  0,0, EdgeType.CORNER_LEFT);
+        blockTextureList[32] = new BlockTexture("Corner-Left1",  0,0, EdgeType.CORNER_LEFT);
+        blockTextureList[33] = new BlockTexture("Corner-Left2",  0,0, EdgeType.CORNER_LEFT);
 
-        blockTextureList[34] = new BlockTexture("Bottom-Left0",  1,0, EdgeType.BOT_LEFT);
+        blockTextureList[34] = new BlockTexture("Bottom-Left0",  4,0, EdgeType.BOT_LEFT);
         blockTextureList[35] = new BlockTexture("Bottom-Right0",  0,0, EdgeType.BOT_RIGHT);
 
         blockTextureList[36] = new BlockTexture("Bottom0",  0,0, EdgeType.BOT);

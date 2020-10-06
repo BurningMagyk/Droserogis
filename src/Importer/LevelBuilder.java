@@ -65,6 +65,8 @@ public class LevelBuilder  extends Application
     private ContextMenu menuEntity, menuMaterial;
     private MenuItem menuItemDeleteEntity, menuItemSword;
 
+    private MenuItem menuItemToFront;
+
 
     public static void main(String[] args)
     {
@@ -129,6 +131,10 @@ public class LevelBuilder  extends Application
             menuMaterial.getItems().add(item);
             item.setOnAction(this::menuEvent);
         }
+        menuItemToFront = new MenuItem("To Front");
+        menuMaterial.getItems().add(menuItemToFront);
+        menuItemToFront.setOnAction(this::menuEvent);
+
         menuMaterial.getItems().add(new SeparatorMenuItem());
         menuItemDeleteEntity = new MenuItem("Delete");
         menuMaterial.getItems().add(menuItemDeleteEntity);
@@ -137,9 +143,6 @@ public class LevelBuilder  extends Application
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderAll();
         root.getChildren().add(canvas);
-
-
-
 
         gfx.clearRect(80, 180, 600, 350);
         gfx.fillText("Shift-right-click to add Entity at mouse location.\n\n" +
@@ -212,20 +215,16 @@ public class LevelBuilder  extends Application
         {
             Entity entity = entityList.get(i);
 
-            //if (!(entity instanceof Weapon) && !(entity instanceof Actor))
             if (entity instanceof Block)
             {
-                //if (((Block) entity).getBlockType().isResizeable)
-                //{
-                    int vertexIdx = entity.getVertexNear(x, y, 1f / cameraZoom);
-                    if (vertexIdx >= 0)
-                    {
-                        if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
-                        selectedVertexIdx = vertexIdx;
-                        selectedEntity = entity;
-                        break;
-                    }
-                //}
+                int vertexIdx = entity.getVertexNear(x, y, 1f / cameraZoom);
+                if (vertexIdx >= 0)
+                {
+                    if (lastSelectedVertexIdx < 0) scene.setCursor(Cursor.NE_RESIZE);
+                    selectedVertexIdx = vertexIdx;
+                    selectedEntity = entity;
+                    break;
+                }
             }
 
             if (entity.isInside(x, y))
@@ -324,8 +323,8 @@ public class LevelBuilder  extends Application
             float x = ((mouseX/cameraZoom) + cameraPosX - cameraOffsetX )-mouseDownOffsetWithinBlockX;
             float y = ((mouseY/cameraZoom) + cameraPosY - cameraOffsetY )-mouseDownOffsetWithinBlockY;
 
-            x = (Math.round((x*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
-            y = (Math.round((y*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
+            x = (Math.round((x*cameraZoom)/(gridPixels/2))*(gridPixels/2))/cameraZoom;
+            y = (Math.round((y*cameraZoom)/(gridPixels/2))*(gridPixels/2))/cameraZoom;
 
             //Print.purple("("+selectedEntity.getX()+", " + selectedEntity.getY()+") -> (" + x+", " + y+")");
 
@@ -416,6 +415,15 @@ public class LevelBuilder  extends Application
             if (selectedEntity != null) entityList.remove(selectedEntity);
             unselect();
         }
+        else if (item == menuItemToFront)
+        {
+            if (selectedEntity != null)
+            {
+                entityList.remove(selectedEntity);
+                entityList.add(selectedEntity);
+            }
+        }
+
         else //check if selected menu item is add entity
         {
             boolean addedEntity = false;
@@ -542,7 +550,9 @@ public class LevelBuilder  extends Application
                 else if (entity instanceof Block)
                 {
                     Block block = (Block)entity;
-                    type = block.getShape().toString() + "," + block.getTextureType();
+                    String textureStr = "WATER";
+                    if (!block.isLiquid()) textureStr = String.valueOf(block.getEdgeBits());
+                    type = block.getShape().toString() + "," + textureStr;
                     stats += "," + w + "," + h;
                 }
                 else if (entity instanceof Actor)
@@ -656,14 +666,14 @@ public class LevelBuilder  extends Application
                     float width = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[5])*Entity.SPRITE_TO_WORLD_SCALE;
                     Block block = new Block(x, y, width, height, shape, 1.0F, null);
-                    Block.BlockMaterial textureType = Block.BlockMaterial.valueOf(data[1]);
-                    block.setTextureType(textureType);
+                    if (data[1].equals("WATER")) block.setTextureType(Block.BlockMaterial.WATER);
+                    else
+                    {
+                        block.setTextureType(Integer.parseInt(data[1]));
+                    }
                     entity = block;
-
                 }
-
                 entityList.add(entity);
-
                 line = reader.readLine();
             }
             reader.close();

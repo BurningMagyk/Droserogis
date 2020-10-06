@@ -7,23 +7,48 @@
 package Gameplay.Entities;
 
 import Gameplay.Entities.Weapons.Infliction;
+import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
 
 
 public class Block extends Entity
 {
     public enum BlockMaterial
     {
-       WATER, MOSS_ALL, MOSS_TOP, MOSS_TOP_LEFT, MOSS_TOP_RIGHT, MOSS_TOP_SIDES, NONE
+        WATER, MOSS, EDGE_TOP, EDGE_RIGHT, EDGE_BOTTOM, EDGE_LEFT, CORNER_LEFT, CORNER_RIGHT
     }
+    public static final int EDGE_TOP = 1;
+    public static final int EDGE_RIGHT = 2;
+    public static final int EDGE_BOT = 4;
+    public static final int EDGE_LEFT = 8;
+    public static final int CORNER_LEFT = 16;
+    public static final int CORNER_RIGHT = 32;
+    private int edgeBits = 15;
+
+    private class TextureData
+    {
+        public int left;
+        public int top;
+        public Image image;
+
+        public TextureData(BlockTexture.EdgeType edgeType, int idx, int gridWidth, int gridHeight)
+        {
+            BlockTexture texture = BlockTexture.getRandomEdgeTexture(edgeType);
+            this.image = texture.getImage();
+            this.left = getEdgeX(idx, gridWidth, gridHeight) - texture.left;
+            this.top = getEdgeY(idx, gridWidth, gridHeight) - texture.top;
+        }
+    }
+    private ArrayList<TextureData> textureList = new ArrayList<>();
 
     private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
-    //private static final Color NEARBLACK = Color.rgb(10,4,3);
-    private BlockMaterial blockMaterial = BlockMaterial.NONE;
-    private BlockTexture[] blockTextureList;
-    int gridWidth, gridHeight, textureCount;
+    private BlockMaterial blockMaterial = null;
+    //private BlockTexture[] blockTextureList;
+    //int gridWidth, gridHeight, textureCount;
 
     private static final int BLOCK_TEXTURE_PIXELS = 32;
     private static final float WORLD_TO_PIXEL = 100;
@@ -33,7 +58,7 @@ public class Block extends Entity
     {
         super(xPos, yPos, width, height, shape, null);
 
-        this.blockMaterial = BlockMaterial.MOSS_ALL;
+        this.blockMaterial = BlockMaterial.MOSS;
         this.hazardRating = hazardRating;
         if (infMaterials == null || infMaterials.length == 0)
         {
@@ -50,63 +75,132 @@ public class Block extends Entity
     {
         if (width == getWidth() && height == getHeight()) return;
         super.setSize(width, height);
-        defineTextures();
+        if (blockMaterial != null) defineTextures();
     }
+
+    //public void toggleEdge(int bit)
+    ///{
+    //    edgeBits = edgeBits ^ bit;
+    //}
 
     public void defineTextures()
     {
-        if (blockMaterial == BlockMaterial.NONE)
-        {
-            textureCount = 0;
-            return;
-        }
+        textureList.clear();
+        if (edgeBits == 0) return;
+
         if (getShape() == ShapeEnum.RECTANGLE)
         {
-            gridWidth = Math.round(getWidth() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
-            gridHeight = Math.round(getHeight() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
-            if (blockMaterial == BlockMaterial.MOSS_ALL)
+            int gridWidth = Math.round(getWidth() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
+            int gridHeight = Math.round(getHeight() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
+            int endTop = gridWidth;
+            int endBot = gridWidth*2;
+            int endLeft = gridWidth*2 + gridHeight - 2;
+            int endRight = gridWidth*2 + (gridHeight - 2)*2;
+
+            if ((edgeBits & CORNER_LEFT) > 0)
             {
-                textureCount = 2 * (gridWidth) + 2 * (gridHeight - 2);
+                BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.CORNER_LEFT;
+                textureList.add( new TextureData(edgeType, 0, gridWidth, gridHeight));
+                return;
             }
-            else if  (blockMaterial == BlockMaterial.MOSS_TOP)
+            if ((edgeBits & CORNER_RIGHT) > 0)
             {
-                textureCount = gridWidth;
+                BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.CORNER_RIGHT;
+                textureList.add( new TextureData(edgeType, endTop-1, gridWidth, gridHeight));
+                return;
             }
-            blockTextureList = new BlockTexture[textureCount];
-            for (int i = 0; i < textureCount; i++)
+
+            if ((edgeBits & EDGE_TOP) > 0)
             {
-                blockTextureList[i] = BlockTexture.getRandomEdgeTexture(getEdgeType(i));
+                for (int i = 0; i < endTop; i++)
+                {
+                    BlockTexture.EdgeType edgeType = getEdgeType(i, gridWidth, gridHeight);
+                    textureList.add( new TextureData(edgeType, i, gridWidth, gridHeight));
+                }
+            }
+            if ((edgeBits & EDGE_BOT) > 0)
+            {
+                for (int i = endTop; i < endBot; i++)
+                {
+                    BlockTexture.EdgeType edgeType = getEdgeType(i, gridWidth, gridHeight);
+                    textureList.add( new TextureData(edgeType, i, gridWidth, gridHeight));
+                }
+            }
+            if ((edgeBits & EDGE_LEFT) > 0)
+            {
+                BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.LEFT;
+                if ((edgeBits & EDGE_TOP) == 0)
+                {
+                    textureList.add( new TextureData(edgeType, 0, gridWidth, gridHeight));
+                }
+                if ((edgeBits & EDGE_BOT) == 0)
+                {
+                    textureList.add( new TextureData(edgeType, endTop, gridWidth, gridHeight));
+                }
+                for (int i = endBot; i < endLeft; i++)
+                {
+                    textureList.add( new TextureData(edgeType, i, gridWidth, gridHeight));
+                }
+            }
+            if ((edgeBits & EDGE_RIGHT) > 0)
+            {
+                BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.RIGHT;
+                if ((edgeBits & EDGE_TOP) == 0)
+                {
+                    textureList.add( new TextureData(edgeType, endTop-1, gridWidth, gridHeight));
+                }
+                if ((edgeBits & EDGE_BOT) == 0)
+                {
+                    textureList.add( new TextureData(edgeType, endBot-1, gridWidth, gridHeight));
+                }
+                for (int i = endLeft; i < endRight; i++)
+                {
+                    textureList.add( new TextureData(edgeType, i, gridWidth, gridHeight));
+                }
             }
         }
         else if (getShape() == ShapeEnum.RAMP_RIGHT18)
         {
-            gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/(3*BLOCK_TEXTURE_PIXELS));
-            gridHeight = 1;
-            textureCount = gridWidth;
-            blockTextureList = new BlockTexture[textureCount];
+            int gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/(3*BLOCK_TEXTURE_PIXELS));
+            int textureCount = gridWidth;
+            BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.RAMP_RIGHT18;
             for(int i=0; i<textureCount; i++)
             {
-                blockTextureList[i] = BlockTexture.getRandomEdgeTexture(getEdgeType(i));
+                //TextureData data = new TextureData();
+                //BlockTexture texture = BlockTexture.getRandomEdgeTexture(getEdgeType(i));
+                //BlockTexture texture = BlockTexture.getRandomEdgeTexture(edgeType);
+                //data.image = texture.getImage();
+                //data.left = getEdgeX(i, gridWidth, gridHeight) - texture.left;
+                //data.top = getEdgeY(i, gridWidth, gridHeight) - texture.top;
+                //textureList.add(data);
+                textureList.add( new TextureData(edgeType, i, gridWidth, 1));
             }
         }
     }
 
-    public BlockTexture.EdgeType getEdgeType(int edgeIndex)
+    public BlockTexture.EdgeType getEdgeType(int edgeIndex, int gridWidth, int gridHeight)
     {
         if (getShape() == ShapeEnum.RECTANGLE)
         {
             if (edgeIndex == 0)
             {
-                if (blockMaterial == BlockMaterial.MOSS_TOP) return BlockTexture.EdgeType.END_TOP_LEFT;
+                if ((edgeBits & EDGE_LEFT) == 0) return BlockTexture.EdgeType.TOP;
                 return BlockTexture.EdgeType.TOP_LEFT;
             }
             if (edgeIndex == gridWidth - 1)
             {
-                if (blockMaterial == BlockMaterial.MOSS_TOP) return BlockTexture.EdgeType.END_TOP_RIGHT;
+                if ((edgeBits & EDGE_RIGHT) == 0) return BlockTexture.EdgeType.TOP;
                 return BlockTexture.EdgeType.TOP_RIGHT;
             }
-            if (edgeIndex == gridWidth) return BlockTexture.EdgeType.BOT_LEFT;
-            if (edgeIndex == gridWidth * 2 - 1) return BlockTexture.EdgeType.BOT_RIGHT;
+            if (edgeIndex == gridWidth)
+            {
+                if ((edgeBits & EDGE_LEFT) == 0) return BlockTexture.EdgeType.BOT;
+                return BlockTexture.EdgeType.BOT_LEFT;
+            }
+            if (edgeIndex == gridWidth * 2 - 1)
+            {   if ((edgeBits & EDGE_RIGHT) == 0) return BlockTexture.EdgeType.BOT;
+                return BlockTexture.EdgeType.BOT_RIGHT;
+            }
             int startTop = 1;
             int startBot = gridWidth + 1;
             int startLeft = gridWidth * 2;
@@ -117,15 +211,15 @@ public class Block extends Entity
             if ((edgeIndex >= startLeft) && (edgeIndex < startRight)) return BlockTexture.EdgeType.LEFT;
             return BlockTexture.EdgeType.RIGHT;
         }
-        else if (getShape() == ShapeEnum.RAMP_RIGHT18)
-        {
-            return BlockTexture.EdgeType.RAMP_RIGHT18;
-        }
+        //else if (getShape() == ShapeEnum.RAMP_RIGHT18)
+        //{
+        //    return BlockTexture.EdgeType.RAMP_RIGHT18;
+        //}
         return null;
     }
 
 
-    public int getEdgeX(int edgeIndex)
+    public int getEdgeX(int edgeIndex, int gridWidth, int gridHeight)
     {
         if (this.getShape() == ShapeEnum.RECTANGLE)
         {
@@ -146,7 +240,7 @@ public class Block extends Entity
     }
 
 
-    public int getEdgeY(int edgeIndex)
+    public int getEdgeY(int edgeIndex, int gridWidth, int gridHeight)
     {
         if (this.getShape() == ShapeEnum.RECTANGLE)
         {
@@ -168,9 +262,29 @@ public class Block extends Entity
 
     public void setTextureType(BlockMaterial type)
     {
-        this.blockMaterial = type;
+        if (type == BlockMaterial.WATER)
+        {
+            if (blockMaterial == BlockMaterial.WATER) blockMaterial = BlockMaterial.MOSS;
+            else blockMaterial = BlockMaterial.WATER;
+        }
+        else if (type == BlockMaterial.EDGE_TOP) edgeBits = edgeBits ^ EDGE_TOP;
+        else if (type == BlockMaterial.EDGE_RIGHT) edgeBits = edgeBits ^ EDGE_RIGHT;
+        else if (type == BlockMaterial.EDGE_BOTTOM) edgeBits = edgeBits ^ EDGE_BOT;
+        else if (type == BlockMaterial.EDGE_LEFT) edgeBits = edgeBits ^ EDGE_LEFT;
+        else if (type == BlockMaterial.CORNER_LEFT) edgeBits = CORNER_LEFT;
+        else if (type == BlockMaterial.CORNER_RIGHT) edgeBits = CORNER_RIGHT;
+
         defineTextures();
     }
+
+    public void setTextureType(int bits)
+    {
+        edgeBits = bits;
+        defineTextures();
+    }
+
+    public int getEdgeBits() {return edgeBits;}
+
     public BlockMaterial getTextureType()
     {
         return blockMaterial;
@@ -203,12 +317,16 @@ public class Block extends Entity
             gfx.fillPolygon(xPos, yPos, 3);
             if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
             {
-                for (int i = 0; i < textureCount; i++)
+                //for (int i = 0; i < textureCount; i++)
+                //{
+                //    BlockTexture subtype = blockTextureList[i];
+                //    double xx = xPos[0] + getEdgeX(i) - subtype.left;
+                //    double yy = yPos[0] + getEdgeY(i) - subtype.top;
+                //    gfx.drawImage(subtype.getImage(), xx, yy);
+                //}
+                for (TextureData data : textureList)
                 {
-                    BlockTexture subtype = blockTextureList[i];
-                    double xx = xPos[0] + getEdgeX(i) - subtype.left;
-                    double yy = yPos[0] + getEdgeY(i) - subtype.top;
-                    gfx.drawImage(subtype.getImage(), xx, yy);
+                    gfx.drawImage(data.image, xPos[0] + data.left, yPos[0] + data.top);
                 }
             }
         }
@@ -221,15 +339,19 @@ public class Block extends Entity
             if (this.isLiquid()) return;
             gfx.setFill(Color.BLACK);
             gfx.fillRect(x, y, width, height);
-            for (int i = 0; i < textureCount; i++)
+            //for (int i = 0; i < textureCount; i++)
+            //{
+            //    BlockTexture subtype = blockTextureList[i];
+            //    if (subtype != null)
+            //    {
+            //        double xx = x + getEdgeX(i) - subtype.left;
+            //        double yy = y + getEdgeY(i) - subtype.top;
+            //        gfx.drawImage(subtype.getImage(), xx, yy);
+            //    }
+            //}
+            for (TextureData data : textureList)
             {
-                BlockTexture subtype = blockTextureList[i];
-                if (subtype != null)
-                {
-                    double xx = x + getEdgeX(i) - subtype.left;
-                    double yy = y + getEdgeY(i) - subtype.top;
-                    gfx.drawImage(subtype.getImage(), xx, yy);
-                }
+                gfx.drawImage(data.image, x + data.left, y + data.top);
             }
         }
     }
