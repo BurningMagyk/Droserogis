@@ -7,23 +7,21 @@
 package Gameplay.Entities;
 
 import Gameplay.Entities.Weapons.Infliction;
-import Util.Print;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 
 public class Block extends Entity
 {
-    public enum BlockEnum
+    public enum BlockMaterial
     {
-       WATER, MOSS_ALL, MOSS_TOP, MOSS_TOPLEFT, MOSS_TOPRIGHT, MOSS_TOPSIDES, NONE
+       WATER, MOSS_ALL, MOSS_TOP, MOSS_TOP_LEFT, MOSS_TOP_RIGHT, MOSS_TOP_SIDES, NONE
     }
-
 
     private float hazardRating;
     private Infliction.InflictionType[] infMaterials;
-    private static final Color NEARBLACK = Color.rgb(10,4,3);
-    private BlockEnum blockEnum = BlockEnum.NONE;
+    //private static final Color NEARBLACK = Color.rgb(10,4,3);
+    private BlockMaterial blockMaterial = BlockMaterial.NONE;
     private BlockTexture[] blockTextureList;
     int gridWidth, gridHeight, textureCount;
 
@@ -35,7 +33,7 @@ public class Block extends Entity
     {
         super(xPos, yPos, width, height, shape, null);
 
-        this.blockEnum = BlockEnum.MOSS_ALL;
+        this.blockMaterial = BlockMaterial.MOSS_ALL;
         this.hazardRating = hazardRating;
         if (infMaterials == null || infMaterials.length == 0)
         {
@@ -57,13 +55,34 @@ public class Block extends Entity
 
     public void defineTextures()
     {
-        if (blockEnum == BlockEnum.NONE) return;
-        gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
-        gridHeight = Math.round(getHeight()*WORLD_TO_PIXEL/BLOCK_TEXTURE_PIXELS);
-        textureCount = 2*(gridWidth)+ 2*(gridHeight-2);
-
+        if (blockMaterial == BlockMaterial.NONE)
+        {
+            textureCount = 0;
+            return;
+        }
         if (getShape() == ShapeEnum.RECTANGLE)
         {
+            gridWidth = Math.round(getWidth() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
+            gridHeight = Math.round(getHeight() * WORLD_TO_PIXEL / BLOCK_TEXTURE_PIXELS);
+            if (blockMaterial == BlockMaterial.MOSS_ALL)
+            {
+                textureCount = 2 * (gridWidth) + 2 * (gridHeight - 2);
+            }
+            else if  (blockMaterial == BlockMaterial.MOSS_TOP)
+            {
+                textureCount = gridWidth;
+            }
+            blockTextureList = new BlockTexture[textureCount];
+            for (int i = 0; i < textureCount; i++)
+            {
+                blockTextureList[i] = BlockTexture.getRandomEdgeTexture(getEdgeType(i));
+            }
+        }
+        else if (getShape() == ShapeEnum.RAMP_RIGHT18)
+        {
+            gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/(3*BLOCK_TEXTURE_PIXELS));
+            gridHeight = 1;
+            textureCount = gridWidth;
             blockTextureList = new BlockTexture[textureCount];
             for(int i=0; i<textureCount; i++)
             {
@@ -74,52 +93,89 @@ public class Block extends Entity
 
     public BlockTexture.EdgeType getEdgeType(int edgeIndex)
     {
-        if (edgeIndex == 0) return BlockTexture.EdgeType.TOPLEFT;
-        if (edgeIndex == gridWidth-1) return BlockTexture.EdgeType.TOPRIGHT;
-        if (edgeIndex == gridWidth) return BlockTexture.EdgeType.BOTLEFT;
-        if (edgeIndex == gridWidth*2-1) return BlockTexture.EdgeType.BOTRIGHT;
-        int startTop = 1;
-        int startBot = gridWidth + 1;
-        int startLeft = gridWidth * 2;
-        int startRight = startLeft + gridHeight - 2;
+        if (getShape() == ShapeEnum.RECTANGLE)
+        {
+            if (edgeIndex == 0)
+            {
+                if (blockMaterial == BlockMaterial.MOSS_TOP) return BlockTexture.EdgeType.END_TOP_LEFT;
+                return BlockTexture.EdgeType.TOP_LEFT;
+            }
+            if (edgeIndex == gridWidth - 1)
+            {
+                if (blockMaterial == BlockMaterial.MOSS_TOP) return BlockTexture.EdgeType.END_TOP_RIGHT;
+                return BlockTexture.EdgeType.TOP_RIGHT;
+            }
+            if (edgeIndex == gridWidth) return BlockTexture.EdgeType.BOT_LEFT;
+            if (edgeIndex == gridWidth * 2 - 1) return BlockTexture.EdgeType.BOT_RIGHT;
+            int startTop = 1;
+            int startBot = gridWidth + 1;
+            int startLeft = gridWidth * 2;
+            int startRight = startLeft + gridHeight - 2;
 
-        if ((edgeIndex >= startTop) && (edgeIndex < startBot))  return BlockTexture.EdgeType.TOP;
-        if ((edgeIndex >= startBot) && (edgeIndex < startLeft))  return BlockTexture.EdgeType.BOT;
-        if ((edgeIndex >= startLeft) && (edgeIndex < startRight))  return BlockTexture.EdgeType.LEFT;
-        return BlockTexture.EdgeType.RIGHT;
+            if ((edgeIndex >= startTop) && (edgeIndex < startBot)) return BlockTexture.EdgeType.TOP;
+            if ((edgeIndex >= startBot) && (edgeIndex < startLeft)) return BlockTexture.EdgeType.BOT;
+            if ((edgeIndex >= startLeft) && (edgeIndex < startRight)) return BlockTexture.EdgeType.LEFT;
+            return BlockTexture.EdgeType.RIGHT;
+        }
+        else if (getShape() == ShapeEnum.RAMP_RIGHT18)
+        {
+            return BlockTexture.EdgeType.RAMP_RIGHT18;
+        }
+        return null;
     }
 
 
     public int getEdgeX(int edgeIndex)
     {
-        int startBot = gridWidth;
-        int startLeft = gridWidth * 2;
-        int startRight = startLeft + gridHeight - 2;
+        if (this.getShape() == ShapeEnum.RECTANGLE)
+        {
+            int startBot = gridWidth;
+            int startLeft = gridWidth * 2;
+            int startRight = startLeft + gridHeight - 2;
 
-        if (edgeIndex < startBot) return edgeIndex*BLOCK_TEXTURE_PIXELS;
-        if (edgeIndex < startLeft) return (edgeIndex-gridWidth)*BLOCK_TEXTURE_PIXELS;
-        if (edgeIndex < startRight)  return 0;
-        return BLOCK_TEXTURE_PIXELS*(gridWidth-1);
+            if (edgeIndex < startBot) return edgeIndex * BLOCK_TEXTURE_PIXELS;
+            if (edgeIndex < startLeft) return (edgeIndex - gridWidth) * BLOCK_TEXTURE_PIXELS;
+            if (edgeIndex < startRight) return 0;
+            return BLOCK_TEXTURE_PIXELS * (gridWidth - 1);
+        }
+        if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
+        {
+            return edgeIndex * 3 * BLOCK_TEXTURE_PIXELS;
+        }
+        return 0;
     }
 
 
     public int getEdgeY(int edgeIndex)
     {
-        int startBot = gridWidth;
-        int startLeft = gridWidth * 2;
-        int startRight = startLeft + gridHeight - 2;
+        if (this.getShape() == ShapeEnum.RECTANGLE)
+        {
+            int startBot = gridWidth;
+            int startLeft = gridWidth * 2;
+            int startRight = startLeft + gridHeight - 2;
 
-        if (edgeIndex < startBot) return 0;
-        if (edgeIndex < startLeft) return BLOCK_TEXTURE_PIXELS*(gridHeight-1);
-        if (edgeIndex < startRight)  return (1+edgeIndex-startLeft)*BLOCK_TEXTURE_PIXELS;
-        return (1+edgeIndex-startRight)*BLOCK_TEXTURE_PIXELS;
+            if (edgeIndex < startBot) return 0;
+            if (edgeIndex < startLeft) return BLOCK_TEXTURE_PIXELS*(gridHeight-1);
+            if (edgeIndex < startRight)  return (1+edgeIndex-startLeft)*BLOCK_TEXTURE_PIXELS;
+            return (1+edgeIndex-startRight)*BLOCK_TEXTURE_PIXELS;
+        }
+        if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
+        {
+            return edgeIndex * BLOCK_TEXTURE_PIXELS;
+        }
+        return 0;
     }
 
-    public void setTextureType(BlockEnum type)
+    public void setTextureType(BlockMaterial type)
     {
-        this.blockEnum = type;
+        this.blockMaterial = type;
+        defineTextures();
     }
-    public boolean isLiquid() { return blockEnum == BlockEnum.WATER; }
+    public BlockMaterial getTextureType()
+    {
+        return blockMaterial;
+    }
+    public boolean isLiquid() { return blockMaterial == BlockMaterial.WATER; }
 
     public float getHazardRating() { return hazardRating; }
     public Infliction.InflictionType[] getInfMaterials() { return infMaterials; }
@@ -135,7 +191,7 @@ public class Block extends Entity
     @Override
     public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
     {
-        if (this.getShape().isTriangle())
+        if (this.getShape().isRamp())
         {
             double[] xPos = new double[3];
             double[] yPos = new double[3];
@@ -144,8 +200,17 @@ public class Block extends Entity
                 xPos[i] = (this.getVertexX(i) - camPosX + camOffX) * camZoom;
                 yPos[i] = (this.getVertexY(i) - camPosY + camOffY) * camZoom;
             }
-            //gfx.setFill(texturePatternBlock);
             gfx.fillPolygon(xPos, yPos, 3);
+            if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
+            {
+                for (int i = 0; i < textureCount; i++)
+                {
+                    BlockTexture subtype = blockTextureList[i];
+                    double xx = xPos[0] + getEdgeX(i) - subtype.left;
+                    double yy = yPos[0] + getEdgeY(i) - subtype.top;
+                    gfx.drawImage(subtype.getImage(), xx, yy);
+                }
+            }
         }
         else if (this.getShape() == ShapeEnum.RECTANGLE)
         {
@@ -154,28 +219,18 @@ public class Block extends Entity
             double width = this.getWidth() * camZoom;
             double height = this.getHeight() * camZoom;
             if (this.isLiquid()) return;
-            //BlockTexture type = this.getBlockType();
-            //if (type.name.equals("RECTANGLE"))// || Main.debugEnum == DebugEnum.GAMEPLAY)
-            //{
-                gfx.setFill(NEARBLACK);
-                //if (Main.debugEnum == DebugEnum.GAMEPLAY) gfx.setFill(entity.getColor());
-                gfx.fillRect(x, y, width, height);
-                for (int i=0; i<textureCount; i++)
+            gfx.setFill(Color.BLACK);
+            gfx.fillRect(x, y, width, height);
+            for (int i = 0; i < textureCount; i++)
+            {
+                BlockTexture subtype = blockTextureList[i];
+                if (subtype != null)
                 {
-                    BlockTexture subtype = blockTextureList[i];
                     double xx = x + getEdgeX(i) - subtype.left;
                     double yy = y + getEdgeY(i) - subtype.top;
                     gfx.drawImage(subtype.getImage(), xx, yy);
                 }
-            //}
-            //else
-            //{
-            //    x -= type.left;
-            //    y -= type.top;
-            //    gfx.drawImage(this.getBlockType().getImage(), x, y);
-            //}
+            }
         }
     }
-
-    //public BlockTexture getBlockType() {return type;}
 }

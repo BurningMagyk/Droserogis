@@ -63,8 +63,7 @@ public class LevelBuilder  extends Application
     private final int gridPixels = 32;
 
     private ContextMenu menuEntity, menuMaterial;
-    private MenuItem menuItemDeleteEntity, menuItemDeleteCameraZone,
-        menuItemSword;
+    private MenuItem menuItemDeleteEntity, menuItemSword;
 
 
     public static void main(String[] args)
@@ -116,13 +115,7 @@ public class LevelBuilder  extends Application
         menuEntity.getItems().add(menuItemSword);
         menuItemSword.setOnAction(this::menuEvent);
 
-        /* Add block types */
-        //for (BlockTexture blockTexture : BlockTexture.blockTextureList)
-        //{
-        //    MenuItem item = new MenuItem(blockTexture.toString());
-        //    menuEntity.getItems().add(item);
-        //    item.setOnAction(this::menuEvent);
-        //}
+        // Add block types
         for (Entity.ShapeEnum blockType : Entity.ShapeEnum.values())
         {
             MenuItem item = new MenuItem(blockType.getText());
@@ -130,10 +123,12 @@ public class LevelBuilder  extends Application
             item.setOnAction(this::menuEvent);
         }
 
-
-        menuItemDeleteCameraZone = new MenuItem("Delete");
-        menuItemDeleteCameraZone.setOnAction(this::menuEvent);
-
+        for (Block.BlockMaterial material : Block.BlockMaterial.values())
+        {
+            MenuItem item = new MenuItem(material.toString());
+            menuMaterial.getItems().add(item);
+            item.setOnAction(this::menuEvent);
+        }
         menuMaterial.getItems().add(new SeparatorMenuItem());
         menuItemDeleteEntity = new MenuItem("Delete");
         menuMaterial.getItems().add(menuItemDeleteEntity);
@@ -197,25 +192,8 @@ public class LevelBuilder  extends Application
         if (key.getCode() == KeyCode.ENTER) Print.blue(selectedEntity);
     }
 
-    //=================================================================================================================
-    // When the user is resizing the window, there are many resize width and resize height events generated.
-    // This avoids creating a new canvas and imageBaseLayer or every event.
-    //=================================================================================================================
-    //private void windowResize(Observable value) {
-    //    //System.out.println("scene Width: " + scene.getWidth());
-    //    //System.out.println("canvas Width: " + canvas.getWidth());
-    //    windowWasResized = true;
-    //}
-
-
     private void mouseMoved(MouseEvent event)
     {
-
-        //if (windowWasResized)
-        //{
-        //    createCanvas();
-        //    return;
-        //}
         float mouseX = (float) event.getX();
         float mouseY = (float) event.getY();
 
@@ -309,48 +287,35 @@ public class LevelBuilder  extends Application
         {   //Resize block
             if (selectedEntity instanceof Block)
             {
-                //BlockTexture type = ((Block) selectedEntity).getBlockType();
-                //if (type.isResizeable)
-                //{
-                    float x0 = selectedEntity.getX();
-                    float y0 = selectedEntity.getY();
-                    float vertexX = selectedEntity.getVertexX(selectedVertexIdx);
-                    float vertexY = selectedEntity.getVertexY(selectedVertexIdx);
+                Entity.ShapeEnum shape = selectedEntity.getShape();
+                float x0 = selectedEntity.getX();
+                float y0 = selectedEntity.getY();
+                float vertexX = selectedEntity.getVertexX(selectedVertexIdx);
+                float vertexY = selectedEntity.getVertexY(selectedVertexIdx);
 
-                    // dx and dy are signed values representing the distance and direction in world coordinates
-                    //     that the mouse is from the selected vertex.
-                    // Depending on which vertex is selected, a positive value could mean an increase or decrease
-                    //     in block size. In particular, moving the mouse farther form the box center makes it larger
-                    //     and moving it nearer the center makes it smaller.
-                    float dx = Math.abs(((mouseX / cameraZoom) + cameraPosX - cameraOffsetX) - x0) - Math.abs(vertexX - x0);
-                    float dy = Math.abs(((mouseY / cameraZoom) + cameraPosY - cameraOffsetY) - y0) - Math.abs(vertexY - y0);
+                // dx and dy are signed values representing the distance and direction in world coordinates
+                //     that the mouse is from the selected vertex.
+                // Depending on which vertex is selected, a positive value could mean an increase or decrease
+                //     in block size. In particular, moving the mouse farther form the box center makes it larger
+                //     and moving it nearer the center makes it smaller.
+                float dx = Math.abs(((mouseX / cameraZoom) + cameraPosX - cameraOffsetX) - x0) - Math.abs(vertexX - x0);
+                float dy = Math.abs(((mouseY / cameraZoom) + cameraPosY - cameraOffsetY) - y0) - Math.abs(vertexY - y0);
 
-                    //int pixelDx = Math.round(dx * cameraZoom);
-                    //int pixelDy = Math.round(dy * cameraZoom);
-
-                    //int gridDx = Math.round(pixelDx / gridPixels);
-                    //int gridDy = Math.round(pixelDy / gridPixels);
-                    //if ((Math.abs(gridDx) < 1) && (Math.abs(gridDy) < 1)) return;
-
-                    //dx = (gridDx*gridPixels)/cameraZoom;
-                    //dy = (gridDy*gridPixels)/cameraZoom;
-                    //float minWorldDimension = gridPixels/cameraZoom;
-                    //float width  = selectedEntity.getWidth()  + dx * Math.signum(vertexX - x0);
-                    //float height = selectedEntity.getHeight() + dy * Math.signum(vertexY - y0);
-                    float width  = selectedEntity.getWidth()  + dx;
-                    float height = selectedEntity.getHeight() + dy;
-
+                float width  = selectedEntity.getWidth()  + dx;
+                float height = selectedEntity.getHeight() + dy;
+                if (shape == Entity.ShapeEnum.RECTANGLE)
+                {
                     width  = (gridPixels/cameraZoom) * Math.max(2, Math.round((width  * cameraZoom) / gridPixels));
                     height = (gridPixels/cameraZoom) * Math.max(2, Math.round((height * cameraZoom) / gridPixels));
-
-                    //float x = x0 + dx / 2;
-                    //float y = y0 + dy / 2;
-                    //float x = x0 + (width - selectedEntity.getWidth()) / 2;
-                    //float y = y0 + (height- selectedEntity.getHeight()) / 2;
-                    //selectedEntity.setPosition(x, y);
-                    //System.out.println("Resize Block: width ("+selectedEntity.getWidth()+") -> ("+width+")    height ("+selectedEntity.getHeight()+") -> ("+height+")");
-                    selectedEntity.setSize(width, height);
-                //}
+                }
+                else if (shape == Entity.ShapeEnum.RAMP_RIGHT18 || shape == Entity.ShapeEnum.RAMP_LEFT18)
+                {
+                    width  = (3*gridPixels/cameraZoom) * Math.max(3, Math.round((width  * cameraZoom) / (3*gridPixels)));
+                    height = (gridPixels/cameraZoom) * Math.max(1, Math.round((height * cameraZoom) / gridPixels));
+                    if (Math.abs(dx)>Math.abs(dy)) height = width/3.0f;
+                    else width = 3.0f*height;
+                }
+                selectedEntity.setSize(width, height);
             }
 
         }
@@ -440,20 +405,18 @@ public class LevelBuilder  extends Application
 
     private void menuEvent(ActionEvent e)
     {
-        //float x = Math.round(((mouseDownX / cameraZoom) - cameraOffsetX) / 10) * 10;
-        //float y = Math.round(((mouseDownY / cameraZoom) - cameraOffsetY) / 10) * 10;
         float x = mouseDownX/cameraZoom + cameraPosX - cameraOffsetX;
         float y = mouseDownY/cameraZoom + cameraPosY - cameraOffsetY;
         MenuItem item = (MenuItem) e.getSource();
         String text = item.getText();
         if (DEBUG) System.out.println("LevelBuilder::menuEvent("+text+")");
 
-        else if ((item == menuItemDeleteEntity) || (item == menuItemDeleteCameraZone))
+        else if (item == menuItemDeleteEntity)
         {
             if (selectedEntity != null) entityList.remove(selectedEntity);
             unselect();
         }
-        else //check if selected menu item is add entity or modify camera zone
+        else //check if selected menu item is add entity
         {
             boolean addedEntity = false;
             for (Entity.ShapeEnum shape : Entity.ShapeEnum.values())
@@ -462,7 +425,7 @@ public class LevelBuilder  extends Application
                 {
                     x = (Math.round((x*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
                     y = (Math.round((y*cameraZoom)/gridPixels)*gridPixels)/cameraZoom;
-                    float width = 4*gridPixels/cameraZoom;
+                    float width = 6*gridPixels/cameraZoom;
                     float height = 2*gridPixels/cameraZoom;
                     Block block = new Block(x, y, width, height, shape, 1.0F, null);
                     entityList.add(block);
@@ -504,12 +467,16 @@ public class LevelBuilder  extends Application
                     addedEntity = true;
                 }
             }
-            if ((!addedEntity) && selectedEntity instanceof CameraZone)
+            if (!addedEntity && (selectedEntity != null))
             {
-                if (text.startsWith("Camera Zone"))
+                for (Block.BlockMaterial material : Block.BlockMaterial.values())
                 {
-                    int value = Integer.parseInt(text.substring(text.length() - 3).trim());
-                    ((CameraZone) selectedEntity).setZoom(value);
+                    if (text.equals(material.toString()))
+                    {
+                        Block block = (Block)selectedEntity;
+                        block.setTextureType(material);
+                        break;
+                    }
                 }
             }
         }
@@ -548,7 +515,7 @@ public class LevelBuilder  extends Application
 
         try
         {
-            writer.write("Type,CenterX,CenterY,Width / Type / Parent,Height\n");
+            writer.write("Type,Texture,CenterX,CenterY,Width,Height\n");
             for (Entity entity : entityList)
             {
                 if (DEBUG) System.out.println("LevelBuilder.saveFile(): "+entity);
@@ -575,13 +542,12 @@ public class LevelBuilder  extends Application
                 else if (entity instanceof Block)
                 {
                     Block block = (Block)entity;
-                    type = block.getShape().getText();
+                    type = block.getShape().toString() + "," + block.getTextureType();
                     stats += "," + w + "," + h;
                 }
                 else if (entity instanceof Actor)
                 {
-                    type =  "Player";
-                    stats += ","+((Actor)entity).getName();
+                    type =  "Player,"+((Actor)entity).getName();
                 }
                 else
                 {
@@ -623,38 +589,6 @@ public class LevelBuilder  extends Application
 
         //Print.green("Camera: pos(" + cameraPosX + ", " + cameraPosY +")    offset(" + cameraOffsetX + ", " + cameraOffsetY + ")  zoomFactor="+cameraZoom);
         renderAll();
-        /*
-        //Center the view of all entities
-        int minX = Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int maxY = Integer.MIN_VALUE;
-
-        for (Entity entity : entityList)
-        {
-            entity.setSize(entity.getWidth()/Entity.SPRITE_TO_WORLD_SCALE, entity.getHeight()/Entity.SPRITE_TO_WORLD_SCALE);
-            entity.setPosition(entity.getX()/Entity.SPRITE_TO_WORLD_SCALE, entity.getY()/Entity.SPRITE_TO_WORLD_SCALE);
-
-            if (entity.getLeftEdge() < minX) minX = (int)entity.getLeftEdge();
-            if (entity.getTopEdge()  < minY) minY = (int)entity.getTopEdge();
-            if (entity.getRightEdge()  > maxX) maxX = (int)entity.getRightEdge();
-            if (entity.getBottomEdge() > maxY) maxY = (int)entity.getBottomEdge();
-        }
-
-        int width  = (int)canvas.getWidth();
-        int height = (int)canvas.getHeight();
-        offsetX=(width+maxX+minX)/2;
-        offsetY=(height+maxY+minY)/2;
-
-        if (DEBUG) System.out.println("     X:["+minX + " -> " + maxX + "]");
-        if (DEBUG) System.out.println("     Y:["+minY + " -> " + maxY + "]");
-
-        if (DEBUG) System.out.println("     offset: " + offsetX + ", " + offsetY);
-
-        //renderAll();
-        timeline.play();
-
-         */
     }
 
 
@@ -722,7 +656,7 @@ public class LevelBuilder  extends Application
                     float width = Float.valueOf(data[4])*Entity.SPRITE_TO_WORLD_SCALE;
                     float height = Float.valueOf(data[5])*Entity.SPRITE_TO_WORLD_SCALE;
                     Block block = new Block(x, y, width, height, shape, 1.0F, null);
-                    Block.BlockEnum textureType = Block.BlockEnum.valueOf(data[1]);
+                    Block.BlockMaterial textureType = Block.BlockMaterial.valueOf(data[1]);
                     block.setTextureType(textureType);
                     entity = block;
 

@@ -531,8 +531,8 @@ public class Actor extends Item
         float slopeFactor = 1;
         if (touchEntity[DOWN] != null)
         {
-            if ((touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_L && getVelocityX() > 0)
-                    || (touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_R && getVelocityX() < 0))
+            if ((touchEntity[DOWN].getShape() == ShapeEnum.RAMP_LEFT18 && getVelocityX() > 0)
+                    || (touchEntity[DOWN].getShape() == ShapeEnum.RAMP_RIGHT18 && getVelocityX() < 0))
             {
                 slopeFactor = touchEntity[DOWN].getWidth()
                         / ((touchEntity[DOWN].getWidth() + touchEntity[DOWN].getHeight())
@@ -795,8 +795,8 @@ public class Actor extends Item
                 && !touchEntity[DOWN].getShape().getDirs()[UP])
             setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
 
-        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isTriangle())
-                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isTriangle()))
+        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isRamp())
+                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isRamp()))
             interruptRushes(RushOperation.RushFinish.HIT_WALL);
 
         return contactVel;
