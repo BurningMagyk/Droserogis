@@ -21,7 +21,7 @@ public class BlockTexture
 
     public enum EdgeType
     {
-        TOP, BOT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CORNER_LEFT, CORNER_RIGHT, RAMP_RIGHT18
+        TOP, BOT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT, CORNER_LEFT, CORNER_RIGHT, RAMP_RIGHT18, RAMP_LEFT18
     }
     public static ArrayList<BlockTexture> edgeTextureList[] = new ArrayList[EdgeType.values().length];
     private static Random random = new Random();
@@ -63,7 +63,7 @@ public class BlockTexture
             edgeTextureList[i] = new ArrayList<BlockTexture>();
         }
 
-        blockTextureList = new BlockTexture[41];
+        blockTextureList = new BlockTexture[44];
 
         blockTextureList[0] = new BlockTexture("Left0",  4,0, EdgeType.LEFT);
         blockTextureList[1] = new BlockTexture("Left1",  2,0, EdgeType.LEFT);
@@ -115,6 +115,10 @@ public class BlockTexture
         blockTextureList[38] = new BlockTexture("Ramp-Right18.4-0",  0,0, EdgeType.RAMP_RIGHT18);
         blockTextureList[39] = new BlockTexture("Ramp-Right18.4-1",  0,0, EdgeType.RAMP_RIGHT18);
         blockTextureList[40] = new BlockTexture("Ramp-Right18.4-2",  0,0, EdgeType.RAMP_RIGHT18);
+
+        blockTextureList[38] = new BlockTexture("Ramp-Left18.4-0",  0,0, EdgeType.RAMP_LEFT18);
+        blockTextureList[39] = new BlockTexture("Ramp-Left18.4-1",  0,0, EdgeType.RAMP_LEFT18);
+        blockTextureList[40] = new BlockTexture("Ramp-Left18.4-2",  0,0, EdgeType.RAMP_LEFT18);
 
     }
 }

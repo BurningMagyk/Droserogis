@@ -67,6 +67,8 @@ public class Block extends Entity
         }
         else this.infMaterials = infMaterials;
 
+        if (shape.isRamp()) edgeBits = 1;
+
         defineTextures();
     }
 
@@ -77,11 +79,6 @@ public class Block extends Entity
         super.setSize(width, height);
         if (blockMaterial != null) defineTextures();
     }
-
-    //public void toggleEdge(int bit)
-    ///{
-    //    edgeBits = edgeBits ^ bit;
-    //}
 
     public void defineTextures()
     {
@@ -166,13 +163,16 @@ public class Block extends Entity
             BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.RAMP_RIGHT18;
             for(int i=0; i<textureCount; i++)
             {
-                //TextureData data = new TextureData();
-                //BlockTexture texture = BlockTexture.getRandomEdgeTexture(getEdgeType(i));
-                //BlockTexture texture = BlockTexture.getRandomEdgeTexture(edgeType);
-                //data.image = texture.getImage();
-                //data.left = getEdgeX(i, gridWidth, gridHeight) - texture.left;
-                //data.top = getEdgeY(i, gridWidth, gridHeight) - texture.top;
-                //textureList.add(data);
+                textureList.add( new TextureData(edgeType, i, gridWidth, 1));
+            }
+        }
+        else if (getShape() == ShapeEnum.RAMP_LEFT18)
+        {
+            int gridWidth = Math.round(getWidth()*WORLD_TO_PIXEL/(3*BLOCK_TEXTURE_PIXELS));
+            int textureCount = gridWidth;
+            BlockTexture.EdgeType edgeType = BlockTexture.EdgeType.RAMP_LEFT18;
+            for(int i=0; i<textureCount; i++)
+            {
                 textureList.add( new TextureData(edgeType, i, gridWidth, 1));
             }
         }
@@ -211,10 +211,6 @@ public class Block extends Entity
             if ((edgeIndex >= startLeft) && (edgeIndex < startRight)) return BlockTexture.EdgeType.LEFT;
             return BlockTexture.EdgeType.RIGHT;
         }
-        //else if (getShape() == ShapeEnum.RAMP_RIGHT18)
-        //{
-        //    return BlockTexture.EdgeType.RAMP_RIGHT18;
-        //}
         return null;
     }
 
@@ -232,7 +228,7 @@ public class Block extends Entity
             if (edgeIndex < startRight) return 0;
             return BLOCK_TEXTURE_PIXELS * (gridWidth - 1);
         }
-        if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
+        if (getShape() == ShapeEnum.RAMP_RIGHT18 || getShape() == ShapeEnum.RAMP_LEFT18)
         {
             return edgeIndex * 3 * BLOCK_TEXTURE_PIXELS;
         }
@@ -256,6 +252,10 @@ public class Block extends Entity
         if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
         {
             return edgeIndex * BLOCK_TEXTURE_PIXELS;
+        }
+        if (this.getShape() == ShapeEnum.RAMP_LEFT18)
+        {
+            return -(1+edgeIndex) * BLOCK_TEXTURE_PIXELS;
         }
         return 0;
     }
@@ -314,20 +314,11 @@ public class Block extends Entity
                 xPos[i] = (this.getVertexX(i) - camPosX + camOffX) * camZoom;
                 yPos[i] = (this.getVertexY(i) - camPosY + camOffY) * camZoom;
             }
+            gfx.setFill(Color.BLACK);
             gfx.fillPolygon(xPos, yPos, 3);
-            if (this.getShape() == ShapeEnum.RAMP_RIGHT18)
+            for (TextureData data : textureList)
             {
-                //for (int i = 0; i < textureCount; i++)
-                //{
-                //    BlockTexture subtype = blockTextureList[i];
-                //    double xx = xPos[0] + getEdgeX(i) - subtype.left;
-                //    double yy = yPos[0] + getEdgeY(i) - subtype.top;
-                //    gfx.drawImage(subtype.getImage(), xx, yy);
-                //}
-                for (TextureData data : textureList)
-                {
-                    gfx.drawImage(data.image, xPos[0] + data.left, yPos[0] + data.top);
-                }
+                gfx.drawImage(data.image, xPos[0] + data.left, yPos[0] + data.top);
             }
         }
         else if (this.getShape() == ShapeEnum.RECTANGLE)
@@ -339,16 +330,6 @@ public class Block extends Entity
             if (this.isLiquid()) return;
             gfx.setFill(Color.BLACK);
             gfx.fillRect(x, y, width, height);
-            //for (int i = 0; i < textureCount; i++)
-            //{
-            //    BlockTexture subtype = blockTextureList[i];
-            //    if (subtype != null)
-            //    {
-            //        double xx = x + getEdgeX(i) - subtype.left;
-            //        double yy = y + getEdgeY(i) - subtype.top;
-            //        gfx.drawImage(subtype.getImage(), xx, yy);
-            //    }
-            //}
             for (TextureData data : textureList)
             {
                 gfx.drawImage(data.image, x + data.left, y + data.top);

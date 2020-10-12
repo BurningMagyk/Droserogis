@@ -1096,9 +1096,11 @@ public class Actor extends Item
 
     private State determineState()
     {
+        float oldHeight = getHeight();
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
         {
             setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+            setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             return State.SWIM;
         }
         else if (touchEntity[DOWN] != null)
@@ -1107,13 +1109,14 @@ public class Actor extends Item
             {
                 /* Width and height are switched */
                 setSize(ORIGINAL_HEIGHT, ORIGINAL_WIDTH);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.SLIDE;
             }
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))
             {
                 setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
-
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
                 if (dirHoriz != -1)
@@ -1127,6 +1130,7 @@ public class Actor extends Item
             else // stand
             {
                 setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
 
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
@@ -1166,10 +1170,12 @@ public class Actor extends Item
             if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
             {
                 setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
             else
             {
                 setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
 
             heightPerc = 1;
@@ -1178,6 +1184,7 @@ public class Actor extends Item
                 heightPerc = (getVelocityY() / jumpVel) + 1;
                 float tmpHeight = ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2;
                 setSize(ORIGINAL_WIDTH, tmpHeight);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.RISE;
             }
             else
@@ -1185,6 +1192,7 @@ public class Actor extends Item
                 heightPerc = Math.min(1, getVelocityY() / jumpVel);
                 float tmpHeight = ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F);
                 setSize(ORIGINAL_WIDTH, tmpHeight);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.FALL;
             }
         }

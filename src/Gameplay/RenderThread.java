@@ -158,7 +158,7 @@ public class RenderThread
             if ((block.getEdgeBits() & Block.EDGE_TOP) > 0)
             {
                 if (shape == Entity.ShapeEnum.RECTANGLE)
-                {
+                {   //Top surface
                     xx[0] = x + width;
                     yy[0] = y;
                     xx[1] = x;
@@ -170,33 +170,37 @@ public class RenderThread
                     gfx.fillPolygon(xx, yy, 4);
                 }
 
-                //Top surface
-                else if (shape == Entity.ShapeEnum.RAMP_LEFT18)
-                {
-                    xx[0] = x;
-                    yy[0] = y + height;
-                    xx[1] = x + width;
-                    yy[1] = y;
-                    xx[2] = x + width;
-                    yy[2] = y - 24;
-                    xx[3] = x;
-                    yy[3] = y + height - 24;
-                    gfx.fillPolygon(xx, yy, 4);
-                }
-
-                //Top surface
                 else if (shape == Entity.ShapeEnum.RAMP_RIGHT18)
-                {
+                {   //Top surface
                     double left = 0;
+                    double right = 0;
                     if (shadowL < 0) left = shadowL;
+                    if (shadowR > 0) right = shadowR;
                     xx[0] = x + width;
                     yy[0] = y + height;
                     xx[1] = x;
                     yy[1] = y;
                     xx[2] = x + left;
                     yy[2] = y - 24;
-                    xx[3] = x + width;
+                    xx[3] = x + width + right;
                     yy[3] = y + height - 24;
+                    gfx.fillPolygon(xx, yy, 4);
+                }
+
+                else if (shape == Entity.ShapeEnum.RAMP_LEFT18)
+                {   //Top surface
+                    double left = 0;
+                    double right = 0;
+                    if (shadowL < 0) left = shadowL;
+                    if (shadowR > 0) right = shadowR;
+                    xx[0] = x;
+                    yy[0] = y + height;
+                    xx[1] = x + shadowL;
+                    yy[1] = y + height - 24;
+                    xx[2] = x + width + shadowR;
+                    yy[2] = y - 24;
+                    xx[3] = x + width;
+                    yy[3] = y;
                     gfx.fillPolygon(xx, yy, 4);
                 }
             }
