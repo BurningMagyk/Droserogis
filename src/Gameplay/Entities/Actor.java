@@ -531,8 +531,8 @@ public class Actor extends Item
         float slopeFactor = 1;
         if (touchEntity[DOWN] != null)
         {
-            if ((touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_L && getVelocityX() > 0)
-                    || (touchEntity[DOWN].getShape() == ShapeEnum.TRIANGLE_UP_R && getVelocityX() < 0))
+            if ((touchEntity[DOWN].getShape() == ShapeEnum.RAMP_LEFT18 && getVelocityX() > 0)
+                    || (touchEntity[DOWN].getShape() == ShapeEnum.RAMP_RIGHT18 && getVelocityX() < 0))
             {
                 slopeFactor = touchEntity[DOWN].getWidth()
                         / ((touchEntity[DOWN].getWidth() + touchEntity[DOWN].getHeight())
@@ -795,8 +795,8 @@ public class Actor extends Item
                 && !touchEntity[DOWN].getShape().getDirs()[UP])
             setVelocityY(getY() - posOriginal.y + slopeJumpBuffer);
 
-        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isTriangle())
-                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isTriangle()))
+        if ((touchEntity[LEFT] != null && !touchEntity[LEFT].getShape().isRamp())
+                || (touchEntity[RIGHT] != null && !touchEntity[RIGHT].getShape().isRamp()))
             interruptRushes(RushOperation.RushFinish.HIT_WALL);
 
         return contactVel;
@@ -1096,10 +1096,11 @@ public class Actor extends Item
 
     private State determineState()
     {
+        float oldHeight = getHeight();
         if (submerged || (inWater && touchLateSurface[DOWN] == null))
         {
-            setWidth(ORIGINAL_WIDTH);
-            setHeight(ORIGINAL_HEIGHT);
+            setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+            setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             return State.SWIM;
         }
         else if (touchEntity[DOWN] != null)
@@ -1107,16 +1108,15 @@ public class Actor extends Item
             if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
             {
                 /* Width and height are switched */
-                setHeight(ORIGINAL_WIDTH);
-                setWidth(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_HEIGHT, ORIGINAL_WIDTH);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.SLIDE;
             }
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT / 2);
-
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
                 if (dirHoriz != -1)
@@ -1129,8 +1129,8 @@ public class Actor extends Item
             }
             else // stand
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
 
             if (getVelocityX() > 0 && touchEntity[RIGHT] != null)
@@ -1169,28 +1169,30 @@ public class Actor extends Item
         {
             if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT / 2);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
             else
             {
-                setWidth(ORIGINAL_WIDTH);
-                setHeight(ORIGINAL_HEIGHT);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
 
             heightPerc = 1;
             if (getVelocityY() < 0)
             {
                 heightPerc = (getVelocityY() / jumpVel) + 1;
-                setHeight(ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2);
-                setWidth(ORIGINAL_WIDTH);
+                float tmpHeight = ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2;
+                setSize(ORIGINAL_WIDTH, tmpHeight);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.RISE;
             }
             else
             {
                 heightPerc = Math.min(1, getVelocityY() / jumpVel);
-                setHeight(ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F));
-                setWidth(ORIGINAL_WIDTH);
+                float tmpHeight = ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F);
+                setSize(ORIGINAL_WIDTH, tmpHeight);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.FALL;
             }
         }

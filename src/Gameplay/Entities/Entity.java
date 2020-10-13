@@ -8,7 +8,6 @@ package Gameplay.Entities;
 
 import Importer.ImageResource;
 import Menus.Main;
-import Util.Print;
 import Util.Vec2;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -37,40 +36,40 @@ abstract public class Entity
     {
         RECTANGLE
                 {
-                    public boolean isTriangle() {return false;}
+                    public boolean isRamp() {return false;}
                     public String getText() {return "Rectangle";}
                 },
-        TRIANGLE_UP_R
+        RAMP_RIGHT18
                 {
-                    public boolean isTriangle() {return true;}
+                    public boolean isRamp() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {false, false, true, true};}
-                    public String getText() {return "Triangle (upward right)";}
+                    public String getText() {return "Ramp (Right 18°)";}
                 },
-        TRIANGLE_UP_L
+        RAMP_LEFT18
                 {
-                    public boolean isTriangle() {return true;}
+                    public boolean isRamp() {return true;}
                     public boolean[] getDirs() {return new boolean[]
                             {false, true, true, false};}
-                    public String getText() {return "Triangle (upward left)";}
-                },
-        TRIANGLE_DW_R
-                {
-                    public boolean isTriangle() {return true;}
-                    public boolean[] getDirs() {return new boolean[]
-                            {true, false, false, true};}
-                    public String getText() {return "Triangle (downward right)";}
-                },
-        TRIANGLE_DW_L
-                {
-                    public boolean isTriangle() {return true;}
-                    public boolean[] getDirs() {return new boolean[]
-                            {true, true, false, false};}
-                    public String getText() {return "Triangle (downward left)";}
-                };
+                    public String getText() {return "Ramp (Left 18°)";}
+                };//,
+        //TRIANGLE_DW_R
+        //        {
+        //            public boolean isTriangle() {return true;}
+        //            public boolean[] getDirs() {return new boolean[]
+        //                    {true, false, false, true};}
+        //            public String getText() {return "Triangle (downward right)";}
+        //        },
+        //TRIANGLE_DW_L
+         //       {
+         //           public boolean isTriangle() {return true;}
+         //           public boolean[] getDirs() {return new boolean[]
+         //                   {true, true, false, false};}
+         //           public String getText() {return "Triangle (downward left)";}
+         // };
 
         public abstract String getText();
-        public boolean isTriangle() {return false;}
+        public boolean isRamp() {return false;}
         public boolean[] getDirs() {return new boolean[]
                 {true, true, true, true};}
     }
@@ -135,7 +134,7 @@ abstract public class Entity
         //  be the center of mass of a right triangle of a thin lamina of uniform density.
         //Note: for collision to work, vertices must be in clockwise order.
         //      for shadow rendering to work, vertex 0 and vertex 1 must be on the upper game surface.
-        if (shape == ShapeEnum.TRIANGLE_UP_R)
+        if (shape == ShapeEnum.RAMP_RIGHT18)
         {
             //0
             //##
@@ -147,7 +146,7 @@ abstract public class Entity
             normal.x = width; normal.y = -height;
         }
 
-        else if (shape == ShapeEnum.TRIANGLE_UP_L)
+        else if (shape == ShapeEnum.RAMP_LEFT18)
         {
             //  1
             // ##
@@ -163,7 +162,7 @@ abstract public class Entity
             //vertexList[2] = new Vec2(width / 2, -height / 2);   // Upper-right corner
             normal.x = -width; normal.y = -height;
         }
-
+/*
         else if (shape == ShapeEnum.TRIANGLE_DW_R)
         {
             //0#1
@@ -186,6 +185,8 @@ abstract public class Entity
             vertexList[2] = new Vec2( width / 2,  height / 2);
             normal.x = -width; normal.y = height;
         }
+        */
+
         else if (shape == ShapeEnum.RECTANGLE)
         {
             vertexList = new Vec2[4];
@@ -209,20 +210,6 @@ abstract public class Entity
     public float getDefWidth() { return defWidth; }
     public float getDefHeight() { return defHeight; }
     public Vec2 getDims() { return new Vec2(width, height); }
-
-    ////TODO: *****BUG****: this class also has a setSize method which does very different things
-    ////TODO:   in particular, setSize() calculates verticies while set size does not
-    void setWidth(float width)
-    {
-        this.setPositionX(getPosition().x + ((this.width - width) / 2));
-        this.width = width;
-    }
-    void setHeight(float height)
-    {
-        //this.setPositionY(getPosition().y + ((this.height - height) / 2));
-        this.height = height;
-    }
-
     public Vec2 getVelocity() { return new Vec2(velocity); }
     public float getVelocityX() { return velocity.x; }
     public float getVelocityY() { return velocity.y; }
@@ -353,12 +340,12 @@ abstract public class Entity
     {
         switch (shape)
         {
-            case TRIANGLE_UP_R:
-            case TRIANGLE_DW_L:
+            case RAMP_RIGHT18:
+            //case TRIANGLE_DW_L:
                 return new Vec2((float) (totalVel * cosTheta),
                         (float) (totalVel * sinTheta));
-            case TRIANGLE_UP_L:
-            case TRIANGLE_DW_R:
+            case RAMP_LEFT18:
+            //case TRIANGLE_DW_R:
                 return new Vec2((float) (totalVel * cosTheta),
                         (float) (-totalVel * sinTheta));
             default:
@@ -374,12 +361,12 @@ abstract public class Entity
     {
         switch (shape)
         {
-            case TRIANGLE_UP_R:
-            case TRIANGLE_DW_L:
+            case RAMP_RIGHT18:
+            //case TRIANGLE_DW_L:
                 return new Vec2((float) (totalVel * sinTheta),
                         (float) (totalVel * cosTheta));
-            case TRIANGLE_UP_L:
-            case TRIANGLE_DW_R:
+            case RAMP_LEFT18:
+            //case TRIANGLE_DW_R:
                 return new Vec2((float) (-totalVel * sinTheta),
                         (float) (totalVel * cosTheta));
             default:
@@ -606,7 +593,7 @@ abstract public class Entity
     {
         /* Assumes that the Actor is within the x-bounds */
 
-        if (!shape.isTriangle() || shape.getDirs()[UP]) return getTopEdge();
+        if (!shape.isRamp() || shape.getDirs()[UP]) return getTopEdge();
 
         float xRatio = (pos.x+width/2 - otherX) / width;
         /* Up-left */
@@ -625,7 +612,7 @@ abstract public class Entity
     {
         /* Assumes that the Actor is within the x-bounds */
 
-        if (!shape.isTriangle() || shape.getDirs()[DOWN]) return getBottomEdge();
+        if (!shape.isRamp() || shape.getDirs()[DOWN]) return getBottomEdge();
 
         float xRatio = (pos.x+width/2 - otherX) / width;
         /* Down-left */
@@ -657,31 +644,31 @@ abstract public class Entity
             return true;
         }
 
-        if (getShape() == ShapeEnum.TRIANGLE_UP_R)
+        if (getShape() == ShapeEnum.RAMP_RIGHT18)
         {
             double slopeHypotenuse = height/width;
             double slope = ((pos.y + height/2) - y) / ((pos.x + width/2) - x);
             if (slope < slopeHypotenuse) return true; else return false;
         }
-        if (getShape() == ShapeEnum.TRIANGLE_UP_L)
+        if (getShape() == ShapeEnum.RAMP_LEFT18)
         {
             double slopeHypotenuse = height/width;
             double slope = ((pos.y + height/2) - y) / (x - (pos.x - width/2));
             if (slope < slopeHypotenuse) return true; else return false;
         }
-        if (getShape() == ShapeEnum.TRIANGLE_DW_R)
-        {
-            double slopeHypotenuse = height/width;
-            double slope = (y - (pos.y - height/2)) / ((pos.x + width/2) - x);
-            //System.out.println(slopeHypotenuse + "   " + slope);
-            if (slope < slopeHypotenuse) return true; else return false;
-        }
-        if (getShape() == ShapeEnum.TRIANGLE_DW_L)
-        {
-            double slopeHypotenuse = height/width;
-            double slope = (y - (pos.y - height/2)) / (x - (pos.x - width/2));
-            if (slope < slopeHypotenuse) return true; else return false;
-        }
+        //if (getShape() == ShapeEnum.TRIANGLE_DW_R)
+        //{
+        //    double slopeHypotenuse = height/width;
+        //    double slope = (y - (pos.y - height/2)) / ((pos.x + width/2) - x);
+        //    //System.out.println(slopeHypotenuse + "   " + slope);
+        //    if (slope < slopeHypotenuse) return true; else return false;
+        //}
+        //if (getShape() == ShapeEnum.TRIANGLE_DW_L)
+        //{
+        //    double slopeHypotenuse = height/width;
+        //    double slope = (y - (pos.y - height/2)) / (x - (pos.x - width/2));
+        //    if (slope < slopeHypotenuse) return true; else return false;
+        //}
         return false;
     }
 

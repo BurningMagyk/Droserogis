@@ -151,65 +151,94 @@ public class RenderThread
                 gfx.setFill(texturePatternShadow);
                 continue;
             }
-//            if (true) continue;
             Entity.ShapeEnum shape = entity.getShape();
             double shadowL = (x-viewWidth/2)/30.0;
             double shadowR = (x+width-viewWidth/2)/30.0;
             //Top surface
-            if (shape != Entity.ShapeEnum.TRIANGLE_UP_L && shape != Entity.ShapeEnum.TRIANGLE_UP_R)
+            if ((block.getEdgeBits() & Block.EDGE_TOP) > 0)
             {
-                xx[0] = x + width;           yy[0] = y;
-                xx[1] = x;                   yy[1] = y;
-                xx[2] = x + shadowL;         yy[2] = y - 24;
-                xx[3] = x + width + shadowR; yy[3] = y - 24;
-                gfx.fillPolygon(xx, yy, 4);
-            }
+                if (shape == Entity.ShapeEnum.RECTANGLE)
+                {   //Top surface
+                    xx[0] = x + width;
+                    yy[0] = y;
+                    xx[1] = x;
+                    yy[1] = y;
+                    xx[2] = x + shadowL;
+                    yy[2] = y - 24;
+                    xx[3] = x + width + shadowR;
+                    yy[3] = y - 24;
+                    gfx.fillPolygon(xx, yy, 4);
+                }
 
-            //Top surface
-            else if (shape == Entity.ShapeEnum.TRIANGLE_UP_L )
-            {
-                xx[0] = x;                     yy[0] = y+height;
-                xx[1] = x + width;             yy[1] = y;
-                xx[2] = x + width;             yy[2] = y - 24;
-                xx[3] = x;                     yy[3] = y + height - 24;
-                gfx.fillPolygon(xx, yy, 4);
-            }
+                else if (shape == Entity.ShapeEnum.RAMP_RIGHT18)
+                {   //Top surface
+                    double left = 0;
+                    double right = 0;
+                    if (shadowL < 0) left = shadowL;
+                    if (shadowR > 0) right = shadowR;
+                    xx[0] = x + width;
+                    yy[0] = y + height;
+                    xx[1] = x;
+                    yy[1] = y;
+                    xx[2] = x + left;
+                    yy[2] = y - 24;
+                    xx[3] = x + width + right;
+                    yy[3] = y + height - 24;
+                    gfx.fillPolygon(xx, yy, 4);
+                }
 
-            //Top surface
-            else if (shape == Entity.ShapeEnum.TRIANGLE_UP_R)
-            {
-                double triShadow = Math.min(shadowL, 0);
-                if (x>viewWidth/2) triShadow = Math.max(shadowR, 0);
-                xx[0] = x + width;             yy[0] = y+height;
-                xx[1] = x;                     yy[1] = y;
-                xx[2] = x;                     yy[2] = y - 24;
-                xx[3] = x + width;             yy[3] = y + height - 24;
-                gfx.fillPolygon(xx, yy, 4);
-            }
-
-
-            if (shadowL<0)
-            {
-                if (shape != Entity.ShapeEnum.TRIANGLE_DW_L && shape != Entity.ShapeEnum.TRIANGLE_UP_L)
-                {
-                    xx[0] = x + shadowL;       yy[0] = y - 24;
-                    xx[1] = x;                 yy[1] = y;
-                    xx[2] = x;                 yy[2] = y + height;
-                    xx[3] = x + shadowL;       yy[3] = y + height - 24;
-                    if (shape == Entity.ShapeEnum.TRIANGLE_UP_R) yy[1] = yy[0];
+                else if (shape == Entity.ShapeEnum.RAMP_LEFT18)
+                {   //Top surface
+                    double left = 0;
+                    double right = 0;
+                    if (shadowL < 0) left = shadowL;
+                    if (shadowR > 0) right = shadowR;
+                    xx[0] = x;
+                    yy[0] = y + height;
+                    xx[1] = x + shadowL;
+                    yy[1] = y + height - 24;
+                    xx[2] = x + width + shadowR;
+                    yy[2] = y - 24;
+                    xx[3] = x + width;
+                    yy[3] = y;
                     gfx.fillPolygon(xx, yy, 4);
                 }
             }
-            if (shadowR>0)
+
+            if ((block.getEdgeBits() & Block.EDGE_LEFT) > 0)
             {
-                if (shape != Entity.ShapeEnum.TRIANGLE_DW_R && shape != Entity.ShapeEnum.TRIANGLE_UP_R)
+                if (shadowL < 0)
                 {
-                    xx[0] = x + width;             yy[0] = y;
-                    xx[1] = x + width + shadowR;   yy[1] = y - 24;
-                    xx[2] = x + width + shadowR;   yy[2] = y + height - 24;
-                    xx[3] = x + width;             yy[3] = y + height;
-                    if (shape == Entity.ShapeEnum.TRIANGLE_UP_L) yy[0] = yy[1];
-                    gfx.fillPolygon(xx, yy, 4);
+                    if (shape == Entity.ShapeEnum.RECTANGLE)
+                    {
+                        xx[0] = x + shadowL;
+                        yy[0] = y - 24;
+                        xx[1] = x;
+                        yy[1] = y;
+                        xx[2] = x;
+                        yy[2] = y + height;
+                        xx[3] = x + shadowL;
+                        yy[3] = y + height - 24;
+                        gfx.fillPolygon(xx, yy, 4);
+                    }
+                }
+            }
+            if ((block.getEdgeBits() & Block.EDGE_RIGHT) > 0)
+            {
+                if (shadowR > 0)
+                {
+                    if (shape == Entity.ShapeEnum.RECTANGLE)
+                    {
+                        xx[0] = x + width;
+                        yy[0] = y;
+                        xx[1] = x + width + shadowR;
+                        yy[1] = y - 24;
+                        xx[2] = x + width + shadowR;
+                        yy[2] = y + height - 24;
+                        xx[3] = x + width;
+                        yy[3] = y + height;
+                        gfx.fillPolygon(xx, yy, 4);
+                    }
                 }
             }
         }
