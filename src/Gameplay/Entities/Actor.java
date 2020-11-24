@@ -161,6 +161,7 @@ public class Actor extends Item
         act(deltaSec);
         applyPhysics(entities, deltaSec);
         countdownCondition(deltaSec);
+        setSpriteType();
         stepDebugText(deltaSec);
     }
 
@@ -470,7 +471,7 @@ public class Actor extends Item
                             && Math.abs(velY) < walkSpeed
                             && velY >= 0)
                     {
-                        addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
+                        addCondition(climbLedgeTime, Condition.NEGATE_STABILITY, Condition.CLIMB_LEDGE);
                         float xPos = ledgeBlock.getPosition().x
                                 + ((ledgeBlock.getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
                         float yPos = ledgeBlock.getPosition().y
@@ -1178,20 +1179,13 @@ public class Actor extends Item
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
 
-            heightPerc = 1;
             if (getVelocityY() < 0)
             {
-                heightPerc = (getVelocityY() / jumpVel) + 1;
-                float tmpHeight = ORIGINAL_HEIGHT - (ORIGINAL_HEIGHT * heightPerc) / 2;
-                setSize(ORIGINAL_WIDTH, tmpHeight);
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.RISE;
             }
             else
             {
-                heightPerc = Math.min(1, getVelocityY() / jumpVel);
-                float tmpHeight = ORIGINAL_HEIGHT * (heightPerc / 2 + 0.5F);
-                setSize(ORIGINAL_WIDTH, tmpHeight);
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 return State.FALL;
             }
@@ -1443,6 +1437,7 @@ public class Actor extends Item
     //================================================================================================================
     public enum Condition
     {
+        CLIMB_LEDGE, // only used for spriteType
         NEGATE_ATTACK, NEGATE_BLOCK,
         NEGATE_JUMP,
         NEGATE_SPRINT_LEFT, NEGATE_SPRINT_RIGHT,
@@ -1785,26 +1780,109 @@ public class Actor extends Item
         return true;
     }
 
-    private boolean flipSprite = false;
-    private float heightPerc = 1;
+    private boolean tryingProneDodge()
+    {
+        return (has(Condition.NEGATE_ACTIVITY) || has(Condition.NEGATE_STABILITY))
+                && (state.isGrounded() || state.isOnWall())
+                && Math.abs(getVelocity().mag()) <= walkSpeed && dirHoriz != -1;
+    }
 
+    private Character.SpriteType spriteType = Character.SpriteType.IDLE;
+    private void setSpriteType()
+    {
+        Character.SpriteType opSpriteType;
+        for (int i = 0; i < WeaponSlot.values().length; i++)
+        {
+            if (weapons[i] != null)
+            {
+                opSpriteType = weapons[i].getSpriteType();
+                if (opSpriteType != null)
+                {
+                    spriteType = opSpriteType;
+                    // TODO: set frameIndex
+                    return;
+                }
+            }
+        }
+
+        switch (state)
+        {
+            case STAND:
+                if (isBlockingUp())
+                    spriteType = Character.SpriteType.IDLE_BLOCKING;
+                else spriteType = Character.SpriteType.IDLE;
+                break;
+            case SLIDE:
+                if (isBlockingUp())
+                    spriteType = Character.SpriteType.PRONE_BLOCKING;
+                else spriteType = Character.SpriteType.PRONE;
+                break;
+            case CROUCH:
+                // Prone
+                if (has(Condition.NEGATE_ACTIVITY) || has(Condition.NEGATE_STABILITY))
+                {
+                    if (Math.abs(getVelocity().mag()) <= walkSpeed && dirHoriz == -1)
+                        spriteType = Character.SpriteType.PRONE_ABRUPT;
+                    else if (isBlockingUp())
+                        spriteType = Character.SpriteType.PRONE_BLOCKING;
+                    else spriteType = Character.SpriteType.PRONE;
+                }
+                // Crouched
+                else
+                {
+                    if (has(Condition.CLIMB_LEDGE))
+                        spriteType = Character.SpriteType.CLIMB_LEDGE;
+                    else spriteType = Character.SpriteType.CROUCH;
+                }
+                break;
+            case CRAWL:
+            case LOWER_SPRINT:
+                spriteType = Character.SpriteType.CRAWL;
+                break;
+            case RUN:
+            case SPRINT:
+                spriteType = Character.SpriteType.RUN;
+                break;
+            case WALL_CLIMB:
+                spriteType = Character.SpriteType.CLIMB_WALL;
+                break;
+            case WALL_STICK:
+                spriteType = Character.SpriteType.CLIMB_WALL;
+                break;
+            case RISE:
+                spriteType = Character.SpriteType.JUMP;
+                break;
+            case FALL:
+                spriteType = Character.SpriteType.JUMP;
+                break;
+            case SWIM:
+                spriteType = Character.SpriteType.IDLE;
+                break;
+        }
+        Print.blue(spriteType);
+    }
+
+    private boolean flipSprite = false;
     @Override
     public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
     {
         /* Update sprite state */
-        if (state == State.RISE) setSpriteState(3,
-                (int) (heightPerc * 7), 0);
-        else if (state == State.FALL) setSpriteState(3,
-                (int) (heightPerc * 7) + 7, 0);
-        else if (state == State.RUN)
-        {
-            if (moveType == MoveType.WALK)
-                setSpriteState(1, -1, 0.5F);
-            else setSpriteState(2, -1, 0.5F);
-        }
-        else if (state == State.SPRINT)
-            setSpriteState(2, -1, 1);
-        else setSpriteState(0, -1, 1);
+        setSpriteType();
+        setSpriteState(spriteType.ordinal(), 0);
+
+//        if (state == State.RISE) setSpriteState(3,
+//                (int) (heightPerc * 7), 0);
+//        else if (state == State.FALL) setSpriteState(3,
+//                (int) (heightPerc * 7) + 7, 0);
+//        else if (state == State.RUN)
+//        {
+//            if (moveType == MoveType.WALK)
+//                setSpriteState(1, -1, 0.5F);
+//            else setSpriteState(2, -1, 0.5F);
+//        }
+//        else if (state == State.SPRINT)
+//            setSpriteState(2, -1, 1);
+//        else setSpriteState(0, -1, 1);
         flipSprite = dirFace == LEFT;
 
 
@@ -1824,10 +1902,16 @@ public class Actor extends Item
 
             int flipSign = flipSprite ? -1 : 1;
             int flipOffset = flipSprite ? 1 : 0;
+//            gfx.drawImage(
+//                    ir.getImage(),
+//                    x - (ir.getWidth() / 2.7F * flipSign) + (width * flipOffset),
+//                    y - (ir.getHeight() / 4.2F),
+//                    ir.getWidth() * flipSign,
+//                    ir.getHeight());
             gfx.drawImage(
                     ir.getImage(),
-                    x - (ir.getWidth() / 2.7F * flipSign) + (width * flipOffset),
-                    y - (ir.getHeight() / 4.2F),
+                    x - (ir.getWidth() * 2F / 3F * flipSign) + (width * flipOffset),
+                    y - (ir.getHeight() * 2F / 3F),
                     ir.getWidth() * flipSign,
                     ir.getHeight());
         }

@@ -7,6 +7,7 @@
 package Gameplay.Entities.Weapons;
 
 import Gameplay.Entities.Actor;
+import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entities.Item;
@@ -235,10 +236,13 @@ class MeleeOperation implements Weapon.Operation
     }
 
     @Override
+    public Character.SpriteType getSpriteType() { return spriteType; }
+
+    @Override
     public Weapon.Operation copy()
     {
         MeleeOperation op = new MeleeOperation(
-                name, next, proceeds, finishes, cycle,
+                name, spriteType, next, proceeds, finishes, cycle,
                 waits, funcDir,
                 parrying, permeating,
                 conditionApps[0], execJourney, infTypes);
@@ -261,6 +265,7 @@ class MeleeOperation implements Weapon.Operation
     }
 
     private String name;
+    private Character.SpriteType spriteType;
     private MeleeEnum[][] next;
     private MeleeEnum[] proceeds;
     private ConditionAppCycle cycle;
@@ -284,6 +289,7 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(
             String name,
+            Character.SpriteType spriteType,
             MeleeEnum[][] next,
             MeleeEnum[] proceeds,
             ConditionAppCycle cycle,
@@ -329,37 +335,39 @@ class MeleeOperation implements Weapon.Operation
 
     MeleeOperation(String name, MeleeOperation op)
     {
-        this(name, op.next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.parrying, op.permeating,
+        this(name, op.spriteType, op.next, op.proceeds, op.cycle,
+                op.waits.copy(), op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
         setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 
     MeleeOperation(String name, MeleeOperation op, MeleeEnum[][] next)
     {
-        this(name, next, op.proceeds, op.cycle, op.waits.copy(),
-                op.funcDir, op.parrying, op.permeating,
+        this(name, op.spriteType, next, op.proceeds, op.cycle,
+                op.waits.copy(), op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
         setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 
     MeleeOperation(String name, MeleeOperation op, ConditionAppCycle cycle)
     {
-        this(name, op.next, op.proceeds, cycle, op.waits.copy(),
-                op.funcDir, op.parrying, op.permeating,
+        this(name, op.spriteType, op.next, op.proceeds, cycle,
+                op.waits.copy(), op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
         setStats(op.damageMod, op.knockbackMod, op.precisionMod);
     }
 
-    MeleeOperation(String name, MeleeEnum[][] next, MeleeEnum[] proceeds,
-                   RushOperation.RushFinish[] finishes, ConditionAppCycle cycle,
-                   Vec2 waits, DirEnum funcDir, boolean parrying, boolean permeating,
+    MeleeOperation(String name, Character.SpriteType spriteType,
+                   MeleeEnum[][] next, MeleeEnum[] proceeds,
+                   RushOperation.RushFinish[] finishes,
+                   ConditionAppCycle cycle, Vec2 waits, DirEnum funcDir,
+                   boolean parrying, boolean permeating,
                    ConditionApp conditionApp, Tick[] execJourney,
                    Infliction.InflictionType... infTypes
     )
     {
-        this(name, next, proceeds, cycle, waits, funcDir, parrying, permeating,
-                conditionApp, execJourney, infTypes);
+        this(name, spriteType, next, proceeds, cycle, waits, funcDir,
+                parrying, permeating, conditionApp, execJourney, infTypes);
         if (finishes != null)
         {
             this.finishes = new RushOperation.RushFinish[finishes.length];
@@ -367,9 +375,10 @@ class MeleeOperation implements Weapon.Operation
         }
     }
 
-    MeleeOperation(String name, MeleeOperation op, Vec2 waits)
+    MeleeOperation(String name, Character.SpriteType spriteType,
+                   MeleeOperation op, Vec2 waits)
     {
-        this(name, op.next, op.proceeds, op.cycle, waits,
+        this(name, spriteType, op.next, op.proceeds, op.cycle, waits,
                 op.funcDir, op.parrying, op.permeating,
                 op.conditionApps[0], op.execJourney, op.infTypes);
         setStats(op.damageMod, op.knockbackMod, op.precisionMod);

@@ -677,28 +677,20 @@ abstract public class Entity
     /********************************* Rendering *********************************/
     /*****************************************************************************/
 
-    private int spriteStateIndex = 0;
-    private float spriteFrameIndex = 0, autoSpriteFrame = 1;
-    void setSpriteState(int stateIndex, int frameIndex, float auto)
+    private int spriteState = 0, spriteFrameIndex;
+    void setSpriteState(int stateIndex, int frameIndex)
     {
-        spriteStateIndex = stateIndex;
+        spriteState = stateIndex;
         if (frameIndex >= 0) spriteFrameIndex = frameIndex;
-        autoSpriteFrame = auto;
     }
     public ImageResource getImage()
     {
-        if (SPRITES != null) {
-            if (autoSpriteFrame > 0)
-            {
-                spriteFrameIndex = (spriteFrameIndex + autoSpriteFrame >= SPRITES.get(spriteStateIndex).length)
-                        ? 0 : spriteFrameIndex + autoSpriteFrame;
-            }
-        }
         ImageResource currSprite = (SPRITES == null)
-                ? null : SPRITES.get(spriteStateIndex)[(int) spriteFrameIndex];
-
+                ? null : SPRITES.get(spriteState)[spriteFrameIndex];
         return currSprite;
     }
 
-    public abstract void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom);
+    public abstract void render(GraphicsContext gfx,
+                                float camPosX, float camPosY,
+                                float camOffX, float camOffY, float camZoom);
 }

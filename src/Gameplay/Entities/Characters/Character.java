@@ -133,7 +133,7 @@ public class Character
             new CharacterStat("A", "A", "A", "A", "A", "A",
                     "A", "A", "A", "A", "A"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 49).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getJacobSpritePaths());
+            new Vec2(20, 49).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Nathan = new Character("Nathan",
             new CharacterStat("F", "F", "F", "F", "F", "F",
@@ -145,7 +145,7 @@ public class Character
             new CharacterStat("F", "F", "F", "F", "F", "F",
                     "F", "F", "F", "F", "F"),
             CharacterClass.class_Fighter,
-            new Vec2(20, 45).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getJacobSpritePaths());
+            new Vec2(15, 45).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getSpritePaths("Jacob"));
 
     private static Character character_Tetsuya = new Character("Tetsuya",
             new CharacterStat("F", "F", "F", "F", "F", "F",
@@ -208,70 +208,145 @@ public class Character
     /******************************** Sprite Paths *******************************/
     /*****************************************************************************/
 
-    public static ArrayList<String[]> getJacobSpritePaths() {
+    public enum SpriteType
+    {
+        IDLE { int count() { return 1; } },
+        IDLE_BLOCKING { int count() {return 1;} },
+        PRONE { int count() {return 1;} },
+        PRONE_BLOCKING { int count() {return 1;} },
+        PRONE_ABRUPT { int count() {return 1;} },
+        CROUCH { int count() {return 1;} },
+        CRAWL { int count() {return 6;} },
+        WALK { int count() {return 10;} },
+        WALK_BLOCKING { int count() {return 10;} },
+        RUN { int count() {return 8;} },
+        CLIMB_WALL { int count() {return 4;} },
+        CLIMB_LEDGE { int count() {return 2;} },
+        JUMP { int count() {return 2;} },
+        PUNCH { int count() {return 6;} },
+        PUNCH_DIAG { int count() {return 6;} },
+        PUNCH_UP { int count() {return 6;} },
+        UPPERCUT { int count() {return 6;} },
+        STOMP { int count() {return 4;} },
+        STOMP_FALL { int count() {return 4;} },
+        KICK_ARC { int count() {return 6;} },
+        KICK_AERIAL { int count() {return 4;} },
+        KICK_PRONE { int count() {return 4;} },
+        SHOVE { int count() {return 8;} };
+        int count() { return 0; }
+    }
+
+    private static String[] getSpriteArray(String name, SpriteType spriteType)
+    {
+        String[] spriteArray = new String[spriteType.count()];
+        String typeName = spriteType.name().toLowerCase();
+        for (int i = 0; i < spriteType.count(); i++)
+        {
+            int typeIndex_ = spriteType.ordinal() + 1;
+            String typeIndex = typeIndex_ < 10
+                    ? "0" + typeIndex_ : "" + typeIndex_;
+
+            if (spriteType == SpriteType.JUMP)
+            {
+                spriteArray[i] = "Characters/" + name + "/"
+                        + typeIndex + "_" + typeName + "/"
+                        + ((i == 0) ? "rise" : "fall") + ".png";
+            }
+            else
+            {
+                int i_ = i + 1;
+                String imageIndex = i_ < 10 ? "0" + i_ : "" + i_;
+                spriteArray[i] = "Characters/" + name + "/"
+                        + typeIndex + "_" + typeName + "/"
+                        + typeName + "_" + imageIndex + ".png";
+            }
+        }
+        return spriteArray;
+    }
+
+    private static ArrayList<String[]> getSpritePaths(String name)
+    {
         ArrayList<String[]> spritePaths = new ArrayList<>();
-        String[] spriteArray;
+        SpriteType[] spriteTypes = SpriteType.values();
 
-        int idleFrames = 60;
-        spriteArray = new String[idleFrames];
-        for(int i = 0 ; i < idleFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/idle/Idle00" + imageIndex + ".png";
+        for (int i = 0; i < spriteTypes.length; i++)
+        {
+            spritePaths.add(getSpriteArray(name, spriteTypes[i]));
         }
-        spritePaths.add(spriteArray);
+        return spritePaths;
+    }
 
-        int walkFrames = 35;
-        spriteArray = new String[walkFrames];
-        for(int i = 0; i < walkFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/walk/Walk00" + imageIndex + ".png";
+    private static ArrayList<String[]> getJacobSpritePaths()
+    {
+        ArrayList<String[]> spritePaths = new ArrayList<>();
+
+        for (int i = 0; i < SpriteType.values().length; i++)
+        {
+
         }
-        spritePaths.add(spriteArray);
 
-        int runFrames = 22;
-        spriteArray = new String[runFrames];
-        for(int i = 0 ; i < runFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/run/Run00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
-        int jumpFrames = 15;
-        spriteArray = new String[jumpFrames];
-        for(int i = 0 ; i < jumpFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/jump/Jump00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
-
-        spriteArray = new String[idleFrames];
-        for(int i = 0 ; i < idleFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/idle/IdleNormal00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
-        spriteArray = new String[walkFrames];
-        for(int i = 0; i < walkFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/walk/WalkNormal00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
-        spriteArray = new String[runFrames];
-        for(int i = 0 ; i < runFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/run/RunNormal00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
-
-        spriteArray = new String[jumpFrames];
-        for(int i = 0 ; i < jumpFrames; i++){
-            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
-            spriteArray[i] = "Characters/Jacob/jump/JumpNormal00" + imageIndex + ".png";
-        }
-        spritePaths.add(spriteArray);
+//        String[] spriteArray;
+//
+//        int idleFrames = 60;
+//        spriteArray = new String[idleFrames];
+//        for(int i = 0 ; i < idleFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/idle/Idle00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        int walkFrames = 35;
+//        spriteArray = new String[walkFrames];
+//        for(int i = 0; i < walkFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/walk/Walk00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        int runFrames = 22;
+//        spriteArray = new String[runFrames];
+//        for(int i = 0 ; i < runFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/run/Run00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        int jumpFrames = 15;
+//        spriteArray = new String[jumpFrames];
+//        for(int i = 0 ; i < jumpFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/jump/Jump00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//
+//        spriteArray = new String[idleFrames];
+//        for(int i = 0 ; i < idleFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/idle/IdleNormal00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        spriteArray = new String[walkFrames];
+//        for(int i = 0; i < walkFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/walk/WalkNormal00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        spriteArray = new String[runFrames];
+//        for(int i = 0 ; i < runFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/run/RunNormal00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
+//
+//        spriteArray = new String[jumpFrames];
+//        for(int i = 0 ; i < jumpFrames; i++){
+//            String imageIndex = i + 1 < 10 ? "0" + (i + 1) : "" + (i + 1);
+//            spriteArray[i] = "Characters/Jacob/jump/JumpNormal00" + imageIndex + ".png";
+//        }
+//        spritePaths.add(spriteArray);
 
         return spritePaths;
     }

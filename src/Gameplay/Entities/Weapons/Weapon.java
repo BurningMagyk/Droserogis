@@ -7,6 +7,7 @@
 package Gameplay.Entities.Weapons;
 
 import Gameplay.*;
+import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.Entities.Actor;
 import Gameplay.Entities.Entity;
@@ -213,6 +214,12 @@ public class Weapon extends Item
     /*=======================================================================*/
     /*                               Drawing                                 */
     /*=======================================================================*/
+
+    public Character.SpriteType getSpriteType()
+    {
+        if (currentOp == null) return null;
+        return currentOp.getSpriteType();
+    }
 
     public Vec2[] getShapeCorners()
     {
@@ -759,6 +766,7 @@ public class Weapon extends Item
         boolean isPermeating();
 
         void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision);
+        Character.SpriteType getSpriteType();
         Operation copy();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, VOID }

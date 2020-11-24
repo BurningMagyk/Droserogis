@@ -7,6 +7,7 @@
 package Gameplay.Entities.Weapons;
 
 import Gameplay.Entities.Actor;
+import Gameplay.Entities.Characters.Character;
 import Gameplay.Entities.Characters.CharacterStat;
 import Gameplay.DirEnum;
 import Gameplay.Entities.Item;
@@ -164,9 +165,12 @@ public class RushOperation implements Weapon.Operation
     }
 
     @Override
+    public Character.SpriteType getSpriteType() { return spriteType; }
+
+    @Override
     public Weapon.Operation copy()
     {
-        RushOperation op = new RushOperation(name, next, cycle,
+        RushOperation op = new RushOperation(name, spriteType, next, cycle,
                 waits, funcDir, conditionApps[0], finishes);
         op.setStats(damageMod, null, null);
         return op;
@@ -180,6 +184,7 @@ public class RushOperation implements Weapon.Operation
     }
 
     private String name;
+    private Character.SpriteType spriteType;
     private MeleeOperation.MeleeEnum[][] next;
     private ConditionAppCycle cycle;
     private Vec2 waits;
@@ -197,6 +202,7 @@ public class RushOperation implements Weapon.Operation
 
     RushOperation(
             String name,
+            Character.SpriteType spriteType,
             MeleeOperation.MeleeEnum[][] next,
             ConditionAppCycle cycle,
             Vec2 waits,
