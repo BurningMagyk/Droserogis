@@ -211,30 +211,48 @@ public class Character
     public enum SpriteType
     {
         IDLE { int count() { return 1; } },
-        IDLE_BLOCKING { int count() {return 1;} },
-        PRONE { int count() {return 1;} },
-        PRONE_BLOCKING { int count() {return 1;} },
-        PRONE_ABRUPT { int count() {return 1;} },
-        CROUCH { int count() {return 1;} },
-        CRAWL { int count() {return 6;} },
-        WALK { int count() {return 10;} },
-        WALK_BLOCKING { int count() {return 10;} },
-        RUN { int count() {return 8;} },
-        CLIMB_WALL { int count() {return 4;} },
-        CLIMB_LEDGE { int count() {return 2;} },
-        JUMP { int count() {return 2;} },
-        PUNCH { int count() {return 6;} },
-        PUNCH_DIAG { int count() {return 6;} },
-        PUNCH_UP { int count() {return 6;} },
-        UPPERCUT { int count() {return 6;} },
-        STOMP { int count() {return 4;} },
-        STOMP_FALL { int count() {return 4;} },
-        KICK_ARC { int count() {return 6;} },
-        KICK_AERIAL { int count() {return 4;} },
-        KICK_PRONE { int count() {return 4;} },
-        SHOVE { int count() {return 8;} };
+        IDLE_BLOCKING { int count() { return 1; } },
+        PRONE { int count() { return 1; }
+            int horizFlush() { return -1; } },
+        PRONE_BLOCKING { int count() { return 1; }
+            int horizFlush() { return -1; } },
+        PRONE_ABRUPT { int count() { return 1; }
+            int horizFlush() { return -1; } },
+        CROUCH { int count() { return 1; } },
+        CRAWL { int count() { return 6; } },
+        WALK { int count() { return 10; } },
+        WALK_BLOCKING { int count() { return 10; } },
+        RUN { int count() { return 8; } },
+        CLIMB_WALL { int count() { return 4; }
+            int horizFlush() { return 1; } },
+        CLIMB_LEDGE { int count() { return 2; }
+            boolean vertExt(boolean up) { return !up; } },
+        JUMP { int count() { return 2; } },
+        PUNCH { int count() { return 6; } },
+        PUNCH_DIAG { int count() { return 6; }
+            boolean horizExt(boolean left) { return !left; }
+            boolean vertExt(boolean up) { return up; } },
+        PUNCH_UP { int count() { return 6; }
+            boolean vertExt(boolean up) { return up; } },
+        UPPERCUT { int count() { return 6; }
+            boolean vertExt(boolean up) { return up; } },
+        STOMP { int count() { return 4; } },
+        STOMP_FALL { int count() { return 4; } },
+        KICK_ARC { int count() { return 6; }
+            boolean horizExt(boolean left) { return true; } },
+        KICK_AERIAL { int count() { return 4; } },
+        KICK_PRONE { int count() { return 4; }
+            int horizFlush() { return -1; } },
+        SHOVE { int count() { return 8; } };
         int count() { return 0; }
+
+        boolean vertExt(boolean up) { return false; }
+        boolean horizExt(boolean left) { return false; }
+        // -1 if flush against the left, 1 if flush against the right
+        int horizFlush() { return 0; }
     }
+
+    public final static int SPRITE_RES = 32;
 
     private static String[] getSpriteArray(String name, SpriteType spriteType)
     {

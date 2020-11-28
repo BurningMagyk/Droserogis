@@ -1116,7 +1116,7 @@ public class Actor extends Item
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
                     || has(Condition.FORCE_CROUCH))
             {
-                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT / 2);
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
@@ -1170,7 +1170,7 @@ public class Actor extends Item
         {
             if (!has(Condition.FORCE_STAND) && dirVert == DOWN)
             {
-                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT/2);
+                setSize(ORIGINAL_WIDTH, ORIGINAL_HEIGHT / 2);
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
             }
             else
@@ -1864,7 +1864,8 @@ public class Actor extends Item
 
     private boolean flipSprite = false;
     @Override
-    public void render(GraphicsContext gfx, float camPosX, float camPosY, float camOffX, float camOffY, float camZoom)
+    public void render(GraphicsContext gfx, float camPosX, float camPosY,
+                       float camOffX, float camOffY, float camZoom)
     {
         /* Update sprite state */
         setSpriteType();
@@ -1886,10 +1887,10 @@ public class Actor extends Item
         flipSprite = dirFace == LEFT;
 
 
-        double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
-        double y = (this.getY() - this.getHeight() / 2 - camPosY + camOffY) * camZoom;
         double width = this.getWidth() * camZoom;
         double height = this.getHeight() * camZoom;
+        double x = (this.getX() - this.getWidth() / 2 - camPosX + camOffX) * camZoom;
+        double y = (this.getY() - this.getHeight() / 2 - camPosY + camOffY) * camZoom;
         ImageResource ir = this.getImage();
         if (ir != null)
         {
@@ -1908,12 +1909,18 @@ public class Actor extends Item
 //                    y - (ir.getHeight() / 4.2F),
 //                    ir.getWidth() * flipSign,
 //                    ir.getHeight());
+
+
+            float spriteSize = ORIGINAL_HEIGHT * camZoom;
+            x = x + (width / 2) - (spriteSize / 2);
+            y = y + height - spriteSize;
+
             gfx.drawImage(
                     ir.getImage(),
-                    x - (ir.getWidth() * 2F / 3F * flipSign) + (width * flipOffset),
-                    y - (ir.getHeight() * 2F / 3F),
-                    ir.getWidth() * flipSign,
-                    ir.getHeight());
+                    x + (spriteSize * flipOffset),
+                    y,
+                    spriteSize * flipSign,
+                    spriteSize);
         }
         else
         {
