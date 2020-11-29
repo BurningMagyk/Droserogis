@@ -64,6 +64,9 @@ public class Actor extends Item
     }
     private PrevGround prevGround = new PrevGround();
 
+    /* The only purpose for these is for ledge-climbing */
+    public Block ledgeBlock = null;
+
     /* The only purpose of these is for camera orientation */
     private boolean fromWall = false;
     private float fromGround = getY();
@@ -464,14 +467,14 @@ public class Actor extends Item
 
                 if (_dirHoriz != -1)
                 {
-                    Block ledgeBlock = touchEntity[_dirHoriz].getTouchBlock(UP);
+                    ledgeBlock = touchEntity[_dirHoriz].getTouchBlock(UP);
 
                     if (getPosition().y - (getHeight() / 2)
                             < ledgeBlock.getPosition().y - (ledgeBlock.getHeight() / 2)
                             && Math.abs(velY) < walkSpeed
                             && velY >= 0)
                     {
-                        addCondition(climbLedgeTime, Condition.NEGATE_STABILITY, Condition.CLIMB_LEDGE);
+                        addCondition(climbLedgeTime, Condition.NEGATE_STABILITY);
                         float xPos = ledgeBlock.getPosition().x
                                 + ((ledgeBlock.getWidth() / 2) * (_dirHoriz == LEFT ? 1 : -1));
                         float yPos = ledgeBlock.getPosition().y
@@ -819,11 +822,9 @@ public class Actor extends Item
 
     public void pressLeft(boolean pressed)
     {
+        int dirPrev = dirFace;
         if (pressed)
         {
-            /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirFace = LEFT;
-            /* It changes your primary direction regardless */
             dirHoriz = LEFT;
             dirFace = LEFT;
         }
@@ -843,15 +844,16 @@ public class Actor extends Item
                 else dirFace = LEFT;
             }
         }
+        /* dirFace doesn't change if on a wall */
+        if (state.isOnWall()) dirFace = dirPrev;
+
         pressingLeft = pressed;
     }
     public void pressRight(boolean pressed)
     {
+        int dirPrev = dirFace;
         if (pressed)
         {
-            /* If you're on a wall, it changes your secondary direction */
-            if (state.isOnWall()) dirFace = RIGHT;
-            /* It changes your primary direction regardless */
             dirHoriz = RIGHT;
             dirFace = RIGHT;
         }
@@ -871,6 +873,9 @@ public class Actor extends Item
                 else dirFace = RIGHT;
             }
         }
+        /* dirFace doesn't change if on a wall */
+        if (state.isOnWall()) dirFace = dirPrev;
+
         pressingRight = pressed;
     }
     public void pressUp(boolean pressed)
@@ -1106,11 +1111,27 @@ public class Actor extends Item
         }
         else if (touchEntity[DOWN] != null)
         {
-            if (has(Condition.NEGATE_STABILITY) || has(Condition.NEGATE_ACTIVITY)) // prone
+            if (!has(Condition.NEGATE_STABILITY))
+            {
+                /* Check if climbing ledge */
+                if (touchEntity[DOWN] != ledgeBlock) ledgeBlock = null;
+            }
+
+            if (has(Condition.NEGATE_STABILITY))
             {
                 /* Width and height are switched */
                 setSize(ORIGINAL_HEIGHT, ORIGINAL_WIDTH);
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
+
+                return State.SLIDE;
+
+            }
+            else if (has(Condition.NEGATE_ACTIVITY)) // prone
+            {
+                /* Width and height are switched */
+                setSize(ORIGINAL_HEIGHT, ORIGINAL_WIDTH);
+                setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
+
                 return State.SLIDE;
             }
             else if ((dirVert == DOWN && !has(Condition.FORCE_STAND)) // crouch
@@ -1437,7 +1458,6 @@ public class Actor extends Item
     //================================================================================================================
     public enum Condition
     {
-        CLIMB_LEDGE, // only used for spriteType
         NEGATE_ATTACK, NEGATE_BLOCK,
         NEGATE_JUMP,
         NEGATE_SPRINT_LEFT, NEGATE_SPRINT_RIGHT,
@@ -1787,9 +1807,20 @@ public class Actor extends Item
                 && Math.abs(getVelocity().mag()) <= walkSpeed && dirHoriz != -1;
     }
 
+    private void incrementSpriteFrameIndex()
+    {
+        spriteFrameIndex++;
+        if (spriteType.count() <= spriteFrameIndex)
+            spriteFrameIndex = 0;
+    }
+
     private Character.SpriteType spriteType = Character.SpriteType.IDLE;
+    private int spriteFrameIndex = 0;
     private void setSpriteType()
     {
+        Character.SpriteType spriteTypePrev
+                = Character.SpriteType.values()[spriteType.ordinal()];
+
         Character.SpriteType opSpriteType;
         for (int i = 0; i < WeaponSlot.values().length; i++)
         {
@@ -1813,7 +1844,16 @@ public class Actor extends Item
                 else spriteType = Character.SpriteType.IDLE;
                 break;
             case SLIDE:
-                if (isBlockingUp())
+                if (ledgeBlock != null)
+                {
+                    spriteType = Character.SpriteType.CLIMB_LEDGE;
+                    if (conditions[Condition.NEGATE_STABILITY.ordinal()] < climbLedgeTime / 2)
+                        spriteFrameIndex = 0;
+                    else spriteFrameIndex = 1;
+                }
+                else if (Math.abs(getVelocity().mag()) <= walkSpeed && dirHoriz == -1)
+                    spriteType = Character.SpriteType.PRONE_ABRUPT;
+                else if (isBlockingUp())
                     spriteType = Character.SpriteType.PRONE_BLOCKING;
                 else spriteType = Character.SpriteType.PRONE;
                 break;
@@ -1828,12 +1868,7 @@ public class Actor extends Item
                     else spriteType = Character.SpriteType.PRONE;
                 }
                 // Crouched
-                else
-                {
-                    if (has(Condition.CLIMB_LEDGE))
-                        spriteType = Character.SpriteType.CLIMB_LEDGE;
-                    else spriteType = Character.SpriteType.CROUCH;
-                }
+                else spriteType = Character.SpriteType.CROUCH;
                 break;
             case CRAWL:
             case LOWER_SPRINT:
@@ -1841,7 +1876,13 @@ public class Actor extends Item
                 break;
             case RUN:
             case SPRINT:
-                spriteType = Character.SpriteType.RUN;
+                if (moveType == MoveType.WALK)
+                {
+                    if (isBlockingUp())
+                        spriteType = Character.SpriteType.WALK_BLOCKING;
+                    else spriteType = Character.SpriteType.WALK;
+                }
+                else spriteType = Character.SpriteType.RUN;
                 break;
             case WALL_CLIMB:
                 spriteType = Character.SpriteType.CLIMB_WALL;
@@ -1859,7 +1900,6 @@ public class Actor extends Item
                 spriteType = Character.SpriteType.IDLE;
                 break;
         }
-        Print.blue(spriteType);
     }
 
     private boolean flipSprite = false;
@@ -1869,21 +1909,8 @@ public class Actor extends Item
     {
         /* Update sprite state */
         setSpriteType();
-        setSpriteState(spriteType.ordinal(), 0);
+        setSpriteState(spriteType.ordinal(), spriteFrameIndex);
 
-//        if (state == State.RISE) setSpriteState(3,
-//                (int) (heightPerc * 7), 0);
-//        else if (state == State.FALL) setSpriteState(3,
-//                (int) (heightPerc * 7) + 7, 0);
-//        else if (state == State.RUN)
-//        {
-//            if (moveType == MoveType.WALK)
-//                setSpriteState(1, -1, 0.5F);
-//            else setSpriteState(2, -1, 0.5F);
-//        }
-//        else if (state == State.SPRINT)
-//            setSpriteState(2, -1, 1);
-//        else setSpriteState(0, -1, 1);
         flipSprite = dirFace == LEFT;
 
 
@@ -1903,24 +1930,23 @@ public class Actor extends Item
 
             int flipSign = flipSprite ? -1 : 1;
             int flipOffset = flipSprite ? 1 : 0;
-//            gfx.drawImage(
-//                    ir.getImage(),
-//                    x - (ir.getWidth() / 2.7F * flipSign) + (width * flipOffset),
-//                    y - (ir.getHeight() / 4.2F),
-//                    ir.getWidth() * flipSign,
-//                    ir.getHeight());
-
 
             float spriteSize = ORIGINAL_HEIGHT * camZoom;
-            x = x + (width / 2) - (spriteSize / 2);
+            if (spriteType.horizFlush())
+                x = x + width - spriteSize;
+            else x = x + (width / 2) - (spriteSize / 2);
             y = y + height - spriteSize;
+
+            float spriteHeight = spriteSize;
+            if (spriteType.vertExt(true) || spriteType.vertExt(false))
+                spriteHeight *= 2;
 
             gfx.drawImage(
                     ir.getImage(),
                     x + (spriteSize * flipOffset),
                     y,
                     spriteSize * flipSign,
-                    spriteSize);
+                    spriteHeight);
         }
         else
         {

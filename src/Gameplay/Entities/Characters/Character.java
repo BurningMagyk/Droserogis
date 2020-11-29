@@ -142,10 +142,10 @@ public class Character
             new Vec2(20, 40).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, null);
 
     private static Character character_Jacob = new Character("Jacob",
-            new CharacterStat("F", "F", "F", "F", "F", "F",
-                    "F", "F", "F", "F", "F"),
+            new CharacterStat("D", "D", "D", "D", "D", "D",
+                    "D", "D", "D", "D", "D"),
             CharacterClass.class_Fighter,
-            new Vec2(15, 45).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getSpritePaths("Jacob"));
+            new Vec2(10, 30).mul(SPRITE_TO_WORLD_SCALE), GradeEnum.D, getSpritePaths("Jacob"));
 
     private static Character character_Tetsuya = new Character("Tetsuya",
             new CharacterStat("F", "F", "F", "F", "F", "F",
@@ -210,46 +210,46 @@ public class Character
 
     public enum SpriteType
     {
-        IDLE { int count() { return 1; } },
-        IDLE_BLOCKING { int count() { return 1; } },
-        PRONE { int count() { return 1; }
-            int horizFlush() { return -1; } },
-        PRONE_BLOCKING { int count() { return 1; }
-            int horizFlush() { return -1; } },
-        PRONE_ABRUPT { int count() { return 1; }
-            int horizFlush() { return -1; } },
-        CROUCH { int count() { return 1; } },
-        CRAWL { int count() { return 6; } },
-        WALK { int count() { return 10; } },
-        WALK_BLOCKING { int count() { return 10; } },
-        RUN { int count() { return 8; } },
-        CLIMB_WALL { int count() { return 4; }
-            int horizFlush() { return 1; } },
-        CLIMB_LEDGE { int count() { return 2; }
-            boolean vertExt(boolean up) { return !up; } },
-        JUMP { int count() { return 2; } },
-        PUNCH { int count() { return 6; } },
-        PUNCH_DIAG { int count() { return 6; }
-            boolean horizExt(boolean left) { return !left; }
-            boolean vertExt(boolean up) { return up; } },
-        PUNCH_UP { int count() { return 6; }
-            boolean vertExt(boolean up) { return up; } },
-        UPPERCUT { int count() { return 6; }
-            boolean vertExt(boolean up) { return up; } },
-        STOMP { int count() { return 4; } },
-        STOMP_FALL { int count() { return 4; } },
-        KICK_ARC { int count() { return 6; }
-            boolean horizExt(boolean left) { return true; } },
-        KICK_AERIAL { int count() { return 4; } },
-        KICK_PRONE { int count() { return 4; }
-            int horizFlush() { return -1; } },
-        SHOVE { int count() { return 8; } };
-        int count() { return 0; }
+        IDLE { public int count() { return 1; } },
+        IDLE_BLOCKING { public int count() { return 1; } },
+        PRONE { public int count() { return 1; }
+            public boolean horizFlush() { return true; } },
+        PRONE_BLOCKING { public int count() { return 1; }
+            public boolean horizFlush() { return true; } },
+        PRONE_ABRUPT { public int count() { return 1; }
+            public boolean horizFlush() { return true; } },
+        CROUCH { public int count() { return 1; } },
+        CRAWL { public int count() { return 6; } },
+        WALK { public int count() { return 10; } },
+        WALK_BLOCKING { public int count() { return 10; } },
+        RUN { public int count() { return 8; } },
+        CLIMB_WALL { public int count() { return 4; }
+            public boolean horizFlush() { return true; } },
+        CLIMB_LEDGE { public int count() { return 2; }
+            public boolean vertExt(boolean up) { return !up; } },
+        JUMP { public int count() { return 2; } },
+        PUNCH { public int count() { return 6; } },
+        PUNCH_DIAG { public int count() { return 6; }
+            public boolean horizExt(boolean left) { return !left; }
+            public boolean vertExt(boolean up) { return up; } },
+        PUNCH_UP { public int count() { return 6; }
+            public boolean vertExt(boolean up) { return up; } },
+        UPPERCUT { public int count() { return 6; }
+            public boolean vertExt(boolean up) { return up; } },
+        STOMP { public int count() { return 4; } },
+        STOMP_FALL { public int count() { return 4; } },
+        KICK_ARC { public int count() { return 6; }
+            public boolean horizExt(boolean left) { return true; } },
+        KICK_AERIAL { public int count() { return 4; } },
+        KICK_PRONE { public int count() { return 4; }
+            public boolean horizFlush() { return true; } },
+        SHOVE { public int count() { return 8; } };
+        public int count() { return 0; }
 
-        boolean vertExt(boolean up) { return false; }
-        boolean horizExt(boolean left) { return false; }
-        // -1 if flush against the left, 1 if flush against the right
-        int horizFlush() { return 0; }
+        public boolean vertExt(boolean up) { return false; }
+        public boolean horizExt(boolean left) { return false; }
+        // flush against the right
+        public boolean horizFlush() { return false; }
     }
 
     public final static int SPRITE_RES = 32;
