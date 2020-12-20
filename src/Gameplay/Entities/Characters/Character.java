@@ -219,7 +219,7 @@ public class Character
         PRONE_ABRUPT { public int count() { return 1; }
             public boolean horizFlush() { return true; } },
         CROUCH { public int count() { return 1; } },
-        CRAWL { public int count() { return 6; } },
+        CRAWL { public int count() { return 4; } },
         WALK { public int count() { return 10; } },
         WALK_BLOCKING { public int count() { return 10; } },
         RUN { public int count() { return 8; } },

@@ -1219,10 +1219,15 @@ public class Actor extends Item
     boolean setState(State state)
     {
         if (this.state == state) return false;
-        else if (state == State.RISE) gravity = REDUCED_GRAVITY;
-        else if (state == State.FALL) gravity = NORMAL_GRAVITY;
-        else if (state == State.WALL_CLIMB && getVelocityY() < 0)
-            gravity = REDUCED_GRAVITY;
+        else
+        {
+            spriteFrameIndex = 0;
+
+            if (state == State.RISE) gravity = REDUCED_GRAVITY;
+            else if (state == State.FALL) gravity = NORMAL_GRAVITY;
+            else if (state == State.WALL_CLIMB && getVelocityY() < 0)
+                gravity = REDUCED_GRAVITY;
+        }
 
         if (this.state == State.RISE && state == State.WALL_CLIMB)
         {
@@ -1813,9 +1818,18 @@ public class Actor extends Item
         if (spriteType.count() <= spriteFrameIndex)
             spriteFrameIndex = 0;
     }
+    private void incrementSpriteFrameIndex(int step)
+    {
+        spriteFrameIndexStep++;
+        if (step <= spriteFrameIndexStep)
+        {
+            spriteFrameIndexStep = 0;
+            incrementSpriteFrameIndex();
+        }
+    }
 
     private Character.SpriteType spriteType = Character.SpriteType.IDLE;
-    private int spriteFrameIndex = 0;
+    private int spriteFrameIndex = 0, spriteFrameIndexStep = 0;
     private void setSpriteType()
     {
         Character.SpriteType spriteTypePrev
@@ -1873,6 +1887,7 @@ public class Actor extends Item
             case CRAWL:
             case LOWER_SPRINT:
                 spriteType = Character.SpriteType.CRAWL;
+                incrementSpriteFrameIndex(state == State.LOWER_SPRINT ? 15 : 20);
                 break;
             case RUN:
             case SPRINT:
@@ -1883,18 +1898,22 @@ public class Actor extends Item
                     else spriteType = Character.SpriteType.WALK;
                 }
                 else spriteType = Character.SpriteType.RUN;
+                incrementSpriteFrameIndex(10);
                 break;
             case WALL_CLIMB:
                 spriteType = Character.SpriteType.CLIMB_WALL;
+                incrementSpriteFrameIndex(10);
                 break;
             case WALL_STICK:
                 spriteType = Character.SpriteType.CLIMB_WALL;
                 break;
             case RISE:
                 spriteType = Character.SpriteType.JUMP;
+                spriteFrameIndex = 0;
                 break;
             case FALL:
                 spriteType = Character.SpriteType.JUMP;
+                spriteFrameIndex = 1;
                 break;
             case SWIM:
                 spriteType = Character.SpriteType.IDLE;
@@ -1933,7 +1952,9 @@ public class Actor extends Item
 
             float spriteSize = ORIGINAL_HEIGHT * camZoom;
             if (spriteType.horizFlush())
-                x = x + width - spriteSize;
+            {
+                if (!flipSprite) x += width - spriteSize;
+            }
             else x = x + (width / 2) - (spriteSize / 2);
             y = y + height - spriteSize;
 
