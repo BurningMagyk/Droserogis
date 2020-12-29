@@ -915,7 +915,13 @@ public class Actor extends Item
         pressingJump = pressed;
     }
 
-    public void debug() { Print.yellow(getVelocityY()); }
+    public void debug()
+    {
+        Print.yellow("");
+        Print.yellow("NEGATE_STABILITY :" + conditions[Condition.NEGATE_ACTIVITY.ordinal()]);
+        Print.yellow("NEGATE_ACTIVITY :" + conditions[Condition.NEGATE_STABILITY.ordinal()]);
+        Print.yellow("FORCE_CROUCH :" + conditions[Condition.FORCE_CROUCH.ordinal()]);
+    }
 
     public final static int ATTACK_KEY_1 = 1, ATTACK_KEY_2 = 2, ATTACK_KEY_3 = 3,
             ATTACK_KEY_MOD = ATTACK_KEY_3;
@@ -1141,7 +1147,8 @@ public class Actor extends Item
                 setPositionY(getPosition().y + ((oldHeight - getHeight()) / 2));
                 if (Math.abs(getVelocityX()) > maxLowerGroundSpeed)
                     return State.SLIDE;
-                if (dirHoriz != -1)
+                if ((dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT))
+                        || (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT)))
                 {
                     if (Math.abs(getVelocityX()) > crawlSpeed
                             && moveType == MoveType.SPRINT) return State.LOWER_SPRINT;
@@ -1172,7 +1179,8 @@ public class Actor extends Item
                 else return State.STAND;
             }
 
-            if (dirHoriz != -1)
+            if (dirHoriz == LEFT && !has(Condition.NEGATE_WALK_LEFT)
+                    || (dirHoriz == RIGHT && !has(Condition.NEGATE_WALK_RIGHT)))
             {
                 if (Math.abs(getVelocityX()) > runSpeed
                         && moveType == MoveType.SPRINT) return State.SPRINT;

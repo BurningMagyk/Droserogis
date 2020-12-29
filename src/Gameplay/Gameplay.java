@@ -244,6 +244,7 @@ public class Gameplay implements Reactor
             else if (code == KeyCode.ENTER)
             {
                 entityList.getPlayer(1).pressSprintKey(pressed);
+                //entityList.getPlayer(1).debug();
             }
             else if (code == KeyCode.NUMPAD0)
             {
