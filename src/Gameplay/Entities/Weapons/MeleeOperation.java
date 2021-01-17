@@ -95,6 +95,7 @@ class MeleeOperation implements Weapon.Operation
 
         warmJourney = new Journey(startOrient, execJourney[0].getOrient(), waits.x);
         for (Tick tick : execJourney) { tick.reset(); }
+        journeyPerc = 0;
 
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
         GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
@@ -123,7 +124,9 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new Infliction(
                 cycle, selfApps, State.WARMUP.ordinal(), Infliction.InflictionType.METAL);
 
-        if (warmJourney.check(totalSec, face) && attackKey == -1)
+        journeyPerc = warmJourney.getPerc(totalSec);
+
+        if (warmJourney.check(journeyPerc, face) && attackKey == -1)
         {
             totalSec = 0;
             state = State.EXECUTION;
@@ -138,6 +141,8 @@ class MeleeOperation implements Weapon.Operation
         int inflictionState = State.EXECUTION.ordinal() * (totalSec == 0 ? -1: 1);
         selfInfliction = new Infliction(
                 cycle, selfApps, inflictionState, Infliction.InflictionType.METAL);
+
+        journeyPerc = totalSec / execJourney[execJourney.length - 1].sec;
 
         for (Tick tick : execJourney)
         {
@@ -160,7 +165,9 @@ class MeleeOperation implements Weapon.Operation
         selfInfliction = new Infliction(
                 cycle, selfApps, State.COOLDOWN.ordinal(), Infliction.InflictionType.METAL);
 
-        if (!coolJourney.check(totalSec, face))
+        journeyPerc = warmJourney.getPerc(totalSec);
+
+        if (!coolJourney.check(journeyPerc, face))
         {
             orient = coolJourney.getOrient();
             return false;
@@ -238,6 +245,16 @@ class MeleeOperation implements Weapon.Operation
     @Override
     public Character.SpriteType getSpriteType() { return spriteType; }
 
+    private float journeyPerc;
+    @Override
+    public float getSpritePerc()
+    {
+        if (state == State.WARMUP) return Math.min(journeyPerc, 0.999F);
+        if (state == State.EXECUTION) return Math.min(journeyPerc + 1, 1.999F);
+        if (state == State.COOLDOWN) return Math.min(journeyPerc + 2, 2.999F);
+        return -1; // state == State.VOID
+    }
+
     @Override
     public Weapon.Operation copy()
     {
@@ -303,6 +320,7 @@ class MeleeOperation implements Weapon.Operation
     )
     {
         this.name = name;
+        this.spriteType = spriteType;
         this.next = next;
         this.proceeds = proceeds;
         this.cycle = cycle;

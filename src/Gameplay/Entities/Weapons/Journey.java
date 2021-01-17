@@ -39,19 +39,19 @@ public class Journey
 
     Orient getOrient() { return result.copy(); }
 
-    boolean check(float time, DirEnum dir)
+    boolean check(float perc, DirEnum dir)
     {
-        float ratio = time / totalTime;
-        if (ratio >= 1.0)
+        if (perc >= 1.0)
         {
             result.set(end);
             return true;
         }
-        result.setX(start.getX() + (distance.getX() * ratio));
-        result.setY(start.getY() + (distance.getY() * ratio));
-        result.setTheta(start.getTheta() + (distance.getTheta() * ratio));
+        result.setX(start.getX() + (distance.getX() * perc));
+        result.setY(start.getY() + (distance.getY() * perc));
+        result.setTheta(start.getTheta() + (distance.getTheta() * perc));
         return false;
     }
 
     float getTotalTime() { return totalTime; }
+    float getPerc(float time) { return time / totalTime; }
 }

@@ -90,6 +90,8 @@ public class RushOperation implements Weapon.Operation
         face = command.FACE;
         attackKey = command.ATTACK_KEY;
 
+        journeyPerc = 0;
+
         GradeEnum strGrade = characterStat.getGrade(CharacterStat.Ability.STRENGTH);
         GradeEnum agiGrade = characterStat.getGrade(CharacterStat.Ability.AGILITY);
         GradeEnum dexGrade = characterStat.getGrade(CharacterStat.Ability.DEXTERITY);
@@ -113,6 +115,7 @@ public class RushOperation implements Weapon.Operation
         if (state == State.WARMUP)
         {
             totalSec += deltaSec * waitSpeed;
+            journeyPerc = totalSec / waits.x;
             if (totalSec >= waits.x)
             {
                 state = State.EXECUTION;
@@ -121,6 +124,9 @@ public class RushOperation implements Weapon.Operation
         }
         if (state == State.EXECUTION)
         {
+            journeyPerc += deltaSec;
+            while (journeyPerc >= 1) { journeyPerc--; }
+
             if (attackKey == -1) state = State.COOLDOWN;
         }
 
@@ -130,6 +136,7 @@ public class RushOperation implements Weapon.Operation
         if (state == State.COOLDOWN)
         {
             totalSec += deltaSec * waitSpeed;
+            journeyPerc = totalSec / waits.y;
             if (totalSec >= waits.y)
             {
                 state = State.VOID;
@@ -166,6 +173,16 @@ public class RushOperation implements Weapon.Operation
 
     @Override
     public Character.SpriteType getSpriteType() { return spriteType; }
+
+    private float journeyPerc;
+    @Override
+    public float getSpritePerc()
+    {
+        if (state == State.WARMUP) return Math.min(journeyPerc, 0.999F);
+        if (state == State.EXECUTION) return Math.min(journeyPerc + 1, 1.999F);
+        if (state == State.COOLDOWN) return Math.min(journeyPerc + 2, 2.999F);
+        return -1; // state == State.VOID
+    }
 
     @Override
     public Weapon.Operation copy()

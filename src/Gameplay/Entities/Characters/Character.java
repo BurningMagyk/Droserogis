@@ -228,23 +228,39 @@ public class Character
         CLIMB_LEDGE { public int count() { return 2; }
             public boolean vertExt(boolean up) { return !up; } },
         JUMP { public int count() { return 2; } },
-        PUNCH { public int count() { return 6; } },
+        PUNCH { public int count() { return 6; }
+            public int warm() { return 1; }
+            public int cool() { return 3; } },
         PUNCH_DIAG { public int count() { return 6; }
+            public int warm() { return 1; }
+            public int cool() { return 3; }
             public boolean horizExt(boolean left) { return !left; }
             public boolean vertExt(boolean up) { return up; } },
         PUNCH_UP { public int count() { return 6; }
+            public int warm() { return 1; }
+            public int cool() { return 3; }
             public boolean vertExt(boolean up) { return up; } },
         UPPERCUT { public int count() { return 6; }
+            public int warm() { return 1; }
+            public int cool() { return 3; }
             public boolean vertExt(boolean up) { return up; } },
-        STOMP { public int count() { return 4; } },
+        STOMP { public int count() { return 4; }
+            public int warm() { return 1; }
+            public int cool() { return 1; } },
         STOMP_FALL { public int count() { return 4; } },
         KICK_ARC { public int count() { return 6; }
+            public int warm() { return 1; }
+            public int cool() { return 3; }
             public boolean horizExt(boolean left) { return true; } },
         KICK_AERIAL { public int count() { return 4; } },
         KICK_PRONE { public int count() { return 4; }
+            public int warm() { return 1; }
+            public int cool() { return 1; }
             public boolean horizFlush() { return true; } },
         SHOVE { public int count() { return 8; } };
         public int count() { return 0; }
+        public int warm() { return 0; }
+        public int cool() { return 0; }
 
         public boolean vertExt(boolean up) { return false; }
         public boolean horizExt(boolean left) { return false; }

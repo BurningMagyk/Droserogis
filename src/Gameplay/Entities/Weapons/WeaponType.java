@@ -387,6 +387,7 @@ public class WeaponType
         public boolean isPermeating() { return false; }
         public void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision) {}
         public Character.SpriteType getSpriteType() { return null; }
+        public float getSpritePerc() { return 0; }
         public Weapon.Operation copy() { return new InteractOperation(); }
     }
 

@@ -1852,7 +1852,29 @@ public class Actor extends Item
                 if (opSpriteType != null)
                 {
                     spriteType = opSpriteType;
-                    // TODO: set frameIndex
+
+                    float spritePerc = weapons[i].getSpritePerc();
+                    if (spritePerc == -1) continue;
+                    else if (spritePerc <= 1) spriteFrameIndex
+                            = (int) (spritePerc * spriteType.warm());
+                    // Stays on 2.0 for several frames so save them for cooldown
+                    else if (spritePerc < 2) spriteFrameIndex
+                            = (int) (((spritePerc - 1)
+                            * (spriteType.count() - spriteType.warm() - spriteType.cool()))
+                            + spriteType.warm());
+                    else spriteFrameIndex
+                            = (int) ((spritePerc - 2) * spriteType.cool())
+                            + (spriteType.count() - spriteType.cool());
+
+                    if (spriteFrameIndex > spriteType.count())
+                        Print.red("Error: spriteFrameIndex out of bounds.");
+                    // If spriteType.cool() == 0, this condition is needed
+                    else if (spriteFrameIndex == spriteType.count())
+                        spriteFrameIndex = spriteType.count() - 1;
+
+//                    if (spritePerc < 2) Print.blue(spritePerc - 1);
+//                    else Print.yellow(spritePerc + ", " + spriteFrameIndex);
+
                     return;
                 }
             }
@@ -1927,6 +1949,8 @@ public class Actor extends Item
                 spriteType = Character.SpriteType.IDLE;
                 break;
         }
+
+        if (spriteFrameIndex >= spriteType.count()) spriteFrameIndex = 0;
     }
 
     private boolean flipSprite = false;

@@ -220,6 +220,11 @@ public class Weapon extends Item
         if (currentOp == null) return null;
         return currentOp.getSpriteType();
     }
+    public float getSpritePerc()
+    {
+        if (currentOp == null) return -1;
+        return currentOp.getSpritePerc();
+    }
 
     public Vec2[] getShapeCorners()
     {
@@ -767,6 +772,7 @@ public class Weapon extends Item
 
         void setStats(GradeEnum damage, GradeEnum knockback, GradeEnum precision);
         Character.SpriteType getSpriteType();
+        float getSpritePerc();
         Operation copy();
 
         enum State { WARMUP, EXECUTION, COOLDOWN, VOID }
