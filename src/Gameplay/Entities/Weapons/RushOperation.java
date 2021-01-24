@@ -147,8 +147,6 @@ public class RushOperation implements Weapon.Operation
             return false;
         }
         return false;
-
-
     }
 
     @Override
@@ -229,6 +227,7 @@ public class RushOperation implements Weapon.Operation
     )
     {
         this.name = name;
+        this.spriteType = spriteType;
         this.next = next;
         this.cycle = cycle;
         this.waits = waits.copy();

@@ -217,6 +217,7 @@ public class Weapon extends Item
 
     public Character.SpriteType getSpriteType()
     {
+
         if (currentOp == null) return null;
         return currentOp.getSpriteType();
     }
