@@ -6,6 +6,7 @@
 
 package Gameplay.Entities.Characters;
 
+import Gameplay.DirEnum;
 import Gameplay.Entities.Actor;
 import Util.GradeEnum;
 import Util.Print;
@@ -212,60 +213,60 @@ public class Character
     {
         IDLE { public int count() { return 1; } },
         IDLE_BLOCKING { public int count() { return 1; } },
-        PRONE { public int count() { return 1; }
-            public boolean horizFlush() { return true; } },
-        PRONE_BLOCKING { public int count() { return 1; }
-            public boolean horizFlush() { return true; } },
-        PRONE_ABRUPT { public int count() { return 1; }
-            public boolean horizFlush() { return true; } },
+        PRONE { public int count() { return 1; } },
+        PRONE_BLOCKING { public int count() { return 1; } },
+        PRONE_ABRUPT { public int count() { return 1; } },
         CROUCH { public int count() { return 1; } },
         CRAWL { public int count() { return 4; } },
         WALK { public int count() { return 10; } },
         WALK_BLOCKING { public int count() { return 10; } },
         RUN { public int count() { return 8; } },
         CLIMB_WALL { public int count() { return 4; }
-            public boolean horizFlush() { return true; } },
+            public DirEnum flush() { return DirEnum.RIGHT; } },
         CLIMB_LEDGE { public int count() { return 2; }
-            public boolean vertExt(boolean up) { return !up; } },
-        JUMP { public int count() { return 2; } },
+            public DirEnum flush() { return DirEnum.RIGHT; }
+            public DirEnum[] ext() { return new DirEnum[]
+                    { DirEnum.UP, DirEnum.DOWN }; } },
+        JUMP { public int count() { return 2; }
+            public DirEnum flush() { return DirEnum.NONE; } },
         PUNCH { public int count() { return 6; }
             public int warm() { return 1; }
             public int cool() { return 3; } },
         PUNCH_DIAG { public int count() { return 6; }
+            public DirEnum[] ext() { return new DirEnum[]
+                    { DirEnum.UP, DirEnum.LEFT, DirEnum.RIGHT }; }
             public int warm() { return 1; }
-            public int cool() { return 3; }
-            public boolean horizExt(boolean left) { return !left; }
-            public boolean vertExt(boolean up) { return up; } },
+            public int cool() { return 3; } },
         PUNCH_UP { public int count() { return 6; }
+            public DirEnum[] ext() { return new DirEnum[]
+                    { DirEnum.UP }; }
             public int warm() { return 1; }
-            public int cool() { return 3; }
-            public boolean vertExt(boolean up) { return up; } },
+            public int cool() { return 3; } },
         UPPERCUT { public int count() { return 6; }
+            public DirEnum[] ext() { return new DirEnum[]
+                    { DirEnum.UP }; }
             public int warm() { return 1; }
-            public int cool() { return 3; }
-            public boolean vertExt(boolean up) { return up; } },
+            public int cool() { return 3; } },
         STOMP { public int count() { return 4; }
             public int warm() { return 1; }
             public int cool() { return 1; } },
         STOMP_FALL { public int count() { return 4; } },
         KICK_ARC { public int count() { return 6; }
+            public DirEnum[] ext() { return new DirEnum[]
+                    { DirEnum.LEFT, DirEnum.RIGHT }; }
             public int warm() { return 1; }
-            public int cool() { return 3; }
-            public boolean horizExt(boolean left) { return true; } },
-        KICK_AERIAL { public int count() { return 4; } },
+            public int cool() { return 3; } },
+        KICK_AERIAL { public int count() { return 4; }
+            public DirEnum flush() { return DirEnum.NONE; } },
         KICK_PRONE { public int count() { return 4; }
             public int warm() { return 1; }
-            public int cool() { return 1; }
-            public boolean horizFlush() { return true; } },
+            public int cool() { return 1; } },
         SHOVE { public int count() { return 8; } };
         public int count() { return 0; }
         public int warm() { return 0; }
         public int cool() { return 0; }
-
-        public boolean vertExt(boolean up) { return false; }
-        public boolean horizExt(boolean left) { return false; }
-        // flush against the right
-        public boolean horizFlush() { return false; }
+        public DirEnum flush() { return DirEnum.DOWN; }
+        public DirEnum[] ext() { return new DirEnum[]{}; }
     }
 
     public final static int SPRITE_RES = 32;

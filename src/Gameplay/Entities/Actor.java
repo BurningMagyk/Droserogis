@@ -1983,22 +1983,48 @@ public class Actor extends Item
             int flipOffset = flipSprite ? 1 : 0;
 
             float spriteSize = ORIGINAL_HEIGHT * camZoom;
-            if (spriteType.horizFlush())
-            {
-                if (!flipSprite) x += width - spriteSize;
-            }
-            else x = x + (width / 2) - (spriteSize / 2);
-            y = y + height - spriteSize;
-
+            float spriteWidth = spriteSize;
             float spriteHeight = spriteSize;
-            if (spriteType.vertExt(true) || spriteType.vertExt(false))
-                spriteHeight *= 2;
+
+            boolean stretchedHoriz = false;
+            for (DirEnum ext : spriteType.ext())
+            {
+                if (!stretchedHoriz && ext.getHoriz() != DirEnum.NONE)
+                {
+                    spriteWidth *= 2;
+                    stretchedHoriz = true;
+                }
+            }
+
+            if (spriteType.flush() == DirEnum.LEFT)
+            {
+                if (flipSprite) x += width - spriteWidth;
+            }
+            else if (spriteType.flush() == DirEnum.RIGHT)
+            {
+                if (!flipSprite) x += width - spriteWidth;
+            }
+            else x += (width / 2) - (spriteWidth / 2);
+
+            boolean stretchedVert = false;
+            for (DirEnum ext : spriteType.ext())
+            {
+                if (ext == DirEnum.UP) y -= spriteSize;
+                if (ext == DirEnum.DOWN) y += spriteSize;
+                if (!stretchedVert && ext.getVert() != DirEnum.NONE)
+                {
+                    spriteHeight *= 2;
+                    stretchedVert = true;
+                }
+            }
+
+            y += height - spriteSize;
 
             gfx.drawImage(
                     ir.getImage(),
-                    x + (spriteSize * flipOffset),
+                    x + (spriteWidth * flipOffset),
                     y,
-                    spriteSize * flipSign,
+                    spriteWidth * flipSign,
                     spriteHeight);
         }
         else
