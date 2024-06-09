@@ -13,6 +13,8 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 
+import static Menus.Main.IMPORTER;
+
 //TODO, make extend thread and use as thread
 public class RenderThread
 {
@@ -21,13 +23,13 @@ public class RenderThread
     private final int BACKGROUND_LAYER_COUNT = 4;
     private Image[] backgroundLayer = new Image[BACKGROUND_LAYER_COUNT];
     private int[] backgroundLayerOffsetY = new int[BACKGROUND_LAYER_COUNT];
-    private Image textureShadow = new Image("/Image/shadowTexture.png");
+    private Image textureShadow = IMPORTER.getImage("shadowTexture.png").getImage();
 
     private ImagePattern texturePatternBlock;
     private ImagePattern texturePatternShadow;
 
-    private Image textureWater0 = new Image("/Image/water0.png");
-    private Image textureWater1 = new Image("/Image/water1.png");
+    private Image textureWater0 = IMPORTER.getImage("water0.png").getImage();
+    private Image textureWater1 = IMPORTER.getImage("water1.png").getImage();
     private ImagePattern texturePatternWater0;
     private ImagePattern texturePatternWater1;
 
@@ -50,9 +52,9 @@ public class RenderThread
 
         for (int i=0; i<BACKGROUND_LAYER_COUNT; i++)
         {
-            String name = "/Image/MossyWoods-Background_"+i+".png";
+            String name = "MossyWoods-Background_"+i+".png";
             //Print.purple("Loading Image: ["+name +"]");
-            backgroundLayer[i] = new Image(name);
+            backgroundLayer[i] = IMPORTER.getImage(name).getImage();
         }
         backgroundLayerOffsetY[0] = 0;
         backgroundLayerOffsetY[1] = 20;
