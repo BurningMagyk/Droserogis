@@ -1,8 +1,8 @@
 # The Lie Made Flesh
 <br>
 <p>
-    <i>--This project is still in development--</i><br><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>The Lie Made Flesh</i> will be a 2D-platformer game with elements of fighting and RPG. 
+    <i>--This project has been abandoned for many years now--</i><br><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>The Lie Made Flesh</i> was going to be a 2D-platformer game with elements of fighting and RPG. 
     The game is an adaptation of a story of the same name.
 </p><br>
 
